@@ -33,3 +33,21 @@ These components are executed using different syntax and parameters. Please read
 ###### Graph Mining 
 On a spark Cluster Graph Mining code is run using :
 `[SPARK_HOME]/bin/spark-submit --verbose --jars "[PATH_TO_NOUS_JAR]" --master [SPARK_MASTER]  --class "gov.pnnl.aristotle.algorithms.GraphMiner" [PATH_TO_NOUS_JAR]  [BASE_TYPE] [MIN_SUPPORT] [TYPE_THRESHOLD] [MAX_ITERATIONS] [INPUT_FILE_PATH `
+
+
+Data
+====
+All data is in the data directory. The four data sets are described and credited below.
+
+Citeseer
+--------
+This data set contains a selection of the CiteSeer data set (http://citeseer.ist.psu.edu/).
+
+These papers are classified into one of the following six classes:
+
+	Agents
+	AI
+	DB
+	IR
+	ML
+	HCI
