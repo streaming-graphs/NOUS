@@ -31,7 +31,7 @@ NOUS includes various components such as Graph Mining, Graph Profiling, Graph Se
 These components are executed using different syntax and parameters. Please read individual component section to find it execution syntax.
 
 ###### Graph Mining 
-On a spark Cluster Graph Mining code is run using :
+On a spark Cluster Graph Mining code can be run using :
 `[SPARK_HOME]/bin/spark-submit --verbose --jars "[PATH_TO_NOUS_JAR]" --master [SPARK_MASTER]  --class "gov.pnnl.aristotle.algorithms.GraphMiner" [PATH_TO_NOUS_JAR]  [BASE_TYPE] [MIN_SUPPORT] [TYPE_THRESHOLD] [MAX_ITERATIONS] [INPUT_FILE_PATH `
 
 
