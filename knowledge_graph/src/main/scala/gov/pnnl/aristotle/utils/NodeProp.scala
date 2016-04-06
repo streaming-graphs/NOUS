@@ -9,22 +9,25 @@ import scala.collection.immutable.TreeSet
 //import scala.xml.XML
 //import gov.pnnl.fcsd.datasciences.graphBuilder.nlp.semanticParsers.SennaSemanticParser
 import scala.Array.canBuildFrom
-/*
-class LabelPair(eLabel: String, id: Long, dLabel: String){
-  var edgeLabel: String = eLabel
-  var dstId: Long = id
-  var dstLabel : String = dLabel
-}
 
-*/
+abstract class NbrData extends Serializable {
+} 
 
+class NbrDataWithEdgeAndNbrAttr[VD, ED](
+    val edgeAtttr : ED, 
+    val dstId: Long, 
+    val dstAttr: VD, 
+    val isOutgoing: Boolean = true) extends NbrData {}
 
+class NbrDataWithNbrAttr[VD](val dstId: Long, val dstAttr: VD)  extends NbrData {}
+
+class NbrDataId
 object NodeProp {
  
-  def getNodeType(id: Array[Long], g: Graph[String, String]) : VertexRDD[String] = {  
+  def getNodeType(g: Graph[String, String], id: Array[Long] = Array.empty) : VertexRDD[String] = {  
       return g.aggregateMessages[String]( edge => { 
-        if(id.contains(edge.srcId)){
-          if(edge.attr.toLowerCase() == kGraphProp.edgeLabelNodeType.toLowerCase())  
+        if(id.isEmpty|| id.contains(edge.srcId)){
+          if(edge.attr.toLowerCase() == KGraphProp.edgeLabelNodeType.toLowerCase())  
            edge.sendToSrc(edge.dstAttr)
           else
             edge.sendToSrc("")
@@ -33,30 +36,19 @@ object NodeProp {
         )
   }
   
-  def getNodeAlias(id: Array[Long], g: Graph[String, String]) : VertexRDD[String] = {  
+  def getNodeAlias(g: Graph[String, String], id: Array[Long] = Array.empty) : VertexRDD[String] = {  
       return g.aggregateMessages[String]( edge => { 
-        if(id.contains(edge.srcId)) {
-          for( aliasPredicate <- kGraphProp.edgeLabelNodeAlias) {
+        if(id.isEmpty || id.contains(edge.srcId)) {
+          for( aliasPredicate <- KGraphProp.edgeLabelNodeAlias) {
             if(aliasPredicate.toLowerCase() == edge.attr.toLowerCase())
-              edge.sendToSrc("label:"+ edge.dstAttr) 
+              edge.sendToSrc(edge.dstAttr) 
           }
         }       
       },
       (a, b) => a +";"+ b
       )
   }
-  
-    def getNodeAlias(g: Graph[String, String]) : VertexRDD[String] = {  
-      return g.aggregateMessages[String]( edge => { 
-        for( aliasPredicate <- kGraphProp.edgeLabelNodeAlias) {
-            if(aliasPredicate.toLowerCase() == edge.attr.toLowerCase())
-              edge.sendToSrc("label:"+ edge.dstAttr) 
-        }
-      },
-      (a, b) => a +";"+ b
-      )
-  }
-  
+
   // Given a list of vertex id in graph , get neighbour list that link to this node with a given relation
   // Do we need to define a filter on neighbours that can contribute to this count?
   //def getWikiLinks(id: Array[Long], relationLabel: String, validSrcNodesProperty: String, isOutgoing: Boolean, g: Graph[String, String] ): VertexRDD[Array[Long]] = 
@@ -180,8 +172,6 @@ object NodeProp {
     
     val nbrlist: VertexRDD[Set[(Long, String, String)]] =  g.aggregateMessages[Set[(Long, String, String)]](
         edge => {         
-          //edge.sendToSrc(Set((edge.dstId, edge.attr + "," + edge.dstAttr)))
-          //edge.sendToDst(Set((edge.srcId, edge.attr + "," + edge.srcAttr)))
           edge.sendToSrc(Set((edge.dstId, edge.dstAttr, edge.attr)))
           edge.sendToDst(Set((edge.srcId, edge.srcAttr, edge.attr)))
         }, 
@@ -206,13 +196,13 @@ object NodeProp {
     return nbrlist;
   } 
 
-  def getOneHopNbrIdsLabels( g: Graph[String, String], id: Array[Long], filterRelations:Set[String] = Set.empty) : VertexRDD[Set[(Long, String, String)]] = {
+  def getOneHopNbrIdsLabels( g: Graph[String, String], id: Array[Long], filterRelations:Set[String] = Set.empty) : VertexRDD[Set[(Long, String)]] = {
     
-    val nbrlist: VertexRDD[Set[(Long, String, String)]] =  g.aggregateMessages[Set[(Long, String, String)]](
+    val nbrlist: VertexRDD[Set[(Long, String)]] =  g.aggregateMessages[Set[(Long, String)]](
         edge => {         
           if((id.contains(edge.srcId) || id.contains(edge.dstId)) && !filterRelations.contains(edge.attr)) {
-            edge.sendToSrc(Set((edge.dstId, edge.dstAttr, edge.attr)))
-            edge.sendToDst(Set((edge.srcId, edge.srcAttr, edge.attr)))
+            edge.sendToSrc(Set((edge.dstId, edge.dstAttr)))
+            edge.sendToDst(Set((edge.srcId, edge.srcAttr)))
           }
         }, 
         (a,b) => a ++ b

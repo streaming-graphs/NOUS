@@ -1,4 +1,4 @@
-package gov.pnnl.aristotle.algorithms
+package gov.pnnl.aristotle.algorithms.mining
 
 import java.io.PrintWriter
 import org.apache.spark.SparkConf
@@ -7,16 +7,18 @@ import java.io.File
 import org.apache.spark.graphx.Graph
 import scalaz.Scalaz._
 import gov.pnnl.aristotle.algorithms.ReadHugeGraph
-import gov.pnnl.aristotle.algorithms.GraphPatternProfiler
 import gov.pnnl.aristotle.utils.Gen_Utils
 import org.apache.log4j.Logger
 import org.apache.log4j.Level
-import org.apache.spark.graphx.GraphOps
 import org.apache.spark.rdd.RDD
 import org.apache.spark.graphx.VertexId
 import org.apache.spark.graphx.Edge
 import org.apache.spark.rdd.RDD
-import gov.pnnl.aristotle.algorithms.BatchState
+import gov.pnnl.aristotle.algorithms.mining.datamodel.BatchState
+import gov.pnnl.aristotle.algorithms.mining.datamodel.WindowState
+import gov.pnnl.aristotle.algorithms.mining.datamodel.PatternInstance
+import gov.pnnl.aristotle.algorithms.mining.datamodel.PGNode
+import gov.pnnl.aristotle.algorithms.mining.datamodel.KGEdge
 
 object GraphFrequentPatternMining {
 

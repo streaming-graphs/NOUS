@@ -1,18 +1,18 @@
-package gov.pnnl.aristotle.algorithms
+package gov.pnnl.aristotle.algorithms.mining
 
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
 import org.apache.solr.client.solrj.impl.HttpSolrServer
 import org.apache.spark.graphx.Graph
-import scala.collection.mutable.HashMap
 import org.apache.spark.graphx.{VertexRDD,VertexId}
-import org.apache.spark.rdd.RDD
 import scalaz.Scalaz._
-import scala.collection.mutable.Set
 import java.io.PrintWriter
 import java.io.File
 import gov.pnnl.aristotle.aiminterface.NousProfileAnswerStreamRecord
 import collection.JavaConversions._
+import gov.pnnl.aristotle.algorithms.mining.datamodel.KGEdge
+import gov.pnnl.aristotle.algorithms.ReadHugeGraph
+import org.apache.spark.graphx.Graph.graphToGraphOps
 
 object GraphProfiling {
     //val TYPE= "IS-A";
@@ -450,35 +450,39 @@ def getTypedVertexRDD_Temporal(graph : Graph[String, KGEdge], writerSG : PrintWr
     type_predicate:String)
  :VertexRDD[Map[String, Map[String, Int]]] =
  {
-  
-  printf("type predicate is"+type_predicate)
-    
+
       var degrees: VertexRDD[Int] = graph.degrees
-    var degreeGraph : Graph[(String,Map[String,Int]), KGEdge]
-    = graph.outerJoinVertices(degrees) { (id, oldAttr, outDegOpt) =>
-  outDegOpt match {
-    case Some(deg) => {
-    	if(deg>degreeLimit)
-    	  (oldAttr, Map("degree"-> deg))
-    	else 
-    	  (oldAttr,Map())
+      degrees.collect.foreach(f=>writerSG.println("degree" + f.toString))
+      println("finding tpye")
+      println("type support is" + degreeLimit)
+      var degreeGraph: Graph[(String, Map[String, Int]), KGEdge] = graph.outerJoinVertices(degrees) { (id, oldAttr, outDegOpt) =>
+        outDegOpt match {
+          case Some(deg) => {
+            if(oldAttr.equals("pentagon"))
+              println("pentagon value is" + id + " and " + outDegOpt.toString())
+            if (deg >= degreeLimit)
+              (oldAttr, Map("degree" -> deg))
+            else
+              (oldAttr, Map())
+          }
+          case None => (oldAttr, Map()) // No outDegree means zero outDegree
+        }
       }
-    case None => (oldAttr,Map()) // No outDegree means zero outDegree
-  }
-  }
-return degreeGraph.aggregateMessages[Map[String, Map[String, Int]]](
-          edge => 
+
+      return degreeGraph.aggregateMessages[Map[String, Map[String, Int]]](
+        edge =>
           {
-            if(edge.srcAttr._2.contains("degree"))
-                edge.sendToSrc(Map("nodeType" -> Map(edge.srcAttr._1 -> 1)))
-            if (edge.attr.getlabel.equalsIgnoreCase(type_predicate))
-            {
-            	  edge.sendToSrc(Map("nodeType" -> Map(edge.dstAttr._1 -> 1)))
+            if (edge.srcAttr._2.contains("degree"))
+              edge.sendToSrc(Map("nodeType" -> Map(edge.srcAttr._1 -> 1)))
+            if (edge.dstAttr._2.contains("degree"))
+              edge.sendToDst(Map("nodeType" -> Map(edge.dstAttr._1 -> 1)))
+            if (edge.attr.getlabel.equalsIgnoreCase(type_predicate)) {
+              edge.sendToSrc(Map("nodeType" -> Map(edge.dstAttr._1 -> 1)))
             }
           },
-          (a, b) => { a |+| b })
-   
- }
+        (a, b) => { a |+| b })
+
+    }
  
 /**
  *  Returns a RDD where every vertex stores Map[String, Map[String, Int]].
@@ -489,85 +493,34 @@ def getTypedVertexRDD(graph : Graph[String, String], writerSG : PrintWriter,degr
     type_predicate:String)
  :VertexRDD[Map[String, Map[String, Int]]] =
  {
-  
-  printf("type predicate is"+type_predicate)
-    
+
+      printf("type predicate is" + type_predicate)
+
       var degrees: VertexRDD[Int] = graph.degrees
-    var degreeGraph : Graph[(String,Map[String,Int]), String]
-    = graph.outerJoinVertices(degrees) { (id, oldAttr, outDegOpt) =>
-  outDegOpt match {
-    case Some(deg) => {
-    	if(deg>degreeLimit)
-    	  (oldAttr, Map("degree"-> deg))
-    	else 
-    	  (oldAttr,Map())
+      var degreeGraph: Graph[(String, Map[String, Int]), String] = graph.outerJoinVertices(degrees) { (id, oldAttr, outDegOpt) =>
+        outDegOpt match {
+          case Some(deg) => {
+            if (deg > degreeLimit)
+              (oldAttr, Map("degree" -> deg))
+            else
+              (oldAttr, Map())
+          }
+          case None => (oldAttr, Map()) // No outDegree means zero outDegree
+        }
       }
-    case None => (oldAttr,Map()) // No outDegree means zero outDegree
-  }
-  }
-return degreeGraph.aggregateMessages[Map[String, Map[String, Int]]](
-          edge => 
+      return degreeGraph.aggregateMessages[Map[String, Map[String, Int]]](
+        edge =>
           {
-            if(edge.srcAttr._2.contains("degree"))
-                edge.sendToSrc(Map("nodeType" -> Map(edge.srcAttr._1 -> 1)))
-            if (edge.attr.equalsIgnoreCase(type_predicate))
-            {
-            	  edge.sendToSrc(Map("nodeType" -> Map(edge.dstAttr._1 -> 1)))
+            if (edge.srcAttr._2.contains("degree"))
+              edge.sendToSrc(Map("nodeType" -> Map(edge.srcAttr._1 -> 1)))
+            if (edge.attr.equalsIgnoreCase(type_predicate)) {
+              edge.sendToSrc(Map("nodeType" -> Map(edge.dstAttr._1 -> 1)))
             }
           },
-          (a, b) => { a |+| b })
-   
- }
+        (a, b) => { a |+| b })
+
+    }
  
-// def getNonTypedVertexRDD(typedAugmentedGraph : 
-//     Graph[(String, Map[String, Map[String, Int]]), String] )
-// :VertexRDD[Map[String, Map[String, Int]]] =
-// {
-//   return typedAugmentedGraph.aggregateMessages[Map[String, Map[String, Int]]](
-//      edge => {
-//
-//        if (edge.attr.equalsIgnoreCase(TYPE) == false) {
-//            edge.sendToSrc(Map("OutboundPredicate" -> Map(edge.attr -> 1)))
-//            
-//            edge.sendToSrc(Map("OutboundPredicateInstance" -> 
-//            		Map(edge.attr + "\t" + edge.dstAttr._1 -> 1)))
-//            
-//            	edge.sendToDst(Map("InboundPredicate" -> Map(edge.attr -> 1)))
-//            
-//            	edge.sendToDst(Map("InboundPredicateInstance" -> 
-//            		Map(edge.attr + "\t" + edge.srcAttr._1 -> 1)))
-//            
-//            	if (edge.dstAttr._2.contains("nodeType"))
-//            	{
-//              edge.sendToSrc(Map("OutboundObjType" -> 
-//              	edge.dstAttr._2.getOrElse("nodeType", Map("unknownOOT" -> 1))))
-//              edge.sendToSrc(Map(edge.attr + ":OutboundEdgeTypeObjType" ->
-//                edge.dstAttr._2.getOrElse("nodeType", Map("unknownOOT" -> 1))))
-//              edge.dstAttr._2.getOrElse("nodeType", Map("unknownOOT" -> 1)).foreach(nodecat =>
-//                edge.sendToSrc(Map("OutboundPredicateObjType" -> 
-//              	Map(edge.attr + "\t" + nodecat._1 -> 1))))
-//              
-//            }
-//            
-//            if (edge.srcAttr._2.contains("nodeType")) {
-//              edge.sendToDst(Map("InboundObjType" -> 
-//              	edge.srcAttr._2.getOrElse("nodeType", Map("unknownIOT" -> 1))))
-//              
-//              edge.sendToDst(Map(edge.attr + ":InboundObjType" -> 
-//              	edge.srcAttr._2.getOrElse("nodeType", Map("unknownIOT" -> 1))))
-//              	
-//              edge.srcAttr._2.getOrElse("nodeType", Map("unknownOOT" -> 1)).foreach(nodecat =>
-//                edge.sendToDst(Map("InboundPredicateObjType" -> 
-//              	Map(edge.attr + "\t" + nodecat._1 -> 1))))
-//
-//            }
-//          }
-//
-//      },
-//      (a, b) => {
-//        a |+| b
-//      })
-// }
  
  def getAugmentedGraphFromAllRDD(typedAugmentedGraph : Graph[(String, Map[String, Map[String, Int]]), String]
 , nonTypedVertexRDD:VertexRDD[Map[String, Map[String, Int]]] )
@@ -581,54 +534,5 @@ return degreeGraph.aggregateMessages[Map[String, Map[String, Int]]](
     }
  }
  
-// def getAugmentedGraph(graph : Graph[String, String], writerSG : PrintWriter ) 
-// : Graph[(String, Map[String, Map[String, Int]]), String]=  {
-//    
-//   //Get all the rdf:type  node information on the source node
-//    val typedVertexRDD = 
-//      getTypedVertexRDD(graph, writerSG)
-//    
-//    // Now we have the type information applied
-//    val typedAugmentedGraph = 
-//      getTypedAugmentedGraph(graph,writerSG,typedVertexRDD)
-//    
-//    //create another VertexRDD to get rdf:type info from destination node.
-//    val nonTypedVertexRDD = 
-//      getNonTypedVertexRDD(typedAugmentedGraph)
-//     
-//    return getAugmentedGraphFromAllRDD(typedAugmentedGraph, nonTypedVertexRDD)  
-// } 
- 
-// 
-// def getAugmentedTypeMap(graph : Graph[String, String], writerSG : PrintWriter )  
-//  : (Map[String, List[(VertexId,(String, Map[String, Map[String, Int]]))]],
-//      Map[String, List[(VertexId,(String, Map[String, Map[String, Int]]))]]) =  {
-//
-//    val augmentedGraph = 
-//      getAugmentedGraph(graph, writerSG)
-//    val typemap = augmentedGraph.vertices.filter(v => (v._2._2.contains("nodeType"))).collect.map(n => {
-//      n._2._2.getOrElse("nodeType", Map()).map(eachtype => {
-//        Map(eachtype._1 -> List(n))
-//      }).reduce((a, b) => a |+| b) // if no reduce then get a list
-//    }).reduce((a, b) => a |+| b) //in no reduce then get a Map
-//    //if both then get a tupple (wikicategory_Islands_of_Tuscany .,(566867954,(Scoglio_d'Africa,Map(nodeType -> Map(wikicategory_Islands_of_Tuscany . -> 1)))))
-//    //typemap.foreach(f => writerSG.println(f))
-//    //http://www.nimrodstech.com/scala-map-merge/
-//    /*
-//    * Sample Output
-//    * (wikicategory_Bengali_people,List((-1618071912,(Abhishek_Bachchan,Map(InboundObjType -> Map(wikicategory_Bengali_people -> 1), InboundPredicate -> Map(worksWith -> 1), nodeType -> Map(wikicategory_Bengali_people -> 1)))), (980370874,(Swami_Vivekananda,Map(nodeType -> Map(wikicategory_Hindu_missionaries -> 1, wikicategory_People_from_Kolkata -> 1, wikicategory_Bengali_people -> 1)))), (973968644,(Kishore_Kumar,Map(nodeType -> Map(wikicategory_Bengali_people -> 1)))), (232468444,(Amartya_Sen,Map(nodeType -> Map(wikicategory_Bengali_people -> 1)))), (403021467,(A._C._Bhaktivedanta_Swami_Prabhupada,Map(nodeType -> Map(wikicategory_Bengali_people -> 1)))), (72259217,(Kajol,Map(OutboundObjType -> Map(wikicategory_Sicilian_Wars -> 1, wikicategory_Bengali_people -> 1), OutboundPredicate -> Map(participatedIn -> 1, worksWith -> 1, worksAt -> 1), nodeType -> Map(wikicategory_Bengali_people -> 1)))), (-1995298259,(Sarojini_Naidu,Map(nodeType -> Map(wikicategory_Bengali_people -> 1))))))
-//(wikicategory_Paralympic_rowers_of_Australia,List((882336793,(Dominic_Monypenny,Map(nodeType -> Map(wikicategory_Paralympic_rowers_of_Australia -> 1, wikicategory_Rowers_at_the_2008_Summer_Paralympics -> 1, wikicategory_Cross-country_skiers_at_the_2010_Winter_Paralympics -> 1, wikicategory_Living_people -> 1))))))
-//(wikicategory_Australian_architecture_writers,List((619092367,(Patrick_Bingham-Hall,Map(nodeType -> Map(wikicategory_Architectural_photographers -> 1, wordnet_person_100007846 -> 1, wikicategory_Living_people -> 1, wikicategory_Australian_architecture_writers -> 1))))))
-//    * 
-//    */
-//    //Get Predicate Map
-//    val predicatemap = augmentedGraph.vertices.filter(v => (v._2._2.contains("nodeType"))).collect.map(n => {
-//      n._2._2.getOrElse("OutboundPredicate", Map("unknownPredicate"->1)).map(eachtype => {
-//        Map(eachtype._1 -> List(n))
-//      }).reduce((a, b) => a |+| b) // if no reduce then get a list
-//    }).reduce((a, b) => a |+| b) //in no reduce then get a Map
-//    
-//    
-//    return (typemap,predicatemap)
-//  }
+
 }

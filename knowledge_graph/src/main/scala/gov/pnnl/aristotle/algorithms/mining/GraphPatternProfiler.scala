@@ -1,26 +1,31 @@
-package gov.pnnl.aristotle.algorithms
+package gov.pnnl.aristotle.algorithms.mining
 
 import org.apache.spark.graphx.Graph
 import java.io.PrintWriter
 import org.apache.spark.graphx.VertexRDD
 import org.apache.spark.graphx.VertexId
 import scalaz.Scalaz._
-import gov.pnnl.aristotle.algorithms.GraphProfiling
+import gov.pnnl.aristotle.algorithms.mining.GraphProfiling
 import org.apache.spark.SparkContext
 import org.apache.spark.graphx.EdgeContext
 import scala.Array.canBuildFrom
-import org.apache.spark.graphx.EdgeRDD
 import org.apache.spark.graphx.Edge
 import org.apache.spark.rdd.RDD
 import java.io.File
 import java.lang.Boolean
-import org.apache.spark.storage.StorageLevel
 import org.apache.spark.SparkContext._
 import scala.util.control.Breaks._
 import java.util.regex.Pattern
-import scala.collection.mutable.Stack
-import akka.dispatch.Foreach
-import scalaz.std.iterable
+import org.apache.commons.math3.util.ArithmeticUtils
+import gov.pnnl.aristotle.algorithms.mining.datamodel.BatchState
+import gov.pnnl.aristotle.algorithms.mining.datamodel.KGEdge
+import gov.pnnl.aristotle.algorithms.mining.datamodel.KGNodeV1
+import gov.pnnl.aristotle.algorithms.mining.datamodel.KGNodeV2
+import gov.pnnl.aristotle.algorithms.mining.datamodel.PGNode
+import gov.pnnl.aristotle.algorithms.mining.datamodel.PatternInstance
+import gov.pnnl.aristotle.algorithms.mining.datamodel.WindowState
+import gov.pnnl.aristotle.algorithms.mining.GraphProfiling
+import gov.pnnl.aristotle.algorithms.mining.datamodel.KGNodeV2Flat
 
 object GraphPatternProfiler {
 
@@ -31,9 +36,9 @@ object GraphPatternProfiler {
   //var SUPPORT = 220; // usual definition of support 
   var TYPE_THRESHOLD = 5000; // translating degree to a type
 
-  def fixGraph(graph: Graph[KGNode, KGEdge]): Graph[KGNode, KGEdge] =
+  def fixGraph(graph: Graph[KGNodeV1, KGEdge]): Graph[KGNodeV1, KGEdge] =
     {
-      val newGraph: Graph[KGNode, KGEdge] = graph.mapVertices((id, attr) => {
+      val newGraph: Graph[KGNodeV1, KGEdge] = graph.mapVertices((id, attr) => {
         var joinedPattern: Map[String, Set[PatternInstance]] = Map.empty
         val vertex_pattern_map = attr.getpattern_map
         //            val vertext_label = edge.srcAttr._1
@@ -47,13 +52,62 @@ object GraphPatternProfiler {
               joinedPattern = joinedPattern + ((vertext_pattern._1 ->
                 vertext_pattern._2))
           })
-        new KGNode(attr.getlabel, joinedPattern)
+        new KGNodeV1(attr.getlabel, joinedPattern)
         //}
 
       })
       return newGraph
     }
 
+    def fixGraphV2(graph: Graph[KGNodeV2, KGEdge]):
+    Graph[KGNodeV2, KGEdge] =
+    {
+      val newGraph: Graph[KGNodeV2, KGEdge] = graph.mapVertices((id, attr) => {
+        var joinedPattern: Map[String, Long] = Map.empty
+        val vertex_pattern_map = attr.getpattern_map
+        //            val vertext_label = edge.srcAttr._1
+        //if (vertex_pattern_map.size > 0) {
+        vertex_pattern_map.map(vertext_pattern =>
+          {
+            if (vertext_pattern._1.contains('|'))
+              joinedPattern = joinedPattern + ((vertext_pattern._1.
+                replaceAll("\\|", "\t") -> vertext_pattern._2))
+            else
+              joinedPattern = joinedPattern + ((vertext_pattern._1 ->
+                vertext_pattern._2))
+          })
+        new KGNodeV2(attr.getlabel, joinedPattern,List.empty)
+        //}
+
+      })
+      return newGraph
+    }
+
+      def fixGraphV2Flat(graph: Graph[KGNodeV2Flat, KGEdge]):
+    Graph[KGNodeV2Flat, KGEdge] =
+    {
+      val newGraph: Graph[KGNodeV2Flat, KGEdge] = graph.mapVertices((id, attr) => {
+        var joinedPattern: Map[String, Long] = Map.empty
+        val vertex_pattern_map = attr.getpattern_map
+        //            val vertext_label = edge.srcAttr._1
+        //if (vertex_pattern_map.size > 0) {
+        vertex_pattern_map.map(vertext_pattern =>
+          {
+            if (vertext_pattern._1.contains('|'))
+              joinedPattern = joinedPattern + ((vertext_pattern._1.
+                replaceAll("\\|", "\t") -> vertext_pattern._2))
+            else
+              joinedPattern = joinedPattern + ((vertext_pattern._1 ->
+                vertext_pattern._2))
+          })
+        new KGNodeV2Flat(attr.getlabel, joinedPattern,List.empty)
+        //}
+
+      })
+      return newGraph
+    }
+
+  
   def getListOfPattern(graph: Graph[(String, Map[String, Set[Int]]), String]) =
     {
       val subgraph_index_updated = graph.aggregateMessages[Map[String, Int]](
@@ -225,17 +279,17 @@ object GraphPatternProfiler {
       var input_v_size = batch_state.getinputgraph.vertices.count
       var input_e_size = batch_state.getinputgraph.edges.count
       var result = (subgraph_index, dependency_graph)
-      var frequent_instance: Int = 0
-      var frequent_instances: Int = 0
-      var redundant_instances: Int = 0
-      var closed_instances = 0
-      var promising_instances = 0
+      var frequent_instance: Long = 0
+      var frequent_instances: Long = 0
+      var redundant_instances: Long = 0
+      var closed_instances : Long = 0
+      var promising_instances : Long = 0
 
       /*
      * Get base pattern graph
     */
       var t0 = System.nanoTime();
-      val oneEdgePatternGraph: Graph[KGNode, KGEdge] =
+      val oneEdgePatternGraph: Graph[KGNodeV1, KGEdge] =
         getBasePatternGraph(batch_state.getinputgraph,
           writerSG, pattern_results._2, SUPPORT)
       batch_state.getinputgraph.unpersist(true)
@@ -428,7 +482,7 @@ object GraphPatternProfiler {
         pattern_results._2, pattern_results._3, pattern_trend)
     }
 
-  def printPattern(graph: Graph[KGNode, KGEdge],
+  def printPattern(graph: Graph[KGNodeV1, KGEdge],
     writerSG: PrintWriter, id: Int) {
     val tmpRDD = get_Pattern_RDD(graph)
     tmpRDD.collect.foreach(f => writerSG.println(id + " " + f.toString))
@@ -439,28 +493,83 @@ object GraphPatternProfiler {
    * get_pattern method collects all the pattern and their support across the graph
    * and return only the frequent patterns.
    */
-  def get_pattern(graph: Graph[KGNode, KGEdge],
+  def get_pattern(graph: Graph[KGNodeV1, KGEdge],
     writerSG: PrintWriter, id: Int, SUPPORT: Int): RDD[(String, Int)] =
     {
       val tmpRDD = get_Pattern_RDD(graph)
       println("Total Instances Found" + tmpRDD.map(f => f._2).reduce((a, b) => a + b))
-      tmpRDD.collect.foreach(f => writerSG.println("patterrdd" + f.toString))
+      tmpRDD.collect.foreach(f => writerSG.println("All:\t"  +f._1 + "\t" + f._2))
 
       val frq_tmpRDD = tmpRDD.filter(f => f._2 > SUPPORT)
       println("number of patterns " + tmpRDD.filter(f => f._2 > SUPPORT).count)
 
-      frq_tmpRDD.collect.foreach(f => writerSG.println("frequent patterrdd" + f.toString))
+      frq_tmpRDD.collect.foreach(f => writerSG.println("Frq:\t" +f._1 + "\t" + f._2))
       writerSG.flush()
       return frq_tmpRDD
 
     }
 
+    /**
+   * get_sorted_pattern method collects all the pattern and their support across the graph
+   * and return only the frequent patterns.
+   */
+  def get_sorted_pattern(graph: Graph[KGNodeV1, KGEdge],
+    writerSG: PrintWriter, id: Int, SUPPORT: Int): RDD[(String, Int)] =
+    {
+      val tmpRDD_non_sorted = get_Pattern_RDD(graph)
+      val tmpRDD = tmpRDD_non_sorted.sortBy(f => f._2)
+      println("Total Instances Found" + tmpRDD.map(f => f._2).reduce((a, b) => a + b))
+      tmpRDD.collect.foreach(f => writerSG.println("All:\t"  +f._1 + "\t" + f._2))
+
+      val frq_tmpRDD = tmpRDD.filter(f => f._2 > SUPPORT)
+      println("number of patterns " + tmpRDD.filter(f => f._2 > SUPPORT).count)
+
+      frq_tmpRDD.collect.foreach(f => writerSG.println("Frq:\t" +f._1 + "\t" + f._2))
+      writerSG.flush()
+      return frq_tmpRDD
+
+    }
+
+    def get_sorted_patternV2(graph: Graph[KGNodeV2, KGEdge],
+    writerSG: PrintWriter, id: Int, SUPPORT: Int): RDD[(String, Long)] =
+    {
+      val tmpRDD_non_sorted = get_Pattern_RDDV2(graph)
+      val tmpRDD = tmpRDD_non_sorted.sortBy(f => f._2)
+      //println("Total Instances Found" + tmpRDD.map(f => f._2).reduce((a, b) => a + b))
+      tmpRDD.collect.foreach(f => writerSG.println("All:\t"  +f._1 + "\t" + f._2))
+
+      val frq_tmpRDD = tmpRDD.filter(f => f._2 > SUPPORT)
+      println("number of patterns " + tmpRDD.filter(f => f._2 > SUPPORT).count)
+
+      frq_tmpRDD.collect.foreach(f => writerSG.println("Frq:\t" +f._1 + "\t" + f._2))
+      writerSG.flush()
+      return frq_tmpRDD
+
+    }
+  
+        def get_sorted_patternV2Flat(graph: Graph[KGNodeV2Flat, KGEdge],
+    writerSG: PrintWriter, id: Int, SUPPORT: Int): RDD[(String, Long)] =
+    {
+      val tmpRDD_non_sorted = get_Pattern_RDDV2Flat(graph)
+      val tmpRDD = tmpRDD_non_sorted.sortBy(f => f._2)
+      //println("Total Instances Found" + tmpRDD.map(f => f._2).reduce((a, b) => a + b))
+      tmpRDD.collect.foreach(f => writerSG.println("All:\t"  +f._1 + "\t" + f._2))
+
+      val frq_tmpRDD = tmpRDD.filter(f => f._2 > SUPPORT)
+      println("number of patterns " + tmpRDD.filter(f => f._2 > SUPPORT).count)
+
+      frq_tmpRDD.collect.foreach(f => writerSG.println("Frq:\t" +f._1 + "\t" + f._2))
+      writerSG.flush()
+      return frq_tmpRDD
+
+    }
+    
  /**
  * Auxiliary method called by get_pattern method to collect all the pattern and 
  * their support across the graph and return only the frequent patterns.
  */
 
-  def get_Pattern_RDD(graph: Graph[KGNode, KGEdge]) : RDD[(String,Int)] =
+  def get_Pattern_RDD(graph: Graph[KGNodeV1, KGEdge]) : RDD[(String,Int)] =
   {
     /*
      *  collect all the pattern at each node
@@ -490,12 +599,73 @@ object GraphPatternProfiler {
       return new_dependency_graph_vertices_RDD.reduceByKey((a, b) => a + b)
     }
   
+    def get_Pattern_RDDV2(graph: Graph[KGNodeV2, KGEdge]) 
+    : RDD[(String,Long)] =
+  {
+    /*
+     *  collect all the pattern at each node
+     */  
+    val patternRDD =
+        graph.aggregateMessages[Set[(String, Long)]](
+          edge => {
+            if (edge.attr.getlabel.equalsIgnoreCase(TYPE) == false)
+              if ((edge.srcAttr != null) && (edge.srcAttr.getpattern_map != null))
+                edge.srcAttr.getpattern_map.foreach(pattern =>
+                  edge.sendToSrc(Set((pattern._1, pattern._2))))
+          }, (pattern1OnNodeN, pattern2OnNodeN) => {
+            pattern1OnNodeN |+| pattern2OnNodeN
+          })
+      println("patternRDD size is " + patternRDD.count)
+
+      /*
+       * Collects all the patterns across the graph
+       */
+      val new_dependency_graph_vertices_RDD: RDD[(String, Long)] =
+        patternRDD.flatMap(vertex => vertex._2.map(entry =>
+          (entry._1.replaceAll("\\|", "\t"), entry._2)))
+
+      /*
+       * Returns the RDD with each pattern-key and its support
+       */
+      return new_dependency_graph_vertices_RDD.reduceByKey((a, b) => a + b)
+    }
   
+        def get_Pattern_RDDV2Flat(graph: Graph[KGNodeV2Flat, KGEdge]) 
+    : RDD[(String,Long)] =
+  {
+    /*
+     *  collect all the pattern at each node
+     */  
+    val patternRDD =
+        graph.aggregateMessages[Set[(String, Long)]](
+          edge => {
+            if (edge.attr.getlabel.equalsIgnoreCase(TYPE) == false)
+              if ((edge.srcAttr != null) && (edge.srcAttr.getpattern_map != null))
+                edge.srcAttr.getpattern_map.foreach(pattern =>
+                  edge.sendToSrc(Set((pattern._1, pattern._2))))
+          }, (pattern1OnNodeN, pattern2OnNodeN) => {
+            pattern1OnNodeN |+| pattern2OnNodeN
+          })
+      println("patternRDD size is " + patternRDD.count)
+
+      /*
+       * Collects all the patterns across the graph
+       */
+      val new_dependency_graph_vertices_RDD: RDD[(String, Long)] =
+        patternRDD.flatMap(vertex => vertex._2.map(entry =>
+          (entry._1.replaceAll("\\|", "\t"), entry._2)))
+
+      /*
+       * Returns the RDD with each pattern-key and its support
+       */
+      return new_dependency_graph_vertices_RDD.reduceByKey((a, b) => a + b)
+    }
+    
   /*
    * This Method update global data structure keeping track of Window state
    * 
    */
-  def updateFSMap(graph: Graph[KGNode, KGEdge],
+  def updateFSMap(graph: Graph[KGNodeV1, KGEdge],
     sc: SparkContext,
     subgraph_index: RDD[(String, scala.collection.immutable.Set[PatternInstance])],
     dependency_graph: Graph[PGNode, Int]): (RDD[(String, Set[PatternInstance])], Graph[PGNode, Int]) =
@@ -600,9 +770,9 @@ object GraphPatternProfiler {
         updated_dependency_graph)
     }
 
-  def edge_Pattern_Join_Graph(newGraph: Graph[KGNode, KGEdge],
+  def edge_Pattern_Join_Graph(newGraph: Graph[KGNodeV1, KGEdge],
     result: Graph[PGNode, Int],
-    writerSG: PrintWriter, SUPPORT: Int): Graph[KGNode, KGEdge] = {
+    writerSG: PrintWriter, SUPPORT: Int): Graph[KGNodeV1, KGEdge] = {
 
     var t0 = System.currentTimeMillis();
     val nPlusOneThPatternVertexRDD =
@@ -623,8 +793,8 @@ object GraphPatternProfiler {
     return nPlusOneThPatternGraph
   }
 
-  def self_Pattern_Join_Graph(updateGraph_withsink: Graph[KGNode, KGEdge],
-    join_size: Int): Graph[KGNode, KGEdge] = {
+  def self_Pattern_Join_Graph(updateGraph_withsink: Graph[KGNodeV1, KGEdge],
+    join_size: Int): Graph[KGNodeV1, KGEdge] = {
     val newGraph = updateGraph_withsink.mapVertices((id, attr) => {
 
       /*
@@ -673,13 +843,94 @@ object GraphPatternProfiler {
           var t1 = System.currentTimeMillis()
         }
       }
-      new KGNode(attr.getlabel, joinedPattern |+| attr.getpattern_map)
+      new KGNodeV1(attr.getlabel, joinedPattern |+| attr.getpattern_map)
 
     })
 
     return newGraph
   }
 
+def self_Pattern_Join_GraphV2(updateGraph_withsink: Graph[KGNodeV2, KGEdge],
+    join_size: Int): Graph[KGNodeV2, KGEdge] = {
+    val newGraph = updateGraph_withsink.mapVertices((id, attr) => {
+
+      /*
+       * Initialize some local objects
+       */
+      var selfJoinPatternstmp: List[(String, Long)] = List.empty
+      var joinedPattern: Map[String, Long] = Map.empty
+
+      /*
+       * Create a list of the pattern. List provides an ordering of the pattern
+       */
+      attr.getpattern_map.foreach(sr1 =>
+        {
+          selfJoinPatternstmp = selfJoinPatternstmp ++ List(sr1);
+        })
+      val selfJoinPatterns = selfJoinPatternstmp
+
+      /*
+       * For each pattern-instance of each pattern at both the source and 
+       * destination, iterate over them and join them if they are disjointed 
+       * instances.
+       */
+
+      for (i <- 0 until selfJoinPatterns.length) {
+        for (j <- i until selfJoinPatterns.length) {
+          var t0 = System.currentTimeMillis()
+          joinedPattern = joinedPattern +  (selfJoinPatterns(j)._1 + "|" +
+        selfJoinPatterns(i)._1 -> (selfJoinPatterns(j)._2 * selfJoinPatterns(i)._2))
+        var t1 = System.currentTimeMillis()
+        }
+      }
+      new KGNodeV2(attr.getlabel, joinedPattern |+| attr.getpattern_map,List.empty)
+
+    })
+
+    return newGraph
+  }
+  
+    
+        def self_Pattern_Join_GraphV2Flat(updateGraph_withsink: Graph[KGNodeV2Flat, KGEdge],
+    join_size: Int): Graph[KGNodeV2Flat, KGEdge] = {
+    val newGraph = updateGraph_withsink.mapVertices((id, attr) => {
+
+      /*
+       * Initialize some local objects
+       */
+      var selfJoinPatternstmp: List[(String, Long)] = List.empty
+      var joinedPattern: Map[String, Long] = Map.empty
+
+      /*
+       * Create a list of the pattern. List provides an ordering of the pattern
+       */
+      attr.getpattern_map.foreach(sr1 =>
+        {
+          selfJoinPatternstmp = selfJoinPatternstmp ++ List(sr1);
+        })
+      val selfJoinPatterns = selfJoinPatternstmp
+
+      /*
+       * For each pattern-instance of each pattern at both the source and 
+       * destination, iterate over them and join them if they are disjointed 
+       * instances.
+       */
+
+      for (i <- 0 until selfJoinPatterns.length) {
+        for (j <- i until selfJoinPatterns.length) {
+          var t0 = System.currentTimeMillis()
+          joinedPattern = joinedPattern +  (selfJoinPatterns(j)._1 + "|" +
+        selfJoinPatterns(i)._1 -> (selfJoinPatterns(j)._2 * selfJoinPatterns(i)._2))
+        var t1 = System.currentTimeMillis()
+        }
+      }
+      new KGNodeV2Flat(attr.getlabel, joinedPattern |+| attr.getpattern_map,List.empty)
+
+    })
+
+    return newGraph
+  }
+    
   def appendPattern(src_instance: PatternInstance, dst_instance: PatternInstance,
     srcPatternKey: String, dstPatternKey: String): (String, Set[PatternInstance]) =
     {
@@ -695,13 +946,23 @@ object GraphPatternProfiler {
 
     }
 
-  def getSinkPatternOnNode(attr: KGNode): Iterable[String] =
+  def getSinkPatternOnNode(attr: KGNodeV1): Iterable[String] =
     {
       return attr.getpattern_map.filter(p => (p._2.size == 0)).map(f => f._1)
     }
 
-  def self_Instance_Join_Graph(updateGraph_withsink: Graph[KGNode, KGEdge],
-    join_size: Int): Graph[KGNode, KGEdge] = {
+    def getSinkPatternOnNodeV2Flat(attr: KGNodeV2Flat): Iterable[String] =
+    {
+      return attr.getpattern_map.filter(p => (p._2 == 0)).map(f => f._1)
+    }
+    
+        def getSinkPatternOnNodeV2(attr: KGNodeV2): Iterable[String] =
+    {
+      return attr.getpattern_map.filter(p => (p._2 == 0)).map(f => f._1)
+    }
+        
+  def self_Instance_Join_Graph(updateGraph_withsink: Graph[KGNodeV1, KGEdge],
+    join_size: Int): Graph[KGNodeV1, KGEdge] = {
     val g1 = updateGraph_withsink.mapVertices((id, attr) => {
       var joinedPattern: Map[String, Set[PatternInstance]] = Map.empty
       var all_instance: Set[PatternInstance] = Set.empty
@@ -744,14 +1005,122 @@ object GraphPatternProfiler {
         }
 
       })
-      new KGNode(attr.getlabel, joinedPattern |+| attr.getpattern_map)
+      new KGNodeV1(attr.getlabel, joinedPattern |+| attr.getpattern_map)
     })
     return g1;
   }
 
-  def getAugmentedGraphNextSize(nThPatternGraph: Graph[KGNode, KGEdge],
+    def self_Instance_Join_GraphV2Flat(updateGraph_withsink: Graph[KGNodeV2Flat, KGEdge],
+    join_size: Int): Graph[KGNodeV2Flat, KGEdge] = {
+    val g1 = updateGraph_withsink.mapVertices((id, attr) => {
+      var joinedPattern: Map[String, Long] = Map.empty
+      var all_instance: Long = 0
+
+      //join all sink patterns
+      val allsink_patterns = getSinkPatternOnNodeV2Flat(attr)
+      if (allsink_patterns.size > 0) {
+        val empty_key_power_set: Set[String] = allsink_patterns.toSet
+        val powe = empty_key_power_set.subsets(join_size)
+        powe.foreach(f =>
+          {
+            var key: String = ""
+            var i = -2;
+            val set_size = f.size
+            f.foreach(a_pattern_label => { key = key + "\t" + a_pattern_label })
+            key = key.trim()
+            joinedPattern = joinedPattern + (key -> 0)
+          })
+
+      }
+
+      /*
+      * Join non-sink nodes
+      */
+      attr.getpattern_map.filter(sr=>(sr._2 > 0) && (sr._2 < 20)).foreach(sr => {
+        all_instance = sr._2
+        
+        //println("all" + all_instance)
+        //TODO : all_instance is long but helper function needs an int....will generate wrong 
+        // result
+        if(all_instance - join_size > 0)
+        {
+        	        val numerof_new_instances = ArithmeticUtils.factorial(all_instance.toInt) / (
+            ArithmeticUtils.factorial(join_size) * ArithmeticUtils.factorial(
+                (all_instance.toInt - join_size)))
+	        var key: String = sr._1;
+	      var i = -2;
+	      for (i <- 1 to join_size) {
+	       key = key + "|" + sr._1
+	      }
+	      joinedPattern = joinedPattern + ((key -> numerof_new_instances.toInt))
+
+        }
+
+
+      })
+      new KGNodeV2Flat(attr.getlabel, joinedPattern |+| attr.getpattern_map,List.empty)
+    })
+    return g1;
+  }
+  
+   
+    
+ def self_Instance_Join_GraphV2(updateGraph_withsink: Graph[KGNodeV2, KGEdge],
+    join_size: Int): Graph[KGNodeV2, KGEdge] = {
+    val g1 = updateGraph_withsink.mapVertices((id, attr) => {
+      var joinedPattern: Map[String, Long] = Map.empty
+      var all_instance: Long = 0
+
+      //join all sink patterns
+      val allsink_patterns = getSinkPatternOnNodeV2(attr)
+      if (allsink_patterns.size > 0) {
+        val empty_key_power_set: Set[String] = allsink_patterns.toSet
+        val powe = empty_key_power_set.subsets(join_size)
+        powe.foreach(f =>
+          {
+            var key: String = ""
+            var i = -2;
+            val set_size = f.size
+            f.foreach(a_pattern_label => { key = key + "\t" + a_pattern_label })
+            key = key.trim()
+            joinedPattern = joinedPattern + (key -> 0)
+          })
+
+      }
+
+      /*
+      * Join non-sink nodes
+      */
+      attr.getpattern_map.filter(sr=>(sr._2 > 0) && (sr._2 < 20)).foreach(sr => {
+        all_instance = sr._2
+        
+        //println("all" + all_instance)
+        //TODO : all_instance is long but helper function needs an int....will generate wrong 
+        // result
+        if(all_instance - join_size > 0)
+        {
+        	        val numerof_new_instances = ArithmeticUtils.factorial(all_instance.toInt) / (
+            ArithmeticUtils.factorial(join_size) * ArithmeticUtils.factorial(
+                (all_instance.toInt - join_size)))
+	        var key: String = sr._1;
+	      var i = -2;
+	      for (i <- 1 to join_size) {
+	       key = key + "|" + sr._1
+	      }
+	      joinedPattern = joinedPattern + ((key -> numerof_new_instances.toInt))
+
+        }
+
+
+      })
+      new KGNodeV2(attr.getlabel, joinedPattern |+| attr.getpattern_map,List.empty)
+    })
+    return g1;
+  }
+    
+  def getAugmentedGraphNextSize(nThPatternGraph: Graph[KGNodeV1, KGEdge],
     result: Graph[PGNode, Int], writerSG: PrintWriter,
-    iteration_id: Int, SUPPORT: Int): Graph[KGNode, KGEdge] =
+    iteration_id: Int, SUPPORT: Int): Graph[KGNodeV1, KGEdge] =
     {
 
       var t0 = System.currentTimeMillis();
@@ -798,16 +1167,16 @@ object GraphPatternProfiler {
       return nPlusOneThPatternGraph
     }
 
-  def joinPatternGraph(nThPatternGraph: Graph[KGNode, KGEdge],
+  def joinPatternGraph(nThPatternGraph: Graph[KGNodeV1, KGEdge],
     nPlusOneThPatternVertexRDD: VertexRDD[Map[String, Set[PatternInstance]]],
-    result: Graph[PGNode, Int], SUPPORT: Int): Graph[KGNode, KGEdge] =
+    result: Graph[PGNode, Int], SUPPORT: Int): Graph[KGNodeV1, KGEdge] =
     {
       val update_tmp_graph =
         nThPatternGraph.outerJoinVertices(nPlusOneThPatternVertexRDD) {
           case (id, a_kgnode, Some(nbr)) =>
-            new KGNode(a_kgnode.getlabel, a_kgnode.getpattern_map |+| nbr)
+            new KGNodeV1(a_kgnode.getlabel, a_kgnode.getpattern_map |+| nbr)
           case (id, a_kgnode, None) =>
-            new KGNode(a_kgnode.getlabel, a_kgnode.getpattern_map)
+            new KGNodeV1(a_kgnode.getlabel, a_kgnode.getpattern_map)
         }
       return get_Frequent_Subgraph(update_tmp_graph, result, SUPPORT);
       //return update_tmp_graph
@@ -860,7 +1229,7 @@ object GraphPatternProfiler {
    */
   def sendPattern(pattern1: String, pattern2: String,
     instance1Dst: PatternInstance, instance2Dst: PatternInstance,
-    edge: EdgeContext[KGNode, KGEdge, Map[String, Set[PatternInstance]]]) {
+    edge: EdgeContext[KGNodeV1, KGEdge, Map[String, Set[PatternInstance]]]) {
 
     var bigger_instance: scala.collection.immutable.Set[(Int, Int)] = Set.empty
     instance1Dst.get_instacne.foreach(edge =>
@@ -872,6 +1241,22 @@ object GraphPatternProfiler {
     edge.sendToSrc(Map(pattern1 + "|" + pattern2 -> Set(new_pattern_instance)))
   }
 
+  def sendPatternV2(pattern1: String, pattern2: String,
+    instance1Dst: Long, instance2Dst: Long,
+    edge: EdgeContext[KGNodeV2, KGEdge, Map[String, Long]]) {
+
+    var bigger_instance: Int = 0
+     edge.sendToSrc(Map(pattern1 + "|" + pattern2 -> instance2Dst))
+  }
+
+ def sendPatternV2Flat(pattern1: String, pattern2: String,
+    instance1Dst: Long, instance2Dst: Long,
+    edge: EdgeContext[KGNodeV2Flat, KGEdge, Map[String, Long]]) {
+
+    var bigger_instance: Int = 0
+     edge.sendToSrc(Map(pattern1 + "|" + pattern2 -> instance2Dst))
+  }
+  
   //sorted pattern keys are saved to handle isomorphic sub-graphs.
   def sendSortedPattern(pattern1: String, pattern2: String,
     instance1Dst: Int, instance2Dst: Int,
@@ -896,7 +1281,7 @@ object GraphPatternProfiler {
       }
       return false;
     }
-  def sendPatternToNode(edge: EdgeContext[KGNode, KGEdge, Map[String, Set[PatternInstance]]]) {
+  def sendPatternToNode(edge: EdgeContext[KGNodeV1, KGEdge, Map[String, Set[PatternInstance]]]) {
     val allSourceNodePatterns = edge.srcAttr.getpattern_map;
     val allDestinationNodePatterns = edge.dstAttr.getpattern_map
 
@@ -962,11 +1347,12 @@ object GraphPatternProfiler {
   // are instances of that pattern (Sumit, buys, Hybrid)
 
   def getBasePatternGraph(graph: Graph[String, KGEdge], writerSG: PrintWriter,
-    result: Graph[PGNode, Int], SUPPORT: Int): Graph[KGNode, KGEdge] = {
+    result: Graph[PGNode, Int], SUPPORT: Int): Graph[KGNodeV1, KGEdge] = {
 
     //Get all the rdf:type dst node information on the source node
     var t0 = System.currentTimeMillis();
-    val typedVertexRDD: VertexRDD[Map[String, Map[String, Int]]] = GraphProfiling.getTypedVertexRDD_Temporal(graph, writerSG, TYPE_THRESHOLD, this.TYPE)
+    val typedVertexRDD: VertexRDD[Map[String, Map[String, Int]]] = 
+      GraphProfiling.getTypedVertexRDD_Temporal(graph, writerSG, TYPE_THRESHOLD, this.TYPE)
 
     // Now we have the type information collected in the original graph
     val typedAugmentedGraph: Graph[(String, Map[String, Map[String, Int]]), KGEdge] = GraphProfiling.getTypedAugmentedGraph_Temporal(graph, writerSG, typedVertexRDD)
@@ -1011,10 +1397,10 @@ object GraphPatternProfiler {
       })
 
     t0 = System.currentTimeMillis();
-    val updateGraph: Graph[KGNode, KGEdge] = 
+    val updateGraph: Graph[KGNodeV1, KGEdge] = 
       typedAugmentedGraph.outerJoinVertices(nonTypedVertexRDD) {
-      case (id, (label, something), Some(nbr)) => new KGNode(label, nbr)
-      case (id, (label, something), None) => new KGNode(label, Map())
+      case (id, (label, something), Some(nbr)) => new KGNodeV1(label, nbr)
+      case (id, (label, something), None) => new KGNodeV1(label, Map())
     }
     t1 = System.currentTimeMillis();
 
@@ -1070,22 +1456,25 @@ object GraphPatternProfiler {
         reducePatternsOnNode(pattern1NodeN, pattern2NodeN)
       })
 
-    val updateGraph_withsink: Graph[KGNode, KGEdge] = 
+    val updateGraph_withsink: Graph[KGNodeV1, KGEdge] = 
       subgraph_with_pattern.outerJoinVertices(graph_with_sink_node_pattern) {
       case (id, kg_node, Some(nbr)) 
-      => new KGNode(kg_node.getlabel, kg_node.getpattern_map |+| nbr)
+      => new KGNodeV1(kg_node.getlabel, kg_node.getpattern_map |+| nbr)
       case (id, kg_node, None) 
-      => new KGNode(kg_node.getlabel, kg_node.getpattern_map)
+      => new KGNodeV1(kg_node.getlabel, kg_node.getpattern_map)
     }
-
-    return get_Frequent_Subgraph(updateGraph_withsink, result, SUPPORT);
-    //return updateGraph_withsink
+      if(SUPPORT != -1)
+      {
+      	    return get_Frequent_Subgraph(updateGraph_withsink, result, SUPPORT);
+      }
+      else
+            updateGraph_withsink
 
   }
 
-  def get_Closed_Subgraph(updateGraph: Graph[KGNode, KGEdge],
+  def get_Closed_Subgraph(updateGraph: Graph[KGNodeV1, KGEdge],
     result: (RDD[(String, Set[PatternInstance])], 
-        Graph[PGNode, Int])): Graph[KGNode, KGEdge] =
+        Graph[PGNode, Int])): Graph[KGNodeV1, KGEdge] =
     {
 
       // updatedGraph is already a frequent graph
@@ -1101,9 +1490,10 @@ object GraphPatternProfiler {
         // We have dependency graph.
         result._2.vertices.filter(v => v._2 != null).collect.foreach(index => {
           commulative_subgraph_index = 
-            commulative_subgraph_index + (index._2.getnode_label ->
+            commulative_subgraph_index + (index._2.getnode_label ->  
             (commulative_subgraph_index.getOrElse(index._2.getnode_label, 0) 
-                + index._2.getsupport))
+                + index._2.getsupport.toInt)
+           )
         })
 
       } else {
@@ -1130,10 +1520,10 @@ object GraphPatternProfiler {
             reducePatternsOnNode(pattern1NodeN, pattern2NodeN)
           })
 
-      var validgraph: Graph[KGNode, KGEdge] = 
+      var validgraph: Graph[KGNodeV1, KGEdge] = 
         updateGraph.outerJoinVertices(resulting_subgraph_index_rdd) {
-        case (id, a_kgnode, Some(nbr)) => new KGNode(a_kgnode.getlabel, nbr)
-        case (id, a_kgnode, None) => new KGNode(a_kgnode.getlabel, Map())
+        case (id, a_kgnode, Some(nbr)) => new KGNodeV1(a_kgnode.getlabel, nbr)
+        case (id, a_kgnode, None) => new KGNodeV1(a_kgnode.getlabel, Map())
       }
       validgraph = validgraph.subgraph(epred =>
         ((epred.srcAttr.getpattern_map.size != 0)
@@ -1143,78 +1533,200 @@ object GraphPatternProfiler {
 
     }
 
-  def get_Frequent_Subgraph(subgraph_with_pattern: Graph[KGNode, KGEdge],
-    result: Graph[PGNode, Int], SUPPORT: Int): Graph[KGNode, KGEdge] =
+  def get_Frequent_Subgraph(subgraph_with_pattern: Graph[KGNodeV1, KGEdge],
+    result: Graph[PGNode, Int], SUPPORT: Int): Graph[KGNodeV1, KGEdge] =
     {
       /*
 	 * This method returns output graph only with frequnet subgraph. 
 	 * TODO : need to clean the code
 	 */
-
+      println("checking frequent subgraph")
+      var t0 = System.nanoTime()
       var commulative_subgraph_index: Map[String, Int] = Map.empty;
 
       //TODO : Sumit: Use this RDD instead of the Map(below) to filter frequent pattersn
-      val pattern_support_rdd: RDD[(String, Int)] = 
+      val pattern_support_rdd: RDD[(String, Int)] =
         subgraph_with_pattern.vertices.flatMap(vertex =>
-        {
-          var tmp: Set[(String, Int)] = Set.empty
-          for (p <- vertex._2.getpattern_map) {
-
-            //TODO : for now keep tracking all the frequent sink patterns
-            // Need to keep track for their support. needs data structure 
-            // change. few more than expected patterns are getting tracked now
-            if (p._2.size == 0) {
-              val new_node = (p._1.replaceAll("\\|", "\t"), -1) // -1 reports a sink pattern
-              tmp = tmp + new_node
-            }
-
-            // double quote | is treated a OP operator and have special meaning
-            // so use '|'
-            //val valid_pattern_instance = p._2 - 0
-            val valid_pattern_instance = p._2
-            if (valid_pattern_instance.size > 0) {
-              val new_node = (p._1.replaceAll("\\|", "\t"), valid_pattern_instance.size)
-              tmp = tmp + new_node
-            }
-          }
-          tmp
-        })
-      val tmpRDD = pattern_support_rdd.reduceByKey((a, b) => a + b)
-      val frequent_pattern_support_rdd = tmpRDD.filter(f 
-          => ((f._2 >= SUPPORT) | (f._2 == -1)))
-
-      subgraph_with_pattern.vertices.collect.foreach(index_map => {
-        index_map._2.getpattern_map.foreach(index => {
-          if (index._2 == Set(0)) {
-            commulative_subgraph_index = commulative_subgraph_index + (index._1 ->
-              (commulative_subgraph_index.getOrElse(index._1, 0) + index._2.size))
-          }
-
-          val valid_pattern_instance = index._2
-          if (valid_pattern_instance.size > 0)
-            commulative_subgraph_index = commulative_subgraph_index + (index._1 ->
-              (commulative_subgraph_index.getOrElse(index._1, 0) + index._2.size))
-        })
-      })
-      commulative_subgraph_index = 
-        commulative_subgraph_index.filter(v => v._2 >= SUPPORT)
-
-      val newGraph: Graph[KGNode, KGEdge] = 
-        subgraph_with_pattern.mapVertices((id, attr) => {
-        var joinedPattern: Map[String, Set[PatternInstance]] = Map.empty
-        val vertex_pattern_map = attr.getpattern_map
-        vertex_pattern_map.map(vertext_pattern =>
           {
-            if (commulative_subgraph_index.contains(vertext_pattern._1))
-              joinedPattern = joinedPattern + ((vertext_pattern._1 -> vertext_pattern._2))
+            vertex._2.getpattern_map.map(f => (f._1, f._2.size)).toSet
+            //          var tmp: Set[(String, Int)] = Set.empty
+            //          for (p <- vertex._2.getpattern_map) {
+            //
+            //            //TODO : for now keep tracking all the frequent sink patterns
+            //            // Need to keep track for their support. needs data structure 
+            //            // change. few more than expected patterns are getting tracked now
+            //            if (p._2.size == 0) {
+            //              val new_node = (p._1.replaceAll("\\|", "\t"), -1) // -1 reports a sink pattern
+            //              tmp = tmp + new_node
+            //            }
+            //
+            //            // double quote | is treated a OP operator and have special meaning
+            //            // so use '|'
+            //            //val valid_pattern_instance = p._2 - 0
+            //            println("in flatmpa")
+            //            val valid_pattern_instance = p._2
+            //            if (valid_pattern_instance.size > 0) {
+            //              val new_node = (p._1.replaceAll("\\|", "\t"), valid_pattern_instance.size)
+            //              tmp = tmp + new_node
+            //            }
+            //          }
+            //          tmp
           })
-        new KGNode(attr.getlabel, joinedPattern)
+      println("before reduce " + pattern_support_rdd.count)
+      pattern_support_rdd.collect.foreach(f=> println(f.toString))
+      val tmpRDD = pattern_support_rdd.reduceByKey((a, b) => a + b)
+      println("after reduce " + pattern_support_rdd.count)
+      val frequent_pattern_support_rdd = tmpRDD.filter(f => ((f._2 >= SUPPORT) | (f._2 == -1)))
+      var t1 = System.nanoTime()
+      println("time to calculate rdd frequnet pattern in nanao" + (t1 - t0) * 1e-9 + "seconds," + "frequnet pattern rdd size " + frequent_pattern_support_rdd.count)
+      val frequent_patterns = frequent_pattern_support_rdd.keys.collect
+      println()
+      var tt0 = System.nanoTime()
+      //      subgraph_with_pattern.vertices.collect.foreach(index_map => {
+      //        index_map._2.getpattern_map.foreach(index => {
+      //          if (index._2 == Set(0)) {
+      //            commulative_subgraph_index = commulative_subgraph_index + (index._1 ->
+      //              (commulative_subgraph_index.getOrElse(index._1, 0) + index._2.size))
+      //          }
+      //          val valid_pattern_instance = index._2
+      //          if (valid_pattern_instance.size > 0)
+      //            commulative_subgraph_index = commulative_subgraph_index + (index._1 ->
+      //              (commulative_subgraph_index.getOrElse(index._1, 0) + index._2.size))
+      //        })
+      //      })
+      //      commulative_subgraph_index = 
+      //        commulative_subgraph_index.filter(v => v._2 >= SUPPORT)
+      var tt1 = System.nanoTime()
+      println("commulative_subgraph_index size" + commulative_subgraph_index.size + "time = " + (tt1 - tt0) * 1e-9 + "seconds,")
+      val newGraph: Graph[KGNodeV1, KGEdge] =
+        subgraph_with_pattern.mapVertices((id, attr) => {
+          var joinedPattern: Map[String, Set[PatternInstance]] = Map.empty
+          val vertex_pattern_map = attr.getpattern_map
+          vertex_pattern_map.map(vertext_pattern =>
+            {
+              
+              if (frequent_patterns.contains(vertext_pattern._1))
+                joinedPattern = joinedPattern + ((vertext_pattern._1 -> vertext_pattern._2))
+            })
+          new KGNodeV1(attr.getlabel, joinedPattern)
 
-      })
+        })
 
       val validgraph = newGraph.subgraph(epred =>
         ((epred.srcAttr.getpattern_map != null) || (epred.dstAttr.getpattern_map != null)))
       return validgraph;
     }
  
+    def get_Frequent_SubgraphV2Flat(subgraph_with_pattern: Graph[KGNodeV2Flat, KGEdge],
+    result: Graph[PGNode, Int], SUPPORT: Int): Graph[KGNodeV2Flat, KGEdge] =
+    {
+      /*
+	 * This method returns output graph only with frequnet subgraph. 
+	 * TODO : need to clean the code
+	 */
+      println("checking frequent subgraph")
+      var t0 = System.nanoTime()
+      var commulative_subgraph_index: Map[String, Int] = Map.empty;
+
+      //TODO : Sumit: Use this RDD instead of the Map(below) to filter frequent pattersn
+      val pattern_support_rdd: RDD[(String, Long)] =
+        subgraph_with_pattern.vertices.flatMap(vertex =>
+          {
+            vertex._2.getpattern_map.map(f => (f._1, f._2)).toSet
+          })
+      println("before reduce " + pattern_support_rdd.count)
+      //pattern_support_rdd.collect.foreach(f=> println(f.toString))
+      val tmpRDD = pattern_support_rdd.reduceByKey((a, b) => a + b)
+      println("after reduce " + pattern_support_rdd.count)
+      val frequent_pattern_support_rdd = tmpRDD.filter(f => ((f._2 >= SUPPORT) | (f._2 == -1)))
+      var t1 = System.nanoTime()
+      println("time to calculate rdd frequnet pattern in nanao" + (t1 - t0) * 1e-9 + "seconds," + "frequnet pattern rdd size " + frequent_pattern_support_rdd.count)
+      val frequent_patterns = frequent_pattern_support_rdd.keys.collect
+      println()
+      var tt0 = System.nanoTime()
+      //      subgraph_with_pattern.vertices.collect.foreach(index_map => {
+      //        index_map._2.getpattern_map.foreach(index => {
+      //          if (index._2 == Set(0)) {
+      //            commulative_subgraph_index = commulative_subgraph_index + (index._1 ->
+      //              (commulative_subgraph_index.getOrElse(index._1, 0) + index._2.size))
+      //          }
+      //          val valid_pattern_instance = index._2
+      //          if (valid_pattern_instance.size > 0)
+      //            commulative_subgraph_index = commulative_subgraph_index + (index._1 ->
+      //              (commulative_subgraph_index.getOrElse(index._1, 0) + index._2.size))
+      //        })
+      //      })
+      //      commulative_subgraph_index = 
+      //        commulative_subgraph_index.filter(v => v._2 >= SUPPORT)
+      var tt1 = System.nanoTime()
+      println("commulative_subgraph_index size" + commulative_subgraph_index.size + "time = " + (tt1 - tt0) * 1e-9 + "seconds,")
+      val newGraph: Graph[KGNodeV2Flat, KGEdge] =
+        subgraph_with_pattern.mapVertices((id, attr) => {
+          var joinedPattern: Map[String, Long] = Map.empty
+          val vertex_pattern_map = attr.getpattern_map
+          vertex_pattern_map.map(vertext_pattern =>
+            {
+              
+              if (frequent_patterns.contains(vertext_pattern._1))
+                joinedPattern = joinedPattern + ((vertext_pattern._1 -> vertext_pattern._2))
+            })
+          new KGNodeV2Flat(attr.getlabel, joinedPattern,List.empty)
+
+        })
+
+      val validgraph = newGraph.subgraph(epred =>
+        ((epred.srcAttr.getpattern_map != null) || (epred.dstAttr.getpattern_map != null)))
+      return validgraph;
+    }
+ 
+     
+    
+ def get_Frequent_SubgraphV2(subgraph_with_pattern: Graph[KGNodeV2, KGEdge],
+    result: Graph[PGNode, Int], SUPPORT: Int): Graph[KGNodeV2, KGEdge] =
+    {
+      /*
+	 * This method returns output graph only with frequnet subgraph. 
+	 * TODO : need to clean the code
+	 */
+      println("checking frequent subgraph")
+      var t0 = System.nanoTime()
+      var commulative_subgraph_index: Map[String, Int] = Map.empty;
+
+      //TODO : Sumit: Use this RDD instead of the Map(below) to filter frequent pattersn
+      val pattern_support_rdd: RDD[(String, Long)] =
+        subgraph_with_pattern.vertices.flatMap(vertex =>
+          {
+            vertex._2.getpattern_map.map(f => (f._1, f._2)).toSet
+          })
+      println("before reduce " + pattern_support_rdd.count)
+      //pattern_support_rdd.collect.foreach(f=> println(f.toString))
+      val tmpRDD = pattern_support_rdd.reduceByKey((a, b) => a + b)
+      println("after reduce " + pattern_support_rdd.count)
+      val frequent_pattern_support_rdd = tmpRDD.filter(f => ((f._2 >= SUPPORT) | (f._2 == -1)))
+      var t1 = System.nanoTime()
+      println("time to calculate rdd frequnet pattern in nanao" + (t1 - t0) * 1e-9 + "seconds," + "frequnet pattern rdd size " + frequent_pattern_support_rdd.count)
+      val frequent_patterns = frequent_pattern_support_rdd.keys.collect
+      println()
+      var tt0 = System.nanoTime()
+      var tt1 = System.nanoTime()
+      println("commulative_subgraph_index size" + commulative_subgraph_index.size + "time = " + (tt1 - tt0) * 1e-9 + "seconds,")
+      val newGraph: Graph[KGNodeV2, KGEdge] =
+        subgraph_with_pattern.mapVertices((id, attr) => {
+          var joinedPattern: Map[String, Long] = Map.empty
+          val vertex_pattern_map = attr.getpattern_map
+          vertex_pattern_map.map(vertext_pattern =>
+            {
+              
+              if (frequent_patterns.contains(vertext_pattern._1))
+                joinedPattern = joinedPattern + ((vertext_pattern._1 -> vertext_pattern._2))
+            })
+          new KGNodeV2(attr.getlabel, joinedPattern,List.empty)
+
+        })
+
+      val validgraph = newGraph.subgraph(epred =>
+        ((epred.srcAttr.getpattern_map != null) || (epred.dstAttr.getpattern_map != null)))
+      return validgraph;
+    }
+    
 }

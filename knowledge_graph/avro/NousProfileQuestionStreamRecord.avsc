@@ -1,0 +1,12 @@
+{
+  "namespace": "gov.pnnl.aristotle.aiminterface",
+  "type" : "record",
+  "name" : "NousProfileQuestionStreamRecord",
+  "fields" : [
+        {"name" : "version", "type" : "int"},
+        {"name" : "uuid", "type" : "string"},
+        {"name" : "timestamp", "type" : "long"},
+        {"name" : "source", "type" : "string"}
+  ]
+ 
+}

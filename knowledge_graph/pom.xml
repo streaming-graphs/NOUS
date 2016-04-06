@@ -84,6 +84,13 @@
 		<artifactId>jackson-databind</artifactId>
 		<version>2.5.0</version>
 	</dependency>
+	
+	<dependency>
+	<groupId>org.apache.commons</groupId>
+	<artifactId>commons-math3</artifactId>
+	<version>3.2</version>
+</dependency>
+	
 	<!-- <dependency>
 	    <groupId>gov.pnnl.aim.af</groupId>
 	    <artifactId>aim-ws-client-java</artifactId>
@@ -162,9 +169,11 @@
 	<artifactId>scalaz-core_2.10</artifactId>
 	<version>7.2.0-M1</version>
 </dependency>
-
-
-
+  	<dependency>
+  		<groupId>ext-libs</groupId>
+  		<artifactId>wordsim</artifactId>
+  		<version>1.0.0</version>
+  	</dependency>
   </dependencies>
 
   <build>

@@ -1,16 +1,19 @@
 package gov.pnnl.aristotle.utils
 
 import org.apache.spark._
+import org.apache.spark.SparkContext._
 import org.apache.spark.graphx._
 import org.apache.spark.rdd.RDD
 import org.apache.spark.rdd.RDD
 import scala.collection.Set
 import scala.collection.immutable.TreeSet
+//import scala.collection.mutable.Map
 import scala.xml.XML
 import gov.pnnl.fcsd.datasciences.graphBuilder.nlp.semanticParsers.SennaSemanticParser
 import scala.Array.canBuildFrom
 
 object MatchStringCandidates {
+
 
   //given a graph of type [String, String] ,  return list of vertex ids containing given label
  def getMatches(label :String, g :Graph[String, String]): Array[Long] = {
@@ -25,23 +28,68 @@ object MatchStringCandidates {
    return matchingVertices
    //return matchingVertices
 }
- 
-  def getMatchesRDDWithAlias(mentions :List[String],  g :Graph[String, String]):RDD[(VertexId, String)]  = {
-    val verticesWithLabels: VertexRDD[String] = NodeProp.getNodeAlias(g)
-    val newGraph = g.joinVertices(verticesWithLabels)((id, a,b) => a+";"+b)
-    
-    val matchingVertices: RDD[(VertexId, String)] =  newGraph.vertices.filter(v => {
-     var found = false;
-     for(mention <- mentions) {
-       if(v._2.toLowerCase().contains(mention.toLowerCase) || mention.toLowerCase().contains(v._2.toLowerCase()))
-         found=true
+  
+  class MatchMentions(mentions: Set[String], simThreshold: Double) extends Serializable{
+   // Matches the given entity label+alias to  
+   def getMatch(vert: (VertexId, String)): Set[String] = {
+     
+     val labelWithAlias : Array[String] = vert._2.split(KGraphProp.aliasSep)
+     
+     if(labelWithAlias.length == 1){
+        val matchingMentions = mentions.filter( Gen_Utils.stringSim(labelWithAlias(0), _) >= simThreshold)
+        println("matched with label = ", labelWithAlias(0), matchingMentions.toString)
+        //mentions.filter(labelWithAlias(0).contains(_))
+        matchingMentions
+     } else if (labelWithAlias.length == 2){
+       val matchingMentions = mentions.filter(mention => Gen_Utils.stringSim(labelWithAlias(0), mention) >= simThreshold || 
+           Gen_Utils.stringSim(labelWithAlias(1), mention) > simThreshold)
+       //val matchingMentions = mentions.filter(mention => labelWithAlias(0).contains(mention) || labelWithAlias(1).contains(mention) )
+        println("matched with label = ", labelWithAlias(0), matchingMentions.toString)
+        //mentions.filter(labelWithAlias(0).contains(_))
+        matchingMentions
+     } else {
+       
+       Set.empty[String]
      }
-     found
-   })
- 
-   return matchingVertices
+   }
+
  }
- //given a graph of type [String, String] ,  return RDD of nodes containing given label
+ 
+
+ 
+ /* Given a list of "mentions" and a graph , return
+  *  
+  * VertexId -> 
+  */
+  def getMatchesRDDWithAlias(mentions :List[String],  g :Graph[String, String], phraseSimThreshold : Double):RDD[(String, Iterable[(VertexId, String)] )]  = {
+    // Get aliases for all nodes in the form "alias=$nodeAlias"
+    val verticesWithAlias: VertexRDD[String] = NodeProp.getNodeAlias(g)
+    
+    // The vertices labels are joined with their aliases
+    // Vertex labels are of the form 
+    // "$nodeLabel;alias=$nodeAlias"
+    val allVerticesWithAlias: VertexRDD[String] = g.vertices.leftZipJoin(verticesWithAlias)((id, label, alias) => {
+      alias match{
+        case Some(aliasValues) => label + KGraphProp.aliasSep + aliasValues
+        case None => label
+      }})
+      
+    println("Collected alias for graph", allVerticesWithAlias.count)
+    val mentionFilter = new MatchMentions(mentions.toSet, phraseSimThreshold)
+    
+    val allMatches: RDD[( String, (VertexId, String))] = allVerticesWithAlias.flatMap(v => {
+      val matches: Set[String] = mentionFilter.getMatch(v)
+      val allMatchesVertex = matches.map(mention => (mention, v))
+      allMatchesVertex
+    })
+  
+   val groupedMatches = allMatches.groupByKey
+   groupedMatches.foreach(matches => println(matches._1 + "=>"  + matches._2.toString))
+   groupedMatches
+ }
+ 
+
+  //given a graph of type [String, String] ,  return RDD of nodes containing given label
  def getMatchesRDD(label :String, g :Graph[String, String]): RDD[(VertexId, String)] = {
    val matchingVertices = g.vertices.filter(v => v._2.toLowerCase().contains(label.toLowerCase()))
    if(matchingVertices.count == 0){

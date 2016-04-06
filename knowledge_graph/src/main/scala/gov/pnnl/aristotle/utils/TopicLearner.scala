@@ -10,7 +10,7 @@ import scala.collection.mutable.Map
 import java.io._
 import org.apache.log4j.Logger
 import org.apache.log4j.Level
-
+/*
 class nodeWithAllTopics[T](dataTemp: T, topicTemp: Array[Double]) {
   val data: T = dataTemp
   val topic = topicTemp
@@ -20,7 +20,8 @@ class nodeWithTopKTopics[T](dataTemp: T, topicTemp: Array[(Int, Double)] ) {
   val data: T = dataTemp
   val topic = topicTemp
 }
-  
+*/
+
 object TopicLearner {
   def isValidLine(ln : String) : Boolean ={
     ( (ln.startsWith("@") ==false) && (ln.startsWith("#")==false) && (ln.isEmpty()==false))
@@ -88,31 +89,7 @@ object TopicLearner {
   } 
   
      
-  // Adds topic distribution Array(topicid, topic strength) to each node ( topic id start from 1)
-  // adds (topicid=-1, strength =1.0) for nodes that have no known topic distributions
-   def addTopicsToGraphTopK[VD, ED](graph: Graph[VD, ED], topicsFileTopK: String, sc: SparkContext) : 
-   Graph[nodeWithTopKTopics[VD], ED] = {
-     val topicsRDD : RDD[ (Long, Array[(Int, Double)])]= getYagoTopicsRDDTopK(topicsFileTopK, sc)
-     val graphWithTopics: Graph[nodeWithTopKTopics[VD], ED] = graph.outerJoinVertices(topicsRDD) {  
-           case (vertexid, vertexData, Some(topic)) => new nodeWithTopKTopics[VD](vertexData, topic)
-           // for vertices without topics , add (topicid=-1, weight=1)
-           case (vertexid, vertexData, None) => new nodeWithTopKTopics[VD](vertexData, Array((-1, -1.0)))           
-     }
-     return  graphWithTopics
-   }
-  
-   // Adds topic distribution Array(topicid, topic strength) to each node ( topic id start from 1)
-  // adds (topicid=-1, strength =1.0) for nodes that have no known topic distributions
-   def addTopicsToGraphAll[VD, ED](graph: Graph[VD, ED], topicsFileAll: String, sc: SparkContext) : 
-   Graph[nodeWithAllTopics[VD], ED] = {
-     val topicsRDD : RDD[(Long, Array[Double])]= TopicLearner.getYagoTopicsRDDAll(topicsFileAll, sc)
-     val graphWithTopics = graph.outerJoinVertices(topicsRDD) {  
-           case (vertexid, vertexData, Some(topic)) => new nodeWithAllTopics[VD](vertexData, topic)
-           // for vertices without topics , add (topicid=-1)
-           case (vertexid, vertexData, None) => new nodeWithAllTopics[VD](vertexData, Array(-1.0))           
-     }
-     return  graphWithTopics
-   }
+
   
   
   /* REad all mapping files containing:

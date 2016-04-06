@@ -28,11 +28,6 @@ object Math_Utils {
     }
     
     val average =  new Array[Double](p.length)
-    
-   if(p.length != q.length){
-      println("Cannot calculate divergence of these distribnutions of unequal length")
-      return Double.PositiveInfinity
-    }
    
     for(i <- 0 to p.length){
       average(i) = (p(i) + q(i))/2
@@ -53,4 +48,10 @@ object Math_Utils {
     return Math.sqrt(sqDistance)
   }
     
+  def jaccardCoeff[T](dist1: Set[T], dist2: Set[T]): Double = {
+    if(dist1.size == 0 && dist2.size == 0) return 1
+    val nIntersection = dist1.intersect(dist2).size
+    val nUnion = dist1.union(dist2).size
+    (nIntersection/nUnion)
+  }
 }
