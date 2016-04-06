@@ -1,0 +1,45 @@
+Now that the United States government has cracked open an iPhone that belonged to a gunman in the San Bernardino, Calif., mass shooting without Apple’s help, the tech company is under pressure to find and fix the flaw.
+
+But unlike other cases where security vulnerabilities have cropped up, Apple may face a higher set of hurdles in ferreting out and repairing the particular iPhone hole that the government hacked.
+
+The challenges start with the lack of information about the method that the law enforcement authorities, with the aid of a third party, used to break into the iPhone of Syed Rizwan Farook, an attacker in the San Bernardino rampage last year. Federal officials have refused to identify the person, or organization, who helped crack the device, and have declined to specify the procedure used to open the iPhone. Apple also cannot obtain the device to reverse-engineer the problem, the way it would in other hacking situations.
+
+Making matters trickier, Apple’s security operation has been in flux. The operation was reorganized late last year. A manager who had been responsible for handling most of the government’s data extraction requests left the team to work in a different part of the company, according to four current and former Apple employees, who spoke on the condition of anonymity because they were not authorized to speak publicly about the changes. Other employees, among them one whose tasks included trying to hack Apple’s own products, left the company over the last few months, they said, while new people have joined.
+
+The situation is in many ways a continuation of the cat-and-mouse game Apple is constantly engaged in with hackers, but the unusually prominent nature of this hacking — and the fact that the hacker was the United States government — creates a predicament for the company.
+
+“Apple is a business, and it has to earn the trust of its customers,” said Jay Kaplan, chief executive of the tech security company Synack and a former National Security Agency analyst. “It needs to be perceived as having something that can fix this vulnerability as soon as possible.”
+
+Apple referred to a statement it made on Monday when the government filed to drop its case demanding that the company help it open Mr. Farook’s iPhone. “We will continue to increase the security of our products as the threats and attacks on our data become more frequent and more sophisticated,” Apple said.
+
+Apple has been making many long-term moves to increase the security of its devices. The company’s chief executive, Timothy D. Cook, has told colleagues that he stands by Apple’s road map to encrypt everything stored on its devices and services, as well as information stored in Apple’s cloud service iCloud, which customers use to back up the data on their mobile devices. Apple engineers have also begun developing new security measures that would make it tougher for the government to open a locked iPhone.
+
+For now, with the dearth of information about the flaw in Mr. Farook’s iPhone 5C, which runs Apple’s iOS 9 operating system, security experts could only guess at how the government broke into the smartphone.
+
+Forensics experts said the government might have attacked Apple’s system using a widely discussed method to extract information from a protected area in the phone by removing a chip and fooling a mechanism that blocks password guessing, in order to find the user’s password and unlock the data.
+
+The authorities may have used a procedure that mirrors the phone’s storage chip, called a NAND chip, and then copied it onto another chip. Often referred to as “NAND-mirroring,” this would allow the F.B.I. to replace the original NAND chip with one that has a copy of that content. If the F.B.I. tried 10 passcodes to unlock the phone and failed, it could then generate a new copy of the phone’s content and try another password guess.
+
+“It’s like trying to play the same level on Super Mario Brothers over and over again and just restoring from your saved game every time you kill Mario,” said Jonathan Zdziarski, an iOS forensics expert.
+
+Newer iPhone models may be less susceptible to NAND-mirroring because they have an upgraded chip known as the A7, with a security processor called the Secure Enclave that has a unique numerical key not known to the company and which is essential to the securing of information stored in the phone.
+
+Security vulnerabilities in Apple products have become increasingly prized by hackers in recent years, given the ubiquity of the company’s mobile devices. Yet as interest has grown in attacking Apple’s hardware and software, the company’s own security teams have been in flux.
+
+Apple previously had two main security teams — a group called Core OS Security Engineering and a product security team. The product security team included a privacy group that examined whether data was properly encrypted and anonymized, among other functions, according to three former Apple employees. The product security team also had people who reacted to vulnerabilities found by people outside Apple, as well as a proactive team, called RedTeam, which worked to actively hack Apple products.
+
+Last year, the product security team was broken up and the privacy group began reporting to a new manager, the former employees said. The rest of product security — the proactive and reactive pieces — was absorbed by the Core OS Security Engineering team, which itself experienced shifts.
+
+The leader of the Core OS Security Engineering team, Dallas DeAtley, left the security division last year to work in a different part of Apple. Mr. DeAtley was one of the few employees who over the years had taken care of government requests to extract data from iPhones. Mr. DeAtley did not respond to requests for comment.
+
+A few other members of the team also departed. Others joined Apple as the company acquired a handful of security outfits last year, including LegbaCore, which previously found and fixed flaws for Apple.
+
+Some of the departures had more to do with market forces, the former Apple employees said. Security professionals are some of the most sought-after engineers in the technology sector.
+
+Whether Apple’s security operation will ever obtain information about how the government hacked into Mr. Farook’s iPhone remains unclear.
+
+It’s possible that the government won’t say how it opened the iPhone because the method is “proprietary to the company that helped the F.B.I.,” said Stewart A. Baker, a lawyer at Steptoe & Johnson and the Department of Homeland Security’s first assistant secretary for policy.
+
+Within the security community, researchers and professionals said they were incensed that they — and Apple — may not find out how the F.B.I. was able to crack Mr. Farook’s iPhone.
+
+“There is very little debate that it is in everyone’s best interest that Apple find out about this vulnerability and everyone should be asking why that is not the case,” said Alex Rice, the chief technology officer at HackerOne, a security company in San Francisco that helps coordinate vulnerability disclosure for corporations.
