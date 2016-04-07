@@ -17,12 +17,12 @@ object GraphBuilder {
   }
 
   def main(args: Array[String]) = {
-    val fileList = args(0)
-    val outPath = args(1)
-    val appConf = parseConf(args(2))
-
+    val appConf = parseConf(args(0))
+    val fileList = appConf("INPUT_LIST")
+    val outPath = appConf("OUTPUT_DIR")
+    val nprocs = appConf("NPROC")
     val sc = new SparkContext(new SparkConf()
-                                  .setMaster("local[2]")
+                                  .setMaster("local["+nprocs+"]")
                                   .setAppName("TripleParser"))
     val inputListRDD = sc.textFile(fileList)
 
