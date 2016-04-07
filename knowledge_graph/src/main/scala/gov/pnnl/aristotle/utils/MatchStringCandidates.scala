@@ -37,14 +37,11 @@ object MatchStringCandidates {
      
      if(labelWithAlias.length == 1){
         val matchingMentions = mentions.filter( Gen_Utils.stringSim(labelWithAlias(0), _) >= simThreshold)
-        println("matched with label = ", labelWithAlias(0), matchingMentions.toString)
-        //mentions.filter(labelWithAlias(0).contains(_))
         matchingMentions
      } else if (labelWithAlias.length == 2){
        val matchingMentions = mentions.filter(mention => Gen_Utils.stringSim(labelWithAlias(0), mention) >= simThreshold || 
            Gen_Utils.stringSim(labelWithAlias(1), mention) > simThreshold)
        //val matchingMentions = mentions.filter(mention => labelWithAlias(0).contains(mention) || labelWithAlias(1).contains(mention) )
-        println("matched with label = ", labelWithAlias(0), matchingMentions.toString)
         //mentions.filter(labelWithAlias(0).contains(_))
         matchingMentions
      } else {
@@ -62,7 +59,8 @@ object MatchStringCandidates {
   * VertexId -> 
   */
   def getMatchesRDDWithAlias(mentions :List[String],  g :Graph[String, String], phraseSimThreshold : Double):RDD[(String, Iterable[(VertexId, String)] )]  = {
-    // Get aliases for all nodes in the form "alias=$nodeAlias"
+    // Get aliases for all nodes in the form "alias=$nodeAlias, 
+    
     val verticesWithAlias: VertexRDD[String] = NodeProp.getNodeAlias(g)
     
     // The vertices labels are joined with their aliases
@@ -74,17 +72,17 @@ object MatchStringCandidates {
         case None => label
       }})
       
-    println("Collected alias for graph", allVerticesWithAlias.count)
+    println("Collected alias for graph, " + allVerticesWithAlias.count.toString + "\n")
     val mentionFilter = new MatchMentions(mentions.toSet, phraseSimThreshold)
     
     val allMatches: RDD[( String, (VertexId, String))] = allVerticesWithAlias.flatMap(v => {
       val matches: Set[String] = mentionFilter.getMatch(v)
-      val allMatchesVertex = matches.map(mention => (mention, v))
+      val vertexlabelWithoutAlias = v._2.split(KGraphProp.aliasSep)(0)
+      val allMatchesVertex = matches.map(mention => (mention, (v._1 ,vertexlabelWithoutAlias)))
       allMatchesVertex
     })
   
    val groupedMatches = allMatches.groupByKey
-   groupedMatches.foreach(matches => println(matches._1 + "=>"  + matches._2.toString))
    groupedMatches
  }
  

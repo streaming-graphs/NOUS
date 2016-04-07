@@ -13,9 +13,27 @@ import java.io.{BufferedWriter, OutputStreamWriter, FileOutputStream}
 import gov.pnnl.aristotle.utils._
 
 class LocalEdge[ED](val srcId: Long, val edgeAttr: ED, val dstId: Long)
-class LocalDirectedEdge[ED](val edgeAttr: ED, val nodeid: Long, val outgoing: Boolean = true)
+class LocalDirectedEdge[ED](val edgeAttr: ED, val nodeid: Long, val outgoing: Boolean = true){
+  override def toString(): String = {
+    if(outgoing)
+      " < " + edgeAttr.toString + "-> " + nodeid.toString 
+    else 
+      " <- " + edgeAttr.toString + "> " + nodeid.toString 
+  }
+}
 
-class LocalGraph[VD, ED](val vertices: Map[Long, VD], val edges: Map[Long, List[LocalDirectedEdge[ED]]]) {
+class LocalGraph[VD, ED](val vertices: Map[Long, VD], 
+    val edges: Map[Long, List[LocalDirectedEdge[ED]]]) {
+  
+  def printGraph(): Unit = {
+    println
+    println("Vertices : ", vertices.size)
+    vertices.foreach(v => println(v._1, v._2.toString))
+    
+    println
+    println("Edges : ", edges.size)
+    edges.foreach(edge => println(edge._1, edge._2.toString + ";"))  
+  }
  /* 
   def createLocalGraph(): collection.mutable.Map[Long, (VD, List[LocalDirectedEdge[ED]])]  = {
         

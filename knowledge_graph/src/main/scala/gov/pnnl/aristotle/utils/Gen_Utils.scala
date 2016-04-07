@@ -14,7 +14,7 @@ import org.apache.commons.lang3.StringUtils._
 object Gen_Utils{
   
   def main(args: Array[String]) = {
-    println(stringSim("football".toLowerCase(), "monday_night_football"))
+    println(stringSim("Ford Field".toLowerCase(), "edsel_ford"))
   }
   def time[R](block: => R, function_desc : String ): R = {
     val t0 = System.nanoTime()
@@ -31,22 +31,24 @@ object Gen_Utils{
     * score(query = "ABC", database = "ABC DEF") = 1.0 ,
     * i.e.t the query phrase completely occurred in database phrase
     * */
-   def stringSim(queryPhrase: String, databasePhrase: String, wordMatchThreshold: Double =0.75): Double ={
+   def stringSim(queryPhrase: String, databasePhrase: String, matchThreshold: Double =0.7): Double ={
      
     val splitters : Array[Char] = Array(' ', '_', ',', '$')
     // get a score for Partial match
     val wordsInPhrase1 : Array[String] = queryPhrase.toLowerCase().split(splitters).sorted
     val numWords1 = wordsInPhrase1.length
-    wordsInPhrase1.foreach(println(_))
-    println()
+    //wordsInPhrase1.foreach(println(_))
+    //println()
     val wordsInPhrase2 : Array[String] = databasePhrase.toLowerCase().split(splitters).sorted
     val numWords2 = wordsInPhrase2.length
-    wordsInPhrase2.foreach(println(_))
-    println()
+    //wordsInPhrase2.foreach(println(_))
+    //println()
    
     val setSimilarity: Double = (wordsInPhrase1.intersect(wordsInPhrase2).size).toDouble/(numWords1)
-    if(setSimilarity > wordMatchThreshold) 
+    if(setSimilarity > matchThreshold) {
+      //println("Matched following phrases (score)=", queryPhrase, databasePhrase, setSimilarity)
       return setSimilarity 
+   }
     
     var i: Int = 0
     var j: Int = 0
@@ -58,8 +60,8 @@ object Gen_Utils{
       val d: Double = getLevenshteinDistance(word1.toLowerCase().toCharArray(), word2.toLowerCase.toCharArray()).toDouble
       
       val wordScore: Double = (1 - (d/word1.length)) + (1- (d/word2.length))
-       println("Distance between words and the score =", word1, word2, d, wordScore )
-      if( wordScore >= wordMatchThreshold*2) {
+      //println("Distance between words and the score =", word1, word2, d, wordScore )
+      if( wordScore >= matchThreshold*2) {
          //Words almost match, lets count it as a match
          i+=1
          j+=1
@@ -69,11 +71,12 @@ object Gen_Utils{
            i+=1
          else 
            j+=1
+         //score = score + wordScore
       }
     }
     val finalScore = score/(numWords1+numWords2)
-    if(finalScore > wordMatchThreshold)
-      println("FInal score between", queryPhrase, databasePhrase, finalScore)
+    //if(finalScore > matchThreshold)
+    //  println("Matched " + queryPhrase + ";" + databasePhrase + "=" + finalScore.toString)
     finalScore
    }
   

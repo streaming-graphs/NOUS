@@ -76,7 +76,11 @@ object TestColDisamb{
  
 class ColEntityDisamb[VD, ED] {
   
-  class LabelWithWt(val label: String, val wt : Double)
+  class LabelWithWt(val label: String, val wt : Double){
+    override def toString(): String ={
+      label + ";" + wt.toString
+    }
+  }
   class LabelWithType(val label: String, val vtype: String)
   type ReferentGraph = LocalGraph[LabelWithWt, Double]
 
@@ -88,17 +92,27 @@ class ColEntityDisamb[VD, ED] {
   
  
   /* creates a referent graph from the list of mentions and given a base knowledge graph */
-  def getReferentGraph(mentionsWithData: Map[String, MentionData], g: Graph[String, String], 
+  /* Need to handle case where a mention is not matched to any entity*/
+  def getReferentGraph(allMentionsWithData: Map[String, MentionData], g: Graph[String, String], 
       phraseMatchThreshold: Double = 0.7, mentionToEntityMatchThreshold: Double = 0.0 ): ReferentGraph = {
     
-    //Get candidates entities for each mention
-    val mentionLabels: List[Mention] = mentionsWithData.keys.toList
-    println("Constructing refrent graph for mentions", mentionLabels.size)
-    val mentionToEntityMap : Map[Mention, Iterable[Entity]] = 
-      MatchStringCandidates.getMatchesRDDWithAlias(mentionLabels, g, phraseMatchThreshold).collectAsMap
+    println("In : Construct refrent graph for mentions", allMentionsWithData.size)
     
-     
-    // Calculate graph neighbourhood data for each candidate vertex
+    
+    //Get candidates entities for each mention
+    val mentionLabels: List[Mention] = allMentionsWithData.keys.toList
+    val mentionToEntityMap: Map[Mention, Iterable[Entity]] = getMatchCandidates(mentionLabels, g, phraseMatchThreshold)
+    
+    val mentionsWithoutEntityMatch: Set[Mention] = mentionLabels.toSet--mentionToEntityMap.keys.toSet
+    val mentionsWithData = allMentionsWithData.--(mentionsWithoutEntityMatch)
+    
+    println("Mentions without any entity match")
+    mentionsWithoutEntityMatch.foreach(println(_))
+    
+    println("Size of new mentionMap , mentionToentityMap", mentionsWithData.size, mentionToEntityMap.size)
+    
+    
+    // Score each candidate entity using graph neighbourhood data
     val candidateIds: Array[NodeId] = mentionToEntityMap.values.flatMap(listEntities => listEntities.map(entity => entity._1)).toArray
     println("Number of potential candidates=", candidateIds.size)
     val  nbrsOfCandidateEntities: Map[NodeId, Set[Entity]] = NodeProp.getOneHopNbrIdsLabels(g, candidateIds).toArray.toMap
@@ -107,11 +121,25 @@ class ColEntityDisamb[VD, ED] {
     val mentionToEntityScore : Map[Mention, Set[(Entity, SimScore)]] = 
       getEntityMentionCompScore(mentionsWithData, mentionToEntityMap, nbrsOfCandidateEntities, 
           mentionToEntityMatchThreshold, phraseMatchThreshold)
-      
+    println("\nMention -> Entity With Scores : ")
+    mentionToEntityScore.foreach(mentionEntityScore => {
+      print(mentionEntityScore._1 + "=>") 
+      mentionEntityScore._2.foreach(entityScore => 
+        print(entityScore._1._2, entityScore._2 ))
+        println
+    })
+    
     // Score semantic relatedness between entity candidates of each mention
     val entityToEntitySemanticRelScore: Map[(Entity, Entity), SimScore] = 
-      getSemanticRelatedEntitiesScore(mentionToEntityScore.values, nbrsOfCandidateEntities)
-    
+      getSemanticRelatedEntitiesScore(mentionToEntityScore.values, nbrsOfCandidateEntities, g.vertices.count)
+      println("\nEntity -entity scores:")
+    entityToEntitySemanticRelScore.foreach(entityPairScore => {
+      val entity1 = entityPairScore._1._1
+      val entity2 = entityPairScore._1._2
+      val score = entityPairScore._2
+      println(entity1._2, entity2._2, score)
+      
+    })
     // Prepare vertices from mentions and entities
     val allVertices: Map[NodeId, LabelWithWt] = getVertices(mentionsWithData, mentionToEntityScore)
     
@@ -120,16 +148,33 @@ class ColEntityDisamb[VD, ED] {
     val allEdgesBySrcId: Map[NodeId, List[LocalDirectedEdge[Double]]] = allEdges.groupBy(edge => edge._1).
     mapValues(iterOfEdges => iterOfEdges.toList.map(dirEdge => new LocalDirectedEdge[Double](dirEdge._2._1, dirEdge._2._2))) 
     
-    new ReferentGraph(allVertices, allEdgesBySrcId)
+    val refGraph = new ReferentGraph(allVertices, allEdgesBySrcId)
+    refGraph.printGraph
+    refGraph
+    
   }
   
   
-
+  /* finds matching candidate entities, for each mention
+   * If no matching entity is found, add new entity as
+   * (-randomNodeId, nous:mention)
+   */
+  
+  def getMatchCandidates(mentionLabels: List[Mention] , g: Graph[String, String], 
+      phraseMatchThreshold: Double): Map[Mention, Iterable[Entity]] = {
+    
+    val mentionToEntityCandidates : Map[Mention, Iterable[Entity]] = 
+      MatchStringCandidates.getMatchesRDDWithAlias(mentionLabels, g, phraseMatchThreshold).collectAsMap 
+    println("\nCandidate matches for each mention:")
+    mentionToEntityCandidates.foreach(matches => println(matches._1 + "=>"  + matches._2.toString))
+    mentionToEntityCandidates
+    
+  }
   
   
   /*Given 
    * a list of mentions (co-occuring in a paragraph) and their associated data types(from NLP)
-   * the list of candidate entities for each mention
+   * the list of candidate entities for each mention, is one exists
    * The information about candidate entities (Neighbourhood data)
    * 
    * Output:
@@ -156,8 +201,11 @@ class ColEntityDisamb[VD, ED] {
       
       val entityWithScore : Set[(Entity, SimScore)] = candEntityList.map( entity => {
         val entityId = entity._1
+        val entityLabel = entity._2.split(KGraphProp.aliasSep)(0)
         val entityNbrs : Set[Entity] = candidateNbrs.get(entityId).get
-        (entity, getMentionEntityScore(mentionData, entityNbrs , allMentionsInGivenContext-mention, phraseMatchThreshold, totalSizeCandEntityNbrs))
+        val simScore = getMentionEntityScore(mentionData, entityNbrs , allMentionsInGivenContext-mention, phraseMatchThreshold, totalSizeCandEntityNbrs)
+        //println("Scoring mention to entity similatity", mention, entityLabel, simScore)
+        (entity, simScore)
       })
       (mention, entityWithScore.filter(entityScores => entityScores._2 > mentionToEntityMatchThreshold))
     })
@@ -179,30 +227,34 @@ class ColEntityDisamb[VD, ED] {
        val found = entityNbrs.exists(entity => Gen_Utils.stringSim(entity._2, mention) > phraseMatchThreshold)
        if(found) commonEntities+=1
     }
-    
+    //println("common nbrs, numMentionsInContext, numOfEntityNbrs", commonEntities, numMentionsInContext, numOfEntityNbrs)
     val simScore: Double =(commonEntities*2.0)/(numMentionsInContext*numOfEntityNbrs)
     val entityPopularity: Double = (entityNbrs.size*1.0)/totalSizeCandEntityNbrs
     
-    entityPopularity*0.5 + simScore*0.5
+    val finalScore = entityPopularity*0.5 + simScore*0.5
+    //println("entityNbrs, mentionNbrs, simcore, popularityScore", entityNbrs.toString, allMentionInContext.toString, simScore, entityPopularity, finalScore)
+    finalScore
   }
   
   
   /* TODO */
   def getSemanticRelatedEntitiesScore(entityListPerMention : Iterable[Set[(Entity, SimScore)]], 
-       nbrsOfCandidate : Map[NodeId, Set[Entity]]): Map[(Entity, Entity), SimScore] = {
+       nbrsOfCandidate : Map[NodeId, Set[Entity]], graphNumVertices: Long): Map[(Entity, Entity), SimScore] = {
     
     val indexedEntityList = entityListPerMention.toIndexedSeq
     val entityToEntitySemnaticSim = collection.mutable.Map.empty[(Entity, Entity), SimScore]
     
-    for( i <- 0 to indexedEntityList.length) {
+    for( i <- 0 to indexedEntityList.length-1) {
       val entityList1 = indexedEntityList(i) 
-      for(j <- 0 to indexedEntityList.length) {
+      for(j <- i+1 to indexedEntityList.length-1) {
         if(i != j) {
           val entityList2 = indexedEntityList(j)
           entityList1.foreach(entity1 => {
             entityList2.foreach(entity2 => {
-              val semRel: Double = semanticRelatedness(entity1._1, entity2._1, nbrsOfCandidate)
-              entityToEntitySemnaticSim.update((entity1._1, entity2._1), semRel)
+              val semRel: Double = semanticRelatedness(entity1._1, entity2._1, 
+                  nbrsOfCandidate, graphNumVertices)
+              if(semRel > 0)
+                entityToEntitySemnaticSim.update((entity1._1, entity2._1), semRel)
             })
           })         
         }
@@ -214,7 +266,8 @@ class ColEntityDisamb[VD, ED] {
   /* Given two entities, calculate smantic relatedness using their neighbourhood information, as:
    * SR(A, B)  =  1 -  ( (log(max(|A|, |B|)) - log(A intersection B) )   /  (log |W| - log(min(|A|, |B|)) ) )
    * */
-  def semanticRelatedness(entity1: Entity, entity2: Entity, NbrMap: Map[NodeId, Set[Entity]]): Double = {
+  def semanticRelatedness(entity1: Entity, entity2: Entity, NbrMap: Map[NodeId, Set[Entity]], 
+      graphNumVertices: Long): Double = {
     
     val nodeId1 = entity1._1
     val nodeId2 = entity2._1
@@ -223,12 +276,14 @@ class ColEntityDisamb[VD, ED] {
     
     val maxSize = Math.max(nbrsEntity1.size, nbrsEntity2.size)
     val commonNbrs = nbrsEntity1.intersect(nbrsEntity2)
-    val totalNumberOfEntities = NbrMap.size
-    
-   val minSize = Math.min(nbrsEntity1.size, nbrsEntity2.size)
+    //val totalNumberOfEntities = NbrMap.size
    
+   val minSize = Math.min(nbrsEntity1.size, nbrsEntity2.size)
+   //println("maxSize, commonNbrs.size, totalENtities, minSize", 
+   //    maxSize, commonNbrs.size, graphNumVertices, minSize)
    val numerator = Math.log(maxSize) - Math.log(commonNbrs.size)
-   val denominator = Math.log(totalNumberOfEntities) - Math.log(minSize)
+   val denominator = Math.log(graphNumVertices) - Math.log(minSize)
+   
    
    (1 - (numerator/denominator))    
   }
@@ -263,19 +318,23 @@ class ColEntityDisamb[VD, ED] {
       entityToEntitySemanticRelScore: Map[(Entity, Entity), Double]) : 
       Iterable[(NodeId, (SimScore, NodeId))] = {
     
+    println
+   
     // Get edges between mention and entity candidates
-    val mentionToEntityEdges: Iterable[(NodeId, (SimScore, NodeId))] = mentionToEntityScore.flatMap(mentionWithListOfCandidates => {
+    val mentionToEntityEdges: Iterable[(NodeId, (SimScore, NodeId))] = mentionToEntityScore.
+    flatten(mentionWithListOfCandidates => {
       val mention: Mention = mentionWithListOfCandidates._1
       val entityListWithScore: Set[(Entity, Double)] = mentionWithListOfCandidates._2
+      
       val mentionToEntityEdge: Set[(Long, (Double, Long))] = entityListWithScore.map(entityWithScore => 
         (mention.hashCode().toLong,  (entityWithScore._2, entityWithScore._1._1)))
      mentionToEntityEdge 
     })
     
+    
     //Get Edges between different candidate entities
     val entityToEntityEdges : Iterable[(NodeId, (SimScore, NodeId))] = entityToEntitySemanticRelScore.
-    filter(entityPairWithSimScore => (entityPairWithSimScore._2 > 0)).
-    flatMap(entityPairWithSimScore => {
+    flatten(entityPairWithSimScore => {
       val entityPair: (Entity, Entity) = entityPairWithSimScore._1
       val score: Double = entityPairWithSimScore._2
       Iterable((entityPair._1._1, (score, entityPair._2._1)), (entityPair._2._1, (score, entityPair._1._1)))
@@ -283,6 +342,7 @@ class ColEntityDisamb[VD, ED] {
     
     // Combine the (mention->entity) and (entity-entity) edge list 
     val allEdges :Iterable[(NodeId, (SimScore, NodeId))] = mentionToEntityEdges ++ entityToEntityEdges
+    
     allEdges
   }
   

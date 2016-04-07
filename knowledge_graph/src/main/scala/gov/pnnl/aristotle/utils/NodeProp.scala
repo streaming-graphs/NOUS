@@ -185,10 +185,10 @@ object NodeProp {
     
     val nbrlist: VertexRDD[Set[(Long, String, String)]] =  g.aggregateMessages[Set[(Long, String, String)]](
         edge => {         
-          //if(!filterRelations.contains(edge.attr)) {
+          if(!filterRelations.contains(edge.attr) || filterRelations.isEmpty) {
             edge.sendToSrc(Set((edge.dstId, edge.dstAttr, edge.attr)))
         	edge.sendToDst(Set((edge.srcId, edge.srcAttr, edge.attr)))
-          //}
+          }
         }, 
         (a,b) => a ++ b
     )
@@ -197,13 +197,14 @@ object NodeProp {
   } 
 
   def getOneHopNbrIdsLabels( g: Graph[String, String], id: Array[Long], filterRelations:Set[String] = Set.empty) : VertexRDD[Set[(Long, String)]] = {
-    
     val nbrlist: VertexRDD[Set[(Long, String)]] =  g.aggregateMessages[Set[(Long, String)]](
         edge => {         
-          if((id.contains(edge.srcId) || id.contains(edge.dstId)) && !filterRelations.contains(edge.attr)) {
+          if(id.contains(edge.srcId)){ //  && (!filterRelations.contains(edge.attr) || filterRelations.isEmpty)) {
             edge.sendToSrc(Set((edge.dstId, edge.dstAttr)))
+          }        
+          if(id.contains(edge.dstId)) { //  && (!filterRelations.contains(edge.attr) || filterRelations.isEmpty)) {
             edge.sendToDst(Set((edge.srcId, edge.srcAttr)))
-          }
+          }      
         }, 
         (a,b) => a ++ b
     )
@@ -211,7 +212,7 @@ object NodeProp {
     return nbrlist;
   } 
   
-    def getOneHopNbrsEdgeLabels( g: Graph[String, String], id: Long, relationLabel: Set[String]) : VertexRDD[Set[(Long, String, String)]] = {    
+  def getOneHopNbrsEdgeLabels( g: Graph[String, String], id: Long, relationLabel: Set[String]) : VertexRDD[Set[(Long, String, String)]] = {    
     val nbrlist: VertexRDD[Set[(Long, String, String)]] =  g.aggregateMessages[Set[(Long, String, String)]](
         edge => {         
           if(id == edge.srcId && relationLabel.contains(edge.attr)) {
