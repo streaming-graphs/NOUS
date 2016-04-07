@@ -6,9 +6,7 @@ import org.apache.spark.SparkContext
 import java.io.File
 import org.apache.spark.graphx.Graph
 import scalaz.Scalaz._
-import gov.pnnl.aristotle.algorithms.GraphProfiling
 import gov.pnnl.aristotle.algorithms.ReadHugeGraph
-import gov.pnnl.aristotle.algorithms.GraphPatternProfiler
 import scala.xml.Null
 import gov.pnnl.aristotle.utils.Gen_Utils
 import org.apache.log4j.Logger

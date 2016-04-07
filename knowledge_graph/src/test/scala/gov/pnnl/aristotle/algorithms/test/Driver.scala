@@ -41,24 +41,24 @@ object Driver {
       
        mode = userInput(0).toLowerCase()
        if(mode =="-profile" && userInput.length >= 2) {
-         var filename: String =  "sampleProfileOutput.txt"
-         val writerSG = new PrintWriter(new File(filename))
-    	 if(userInput(1) == "-type") {
-    	   val profileArgs = userInput(2)
-    	   val typemap = GraphProfiling.getAugmentedTypeMap(g, writerSG);
-	       //GraphProfiling.showNodeTypeProfile(typemap, profileArgs)
-	     } else if(userInput(1) == "-entity") {
-    	   val profileArgs = userInput(2)
-    	   val augGraph = GraphProfiling.getAugmentedGraph(g, writerSG)
-	       GraphProfiling.showNodeProfile(augGraph, profileArgs)
-    	 } else {
-    	   // check for both
-    	   val profileArgs = userInput(1)
-	       val typemap = GraphProfiling.getAugmentedTypeMap(g, writerSG);
-	       //GraphProfiling.showNodeTypeProfile(typemap, profileArgs)
-	       val augGraph = GraphProfiling.getAugmentedGraph(g, writerSG)
-	       GraphProfiling.showNodeProfile(augGraph, profileArgs)
-    	 }
+//         var filename: String =  "sampleProfileOutput.txt"
+//         val writerSG = new PrintWriter(new File(filename))
+//    	 if(userInput(1) == "-type") {
+//    	   val profileArgs = userInput(2)
+//    	   val typemap = GraphProfiling.getAugmentedTypeMap(g, writerSG);
+//	       //GraphProfiling.showNodeTypeProfile(typemap, profileArgs)
+//	     } else if(userInput(1) == "-entity") {
+//    	   val profileArgs = userInput(2)
+//    	   val augGraph = GraphProfiling.getAugmentedGraph(g, writerSG)
+//	       GraphProfiling.showNodeProfile(augGraph, profileArgs)
+//    	 } else {
+//    	   // check for both
+//    	   val profileArgs = userInput(1)
+//	       val typemap = GraphProfiling.getAugmentedTypeMap(g, writerSG);
+//	       //GraphProfiling.showNodeTypeProfile(typemap, profileArgs)
+//	       val augGraph = GraphProfiling.getAugmentedGraph(g, writerSG)
+//	       GraphProfiling.showNodeProfile(augGraph, profileArgs)
+//    	 }
       } 
       
       else if(mode == "-search"  && userInput.length == 2) {

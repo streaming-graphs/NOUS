@@ -19,16 +19,18 @@ import gov.pnnl.aristotle.algorithms.mining.datamodel.PGNode
 import gov.pnnl.aristotle.algorithms.mining.datamodel.PatternDependencyGraph
 import gov.pnnl.aristotle.algorithms.mining.datamodel.PatternInstance
 import org.apache.spark.graphx.Graph.graphToGraphOps
+import gov.pnnl.aristotle.algorithms.mining.datamodel.KGNodeV2Flat
 
-class DynamicPatternGraphV2(var minSup: Int) 
-extends DynamicPatternGraph[KGNodeV2, KGEdge] {
 
+class DynamicPatternGraphV2Flat(var minSup: Int) 
+extends DynamicPatternGraph[KGNodeV2Flat, KGEdge] {
+ 
   var TYPE: String = "rdf:type"
   var SUPPORT: Int = minSup
   var type_support :Int = 2
-  var input_graph: Graph[KGNodeV2, KGEdge] = null
+  var input_graph: Graph[KGNodeV2Flat, KGEdge] = null
   override def init(graph: Graph[String, KGEdge], writerSG: PrintWriter,basetype:String,
-      type_support : Int): DynamicPatternGraphV2 = {
+      type_support : Int): DynamicPatternGraphV2Flat = {
 
     /*
      * Get all the rdf:type dst node information on the source node
@@ -60,10 +62,10 @@ extends DynamicPatternGraph[KGNodeV2, KGEdge] {
         getNonTypeVertexRDDV2(typedAugmentedGraph)
         //nonTypedVertexRDD.collect.foreach(f=>writerSG.println("non-type"+f.toString))
     t0 = System.currentTimeMillis();
-    val updatedGraph: Graph[KGNodeV2, KGEdge] =
+    val updatedGraph: Graph[KGNodeV2Flat, KGEdge] =
       typedAugmentedGraph.outerJoinVertices(nonTypedVertexRDD) {
-        case (id, (label, something), Some(nbr)) => new KGNodeV2(label, nbr)
-        case (id, (label, something), None) => new KGNodeV2(label, Map())
+        case (id, (label, something), Some(nbr)) => new KGNodeV2Flat(label, nbr,List.empty)
+        case (id, (label, something), None) => new KGNodeV2Flat(label, Map(),List.empty)
       }
     t1 = System.currentTimeMillis();
     writerSG.println("#Time to join base typed graph with input graph" +
@@ -86,7 +88,7 @@ extends DynamicPatternGraph[KGNodeV2, KGEdge] {
     val result = null
     this.input_graph
     // = GraphPatternProfiler.fixGraphV2(updateGraph_withsink);
-    = GraphPatternProfiler.get_Frequent_SubgraphV2(updateGraph_withsink, result, SUPPORT)
+    = GraphPatternProfiler.get_Frequent_SubgraphV2Flat(updateGraph_withsink, result, SUPPORT)
 //    = GraphPatternProfiler.fixGraphV2(GraphPatternProfiler.
 //      get_Frequent_SubgraphV2(updateGraph_withsink, result, SUPPORT));
     
@@ -94,8 +96,8 @@ extends DynamicPatternGraph[KGNodeV2, KGEdge] {
 
   }
 
-  def filterNonPatternSubGraphV2(updatedGraph :Graph[KGNodeV2,KGEdge])
-  :Graph[KGNodeV2,KGEdge]=
+  def filterNonPatternSubGraphV2(updatedGraph :Graph[KGNodeV2Flat,KGEdge])
+  :Graph[KGNodeV2Flat,KGEdge]=
   {
     return updatedGraph.subgraph(epred =>
       ((epred.attr.getlabel.equalsIgnoreCase(TYPE) != true) &&
@@ -114,8 +116,9 @@ extends DynamicPatternGraph[KGNodeV2, KGEdge] {
     return a |+| b
     }
   
-  def updateGraphWithSinkV2(subgraph_with_pattern : Graph[KGNodeV2,KGEdge]) :
-  Graph[KGNodeV2, KGEdge] =
+  def updateGraphWithSinkV2(subgraph_with_pattern : 
+      Graph[KGNodeV2Flat,KGEdge]) :
+  Graph[KGNodeV2Flat, KGEdge] =
   {
       val all_dest_nodes =
         subgraph_with_pattern.triplets.map(triplets => (triplets.dstId, triplets.dstAttr)).distinct
@@ -148,10 +151,10 @@ extends DynamicPatternGraph[KGNodeV2, KGEdge] {
             reducePatternsOnNodeV2(pattern1NodeN, pattern2NodeN)
           })
 
-      val updateGraph_withsink: Graph[KGNodeV2, KGEdge] = 
+      val updateGraph_withsink: Graph[KGNodeV2Flat, KGEdge] = 
         subgraph_with_pattern.outerJoinVertices(graph_with_sink_node_pattern) {
-        case (id, kg_node, Some(nbr)) => new KGNodeV2(kg_node.getlabel, kg_node.getpattern_map |+| nbr)
-        case (id, kg_node, None) => new KGNodeV2(kg_node.getlabel, kg_node.getpattern_map)
+        case (id, kg_node, Some(nbr)) => new KGNodeV2Flat(kg_node.getlabel, kg_node.getpattern_map |+| nbr,List.empty)
+        case (id, kg_node, None) => new KGNodeV2Flat(kg_node.getlabel, kg_node.getpattern_map,List.empty)
       }
 
       return updateGraph_withsink
@@ -234,7 +237,7 @@ def getNonTypeVertexRDDV2(typedAugmentedGraph: Graph[(String,
     //            > (now - windowSize))
   }
 
-  def merge(gBatch: DynamicPatternGraphV2, sc: SparkContext): DynamicPatternGraphV2 = {
+  def merge(gBatch: DynamicPatternGraphV2Flat, sc: SparkContext): DynamicPatternGraphV2Flat = {
 
     if (this.input_graph == null) {
       this.input_graph = gBatch.input_graph
@@ -255,22 +258,22 @@ def getNonTypeVertexRDDV2(typedAugmentedGraph: Graph[(String,
     }).joinVertices[Map[String, Long]](vertices_rdd)((id,
       kgnode, new_data) => {
       if (kgnode != null)
-        new KGNodeV2(kgnode.getlabel, kgnode.getpattern_map |+| new_data)
+        new KGNodeV2Flat(kgnode.getlabel, kgnode.getpattern_map |+| new_data,List.empty)
       else
-        new KGNodeV2("", Map.empty)
+        new KGNodeV2Flat("", Map.empty,List.empty)
     })
     //new_window_graph.edges = gBatch.input_graph.edges
     t1 = System.nanoTime()
     println("#Time To join new batch and existing window: " + " =" +
       (t1 - t0) * 1e-9 + "seconds,#First node of new graph" + new_window_graph.vertices.first)
 
-    val result = new DynamicPatternGraphV2(minSup)
+    val result = new DynamicPatternGraphV2Flat(minSup)
     result.input_graph = new_window_graph
     return result
   }
 
   def joinPatterns(gDep: PatternDependencyGraph, writerSG: PrintWriter,
-    level: Int): Graph[KGNodeV2, KGEdge] = {
+    level: Int): Graph[KGNodeV2Flat, KGEdge] = {
 
     // Now mine the smaller graph and return the graph with larger patterns
     return getAugmentedGraphNextSizeV2(this.input_graph,
@@ -289,9 +292,9 @@ def getNonTypeVertexRDDV2(typedAugmentedGraph: Graph[(String,
    *    pattern P1P2 of size n1+n2 on the source vertex
    */
      
-  def getAugmentedGraphNextSizeV2(nThPatternGraph: Graph[KGNodeV2, KGEdge],
+  def getAugmentedGraphNextSizeV2(nThPatternGraph: Graph[KGNodeV2Flat, KGEdge],
     writerSG: PrintWriter,
-    iteration_id: Int): Graph[KGNodeV2, KGEdge] =
+    iteration_id: Int): Graph[KGNodeV2Flat, KGEdge] =
     {
 
       var t0 = System.currentTimeMillis();
@@ -307,7 +310,7 @@ def getNonTypeVertexRDDV2(typedAugmentedGraph: Graph[(String,
 
       // Step 1: First do self join of existing n-size patterns to create 2*n patterns.
       t0 = System.currentTimeMillis();
-      val g1 = GraphPatternProfiler.self_Instance_Join_GraphV2(nThPatternGraph, iteration_id)
+      val g1 = GraphPatternProfiler.self_Instance_Join_GraphV2Flat(nThPatternGraph, iteration_id)
       t1 = System.currentTimeMillis();
       writerSG.println("#Time to do self_instance join graph" + " =" + (t1 - t0) * 1e-3 +
         "s and" + "#TSize of self_instance update graph" + " =" + g1.vertices.first.toString)
@@ -316,7 +319,7 @@ def getNonTypeVertexRDDV2(typedAugmentedGraph: Graph[(String,
       //Step 2 : Self Join 2 different patterns at a node to create 2*n size pattern
       var res = nThPatternGraph.vertices.map(v => (v._1,v._2.getInstanceCount))
       t0 = System.currentTimeMillis();
-      val newGraph = GraphPatternProfiler.self_Pattern_Join_GraphV2(nThPatternGraph, iteration_id)
+      val newGraph = GraphPatternProfiler.self_Pattern_Join_GraphV2Flat(nThPatternGraph, iteration_id)
       t1 = System.currentTimeMillis();
       println("#Time to do self_pattern join graph" +
         " =" + (t1 - t0) * 1e-3 + "s and " +
@@ -377,8 +380,8 @@ def getNonTypeVertexRDDV2(typedAugmentedGraph: Graph[(String,
    *
    *
    */
-  def edge_Pattern_Join_GraphV2(newGraph1: Graph[KGNodeV2, KGEdge],
-    writerSG: PrintWriter, iteration_id: Int): Graph[KGNodeV2, KGEdge] = {
+  def edge_Pattern_Join_GraphV2(newGraph1: Graph[KGNodeV2Flat, KGEdge],
+    writerSG: PrintWriter, iteration_id: Int): Graph[KGNodeV2Flat, KGEdge] = {
     var t0 = System.currentTimeMillis();
     writerSG.flush()
     val newGraph = newGraph1.subgraph(epred =>
@@ -429,16 +432,18 @@ def getNonTypeVertexRDDV2(typedAugmentedGraph: Graph[(String,
     return nPlusOneThPatternGraph
   }
 
-  def joinPatternGraphV2(nThPatternGraph: Graph[KGNodeV2, KGEdge],
+  def joinPatternGraphV2(nThPatternGraph: Graph[KGNodeV2Flat, KGEdge],
     nPlusOneThPatternVertexRDD: VertexRDD[Map[String, Long]]):
-    Graph[KGNodeV2, KGEdge] =
+    Graph[KGNodeV2Flat, KGEdge] =
     {
       val update_tmp_graph =
         nThPatternGraph.outerJoinVertices(nPlusOneThPatternVertexRDD) {
           case (id, a_kgnode, Some(nbr)) =>
-            new KGNodeV2(a_kgnode.getlabel, a_kgnode.getpattern_map |+| nbr)
+            new KGNodeV2Flat(a_kgnode.getlabel, 
+                a_kgnode.getpattern_map |+| nbr,List.empty)
           case (id, a_kgnode, None) =>
-            new KGNodeV2(a_kgnode.getlabel, a_kgnode.getpattern_map)
+            new KGNodeV2Flat(a_kgnode.getlabel, 
+                a_kgnode.getpattern_map,List.empty)
         }
       val result = null
       return update_tmp_graph
@@ -459,7 +464,7 @@ def getNonTypeVertexRDDV2(typedAugmentedGraph: Graph[(String,
    * nation by appending current edge to it. It sends this newly created pattern
    * and its instance to the source vertex using spark GraphX message passing.
    */
-  def sendPatternToNodeV2(edge: EdgeContext[KGNodeV2, KGEdge, Map[String, Long]],
+  def sendPatternToNodeV2(edge: EdgeContext[KGNodeV2Flat, KGEdge, Map[String, Long]],
     iteration_id: Int) {
 
     /*
@@ -482,7 +487,7 @@ def getNonTypeVertexRDDV2(typedAugmentedGraph: Graph[(String,
               if(sr._1.split("\\t")(2).equals(dst._1.split("\\t")(0)))
               {
                 println("send msg 1")
-                GraphPatternProfiler.sendPatternV2(sr._1, dst._1,
+                GraphPatternProfiler.sendPatternV2Flat(sr._1, dst._1,
                       sr._2, dst._2, edge)
               }
             }
@@ -509,7 +514,7 @@ def getNonTypeVertexRDDV2(typedAugmentedGraph: Graph[(String,
           })
 
       val tmp_commulative_RDD =
-        GraphPatternProfiler.get_Pattern_RDDV2(this.input_graph)
+        GraphPatternProfiler.get_Pattern_RDDV2Flat(this.input_graph)
 
       val new_dependency_graph_vertices_support: RDD[(VertexId, PGNode)] =
         tmp_commulative_RDD.map(pattern =>
@@ -540,7 +545,8 @@ def getNonTypeVertexRDDV2(typedAugmentedGraph: Graph[(String,
 
     }
   
-  def mergeBatchGraph(batch_graph : Graph[KGNodeV2,KGEdge]) : Graph[KGNodeV2,KGEdge] =
+  def mergeBatchGraph(batch_graph : Graph[KGNodeV2Flat,KGEdge]) :
+  Graph[KGNodeV2Flat,KGEdge] =
   {
     val vertices_rdd: RDD[(VertexId, Map[String, Long])] =
         batch_graph.vertices.map(f => (f._1, f._2.getpattern_map))
@@ -548,9 +554,10 @@ def getNonTypeVertexRDDV2(typedAugmentedGraph: Graph[(String,
       val new_window_graph = this.input_graph.joinVertices[Map[String, 
         Long]](vertices_rdd)((id, kgnode, new_data) => {
         if (kgnode != null)
-          new KGNodeV2(kgnode.getlabel, kgnode.getpattern_map |+| new_data)
+          new KGNodeV2Flat(kgnode.getlabel, 
+              kgnode.getpattern_map |+| new_data,List.empty)
         else
-          new KGNodeV2("", Map.empty)
+          new KGNodeV2Flat("", Map.empty,List.empty)
       })
 
       return new_window_graph
