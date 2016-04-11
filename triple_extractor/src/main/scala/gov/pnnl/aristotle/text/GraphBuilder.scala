@@ -24,7 +24,7 @@ object GraphBuilder {
     val sc = new SparkContext(new SparkConf()
                                   .setMaster("local["+nprocs+"]")
                                   .setAppName("TripleParser"))
-    val inputListRDD = sc.textFile(fileList)
+    val inputListRDD = sc.textFile(fileList).filter(entry => new File(entry).isFile && entry.endsWith(".json"))
 
     val inputFormat = appConf("INPUT_FORMAT")
     val urlTextPairs = inputListRDD.flatMap(path => {
@@ -45,7 +45,7 @@ object GraphBuilder {
     // pw.close()
     // tripleParser.srlOutputWriter.close()
 
-    println("Storing " + triples.count + " triples")
+    // println("Storing " + triples.count + " triples")
     triples.saveAsTextFile(outPath)
   }
 }
