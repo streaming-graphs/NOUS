@@ -2,6 +2,7 @@ package gov.pnnl.aristotle.algorithms
 
 import org.apache.spark._
 import org.apache.spark.SparkContext._
+import breeze.linalg._
 
 import org.apache.spark.graphx._
 import org.apache.spark.rdd.RDD
@@ -12,8 +13,6 @@ import scala.collection.Map
 import scala.util.Sorting
 import scala.math.Ordering
 import scala.collection.mutable.HashMap
-import org.apache.log4j.Logger
-import org.apache.log4j.Level
 import gov.pnnl.aristotle.utils.{NLPTripleParser}
 import java.io.{BufferedWriter, OutputStreamWriter, FileOutputStream}
 import gov.pnnl.aristotle.utils._
@@ -30,49 +29,6 @@ import gov.pnnl.aristotle.utils._
  url = {http://doi.acm.org/10.1145/2009916.2010019},
  * 
  */
-
-object TestColDisamb{
-  
-  def main(args: Array[String]): Unit = {
-    
-   
-    val sparkConf = new SparkConf().setAppName("EntityDisamb").setMaster("local")
-    val sc = new SparkContext(sparkConf)
-    Logger.getLogger("org").setLevel(Level.OFF)
-    Logger.getLogger("akka").setLevel(Level.OFF)
-    println("starting from main")
-    
-    if(args.length != 4){
-      println("provide <path to graph> <path to new_triples file> <StringPhraseMatchThreshold> <MentionToEntityMatchThreshold>")
-      exit
-    }
-    
-    val phraseMatchThreshold = args(2).toDouble
-    val mentionToEntityMatchThreshold = args(3).toDouble
-    println("Reading triple file")
-    val allTriples: List[List[NLPTriple]] = NLPTripleParser.readTriples(args(1), sc)
-    println("No of blocks=" + allTriples.size + "\n")
-    
-    println("Reading graph")
-    val g: Graph[String, String] = ReadHugeGraph.getGraph(args(0), sc)
-    println("Done reading graph" + g.vertices.count + ", starting disambiguation\n")
-   
-    
-    val colEntityDis = new ColEntityDisamb[String, String]
-    for(triplesInBlock <- allTriples){
-      val mentionMap: Map[String, MentionData] = NLPTripleParser.getEntitiesWithTypeMapFromTriples(triplesInBlock)
-      println("Disambiguating follwing entities together as a block", mentionMap.size)
-      mentionMap.foreach(v => println(v._1 + "--(type, evidence weight)-->"+ v._2.toString))  
-      
-      val refGraph = colEntityDis.getReferentGraph(mentionMap, g, phraseMatchThreshold, mentionToEntityMatchThreshold)
-       
-      println("end of block")
-    }
-   
-  }
-}
-
-
  
 class ColEntityDisamb[VD, ED] {
   
@@ -81,78 +37,60 @@ class ColEntityDisamb[VD, ED] {
       label + ";" + wt.toString
     }
   }
-  class LabelWithType(val label: String, val vtype: String)
+  
   type ReferentGraph = LocalGraph[LabelWithWt, Double]
 
   type Mention = String
   type SimScore = Double
   type NodeId = Long 
   type Entity = (NodeId, String)
-  
-  
- 
+   
   /* creates a referent graph from the list of mentions and given a base knowledge graph */
   /* Need to handle case where a mention is not matched to any entity*/
-  def getReferentGraph(allMentionsWithData: Map[String, MentionData], g: Graph[String, String], 
-      phraseMatchThreshold: Double = 0.7, mentionToEntityMatchThreshold: Double = 0.0 ): ReferentGraph = {
+  def disambiguate(allMentionsWithData: Map[String, MentionData], g: Graph[String, String], 
+      vertexRDDWithAlias: VertexRDD[String],
+      phraseMatchThreshold: Double = 0.7, mentionToEntityMatchThreshold: Double = 0.0, 
+      lambda: Double= 0.1 ): 
+      Map[Mention, (Entity, SimScore)] = {
     
-    println("In : Construct refrent graph for mentions", allMentionsWithData.size)
     
+    val numVerticesInGraph = g.vertices.count
     
-    //Get candidates entities for each mention
+    //1. Get candidates entities for each mention
     val mentionLabels: List[Mention] = allMentionsWithData.keys.toList
-    val mentionToEntityMap: Map[Mention, Iterable[Entity]] = getMatchCandidates(mentionLabels, g, phraseMatchThreshold)
-    
+    val mentionToEntityMap: Map[Mention, Iterable[Entity]] = 
+      getMatchCandidates(mentionLabels, vertexRDDWithAlias, phraseMatchThreshold)    
     val mentionsWithoutEntityMatch: Set[Mention] = mentionLabels.toSet--mentionToEntityMap.keys.toSet
     val mentionsWithData = allMentionsWithData.--(mentionsWithoutEntityMatch)
-    
     println("Mentions without any entity match")
-    mentionsWithoutEntityMatch.foreach(println(_))
-    
-    println("Size of new mentionMap , mentionToentityMap", mentionsWithData.size, mentionToEntityMap.size)
+    mentionsWithoutEntityMatch.foreach(println(_))    
     
     
-    // Score each candidate entity using graph neighbourhood data
+    // 2. Score each candidate entity using graph neighbourhood data
     val candidateIds: Array[NodeId] = mentionToEntityMap.values.flatMap(listEntities => listEntities.map(entity => entity._1)).toArray
     println("Number of potential candidates=", candidateIds.size)
-    val  nbrsOfCandidateEntities: Map[NodeId, Set[Entity]] = NodeProp.getOneHopNbrIdsLabels(g, candidateIds).toArray.toMap
-    
-    //Find list of candidate entities for each mention
+    val  nbrsOfCandidateEntities: Map[NodeId, Set[Entity]] = NodeProp.getOneHopNbrIdsLabels(g, candidateIds).toArray.toMap    
     val mentionToEntityScore : Map[Mention, Set[(Entity, SimScore)]] = 
       getEntityMentionCompScore(mentionsWithData, mentionToEntityMap, nbrsOfCandidateEntities, 
           mentionToEntityMatchThreshold, phraseMatchThreshold)
-    println("\nMention -> Entity With Scores : ")
-    mentionToEntityScore.foreach(mentionEntityScore => {
-      print(mentionEntityScore._1 + "=>") 
-      mentionEntityScore._2.foreach(entityScore => 
-        print(entityScore._1._2, entityScore._2 ))
-        println
-    })
     
-    // Score semantic relatedness between entity candidates of each mention
+    //3. Score semantic relatedness between entity candidates of each mention
     val entityToEntitySemanticRelScore: Map[(Entity, Entity), SimScore] = 
-      getSemanticRelatedEntitiesScore(mentionToEntityScore.values, nbrsOfCandidateEntities, g.vertices.count)
-      println("\nEntity -entity scores:")
-    entityToEntitySemanticRelScore.foreach(entityPairScore => {
-      val entity1 = entityPairScore._1._1
-      val entity2 = entityPairScore._1._2
-      val score = entityPairScore._2
-      println(entity1._2, entity2._2, score)
+      getSemanticRelatedEntitiesScore(mentionToEntityScore.values, nbrsOfCandidateEntities, numVerticesInGraph)
       
-    })
-    // Prepare vertices from mentions and entities
-    val allVertices: Map[NodeId, LabelWithWt] = getVertices(mentionsWithData, mentionToEntityScore)
     
-    //prepare edge, grouped by source id
-    val allEdges = getEdges(mentionToEntityScore, entityToEntitySemanticRelScore)
-    val allEdgesBySrcId: Map[NodeId, List[LocalDirectedEdge[Double]]] = allEdges.groupBy(edge => edge._1).
-    mapValues(iterOfEdges => iterOfEdges.toList.map(dirEdge => new LocalDirectedEdge[Double](dirEdge._2._1, dirEdge._2._2))) 
-    
-    val refGraph = new ReferentGraph(allVertices, allEdgesBySrcId)
-    refGraph.printGraph
-    refGraph
-    
+    //4. Prepare ReferentGraph(vertices, edges) from mentions and entities
+    println("Creating normalized referent graph")
+    val refGraph: ReferentGraph = 
+      createReferentGraph(mentionsWithData, mentionToEntityScore, 
+          entityToEntitySemanticRelScore)
+   
+    println(" Performing collective inference")
+    getMatchUsingMaxReferentGraph(refGraph, mentionsWithoutEntityMatch, 
+        mentionsWithData.size, lambda) 
   }
+  
+  
   
   
   /* finds matching candidate entities, for each mention
@@ -160,15 +98,14 @@ class ColEntityDisamb[VD, ED] {
    * (-randomNodeId, nous:mention)
    */
   
-  def getMatchCandidates(mentionLabels: List[Mention] , g: Graph[String, String], 
+  private def getMatchCandidates(mentionLabels: List[Mention] , vertexRDDWithAlias: VertexRDD[String], 
       phraseMatchThreshold: Double): Map[Mention, Iterable[Entity]] = {
     
     val mentionToEntityCandidates : Map[Mention, Iterable[Entity]] = 
-      MatchStringCandidates.getMatchesRDDWithAlias(mentionLabels, g, phraseMatchThreshold).collectAsMap 
+      MatchStringCandidates.getMatchesRDDWithAlias(mentionLabels, vertexRDDWithAlias, phraseMatchThreshold).collectAsMap 
     println("\nCandidate matches for each mention:")
     mentionToEntityCandidates.foreach(matches => println(matches._1 + "=>"  + matches._2.toString))
-    mentionToEntityCandidates
-    
+    mentionToEntityCandidates   
   }
   
   
@@ -180,14 +117,15 @@ class ColEntityDisamb[VD, ED] {
    * Output:
    * For each mention, provide matching entities along with Similarity score 
    * */
-  def getEntityMentionCompScore(mentionsWithData : Map[Mention, MentionData] , 
+  private def getEntityMentionCompScore(mentionsWithData : Map[Mention, MentionData] , 
       mentionsToEntityMap: Map[Mention, Iterable[Entity]], 
       candidateNbrs: Map[VertexId, Set[Entity]],  mentionToEntityMatchThreshold: Double, 
       phraseMatchThreshold: Double) :  Map[Mention, Set[(Entity, SimScore)]]= {
     
     val allMentionsInGivenContext = mentionsWithData.keys.toSet
     
-    val mentionToEntityCompScore : Map[Mention, Set[(Entity, SimScore)]] = mentionsToEntityMap.map(mentionToEntityList => {
+    val mentionToEntityCompScore : Map[Mention, Set[(Entity, SimScore)]] = 
+      mentionsToEntityMap.map(mentionToEntityList => {
       val mention: Mention = mentionToEntityList._1
       val mentionData: MentionData = mentionsWithData.get(mention).get
       
@@ -208,6 +146,13 @@ class ColEntityDisamb[VD, ED] {
         (entity, simScore)
       })
       (mention, entityWithScore.filter(entityScores => entityScores._2 > mentionToEntityMatchThreshold))
+    })
+    println("\nMention -> Entity With Scores : ")
+    mentionToEntityCompScore.foreach(mentionEntityScore => {
+      print(mentionEntityScore._1 + "=>") 
+      mentionEntityScore._2.foreach(entityScore => 
+        print(entityScore._1._2, entityScore._2 ))
+        println
     })
     mentionToEntityCompScore
   }
@@ -231,18 +176,24 @@ class ColEntityDisamb[VD, ED] {
     val simScore: Double =(commonEntities*2.0)/(numMentionsInContext*numOfEntityNbrs)
     val entityPopularity: Double = (entityNbrs.size*1.0)/totalSizeCandEntityNbrs
     
-    val finalScore = entityPopularity*0.5 + simScore*0.5
+    val finalScore = simScore
+    //val finalScore = entityPopularity*0.5 + simScore*0.5
     //println("entityNbrs, mentionNbrs, simcore, popularityScore", entityNbrs.toString, allMentionInContext.toString, simScore, entityPopularity, finalScore)
     finalScore
   }
   
   
-  /* TODO */
+  /* Given candidate entities for each mention
+   * Score (entity,entity) similarity
+   * where entity pair belong to two different mentions
+   * If two entities have no semnatic relatedness (<0), ignore that pair
+   * 
+   */
   def getSemanticRelatedEntitiesScore(entityListPerMention : Iterable[Set[(Entity, SimScore)]], 
        nbrsOfCandidate : Map[NodeId, Set[Entity]], graphNumVertices: Long): Map[(Entity, Entity), SimScore] = {
     
     val indexedEntityList = entityListPerMention.toIndexedSeq
-    val entityToEntitySemnaticSim = collection.mutable.Map.empty[(Entity, Entity), SimScore]
+    val entityToEntitySemanticSim = collection.mutable.Map.empty[(Entity, Entity), SimScore]
     
     for( i <- 0 to indexedEntityList.length-1) {
       val entityList1 = indexedEntityList(i) 
@@ -254,13 +205,21 @@ class ColEntityDisamb[VD, ED] {
               val semRel: Double = semanticRelatedness(entity1._1, entity2._1, 
                   nbrsOfCandidate, graphNumVertices)
               if(semRel > 0)
-                entityToEntitySemnaticSim.update((entity1._1, entity2._1), semRel)
+                entityToEntitySemanticSim.update((entity1._1, entity2._1), semRel)
             })
           })         
         }
       }      
     }
-    entityToEntitySemnaticSim.toMap
+    println("\nEntity -entity scores:")
+    entityToEntitySemanticSim.foreach(entityPairScore => {
+      val entity1 = entityPairScore._1._1
+      val entity2 = entityPairScore._1._2
+      val score = entityPairScore._2
+      println(entity1._2, entity2._2, score)
+      
+    })
+    entityToEntitySemanticSim.toMap
   }
   
   /* Given two entities, calculate smantic relatedness using their neighbourhood information, as:
@@ -276,18 +235,121 @@ class ColEntityDisamb[VD, ED] {
     
     val maxSize = Math.max(nbrsEntity1.size, nbrsEntity2.size)
     val commonNbrs = nbrsEntity1.intersect(nbrsEntity2)
-    //val totalNumberOfEntities = NbrMap.size
-   
-   val minSize = Math.min(nbrsEntity1.size, nbrsEntity2.size)
-   //println("maxSize, commonNbrs.size, totalENtities, minSize", 
-   //    maxSize, commonNbrs.size, graphNumVertices, minSize)
-   val numerator = Math.log(maxSize) - Math.log(commonNbrs.size)
-   val denominator = Math.log(graphNumVertices) - Math.log(minSize)
-   
-   
-   (1 - (numerator/denominator))    
+    val minSize = Math.min(nbrsEntity1.size, nbrsEntity2.size)
+ 
+    val numerator = Math.log(maxSize) - Math.log(commonNbrs.size)
+    val denominator = Math.log(graphNumVertices) - Math.log(minSize)
+    (1 - (numerator/denominator))    
   }
-  /* Given a map containing mentions and a list of candidates for each mention,
+  
+  
+
+  
+  
+  def createReferentGraph(mentionsWithData: Map[String, MentionData], 
+      mentionToEntityScore: Map[Mention, Set[(Entity, SimScore)]], 
+      entityToEntitySemanticRelScore: Map[(Entity, Entity), SimScore]): ReferentGraph = {
+    
+    val allVertices: Map[NodeId, LabelWithWt] = getVertices(mentionsWithData, mentionToEntityScore)
+    val allEdges = getEdges(mentionToEntityScore, entityToEntitySemanticRelScore)
+    val allEdgesBySrcId: Map[NodeId, List[LocalDirectedEdge[Double]]] = 
+      allEdges.groupBy(edge => edge._1).mapValues(iterOfEdges => {
+        val totalWtEdges: Double = iterOfEdges.map(edge => edge._2._1).fold(0.0)((s1, s2) => s1+s2)
+        iterOfEdges.toList.map(dirEdge => new LocalDirectedEdge[Double](dirEdge._2._1/totalWtEdges, dirEdge._2._2))
+    })
+    
+    val refGraph = new ReferentGraph(allVertices, allEdgesBySrcId)
+    refGraph.printGraph
+    refGraph
+  }
+ 
+  
+  def getMatchUsingMaxReferentGraph(refGraph: ReferentGraph,
+      mentionsWithoutCand: Set[Mention], numMentions: Int, 
+      lambda: Double): scala.collection.immutable.Map[Mention, (Entity, SimScore)] = {
+    
+    //For nodes in referent graph , map them as follows:
+    // mentions : index 0 to #Mentions-1
+    // candidate entities #Mentions to #Mentions+#Entities-1 
+    val verticesToIndexMap: Map[Long, Int] = mapVerticesToIndex(refGraph)
+    
+    val verticesToEntityMatches : Map[Int, (Int, SimScore)] = 
+      runColInference(refGraph, verticesToIndexMap, numMentions, lambda)
+    
+    assert(verticesToEntityMatches.size == numMentions)
+ 
+    //Convert mention -> entity mappings to the KG vertex id form
+    var finalMatches = scala.collection.mutable.Map.empty[Mention, (Entity, SimScore)]
+    val indexToVertexIdMap = verticesToIndexMap.map((keyValue) => (keyValue._2, keyValue._1)).toMap
+    for(matchIter <- verticesToEntityMatches){
+      val mentionIndex:Int = matchIter._1
+      val matchedEntityIndex: Int = matchIter._2._1
+      val matchScore : Double = matchIter._2._2
+      
+      val mentionVertexId: Long = indexToVertexIdMap.get(mentionIndex).get
+      val matchedEntityVertexId: Long = indexToVertexIdMap.get(matchedEntityIndex).get
+      
+      val mentionNodeData = refGraph.vertices.get(mentionVertexId).get
+      val matchedEntityNodeData  = refGraph.vertices.get(matchedEntityVertexId).get
+      
+      finalMatches.+=((mentionNodeData.label, (
+          (matchedEntityVertexId, matchedEntityNodeData.label), matchScore)))
+    }
+    
+    // For mentions without any candidate matches, create new vertices
+    for(mentionWithoutCand <- mentionsWithoutCand) {
+      val label = "nous: " + mentionWithoutCand 
+      finalMatches.+=((mentionWithoutCand, ((label.hashCode, label), 0)))
+    }
+    
+    finalMatches.toMap
+  
+  }
+
+  
+  def runColInference(refGraph: ReferentGraph, verticesToIndexMap:  Map[Long, Int] , 
+      numMentions: Int, lambda: Double) : 
+  Map[Int, (Int, SimScore)] = {
+    
+    //  [N*1] matrix containing initial score for each vertex
+    val initialEvidence = getInitialEvidence(refGraph, verticesToIndexMap)
+    
+    // [N*N] matrix containing edge weights between vertices (0 otherwise)
+    val evidencePropMatrix = initEvidencePropMatrix(refGraph, verticesToIndexMap)
+    
+    // [N*1] inferred evidence matrix
+    val inferredEvidence : DenseMatrix[Double] = runBeliefProp(initialEvidence, evidencePropMatrix, lambda)
+    println("Inferred Evidence")
+    println(inferredEvidence)
+    
+    //[M*N] mention to Entity weights
+    // Note : Initial Evidence Propagation Matrix is constructed as 
+    // T[i, j] = weight of edge going from j to i
+    // We transpose back for calculating final scores
+    val mentionToEntityMatrix: DenseMatrix[Double] = evidencePropMatrix.t(0 to numMentions-1, ::)
+    val numTotalVertices: Int = refGraph.vertices.size
+    
+    var finalMatchesIndexed = scala.collection.mutable.Map.empty[Int, (Int, SimScore)]
+    for(mentionIndex <- 0 to numMentions-1){
+      val mentionEntityComp = mentionToEntityMatrix(mentionIndex, ::)  
+      var maxScore: Double = Double.NegativeInfinity
+      var matchingEntityId = -1
+      for(j <- numMentions to numTotalVertices-1) {
+        val newScore = mentionEntityComp(j)*inferredEvidence(j, 0)
+        //println("mentionIndex, entityIndex, score", mentionIndex, j, mentionEntityComp(j), inferredEvidence(j, 0), newScore)
+        if(newScore > maxScore){
+          maxScore = newScore
+          matchingEntityId = j
+          //println("changinng score for mention to ", mentionIndex, j, newScore)
+        }
+      } 
+      finalMatchesIndexed.+=((mentionIndex, (matchingEntityId, maxScore)))
+    }
+    finalMatchesIndexed
+  }
+
+
+    /* Given a map containing mentions and a list of candidates for each mention,
    * returns the vertices in the form
    * Vertex -> VertexData(VertexLabel, VertexWtScore )
    */
@@ -295,7 +357,7 @@ class ColEntityDisamb[VD, ED] {
       mentionToEntityScore : Map[Mention, Set[(Entity, SimScore)]]): Map[NodeId, LabelWithWt] = {
     
     val mentionVert: Iterable[(NodeId, LabelWithWt)] =  mentionToEntityScore.keys.map(mention => 
-      (mention.hashCode().toLong, new LabelWithWt(mention, mentionsWithData(mention).initialEvidenceWeight)))
+      (mention.hashCode().toLong, new LabelWithWt("mention:" + mention, mentionsWithData(mention).initialEvidenceWeight)))
     
     val entityVert : Iterable[(NodeId, LabelWithWt)] = mentionToEntityScore.values.flatMap(entityListWithScore => 
       entityListWithScore.map(entityWithScore => (entityWithScore._1._1, new LabelWithWt(entityWithScore._1._2, 0.0))))   
@@ -310,7 +372,7 @@ class ColEntityDisamb[VD, ED] {
    * Map[Pair of entities -> semantic similarity between them]
    * 
    * Generates a list of edges in form of 
-   * @ Output
+   * @ Output s
    * (SourceId, (edge Weight, destination id))
    * 
    */
@@ -346,62 +408,94 @@ class ColEntityDisamb[VD, ED] {
     allEdges
   }
   
- 
-  def findMaxWeighedReferentGraph(refGraph: LocalGraph[VD, ED]) : Map[Mention, (Entity, SimScore)] = {
-    
-    
-    return Map.empty
-    
-  }
   
- 
-    /** Given a graph and a list of entities per sentence of a paragraph, collectively disambiguate the entities
-   * @Input 
-   * 1) Map of entity (extracted from NLP) -> "NLPEntityData" structure, 
-   *    NLP entity label -> information available about this entity using NLP
-   *    Entity information can be anything
-   *    Type, Topic, (EdgeType, EdgeWt) hints b/w two entities
-   *   
-   * 2) Existing graph in the form of adjacency data
-   *    (vertexId, label) -> neighborhood data 
-   * 
-   * @ Output : Mapping of the form
-   *  (NLP entity label -> graph vertex id, graph entity label)
+  /* Given graph with vertices containing "mentions and entities"
+   * Assumption: Mention vertex label starts with "mention:"
+   * Creates a map, mapping
+   * mention vertices to 0 -> NumMentions-1
+   * entity vertices to NumMentions -> (NumMentions+ NumENtities)-1
    */
-  /*
-  def collectiveDisambiguation(mentionsWithData: Map[String, NLPEntityData], 
-      g: Graph[String, String], matchThreshold: Double = 0.1): Map[String, List[VertexMatch]] = {
+  def mapVerticesToIndex(refGraph: ReferentGraph):  Map[Long, Int] = {  
+    var vIdToIndexMapTemp= scala.collection.mutable.Map.empty[Long, Int]
+    var i = 0
+    for(vertex <- refGraph.vertices){
+      if(vertex._2.label.startsWith("mention:")){
+         vIdToIndexMapTemp.+= ((vertex._1, i))
+         i= i+1
+      }
+    }    
+    for(vertex <- refGraph.vertices){
+      if(!vertex._2.label.startsWith("mention:")){
+         vIdToIndexMapTemp.+=((vertex._1, i))
+         i= i+1
+      }
+    } 
+    assert(i==refGraph.vertices.size)
+    vIdToIndexMapTemp.toMap
+  }
+ 
+  
+  /* create a vector containing vertices.evienceWt 
+   * evidence[0.... NumMentions-1] => mention.wt
+   * evidence[NumMentions ...... NumMentions+NumENtities-1] => entityWt=>0
+   * 
+   */ 
+  def getInitialEvidence(refGraph: ReferentGraph, verticesToIndexMap: Map[Long, Int]): 
+  DenseMatrix[Double] = {
     
-    //Get Candidates, considering aliases
-    val mentionLabels = mentionsWithData.keys.toList
-    val candidatesRDD : RDD[(VertexId, String)] = MatchStringCandidates.getMatchesRDDWithAlias(mentionLabels, g)
-    val candidates: Array[VertexId] = candidatesRDD.map(v => v._1).collect
-    println("NUm Nodes that match candidate string: = ", candidates.size)
+    val numVertices = refGraph.vertices.size 
+    val initialEvidence = DenseMatrix.zeros[Double](numVertices, 1)
+    for(vertex <- refGraph.vertices){
+      val vId = vertex._1
+      //println("getting index for ",vId)
+      val vIndex = verticesToIndexMap.get(vId).get 
+      initialEvidence(vIndex, 0) = vertex._2.wt
+    }
+    initialEvidence
+   }
+  
+  
+  /* create a evidence propagation matrix such that 
+   * evidenceProp[i, j] => edgeWt(nodeIndex_j, nodeIndex_i)
+   * nodeIndex are mapped from the given map
+   */
+  def initEvidencePropMatrix(refGraph: ReferentGraph, verticesToIndexMap: Map[Long, Int]):
+  DenseMatrix[Double]= {
     
-    // Collect profile data for all candidates
-    val candidatesNbrData: VertexRDD[List[GraphNodeNbrData[String, String]]] = g.aggregateMessages[List[GraphNodeNbrData[String, String]]](
-        triplet => {
-          if(candidates.contains(triplet.srcId))
-            triplet.sendToSrc( List(new GraphNodeNbrData[String, String](triplet.attr, triplet.dstId, triplet.dstAttr, true)))
-          else if(candidates.contains(triplet.dstId)) 
-            triplet.sendToDst( List(new GraphNodeNbrData[String, String](triplet.attr, triplet.srcId, triplet.srcAttr, false)))
-      
-    }, (list1, list2) => list1 ++ list2)
-    
-    // Add Labels to Vertices along with Neighbour Profiles
-    val candidatesNbrDataWithLabels = candidatesNbrData.innerJoin(candidatesRDD)((id, nbrData, label) => (label, nbrData))
-    
-    // Rank candidates for each mention, creating sorted list of matches 
-    // mention => sortedList(vertexId, vertexLabel, matchScore)
-    val allRankedMatches : Map[String, List[VertexMatch]] = alignAndRank(mentionsWithData, candidatesNbrDataWithLabels)
-    allRankedMatches.foreach(mention => { 
-      println("Mention=" + mention._1 + " , ") 
-      val vMatches =  mention._2
-      vMatches.foreach(vMatch => println(vMatch.toString))
-    })  
-    val topKMatches = allRankedMatches.mapValues(listMatches => listMatches.filter(_.matchScore >= matchThreshold))    
-    return topKMatches
+    val numVertices = refGraph.vertices.size 
+    val evidencePropMatrix = DenseMatrix.zeros[Double](numVertices, numVertices)
+    for(edgesForSrc <- refGraph.edges){
+      val srcId = edgesForSrc._1
+      val srcIndex = verticesToIndexMap.get(srcId).get
+      val allEdgesSrc = edgesForSrc._2
+      for(srcEdge <- allEdgesSrc) {
+        val dstId = srcEdge.nodeid
+        val dstIndex = verticesToIndexMap.get(dstId).get
+        evidencePropMatrix(dstIndex, srcIndex) = srcEdge.edgeAttr
+      } 
+    }
+    evidencePropMatrix  
   }
   
-  */
+  /* Implements 
+   * Result = lambda * (Inverse(I - cT)) * initialEvidence
+   * where:
+   * lambda = fraction of back propagation 
+   * I : Identity matrix 
+   * T : evidence Propagation Matrix
+   * c : 1- lambda
+   */
+  def runBeliefProp(initialEvidence: DenseMatrix[Double], 
+      evidencePropMatrix: DenseMatrix[Double], lambda: Double): DenseMatrix[Double] = {  
+    val nodeCount = initialEvidence.rows
+    
+   // println("Initial evidence")
+   // println(initialEvidence)
+    val eyeN = DenseMatrix.eye[Double](nodeCount)
+    val tmp1 = (1-lambda)*evidencePropMatrix
+    val tmp2 = lambda * inv(eyeN - tmp1)
+    val result = tmp2*initialEvidence
+    result 
+  }
+
 }

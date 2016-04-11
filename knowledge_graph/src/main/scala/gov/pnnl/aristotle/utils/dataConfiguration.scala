@@ -49,5 +49,5 @@ object KGraphProp {
 }
 
 object predicateTypeMapper{
-  val typeMap : Map[String, String] = Map(("PER", "person"), ("LOC", "location"), ("ORG", "company"), ("MISC",""))
+  val typeMap : Map[String, String] = Map(("PER", "people"), ("LOC", "location"), ("ORG", "company"), ("MISC",""))
 }

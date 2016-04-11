@@ -53,24 +53,26 @@ object MatchStringCandidates {
  }
  
 
- 
- /* Given a list of "mentions" and a graph , return
-  *  
-  * VertexId -> 
-  */
-  def getMatchesRDDWithAlias(mentions :List[String],  g :Graph[String, String], phraseSimThreshold : Double):RDD[(String, Iterable[(VertexId, String)] )]  = {
-    // Get aliases for all nodes in the form "alias=$nodeAlias, 
-    
+  def constructVertexRDDWithAlias(g: Graph[String, String]): VertexRDD[String] = {
+        
     val verticesWithAlias: VertexRDD[String] = NodeProp.getNodeAlias(g)
     
     // The vertices labels are joined with their aliases
     // Vertex labels are of the form 
     // "$nodeLabel;alias=$nodeAlias"
-    val allVerticesWithAlias: VertexRDD[String] = g.vertices.leftZipJoin(verticesWithAlias)((id, label, alias) => {
+    g.vertices.leftZipJoin(verticesWithAlias)((id, label, alias) => {
       alias match{
         case Some(aliasValues) => label + KGraphProp.aliasSep + aliasValues
         case None => label
       }})
+  }
+ 
+ /* Given a list of "mentions" and a graph , return
+  *  
+  * VertexId -> 
+  */
+  def getMatchesRDDWithAlias(mentions :List[String],  allVerticesWithAlias: VertexRDD[String], phraseSimThreshold : Double):RDD[(String, Iterable[(VertexId, String)] )]  = {
+    // Get aliases for all nodes in the form "alias=$nodeAlias, 
       
     println("Collected alias for graph, " + allVerticesWithAlias.count.toString + "\n")
     val mentionFilter = new MatchMentions(mentions.toSet, phraseSimThreshold)

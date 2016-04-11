@@ -199,10 +199,10 @@ object NodeProp {
   def getOneHopNbrIdsLabels( g: Graph[String, String], id: Array[Long], filterRelations:Set[String] = Set.empty) : VertexRDD[Set[(Long, String)]] = {
     val nbrlist: VertexRDD[Set[(Long, String)]] =  g.aggregateMessages[Set[(Long, String)]](
         edge => {         
-          if(id.contains(edge.srcId)){ //  && (!filterRelations.contains(edge.attr) || filterRelations.isEmpty)) {
+          if(id.contains(edge.srcId) && (!filterRelations.contains(edge.attr) || filterRelations.isEmpty)) {
             edge.sendToSrc(Set((edge.dstId, edge.dstAttr)))
-          }        
-          if(id.contains(edge.dstId)) { //  && (!filterRelations.contains(edge.attr) || filterRelations.isEmpty)) {
+          }       
+          if(id.contains(edge.dstId) && (!filterRelations.contains(edge.attr) || filterRelations.isEmpty)) {
             edge.sendToDst(Set((edge.srcId, edge.srcAttr)))
           }      
         }, 

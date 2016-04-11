@@ -19,7 +19,7 @@ import gov.pnnl.aristotle.utils._
 
 
 object EntityDisambiguation {
-/* 
+
   def main(args: Array[String]): Unit = {   
     val sparkConf = new SparkConf().setAppName("EntityDisamb").setMaster("local")
     val sc = new SparkContext(sparkConf)
@@ -39,13 +39,17 @@ object EntityDisambiguation {
     val g: Graph[String, String] = ReadHugeGraph.getGraph(args(0), sc)
     println("Done reading graph" + g.vertices.count)
     
+    println("geting aliases")
+    val verticesWithAlias = MatchStringCandidates.constructVertexRDDWithAlias(g)
+    println("Done getting aliases" + verticesWithAlias.count + ", starting disambiguation\n")
+    
     val graphNbrs: VertexRDD[Set[String]] = NodeProp.getOneHopNbrLabels(g)
     for(triplesInBlock <- allTriples){
       val entityMap = NLPTripleParser.getEntitiesWithTypeMapFromTriples(triplesInBlock)
       println("No. of unique entities in block", entityMap.size)
       entityMap.foreach{v => 
         println(" Calculating entity Disambguation on " + v._1 +"----entityData (type)--->"+ v._2)  
-        val allAnswers = disambiguate(g, v._1 , entityMap.keys.toSet, 0.8, graphNbrs, v._2.entityType)
+        val allAnswers = disambiguate(g, verticesWithAlias, v._1 , entityMap.keys.toSet, 0.8, graphNbrs, v._2.entityType)
         val topAnswers = allAnswers.top(10)(Ordering.by[(VertexId, (String, Double)), Double](_._2._2))
         topAnswers.foreach(v => println(v._1, v._2._1, v._2._2))
       }
@@ -53,7 +57,7 @@ object EntityDisambiguation {
     }
     
   }
-  */
+  
    
 
  
@@ -61,7 +65,8 @@ object EntityDisambiguation {
 
   
   /*Given a graph, find a matching entity to "serachForMe" where  context is given as a set of other entities */
-  def disambiguate(g: Graph[String, String], searchForMe : String, queryContextEntities: Set[String], 
+  def disambiguate(g: Graph[String, String], verticesWithAlias: VertexRDD[String], 
+      searchForMe : String, queryContextEntities: Set[String], 
       scoreThreshold: Double, graphNbrs:VertexRDD[Set[String]], suggestedEntityType: String = "", 
       phraseMatchThreshold: Double = 0.75): VertexRDD[(String, Double)]= {
        
@@ -71,7 +76,7 @@ object EntityDisambiguation {
     println("Finding candidates for ", searchForMe)
     //val nodesWithStringMatches : Array[Long] = MatchStringCandidates.getMatches(searchForMe, g)
     val nodesWithStringMatchesRDD : RDD[( String, Iterable[(VertexId, String)] )] = 
-      MatchStringCandidates.getMatchesRDDWithAlias(List(searchForMe), g, phraseMatchThreshold)
+      MatchStringCandidates.getMatchesRDDWithAlias(List(searchForMe), verticesWithAlias, phraseMatchThreshold)
     val nodesWithStringMatchesArray: Array[(VertexId, String)] = nodesWithStringMatchesRDD.collectAsMap.get(searchForMe).getOrElse(Iterable.empty).toArray
     val nodesWithStringMatches: Array[VertexId] = nodesWithStringMatchesArray.map(v => v._1)
     println("NUm Nodes that match candidate string:" + searchForMe + "=" + nodesWithStringMatchesRDD.count)
