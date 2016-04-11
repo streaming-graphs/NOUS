@@ -29,13 +29,18 @@ object TripleParser extends Serializable {
   private val props = new Properties()
   props.setProperty("annotators", "tokenize,ssplit,pos,lemma,ner,parse,mention,coref")
   private val pipeline = new StanfordCoreNLP(props)
+
+  private val propsWithoutCoref = new Properties()
+  propsWithoutCoref.setProperty("annotators", "tokenize,ssplit,pos,lemma,ner,parse,mention")
+  private val pipelineWithoutCoref = new StanfordCoreNLP(propsWithoutCoref)
+
   private val srlModelPath = System.getProperty("user.home") + "/EasySRLModel"
   private val srlProcessor = new EasySRLProcessor(srlModelPath)
   // val srlOutputWriter = new java.io.PrintWriter(new java.io.File("srl.txt"))
 
   def getPipeline(): StanfordCoreNLP = pipeline
 
-  def getAnnotation(doc: String): Annotation = pipeline.process(doc)
+  // def getAnnotation(doc: String): Annotation = pipeline.process(doc)
 
   class CorefTransform {
     case class Span(target: String, replace: String)
@@ -200,15 +205,31 @@ object TripleParser extends Serializable {
     }
   }
 
+  def getCorefedAnnotation(doc: String): Annotation = {
+    try {
+      val annotation = pipeline.process(doc)
+      val transformedText = new CorefTransform().transform(annotation)
+      pipeline.process(transformedText)
+    } catch {
+      case ex: java.lang.RuntimeException => {
+        println("CAUGHT EXCEPTION FOR: " + doc)
+        pipelineWithoutCoref.process(doc)
+      }
+    }
+ 
+  }
+
+  def getAnnotation(doc: String): Annotation = {
+    if (doc.indexOf(".") == -1) 
+      pipelineWithoutCoref.process(doc)
+    else 
+      getCorefedAnnotation(doc)
+  }
+
   def getTriples(doc: String): List[Triple] = {
-    val annotation = pipeline.process(doc)
-    val transformedText = new CorefTransform().transform(annotation)
-    
-    val newAnnotation = pipeline.process(transformedText)
-    val namedPhrases = new NamedPhraseExtractor().extract(newAnnotation)
-    // println("Printing named phrases ...")
-    // namedPhrases.foreach(println)
-    val srlTriples = new SemanticRoleLabelExtractor().extract(newAnnotation)
+    val annotation = getAnnotation(doc)
+    val namedPhrases = new NamedPhraseExtractor().extract(annotation)
+    val srlTriples = new SemanticRoleLabelExtractor().extract(annotation)
     val triples = srlTriples.filter(t => {
         namedPhrases.exists(n => t.sub.contains(n)) &&
         namedPhrases.exists(n => t.obj.contains(n))
