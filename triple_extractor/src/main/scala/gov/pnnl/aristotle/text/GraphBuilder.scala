@@ -20,9 +20,9 @@ object GraphBuilder {
     val appConf = parseConf(args(0))
     val fileList = appConf("INPUT_LIST")
     val outPath = appConf("OUTPUT_DIR")
-    val nprocs = appConf("NPROC")
+    val sparkMasterUrl = appConf("SPARK_MASTER_URL")
     val sc = new SparkContext(new SparkConf()
-                                  .setMaster("local["+nprocs+"]")
+                                  .setMaster(sparkMasterUrl)
                                   .setAppName("TripleParser"))
     val inputListRDD = sc.textFile(fileList).filter(entry => new File(entry).isFile && entry.endsWith(".json"))
 
