@@ -16,7 +16,8 @@ class TripleParserTest extends FlatSpec {
   }
 */
 
-  "CorefTransform(<Prime Air is a future delivery system from Amazon. It has great potential.>)" should "return <Prime Air is a future delivery system from Amazon. Prime Air has great potential.>" in
+  // "CorefTransform(<Prime Air is a future delivery system from Amazon. It has great potential.>)" should "return <Prime Air is a future delivery system from Amazon. Prime Air has great potential.>" in
+  ignore should "return <Prime Air is a future delivery system from Amazon. Prime Air has great potential.>" in
   {
     val doc = "Prime Air is a future delivery system from Amazon. It has great potential."
     val annotation = TripleParser.getAnnotation(doc)
@@ -24,11 +25,9 @@ class TripleParserTest extends FlatSpec {
     assert(outText == "Prime Air is a future delivery system from Amazon. Prime Air has great potential.")
   }
 
-  "TripleExtractor(Child paints picture)" should "return <Child,paint,picture>" in 
+  "TripleExtractor(Obama was born in Hawaii)" should "return <Obama,was born in,Hawaii>" in 
   {
-    val doc1 = "Obama was born in Hawaii. He is our president."
-    // val annotation = TripleParser.getAnnotation(doc)
-    // val triples = new TripleParser.OpenIEExtractor().extract(annotation)
+    val doc1 = "Obama was born in Hawaii"
     val triples1 = TripleParser.getTriples(doc1)
     triples1.foreach(println)
     val triple1_0 = triples1(0)

@@ -12,7 +12,6 @@ import edu.stanford.nlp.ling.CoreAnnotations._
 import java.util.Properties
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ListBuffer
-import edu.uw.easysrl.main.EasySRLProcessor
 import edu.stanford.nlp.naturalli.NaturalLogicAnnotations.RelationTriplesAnnotation
 import edu.stanford.nlp.ie.util.RelationTriple;
 import edu.stanford.nlp.simple._;
@@ -36,7 +35,7 @@ object TripleParser extends Serializable {
   props.setProperty("openie.triple.all_nominals", "false")
   props.setProperty("openie.ignore_affinity", "true")
 
-  private val badVerbs = Set("is")
+  private val badVerbs = Set("was")
   // props.setProperty("annotators", "tokenize,ssplit,pos,lemma,ner,parse,mention,coref")
   private val pipeline = new StanfordCoreNLP(props)
 
@@ -124,14 +123,15 @@ object TripleParser extends Serializable {
           val word = t.get(classOf[TextAnnotation])
           val pos = t.get(classOf[PartOfSpeechAnnotation])
           val nerLabel = t.get(classOf[NamedEntityTagAnnotation])
-          // println(word + " -> " + pos)
+          // println("[" + nerLabel + "] TYPE OF [" + word + "]")
           val isNP = isNounPhrase(pos)
           if (isNP) {
             if (npList.size == 0) {
-              npList += nerLabel 
-              npList += ":"
+              npList += (nerLabel + ":" + word)
             }
-            npList += word
+            else {
+              npList += word
+            }
           }   
           else if (isNP == false && isLastWordNP) {
             namedPhrases += npList.toList.mkString(" ")
@@ -146,7 +146,6 @@ object TripleParser extends Serializable {
         npList = new ListBuffer[String]()
       }   
   
-      println(namedPhrases)
       namedPhrases.toList.toSet 
     }
   
@@ -158,23 +157,6 @@ object TripleParser extends Serializable {
 
   class OpenIEExtractor {
     def extract(annotation: Annotation, namedPhrasesWithTags: Set[String]): List[Triple] = {
-
-      def filterRelation(relation: String): Boolean = {
-        // if (badVerbs.contains(relation) || relation.startsWith("'s")) 
-        if (relation.startsWith("'s")) 
-          false
-        else
-          true
-      }
-  
-      def filterEntities(
-          namedPhrases: Set[String], 
-          sub: String, 
-          obj: String): Boolean = {
-        namedPhrases.exists(n => sub.contains(n)) 
-            // &&
-            // namedPhrases.exists(n => obj.contains(n))
-      }
 
       def getNamedLabelMap(namedPhrases: Set[String]): Map[String, String] = {
         namedPhrases.map(nerLabelNamePair => {
@@ -193,7 +175,6 @@ object TripleParser extends Serializable {
       }
 
       val nameLabelMap = getNamedLabelMap(namedPhrasesWithTags)
-      println(nameLabelMap)
       val namedPhrases = nameLabelMap.keySet
       val sentences = annotation.get(classOf[SentencesAnnotation])
       val tripleBuffer = new ListBuffer[Triple]()
@@ -205,14 +186,10 @@ object TripleParser extends Serializable {
           val sub = t.subjectGloss()
           val obj = t.objectGloss()
           val relation = t.relationGloss()
-          if (filterRelation(relation) && filterEntities(namedPhrases, sub, obj)) {
-            // val subT = getNerTaggedName(nameLabelMap, namedPhrases, sub)
-            // val objT = getNerTaggedName(nameLabelMap, namedPhrases, obj)
-            tripleBuffer += Triple(sub, relation, obj, t.confidence) 
-          } 
+          tripleBuffer += Triple(sub, relation, obj, t.confidence) 
         }
       }
-      tripleBuffer.toList
+      tripleBuffer.toList.filter(t => TripleFilter.filter(t, namedPhrases))
     }
   }
 
