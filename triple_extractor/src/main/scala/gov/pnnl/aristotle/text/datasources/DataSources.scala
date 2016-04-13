@@ -1,7 +1,7 @@
 package gov.pnnl.aristotle.text.datasources
 import scala.util.parsing.json._
 
-class Metadata(val source: String)
+class Metadata(val source: String) extends Serializable
 
 object WebCrawlParser {
   def getUrlTextPairs(path: String): Array[(Metadata, String)] = {

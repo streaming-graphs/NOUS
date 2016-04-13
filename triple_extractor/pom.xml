@@ -45,6 +45,11 @@
       <classifier>models</classifier>
     </dependency>
     <dependency>
+      <groupId>com.google.protobuf</groupId>
+      <artifactId>protobuf-java</artifactId>
+      <version>2.6.1</version>
+    </dependency>
+    <dependency>
       <groupId>org.apache.spark</groupId>
       <artifactId>spark-core_2.10</artifactId>
       <version>1.5.2</version>
@@ -59,11 +64,11 @@
       <artifactId>json4s-jackson_2.10</artifactId>
       <version>3.3.0.RC2</version>
     </dependency>
-    <dependency>
+    <!--dependency>
       <groupId>ext-libs</groupId>
       <artifactId>easysrlclient-20160406</artifactId>
       <version>1.0.0</version>
-    </dependency>
+    </dependency-->
     <!-- Test -->
     <dependency>
       <groupId>junit</groupId>

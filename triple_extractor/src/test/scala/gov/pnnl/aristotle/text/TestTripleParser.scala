@@ -4,6 +4,18 @@ import edu.stanford.nlp.pipeline.Annotation
 import gov.pnnl.aristotle.text._
 
 class TripleParserTest extends FlatSpec {
+/*
+  "NumSentences(Child paints picture)" should "return 1"
+  {
+    val doc1 = "Child paints picture"
+    val n1 = TripleParser.getSentenceCount(doc1)
+    assert(n1 == 1)
+    val doc2 = "Prime Air is a future delivery system from Amazon. It has great potential"
+    val n2 = TripleParser.getSentenceCount(doc1)
+    assert(n2 == 2)
+  }
+*/
+
   "CorefTransform(<Prime Air is a future delivery system from Amazon. It has great potential.>)" should "return <Prime Air is a future delivery system from Amazon. Prime Air has great potential.>" in
   {
     val doc = "Prime Air is a future delivery system from Amazon. It has great potential."
@@ -12,15 +24,17 @@ class TripleParserTest extends FlatSpec {
     assert(outText == "Prime Air is a future delivery system from Amazon. Prime Air has great potential.")
   }
 
-  "SRL(Child paints picture)" should "return <Child,paint,picture>" in 
+  "TripleExtractor(Child paints picture)" should "return <Child,paint,picture>" in 
   {
-    val doc = "Child paints picture"
-    val annotation = TripleParser.getAnnotation(doc)
-    val srlTriples = new TripleParser.SemanticRoleLabelExtractor().extract(annotation)
-    val triple0 = srlTriples(0)
-    assert(triple0.sub == "Child")
-    assert(triple0.pred == "paint")
-    assert(triple0.obj == "picture")
+    val doc1 = "Obama was born in Hawaii. He is our president."
+    // val annotation = TripleParser.getAnnotation(doc)
+    // val triples = new TripleParser.OpenIEExtractor().extract(annotation)
+    val triples1 = TripleParser.getTriples(doc1)
+    triples1.foreach(println)
+    val triple1_0 = triples1(0)
+    assert(triple1_0.sub == "Obama")
+    assert(triple1_0.pred == "was born in")
+    assert(triple1_0.obj == "Hawaii")
   }
 
   

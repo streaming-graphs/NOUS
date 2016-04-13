@@ -13,13 +13,17 @@ import java.util.Properties
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ListBuffer
 import edu.uw.easysrl.main.EasySRLProcessor
+import edu.stanford.nlp.naturalli.NaturalLogicAnnotations.RelationTriplesAnnotation
+import edu.stanford.nlp.ie.util.RelationTriple;
+import edu.stanford.nlp.simple._;
 
-case class Triple(val sub: String, val pred: String, val obj: String) {
+case class Triple(val sub: String, val pred: String, val obj: String, val conf: Double) {
   override def toString(): String = {
     val sbuf = new StringBuilder()
-    sbuf.append(sub).append("->")
-        .append(pred).append("->")
-        .append(obj)
+    sbuf.append(sub).append(",")
+        .append(pred).append(",")
+        .append(obj).append(",")
+        .append(conf)
     sbuf.toString
   }
 }
@@ -27,15 +31,20 @@ case class Triple(val sub: String, val pred: String, val obj: String) {
 object TripleParser extends Serializable {
 
   private val props = new Properties()
-  props.setProperty("annotators", "tokenize,ssplit,pos,lemma,ner,parse,mention,coref")
+  props.setProperty("annotators", "tokenize,ssplit,pos,lemma,ner,parse,depparse,mention,coref,natlog,openie")
+  props.setProperty("openie.resolve_coref", "true")
+  props.setProperty("openie.triple.all_nominals", "false")
+  props.setProperty("openie.ignore_affinity", "true")
+
+  private val badVerbs = Set("is")
+  // props.setProperty("annotators", "tokenize,ssplit,pos,lemma,ner,parse,mention,coref")
   private val pipeline = new StanfordCoreNLP(props)
 
   private val propsWithoutCoref = new Properties()
-  propsWithoutCoref.setProperty("annotators", "tokenize,ssplit,pos,lemma,ner,parse,mention")
+  propsWithoutCoref.setProperty("annotators", "tokenize,ssplit,pos,lemma,ner,parse,depparse,mention,natlog,openie")
+  // propsWithoutCoref.setProperty("annotators", "tokenize,ssplit,pos,lemma,ner,parse,mention")
   private val pipelineWithoutCoref = new StanfordCoreNLP(propsWithoutCoref)
 
-  private val srlModelPath = System.getProperty("user.home") + "/EasySRLModel"
-  private val srlProcessor = new EasySRLProcessor(srlModelPath)
   // val srlOutputWriter = new java.io.PrintWriter(new java.io.File("srl.txt"))
 
   def getPipeline(): StanfordCoreNLP = pipeline
@@ -114,9 +123,14 @@ object TripleParser extends Serializable {
         for (t <- s.get(classOf[TokensAnnotation])) {
           val word = t.get(classOf[TextAnnotation])
           val pos = t.get(classOf[PartOfSpeechAnnotation])
+          val nerLabel = t.get(classOf[NamedEntityTagAnnotation])
           // println(word + " -> " + pos)
           val isNP = isNounPhrase(pos)
           if (isNP) {
+            if (npList.size == 0) {
+              npList += nerLabel 
+              npList += ":"
+            }
             npList += word
           }   
           else if (isNP == false && isLastWordNP) {
@@ -132,6 +146,7 @@ object TripleParser extends Serializable {
         npList = new ListBuffer[String]()
       }   
   
+      println(namedPhrases)
       namedPhrases.toList.toSet 
     }
   
@@ -141,67 +156,63 @@ object TripleParser extends Serializable {
     }
   }
 
+  class OpenIEExtractor {
+    def extract(annotation: Annotation, namedPhrasesWithTags: Set[String]): List[Triple] = {
 
-  class SemanticRoleLabelExtractor {
-    val SRLExpr = """(\w+)\s(ARG\d)\s(\w+)""".r
-
-    def extract(annotation: Annotation, debug: Boolean = false): List[Triple] = {
-      val sentences = annotation.get(classOf[SentencesAnnotation])
-      var triples = List.empty[Triple]
-      for (s <- sentences) {
-        // srlOutputWriter.println("INPUT")
-        // srlOutputWriter.println(s.toString)
-        val output = srlProcessor.process(s.toString)
-        // srlOutputWriter.println("OUTPUT")
-        // srlOutputWriter.println(output)
-        val lines = output.split("\n")
-        //val lines = srlProcessor.process(s.toString).split("\n")
-        var tripleMap = Map.empty[String, Triple]
-        for (srlOutput <- lines) {
-          try {
-            // val SRLExpr(pred, rel, entity) = srlOutput
-            if (debug) println("SRL output: " + srlOutput)
-            val tokens = srlOutput.split(" ")
-            val rel = tokens(1)
-            // if (rel.contains("ARG") != false) {
-            if (rel == "ARG0" || rel == "ARG1") {
-              val pred = tokens(0)
-              val entity = tokens.drop(2).mkString(" ")
-              if (tripleMap.contains(pred) == false) {
-                if (rel == "ARG0") 
-                  tripleMap = tripleMap + (pred -> Triple(entity, pred, ""))
-                else 
-                  tripleMap = tripleMap + (pred -> Triple("", pred, entity))
-              }
-              else {
-                val partialFact = tripleMap(pred)
-                if (rel == "ARG0") 
-                  tripleMap = tripleMap + (pred -> Triple(entity, pred, partialFact.obj))
-                else 
-                  tripleMap = tripleMap + (pred -> Triple(partialFact.sub, pred, entity))
-              }
-              /* if (tripleMap.contains(pred) == false) {
-                tripleMap = tripleMap + (pred -> Triple(entity, pred, ""))
-              }
-              else {
-                val partialFact = tripleMap(pred)
-                tripleMap = tripleMap + (pred -> Triple(partialFact.sub, pred, entity))
-              } */ 
-            }
-          } catch {
-            case obx: java.lang.ArrayIndexOutOfBoundsException => {
-              // println("FAILED TO PARSE = " + srlOutput + "]")
-            }
-            case ex: scala.MatchError => {
-              // println("Skipped " + srlOutput)
-            }
-          }
-        }
-        triples = triples ::: tripleMap.values.filter(_.obj != "").toList
-        // println("INPUT: " + s.toString)
-        // triples.foreach(println)
+      def filterRelation(relation: String): Boolean = {
+        // if (badVerbs.contains(relation) || relation.startsWith("'s")) 
+        if (relation.startsWith("'s")) 
+          false
+        else
+          true
       }
-      triples
+  
+      def filterEntities(
+          namedPhrases: Set[String], 
+          sub: String, 
+          obj: String): Boolean = {
+        namedPhrases.exists(n => sub.contains(n)) 
+            // &&
+            // namedPhrases.exists(n => obj.contains(n))
+      }
+
+      def getNamedLabelMap(namedPhrases: Set[String]): Map[String, String] = {
+        namedPhrases.map(nerLabelNamePair => {
+          val tokens = nerLabelNamePair.split(":")
+          (tokens(1), tokens(0))
+        }).toMap 
+      }
+
+      def getNerTaggedName(nameLabelMap: Map[String, String], 
+                    namedPhrases: Set[String],
+                    name: String): String = {
+        for (np <- namedPhrases) {
+          if (name.contains(np)) return (nameLabelMap(np) + ":" + np)
+        }
+        ""
+      }
+
+      val nameLabelMap = getNamedLabelMap(namedPhrasesWithTags)
+      println(nameLabelMap)
+      val namedPhrases = nameLabelMap.keySet
+      val sentences = annotation.get(classOf[SentencesAnnotation])
+      val tripleBuffer = new ListBuffer[Triple]()
+      for (s <- sentences) {
+        // println("***" + s)
+        val sTriples = s.get(classOf[RelationTriplesAnnotation])
+        for (t <- sTriples) {
+          // println("---> " + t)
+          val sub = t.subjectGloss()
+          val obj = t.objectGloss()
+          val relation = t.relationGloss()
+          if (filterRelation(relation) && filterEntities(namedPhrases, sub, obj)) {
+            // val subT = getNerTaggedName(nameLabelMap, namedPhrases, sub)
+            // val objT = getNerTaggedName(nameLabelMap, namedPhrases, obj)
+            tripleBuffer += Triple(sub, relation, obj, t.confidence) 
+          } 
+        }
+      }
+      tripleBuffer.toList
     }
   }
 
@@ -227,13 +238,26 @@ object TripleParser extends Serializable {
   }
 
   def getTriples(doc: String): List[Triple] = {
-    val annotation = getAnnotation(doc)
+    // val annotation = getAnnotation(doc)
+    val annotation = pipeline.process(doc)
     val namedPhrases = new NamedPhraseExtractor().extract(annotation)
-    val srlTriples = new SemanticRoleLabelExtractor().extract(annotation)
-    val triples = srlTriples.filter(t => {
+    //val srlTriples = new SemanticRoleLabelExtractor().extract(annotation)
+    val openieTriples = new OpenIEExtractor().extract(annotation, namedPhrases)
+    /*val triples = openieTriples.filter(t => {
         namedPhrases.exists(n => t.sub.contains(n)) &&
         namedPhrases.exists(n => t.obj.contains(n))
-    })
-    triples 
+    }) */
+    openieTriples 
+  }
+
+  def getTriples1(doc: String): List[Triple] = {
+    val document = new Document(doc)
+    val tripleBuffer = new ListBuffer[Triple]()
+    for (sent <- document.sentences()) {
+      for (triple <- sent.openieTriples()) {
+        tripleBuffer += Triple(triple.subjectLemmaGloss(), triple.relationLemmaGloss(), triple.objectLemmaGloss(), triple.confidence) 
+      }
+    }
+    tripleBuffer.toList
   }
 }

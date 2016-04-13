@@ -34,11 +34,14 @@ object GraphBuilder {
             case "wsj" => WSJParser.getUrlTextPairs(path)
           }
         })
-    println("NUMBER OF URL text pairs = " + urlTextPairs.count)
+    inputListRDD.unpersist()
+    println("****************** NUMBER OF URL text pairs = " + urlTextPairs.first)
     // urlTextPairs.saveAsTextFile(outPath + ".prov")
     val triples = urlTextPairs.flatMap(urlTextPair => 
         TripleParser.getTriples(urlTextPair._2))
-
+    
+    urlTextPairs.unpersist()
+    println("****** FINISHED PARSING TRIPLES : " + triples.first)
     // val pw = new java.io.PrintWriter(new File(outPath))
     // triples.foreach(triples => pw.println(triples.mkString("_")))
     // triples.foreach(t => pw.println(t))
