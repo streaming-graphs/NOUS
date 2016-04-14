@@ -215,8 +215,8 @@ object TripleParser extends Serializable {
   }
 
   def getTriples(doc: String): List[Triple] = {
-    // val annotation = getAnnotation(doc)
-    val annotation = pipeline.process(doc)
+    val annotation = getAnnotation(doc)
+    // val annotation = pipeline.process(doc)
     val namedPhrases = new NamedPhraseExtractor().extract(annotation)
     //val srlTriples = new SemanticRoleLabelExtractor().extract(annotation)
     val openieTriples = new OpenIEExtractor().extract(annotation, namedPhrases)
