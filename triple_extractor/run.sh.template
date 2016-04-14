@@ -1,0 +1,1 @@
+java -XX:-UseConcMarkSweepGC -Xms4g -Xmx8g -jar target/TripleParser-0.1-SNAPSHOT-driver.jar /data/wsj/extractor.conf
