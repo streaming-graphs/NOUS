@@ -20,10 +20,13 @@ object GraphBuilder {
     val appConf = parseConf(args(0))
     val fileList = appConf("INPUT_LIST")
     val outPath = appConf("OUTPUT_DIR")
-    val sparkMasterUrl = appConf("SPARK_MASTER_URL")
-    val sc = new SparkContext(new SparkConf()
-                                  .setMaster(sparkMasterUrl)
-                                  .setAppName("TripleParser"))
+    
+    val sc = if (appConf.contains("SPARK_MASTER_URL"))
+                new SparkContext(new SparkConf().setAppName("TripleParser")
+                                                .setMaster(appConf("SPARK_MASTER_URL")))
+             else 
+                new SparkContext(new SparkConf().setAppName("TripleParser"))
+
     val inputListRDD = sc.textFile(fileList).filter(entry => new File(entry).isFile && entry.endsWith(".json"))
 
     val inputFormat = appConf("INPUT_FORMAT")
@@ -35,13 +38,13 @@ object GraphBuilder {
           }
         })
     println("****************** NUMBER OF URL text pairs = " + urlTextPairs.count)
-    inputListRDD.unpersist()
+    // inputListRDD.unpersist()
     // urlTextPairs.saveAsTextFile(outPath + ".prov")
     val triples = urlTextPairs.flatMap(urlTextPair => 
         TripleParser.getTriples(urlTextPair._2))
     
     println("****** FINISHED PARSING TRIPLES : " + triples.count)
-    urlTextPairs.unpersist()
+    // urlTextPairs.unpersist()
     // val pw = new java.io.PrintWriter(new File(outPath))
     // triples.foreach(triples => pw.println(triples.mkString("_")))
     // triples.foreach(t => pw.println(t))
