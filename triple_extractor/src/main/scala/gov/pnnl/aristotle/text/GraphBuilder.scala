@@ -30,28 +30,18 @@ object GraphBuilder {
     val inputListRDD = sc.textFile(fileList).filter(entry => new File(entry).isFile && entry.endsWith(".json"))
 
     val inputFormat = appConf("INPUT_FORMAT")
-    val urlTextPairs = inputListRDD.flatMap(path => {
+    val triples = inputListRDD.flatMap(path => {
           inputFormat match {
-            case "text" => SimpleDocParser.getUrlTextPairs(path)
-            case "web" => WebCrawlParser.getUrlTextPairs(path)
-            case "wsj" => WSJParser.getUrlTextPairs(path)
+            case "text" => SimpleDocParser.getUrlTextPairs(path).flatMap(p => TripleParser.getTriples(p._2))
+            case "web" => WebCrawlParser.getUrlTextPairs(path).flatMap(p => TripleParser.getTriples(p._2))
+            case "wsj" => WSJParser.getUrlTextPairs(path).flatMap(p => TripleParser.getTriples(p._2))
           }
-        })
-    println("****************** NUMBER OF URL text pairs = " + urlTextPairs.count)
-    // inputListRDD.unpersist()
-    // urlTextPairs.saveAsTextFile(outPath + ".prov")
-    val triples = urlTextPairs.flatMap(urlTextPair => 
-        TripleParser.getTriples(urlTextPair._2))
-    
-    println("****** FINISHED PARSING TRIPLES : " + triples.count)
-    // urlTextPairs.unpersist()
-    // val pw = new java.io.PrintWriter(new File(outPath))
-    // triples.foreach(triples => pw.println(triples.mkString("_")))
-    // triples.foreach(t => pw.println(t))
-    // pw.close()
-    // tripleParser.srlOutputWriter.close()
+        }).cache()
 
-    // println("Storing " + triples.count + " triples")
+    // val triples = urlTextPairs.flatMap(urlTextPair => 
+        // TripleParser.getTriples(urlTextPair._2)).cache()
+
+    println("****** FINISHED PARSING TRIPLES : " + triples.count)
     triples.saveAsTextFile(outPath)
   }
 }
