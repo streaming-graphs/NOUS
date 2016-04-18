@@ -553,12 +553,12 @@ object GraphPatternProfiler {
       val tmpRDD_non_sorted = get_Pattern_RDDV2Flat(graph)
       val tmpRDD = tmpRDD_non_sorted.sortBy(f => f._2)
       //println("Total Instances Found" + tmpRDD.map(f => f._2).reduce((a, b) => a + b))
-      tmpRDD.collect.foreach(f => writerSG.println("All:\t"  +f._1 + "\t" + f._2))
+      //tmpRDD.collect.foreach(f => writerSG.println("All:\t"  +f._1 + "\t" + f._2))
 
       val frq_tmpRDD = tmpRDD.filter(f => f._2 > SUPPORT)
       println("number of patterns " + tmpRDD.filter(f => f._2 > SUPPORT).count)
 
-      frq_tmpRDD.collect.foreach(f => writerSG.println("Frq:\t" +f._1 + "\t" + f._2))
+      //frq_tmpRDD.collect.foreach(f => writerSG.println("Frq:\t" +f._1 + "\t" + f._2))
       writerSG.flush()
       return frq_tmpRDD
 
@@ -1573,7 +1573,7 @@ def self_Pattern_Join_GraphV2(updateGraph_withsink: Graph[KGNodeV2, KGEdge],
             //          tmp
           })
       println("before reduce " + pattern_support_rdd.count)
-      pattern_support_rdd.collect.foreach(f=> println(f.toString))
+      //pattern_support_rdd.collect.foreach(f=> println(f.toString))
       val tmpRDD = pattern_support_rdd.reduceByKey((a, b) => a + b)
       println("after reduce " + pattern_support_rdd.count)
       val frequent_pattern_support_rdd = tmpRDD.filter(f => ((f._2 >= SUPPORT) | (f._2 == -1)))

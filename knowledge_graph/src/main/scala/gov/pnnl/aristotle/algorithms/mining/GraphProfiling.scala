@@ -1,18 +1,24 @@
 package gov.pnnl.aristotle.algorithms.mining
 
+import java.io.File
+import java.io.PrintWriter
+
+import scala.collection.JavaConversions.asScalaBuffer
+import scala.collection.JavaConversions.bufferAsJavaList
+import scala.collection.JavaConversions.seqAsJavaList
+
+import org.apache.solr.client.solrj.impl.HttpSolrServer
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
-import org.apache.solr.client.solrj.impl.HttpSolrServer
 import org.apache.spark.graphx.Graph
-import org.apache.spark.graphx.{VertexRDD,VertexId}
-import scalaz.Scalaz._
-import java.io.PrintWriter
-import java.io.File
-import gov.pnnl.aristotle.aiminterface.NousProfileAnswerStreamRecord
-import collection.JavaConversions._
-import gov.pnnl.aristotle.algorithms.mining.datamodel.KGEdge
-import gov.pnnl.aristotle.algorithms.ReadHugeGraph
 import org.apache.spark.graphx.Graph.graphToGraphOps
+import org.apache.spark.graphx.VertexId
+import org.apache.spark.graphx.VertexRDD
+
+import gov.pnnl.aristotle.aiminterface.NousProfileAnswerStreamRecord
+import gov.pnnl.aristotle.algorithms.ReadHugeGraph
+import gov.pnnl.aristotle.algorithms.mining.datamodel.KGEdge
+import scalaz.Scalaz._
 
 object GraphProfiling {
     //val TYPE= "IS-A";
