@@ -452,7 +452,7 @@ def getTypedVertexRDD_Temporal(graph : Graph[String, KGEdge], writerSG : PrintWr
  {
 
       var degrees: VertexRDD[Int] = graph.degrees
-      degrees.collect.foreach(f=>writerSG.println("degree" + f.toString))
+      //degrees.collect.foreach(f=>writerSG.println("degree" + f.toString))
       println("finding tpye")
       println("type support is" + degreeLimit)
       var degreeGraph: Graph[(String, Map[String, Int]), KGEdge] = graph.outerJoinVertices(degrees) { (id, oldAttr, outDegOpt) =>
