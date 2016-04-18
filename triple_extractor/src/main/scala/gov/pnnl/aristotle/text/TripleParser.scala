@@ -30,6 +30,7 @@ case class Triple(val sub: String, val pred: String, val obj: String, val conf: 
 object TripleParser extends Serializable {
 
   private val props = new Properties()
+  println("$$$$$$$$$$$ LOADING CORENLP MODELS")
   props.setProperty("annotators", "tokenize,ssplit,pos,lemma,ner,parse,depparse,mention,coref,natlog,openie")
   props.setProperty("openie.resolve_coref", "true")
   props.setProperty("openie.triple.all_nominals", "false")
@@ -104,7 +105,7 @@ object TripleParser extends Serializable {
 
   def corefTransform(annotation: Annotation): String = new CorefTransform().transform(annotation)
 
-  class NamedPhraseExtractor {
+  object NamedPhraseExtractor {
 
     def extract(annotation: Annotation): Set[String] = { 
 
@@ -155,8 +156,8 @@ object TripleParser extends Serializable {
     }
   }
 
-  class OpenIEExtractor {
-    def extract(annotation: Annotation, namedPhrasesWithTags: Set[String]): List[Triple] = {
+  object OpenIEExtractor {
+    def extractFiltered(annotation: Annotation, namedPhrasesWithTags: Set[String]): List[Triple] = {
 
       def getNamedLabelMap(namedPhrases: Set[String]): Map[String, String] = {
         namedPhrases.map(nerLabelNamePair => {
@@ -191,13 +192,30 @@ object TripleParser extends Serializable {
       }
       tripleBuffer.toList.filter(t => TripleFilter.filter(t, namedPhrases))
     }
+
+    def extract(annotation: Annotation, namedPhrasesWithTags: Set[String]): List[Triple] = {
+
+      val sentences = annotation.get(classOf[SentencesAnnotation])
+      val tripleBuffer = new ListBuffer[Triple]()
+      for (s <- sentences) {
+        val sTriples = s.get(classOf[RelationTriplesAnnotation])
+        for (t <- sTriples) {
+          val sub = t.subjectGloss()
+          val obj = t.objectGloss()
+          val relation = t.relationGloss()
+          tripleBuffer += Triple(sub, relation, obj, t.confidence) 
+        }
+      }
+      tripleBuffer.toList
+    }
   }
 
-  def getCorefedAnnotation(doc: String): Annotation = {
+  // def getCorefedAnnotation(doc: String): Annotation = {
+  def getAnnotation(doc: String): Annotation = {
     try {
-      val annotation = pipeline.process(doc)
-      val transformedText = new CorefTransform().transform(annotation)
-      pipeline.process(transformedText)
+      pipeline.process(doc)
+      // val transformedText = new CorefTransform().transform(annotation)
+      // pipeline.process(transformedText)
     } catch {
       case ex: java.lang.RuntimeException => {
         println("CAUGHT EXCEPTION FOR: " + doc)
@@ -207,23 +225,18 @@ object TripleParser extends Serializable {
  
   }
 
-  def getAnnotation(doc: String): Annotation = {
+  /*def getAnnotation1(doc: String): Annotation = {
     if (doc.indexOf(".") == -1) 
       pipelineWithoutCoref.process(doc)
     else 
       getCorefedAnnotation(doc)
-  }
+  }*/
 
   def getTriples(doc: String): List[Triple] = {
     val annotation = getAnnotation(doc)
-    // val annotation = pipeline.process(doc)
-    val namedPhrases = new NamedPhraseExtractor().extract(annotation)
+    val namedPhrases = NamedPhraseExtractor.extract(annotation)
     //val srlTriples = new SemanticRoleLabelExtractor().extract(annotation)
-    val openieTriples = new OpenIEExtractor().extract(annotation, namedPhrases)
-    /*val triples = openieTriples.filter(t => {
-        namedPhrases.exists(n => t.sub.contains(n)) &&
-        namedPhrases.exists(n => t.obj.contains(n))
-    }) */
+    val openieTriples = OpenIEExtractor.extractFiltered(annotation, namedPhrases)
     openieTriples 
   }
 
