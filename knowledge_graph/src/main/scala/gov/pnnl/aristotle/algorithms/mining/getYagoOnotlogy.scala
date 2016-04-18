@@ -32,7 +32,7 @@ object getYagoOnotlogy extends Serializable {
   val writerSG = new PrintWriter(new File("yagoOntologyOP.txt"))
   def main(args: Array[String]): Unit = {
 
-    val sparkConf = new SparkConf().setAppName("NOUS Graph Pattern Miner").setMaster("local")
+    val sparkConf = new SparkConf().setAppName("NOUS Graph Pattern Miner")
       .set("spark.rdd.compress", "true").set("spark.serializer",
         "org.apache.spark.serializer.KryoSerializer")
 
@@ -55,7 +55,7 @@ object getYagoOnotlogy extends Serializable {
     })
     
     val type_rdd : RDD[(VertexId,List[VertexProperty])] = res.vertices.map(vertex => (vertex._1,vertex._2.getProperties))
-    type_rdd.saveAsObjectFile("typerdd.bin")
+    type_rdd.saveAsObjectFile("typerdd3.bin")
     writerSG.flush()
   }
 

@@ -26,7 +26,7 @@ object WordNet_Mapper_Util {
    */
 
   val sparkConf = new SparkConf().setAppName("Load Huge Graph Main")
-    .setMaster("local").set("spark.rdd.compress", "true").set("spark.serializer",
+    .set("spark.rdd.compress", "true").set("spark.serializer",
       "org.apache.spark.serializer.KryoSerializer")
 
   sparkConf.registerKryoClasses(Array.empty)
@@ -62,6 +62,7 @@ object WordNet_Mapper_Util {
 
     //val canonical_verb_broadcast = sc.broadcast(canonical_verb_Map.map(vline => vline._1))
     println("canonical size : " + canonical_verb_Map.size)
+    
     /*
      * Calculate all the similarity values between every wordnet id and 
      * canonical verb. It leads to N*M computation of about 54M values
@@ -151,6 +152,8 @@ object WordNet_Mapper_Util {
     }
   }
 
+  
+  
   def getCanonicalVerbMap() : RDD[(String,String)] = {
 
     return sc.textFile("RelationSynonymstestWSJ2010.txt").filter(line =>

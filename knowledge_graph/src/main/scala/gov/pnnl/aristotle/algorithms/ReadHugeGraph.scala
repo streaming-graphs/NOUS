@@ -18,6 +18,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Formatter.DateTime
 import org.joda.time.format.DateTimeFormat
 import gov.pnnl.aristotle.algorithms.mining.datamodel.KGEdge
+import gov.pnnl.aristotle.algorithms.mining.datamodel.KGEdge
 
 object ReadHugeGraph {
 
@@ -35,9 +36,9 @@ object ReadHugeGraph {
         val fields = getFieldsFromLine(line)
         getLabelledEdge_FromTriple(fields)
       }
-   edges.collect.foreach(e =>{
-     edgeListFile.println(e.srcId + " " +e.dstId)
-   })
+//   edges.collect.foreach(e =>{
+//     edgeListFile.println(e.srcId + " " +e.dstId)
+//   })
    edgeListFile.flush();
    println("In getEdgeList : building graph")
    val graph = GraphLoader.edgeListFile(sc, edgeListFileName, false, 1)
@@ -388,6 +389,35 @@ val edges = edges_multiple.distinct
      */
     
   def getGraphLG_Temporal(filename : String, sc : SparkContext): Graph[String, KGEdge] = {
+    
+    
+    println("starting map phase1");
+    val triples: RDD[(String, String, String)] =
+      sc.textFile(filename).filter(ln => isValidLineFromGraphFile(ln)).map { line =>
+        val fields = getFieldsFromLine(line);
+        if (fields.length ==4 && isEdgeLineLG(line))
+          (fields(1), "E", fields(3))
+        else if(fields.length == 3 && isVertexLineLG(line))
+          (fields(1), "rdf:type", fields(2))
+        else {
+          println("Exception reading graph file line", line)
+          ("None", "None", "None")
+        }
+      }
+
+    triples.cache
+    val edges = triples.map(triple => Edge(triple._1.hashCode().toLong, triple._3.hashCode().toLong, new KGEdge(triple._2,-1L)))
+    val vertices = triples.flatMap(triple => Array((triple._1.hashCode().toLong, triple._1), (triple._3.hashCode().toLong, triple._3)))
+
+    println("starting map phase3 > Building graph");
+    val graph = Graph(vertices, edges);
+ 
+    return graph
+    
+    
+   /*
+    * older code reading file multiple time
+ 
      println("starting map phase1");
      val edges: RDD[Edge[KGEdge]] =
       sc.textFile(filename).filter(ln => isValidLineFromGraphFile(ln)).map { line =>
@@ -407,7 +437,7 @@ val edges = edges_multiple.distinct
     //edges.cache()
     println("starting map phase2");
     val vertices: RDD[(VertexId, String)] =
-      sc.textFile(filename).filter(ln => isValidLineFromGraphFile(ln) && isVertexLineLG(ln)).flatMap { line =>
+      sc.textFile("1"+filename).filter(ln => isValidLineFromGraphFile(ln) && isVertexLineLG(ln)).map { line =>
         val fields = getFieldsFromLineLG(line)
         if(fields.length != 3) {
           println("Incorrect graph format", line)
@@ -416,18 +446,21 @@ val edges = edges_multiple.distinct
         val node1 = getVertex_FromString(fields(1))
         val node2 = getVertex_FromString("Type_" + fields(2))
         
-        Array(node1, node2)
+        //Array(node1, node2)
+        node1
         
     }
   
     println("starting map phase3 > Building graph");
     val graph = Graph(vertices, edges);
-    println("edge count " + graph.edges.count)
-    println("vertices count" + graph.vertices.count)
+    //println("edge count " + graph.edges.count)
+    //println("vertices count" + graph.vertices.count)
   
     //graph.vertices.foreach(v => println(v._2))
     //graph.edges.foreach(println(_))
     return graph
+    *     */
+    
   }  
   
   

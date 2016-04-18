@@ -18,6 +18,7 @@ import gov.pnnl.aristotle.algorithms.mining.datamodel.PGNode
 import gov.pnnl.aristotle.algorithms.mining.datamodel.PatternDependencyGraph
 import gov.pnnl.aristotle.algorithms.mining.datamodel.PatternInstance
 import org.apache.spark.graphx.Graph.graphToGraphOps
+import gov.pnnl.aristotle.algorithms.GraphMiner
 
 class DynamicPatternGraphV1(var minSup: Int) extends DynamicPatternGraph[KGNodeV1, KGEdge] {
 

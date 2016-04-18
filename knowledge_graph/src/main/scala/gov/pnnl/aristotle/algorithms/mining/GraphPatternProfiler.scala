@@ -407,8 +407,8 @@ object GraphPatternProfiler {
           t0 = System.nanoTime();
           var next_pattern_graph = getAugmentedGraphNextSize(closed_fixed_graph,
             pattern_results._2, writerSG, iteration, SUPPORT)
-          next_pattern_graph.vertices.collect.foreach(f =>
-            writerSG.println("graph " + iteration + " : " + f.toString))
+//          next_pattern_graph.vertices.collect.foreach(f =>
+//            writerSG.println("graph " + iteration + " : " + f.toString))
 
           input_v_size = closed_fixed_graph.vertices.count
           input_e_size = closed_fixed_graph.edges.count
@@ -485,7 +485,7 @@ object GraphPatternProfiler {
   def printPattern(graph: Graph[KGNodeV1, KGEdge],
     writerSG: PrintWriter, id: Int) {
     val tmpRDD = get_Pattern_RDD(graph)
-    tmpRDD.collect.foreach(f => writerSG.println(id + " " + f.toString))
+    //tmpRDD.collect.foreach(f => writerSG.println(id + " " + f.toString))
     writerSG.flush();
   }
 
@@ -498,12 +498,12 @@ object GraphPatternProfiler {
     {
       val tmpRDD = get_Pattern_RDD(graph)
       println("Total Instances Found" + tmpRDD.map(f => f._2).reduce((a, b) => a + b))
-      tmpRDD.collect.foreach(f => writerSG.println("All:\t"  +f._1 + "\t" + f._2))
+      //tmpRDD.collect.foreach(f => writerSG.println("All:\t"  +f._1 + "\t" + f._2))
 
       val frq_tmpRDD = tmpRDD.filter(f => f._2 > SUPPORT)
       println("number of patterns " + tmpRDD.filter(f => f._2 > SUPPORT).count)
 
-      frq_tmpRDD.collect.foreach(f => writerSG.println("Frq:\t" +f._1 + "\t" + f._2))
+      //frq_tmpRDD.collect.foreach(f => writerSG.println("Frq:\t" +f._1 + "\t" + f._2))
       writerSG.flush()
       return frq_tmpRDD
 
@@ -519,12 +519,12 @@ object GraphPatternProfiler {
       val tmpRDD_non_sorted = get_Pattern_RDD(graph)
       val tmpRDD = tmpRDD_non_sorted.sortBy(f => f._2)
       println("Total Instances Found" + tmpRDD.map(f => f._2).reduce((a, b) => a + b))
-      tmpRDD.collect.foreach(f => writerSG.println("All:\t"  +f._1 + "\t" + f._2))
+      //tmpRDD.collect.foreach(f => writerSG.println("All:\t"  +f._1 + "\t" + f._2))
 
       val frq_tmpRDD = tmpRDD.filter(f => f._2 > SUPPORT)
       println("number of patterns " + tmpRDD.filter(f => f._2 > SUPPORT).count)
 
-      frq_tmpRDD.collect.foreach(f => writerSG.println("Frq:\t" +f._1 + "\t" + f._2))
+      //frq_tmpRDD.collect.foreach(f => writerSG.println("Frq:\t" +f._1 + "\t" + f._2))
       writerSG.flush()
       return frq_tmpRDD
 
@@ -536,12 +536,12 @@ object GraphPatternProfiler {
       val tmpRDD_non_sorted = get_Pattern_RDDV2(graph)
       val tmpRDD = tmpRDD_non_sorted.sortBy(f => f._2)
       //println("Total Instances Found" + tmpRDD.map(f => f._2).reduce((a, b) => a + b))
-      tmpRDD.collect.foreach(f => writerSG.println("All:\t"  +f._1 + "\t" + f._2))
+      //tmpRDD.collect.foreach(f => writerSG.println("All:\t"  +f._1 + "\t" + f._2))
 
       val frq_tmpRDD = tmpRDD.filter(f => f._2 > SUPPORT)
       println("number of patterns " + tmpRDD.filter(f => f._2 > SUPPORT).count)
 
-      frq_tmpRDD.collect.foreach(f => writerSG.println("Frq:\t" +f._1 + "\t" + f._2))
+      //frq_tmpRDD.collect.foreach(f => writerSG.println("Frq:\t" +f._1 + "\t" + f._2))
       writerSG.flush()
       return frq_tmpRDD
 

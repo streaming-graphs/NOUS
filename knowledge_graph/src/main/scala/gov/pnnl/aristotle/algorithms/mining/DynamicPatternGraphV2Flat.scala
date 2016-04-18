@@ -20,6 +20,7 @@ import gov.pnnl.aristotle.algorithms.mining.datamodel.PatternDependencyGraph
 import gov.pnnl.aristotle.algorithms.mining.datamodel.PatternInstance
 import org.apache.spark.graphx.Graph.graphToGraphOps
 import gov.pnnl.aristotle.algorithms.mining.datamodel.KGNodeV2Flat
+import gov.pnnl.aristotle.algorithms.GraphMiner
 
 
 class DynamicPatternGraphV2Flat(var minSup: Int) 
@@ -43,7 +44,7 @@ extends DynamicPatternGraph[KGNodeV2Flat, KGEdge] {
     val typedVertexRDD: VertexRDD[Map[String, Map[String, Int]]] =
       GraphProfiling.getTypedVertexRDD_Temporal(graph,
         writerSG, type_support, this.TYPE)
-    typedVertexRDD.collect.foreach(f=>writerSG.println("type"+f.toString))
+    //typedVertexRDD.collect.foreach(f=>writerSG.println("type"+f.toString))
         //System.exit(1)    
     // Now we have the type information collected in the original graph
     val typedAugmentedGraph: Graph[(String, Map[String, Map[String, Int]]), 

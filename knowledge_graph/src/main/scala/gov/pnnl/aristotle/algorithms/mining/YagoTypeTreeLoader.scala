@@ -26,9 +26,9 @@ object YagoTypeTreeLoader {
 
     sparkConf.registerKryoClasses(Array.empty)
     val sc = new SparkContext(sparkConf)
-    val rdd  : RDD[(VertexId,List[VertexProperty])] = sc.objectFile("typerdd.bin")
+    val rdd  : RDD[(VertexId,List[VertexProperty])] = sc.objectFile("typerdd3.bin")
     println("size of the rdd is" + rdd.count)
-    val sample_output = rdd.filter(f=>f._2.size > 1).take(100)
+    val sample_output = rdd.filter(f=>f._2.size > 2).take(100)
     sample_output.foreach(f=>{
       println("****Node Tree**")
       f._2.foreach(f=>println(f.id+":"+f.property_label))
