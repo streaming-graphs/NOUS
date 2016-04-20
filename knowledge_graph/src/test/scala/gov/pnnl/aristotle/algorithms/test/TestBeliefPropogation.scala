@@ -7,7 +7,7 @@ import org.apache.log4j.Level
 import scala.collection.Map
 import breeze.linalg._
 
-import gov.pnnl.aristotle.algorithms.ColEntityDisamb
+import gov.pnnl.aristotle.algorithms.entity.EvidenceProp
 
 
 object TestBeliefPropogation {
@@ -29,7 +29,7 @@ object TestBeliefPropogation {
     val numMentions = 3
     val numEntities =  6
     val numVertices = numMentions + numEntities
-    val colEntityDis = new ColEntityDisamb[String, String]
+    
     var initialEvidence = DenseMatrix.zeros[Double](numVertices, 1)
     initialEvidence(0, 0) = 0.3
     initialEvidence(1, 0)  = 0.45
@@ -51,7 +51,7 @@ object TestBeliefPropogation {
     evidencePropMatrix(6, 8) = 1.0
 
     
-    val newEvidence = colEntityDis.runBeliefProp(initialEvidence,
+    val newEvidence = EvidenceProp.runBeliefProp(initialEvidence,
       evidencePropMatrix, lambda)
     
     assert(newEvidence.rows == numVertices)  

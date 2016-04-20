@@ -40,7 +40,8 @@ object InfoBox{
     val infoboxPredFile = DINT_Utils.getInfoBoxFile(confDir)
     println("getting yago Label for ", label)
     val nodeId: VertexId = MapToId(label, entityMapFile, g, sc)
-    if(nodeId == -1) return ""
+    if(nodeId == -1) 
+      return label+ " not found in knowledge base" 
     val predMap: HashMap[String, (String, Boolean)] = FileLoader.GetTripleMap(predMapFile, ',' , sc)
     val relationLabel: Set[String] = FileLoader.GetSingleSet(infoboxPredFile, ',', sc)
     println(" Filtering Infobox data on relations", relationLabel.toString)

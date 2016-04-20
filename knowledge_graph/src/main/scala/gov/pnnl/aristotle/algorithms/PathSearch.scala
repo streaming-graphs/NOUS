@@ -15,8 +15,9 @@ import org.apache.log4j.Level
 import scala.io.Source
 import java.nio.file.{Paths, Files}
 import java.nio.charset.StandardCharsets
-import gov.pnnl.aristotle.utils.{Gen_Utils, FileLoader} 
+import gov.pnnl.aristotle.utils.{Gen_Utils, FileLoader}
 import gov.pnnl.aristotle.utils.NodeProp
+import gov.pnnl.aristotle.algorithms.entity.EntityDisambiguation
 
 object PathSearch {
 

@@ -37,16 +37,12 @@ object Gen_Utils{
     // get a score for Partial match
     val wordsInPhrase1 : Array[String] = queryPhrase.toLowerCase().split(splitters).sorted
     val numWords1 = wordsInPhrase1.length
-    //wordsInPhrase1.foreach(println(_))
-    //println()
     val wordsInPhrase2 : Array[String] = databasePhrase.toLowerCase().split(splitters).sorted
     val numWords2 = wordsInPhrase2.length
-    //wordsInPhrase2.foreach(println(_))
-    //println()
    
     val setSimilarity: Double = (wordsInPhrase1.intersect(wordsInPhrase2).size).toDouble/(numWords1)
-    if(setSimilarity > matchThreshold) {
-      //println("Matched following phrases (score)=", queryPhrase, databasePhrase, setSimilarity)
+    if(setSimilarity >= matchThreshold) {
+      println("String matched following phrases (score)=", queryPhrase, databasePhrase, setSimilarity)
       return setSimilarity 
    }
     
@@ -75,7 +71,7 @@ object Gen_Utils{
       }
     }
     val finalScore = score/(numWords1+numWords2)
-    //if(finalScore > matchThreshold)
+    
     //  println("Matched " + queryPhrase + ";" + databasePhrase + "=" + finalScore.toString)
     finalScore
    }

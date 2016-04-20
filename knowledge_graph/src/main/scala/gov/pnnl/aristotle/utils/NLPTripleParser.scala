@@ -90,13 +90,13 @@ object NLPTripleParser {
         {
           //println(line)
           val arr = line.split("\t")
-          if(arr.length !=3 || arr.length !=4)  {
+          if(arr.length ==3 || arr.length ==4)  {
             val triple: NLPTriple = new NLPTriple(arr(0).trim, arr(1).trim, arr(2).trim)
             entityListLine = entityListLine.::(triple)
            //println("number of triples for this paragraph", entityListLine.size)
           }
           else
-            println("length is less than 3")
+            println("length is less than 3", line)
         }
       }
     }
