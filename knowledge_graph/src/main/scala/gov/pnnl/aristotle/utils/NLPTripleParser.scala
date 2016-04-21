@@ -25,7 +25,7 @@ object NLPTripleParser {
   type EntityTypeMap = Map[EntityLabel, MentionData]
   
   def main(args: Array[String]) : Unit = {
-    val sparkConf = new SparkConf().setAppName("PathSearch").setMaster("local")
+    val sparkConf = new SparkConf().setAppName("PathSearch")
     val sc = new SparkContext(sparkConf)
    
     println("starting from main")

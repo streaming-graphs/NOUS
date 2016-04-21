@@ -21,7 +21,7 @@ import gov.pnnl.aristotle.utils._
 object EntityDisambiguation {
 
   def main(args: Array[String]): Unit = {   
-    val sparkConf = new SparkConf().setAppName("EntityDisamb").setMaster("local")
+    val sparkConf = new SparkConf().setAppName("EntityDisamb")
     val sc = new SparkContext(sparkConf)
      Logger.getLogger("org").setLevel(Level.OFF)
      Logger.getLogger("akka").setLevel(Level.OFF)
