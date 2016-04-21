@@ -19,9 +19,9 @@ import edu.stanford.nlp.simple._;
 case class Triple(val sub: String, val pred: String, val obj: String, val conf: Double) {
   override def toString(): String = {
     val sbuf = new StringBuilder()
-    sbuf.append(sub).append(",")
-        .append(pred).append(",")
-        .append(obj).append(",")
+    sbuf.append(sub).append("\t")
+        .append(pred).append("\t")
+        .append(obj).append("\t")
         .append(conf)
     sbuf.toString
   }
