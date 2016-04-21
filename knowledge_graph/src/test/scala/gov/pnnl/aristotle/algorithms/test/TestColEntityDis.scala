@@ -8,12 +8,12 @@ import org.apache.log4j.Level
 import scala.collection.Map
 import breeze.linalg._
 
-import gov.pnnl.aristotle.algorithms.ColEntityDisamb
+import gov.pnnl.aristotle.algorithms.entity.ColEntityDisamb
 import gov.pnnl.aristotle.algorithms.{ReadHugeGraph}
 import gov.pnnl.aristotle.utils.{NLPTripleParser, NLPTriple, MentionData, MatchStringCandidates}
 
 
-object TestColDisamb{
+object RunColDisamb{
   
   def main(args: Array[String]): Unit = {
     
@@ -29,7 +29,8 @@ object TestColDisamb{
     }
     
    
-    
+    val graphFile = args(0)
+    var NLPTripleFile = args(1)
     val phraseMatchThreshold = args(2).toDouble
     val mentionToEntityMatchThreshold = args(3).toDouble
     println("Reading triple file")
@@ -45,21 +46,26 @@ object TestColDisamb{
    
     
     val colEntityDisObj = new ColEntityDisamb[String, String]
-    for(triplesInBlock <- allTriples){
-      val allMentionsWithData: Map[String, MentionData] = 
-        NLPTripleParser.getEntitiesWithTypeMapFromTriples(triplesInBlock)
-      println("Disambiguating follwing entities together as a block", allMentionsWithData.size)
-      allMentionsWithData.foreach(v => println(v._1 + "--(type, evidence weight)-->"+ v._2.toString))  
+    var isExit: String = NLPTripleFile
+    while(isExit != "exit") {
+      for(triplesInBlock <- allTriples){
+        val allMentionsWithData: Map[String, MentionData] = 
+          NLPTripleParser.getEntitiesWithTypeMapFromTriples(triplesInBlock)
+        println("Disambiguating follwing entities together as a block", allMentionsWithData.size)
+        allMentionsWithData.foreach(v => println(v._1 + "--(type, evidence weight)-->"+ v._2.toString))  
       
-      val mentionMatches: Map[String, ((VertexId, String), Double)] = colEntityDisObj.disambiguate(
+        val mentionMatches: Map[String, ((VertexId, String), Double)] = colEntityDisObj.disambiguate(
           allMentionsWithData, g, verticesWithAlias, phraseMatchThreshold, mentionToEntityMatchThreshold, 0.00001)
       
-      println
-      println("Disambiguation completed:")
-      mentionMatches.foreach((MentionWithMatch) => println(
+        println
+        println("Disambiguation completed:")
+        mentionMatches.foreach((MentionWithMatch) => println(
           MentionWithMatch._1 , "=>" , MentionWithMatch._2._1._1,  MentionWithMatch._2._1._2, 
           MentionWithMatch._2._2))              
      
+      }
+      
+      
     }
    
   }

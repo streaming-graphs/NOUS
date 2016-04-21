@@ -19,9 +19,9 @@ import edu.stanford.nlp.simple._;
 case class Triple(val sub: String, val pred: String, val obj: String, val conf: Double) {
   override def toString(): String = {
     val sbuf = new StringBuilder()
-    sbuf.append(sub).append(",")
-        .append(pred).append(",")
-        .append(obj).append(",")
+    sbuf.append(sub).append("\t")
+        .append(pred).append("\t")
+        .append(obj).append("\t")
         .append(conf)
     sbuf.toString
   }
@@ -233,10 +233,14 @@ object TripleParser extends Serializable {
   }*/
 
   def getTriples(doc: String): List[Triple] = {
+    
+    println(" In getTriples, doc string= ", doc)
     val annotation = getAnnotation(doc)
     val namedPhrases = NamedPhraseExtractor.extract(annotation)
+    println("calculated name phrases", namedPhrases.toString)
     //val srlTriples = new SemanticRoleLabelExtractor().extract(annotation)
     val openieTriples = OpenIEExtractor.extractFiltered(annotation, namedPhrases)
+    println(" calculated triples from openIE", openieTriples.toString)
     openieTriples 
   }
 

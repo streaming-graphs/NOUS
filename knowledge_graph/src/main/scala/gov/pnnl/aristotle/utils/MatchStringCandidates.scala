@@ -74,7 +74,7 @@ object MatchStringCandidates {
   def getMatchesRDDWithAlias(mentions :List[String],  allVerticesWithAlias: VertexRDD[String], phraseSimThreshold : Double):RDD[(String, Iterable[(VertexId, String)] )]  = {
     // Get aliases for all nodes in the form "alias=$nodeAlias, 
       
-    println("Collected alias for graph, " + allVerticesWithAlias.count.toString + "\n")
+    println("Getting matches for each mention")
     val mentionFilter = new MatchMentions(mentions.toSet, phraseSimThreshold)
     
     val allMatches: RDD[( String, (VertexId, String))] = allVerticesWithAlias.flatMap(v => {

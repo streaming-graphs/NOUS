@@ -1,20 +1,19 @@
-package gov.pnnl.aristotle.algorithms
+package gov.pnnl.aristotle.algorithms.entity
 
 import org.apache.spark._
 import org.apache.spark.SparkContext._
 import org.apache.spark.graphx._
 import org.apache.spark.rdd.RDD
-import org.apache.spark.Aggregator
 import org.apache.spark.rdd.RDD
 import scala.collection.Set
 import scala.util.Sorting
 import scala.math.Ordering
-import scala.collection.mutable.HashMap
 import org.apache.log4j.Logger
 import org.apache.log4j.Level
 import gov.pnnl.aristotle.utils.{NLPTripleParser}
-import java.io.{BufferedWriter, OutputStreamWriter, FileOutputStream}
 import gov.pnnl.aristotle.utils._
+import gov.pnnl.aristotle.algorithms.ReadHugeGraph
+import scala.Array.canBuildFrom
 
 
 

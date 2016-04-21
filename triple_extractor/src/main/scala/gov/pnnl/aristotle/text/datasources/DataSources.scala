@@ -40,6 +40,7 @@ object WSJParser {
         .split("\n")
         .filter(_ != "")
         .map((new Metadata(url), _))
+    println("no of lines in file(content)", lines.length)
     lines
   }
 }
