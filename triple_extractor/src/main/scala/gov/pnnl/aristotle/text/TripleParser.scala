@@ -218,7 +218,7 @@ object TripleParser extends Serializable {
       // pipeline.process(transformedText)
     } catch {
       case ex: java.lang.RuntimeException => {
-        println("CAUGHT EXCEPTION FOR: " + doc)
+        //println("CAUGHT EXCEPTION FOR: " + doc)
         pipelineWithoutCoref.process(doc)
       }
     }
@@ -234,13 +234,10 @@ object TripleParser extends Serializable {
 
   def getTriples(doc: String): List[Triple] = {
     
-    println(" In getTriples, doc string= ", doc)
     val annotation = getAnnotation(doc)
     val namedPhrases = NamedPhraseExtractor.extract(annotation)
-    println("calculated name phrases", namedPhrases.toString)
     //val srlTriples = new SemanticRoleLabelExtractor().extract(annotation)
     val openieTriples = OpenIEExtractor.extractFiltered(annotation, namedPhrases)
-    println(" calculated triples from openIE", openieTriples.toString)
     openieTriples 
   }
 

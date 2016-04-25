@@ -21,6 +21,8 @@ object GraphBuilder {
     val appConf = parseConf(args(0))
     val fileList = appConf("INPUT_LIST")
     val outPath = appConf("OUTPUT_DIR")
+    val version  = System.getProperty("java.version")
+    print("JAVA VERSION IS " + version)
     
     val sc = if (appConf.contains("SPARK_MASTER_URL"))
                 new SparkContext(new SparkConf().setAppName("TripleParser")
@@ -29,31 +31,16 @@ object GraphBuilder {
                 new SparkContext(new SparkConf().setAppName("TripleParser"))
    
 
-    println("FILE1  ")
-    println("NUMBER OF LINES IN FILE.LIST = " + sc.textFile("file.list").count)
-    println("FILE2  ")
-    println("NUMBER OF LINES IN FILE.LIST = " + sc.textFile("/projects/nous/file.list").count)
-
     val inputListRDD = sc.textFile(fileList).filter(entry => {
-      println("FILTERING " + entry + "isFile = " + new File(entry).isFile + " isJson = " + entry.endsWith(".json"))
       // new File(entry).isFile && entry.endsWith(".json")
       entry.endsWith(".json")
     })
     
-    println(" FIle list", inputListRDD.count)
-    inputListRDD.collect.foreach(println(_))
-    
-   
     val inputFormat = appConf("INPUT_FORMAT")
     val triples = inputListRDD.flatMap(path => {
-          println( " RUNNING ON" ,InetAddress.getLocalHost.getHostAddress)
           inputFormat match {
-            //case "text" => SimpleDocParser.getUrlTextPairs(path).flatMap(p => TripleParser.getTriples(p._2))
-            //case "web" => WebCrawlParser.getUrlTextPairs(path).flatMap(p => TripleParser.getTriples(p._2))
-            /*case "wsj" => {
-              println("processing WSJ")
-              WSJParser.getUrlTextPairs(path).flatMap(p => List(Triple("1", "1", "1", 0.9)))
-            }*/
+            case "text" => SimpleDocParser.getUrlTextPairs(path).flatMap(p => TripleParser.getTriples(p._2))
+            case "web" => WebCrawlParser.getUrlTextPairs(path).flatMap(p => TripleParser.getTriples(p._2))
             case "wsj" => WSJParser.getUrlTextPairs(path).flatMap(p => TripleParser.getTriples(p._2))
             case _ => {
               println(" NO MATCH to format")
