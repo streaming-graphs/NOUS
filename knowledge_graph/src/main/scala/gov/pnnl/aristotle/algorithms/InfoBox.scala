@@ -14,7 +14,7 @@ import gov.pnnl.aristotle.utils.NodeProp
 object InfoBox{
   
    def main(args: Array[String]): Unit = {   
-    val sparkConf = new SparkConf().setAppName("InfoBox").setMaster("local")
+    val sparkConf = new SparkConf().setAppName("InfoBox")
     val sc = new SparkContext(sparkConf)
     Logger.getLogger("org").setLevel(Level.OFF)
     Logger.getLogger("akka").setLevel(Level.OFF)
