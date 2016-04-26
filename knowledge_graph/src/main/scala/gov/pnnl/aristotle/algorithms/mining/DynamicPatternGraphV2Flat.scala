@@ -113,7 +113,6 @@ extends DynamicPatternGraph[KGNodeV2Flat, KGEdge] {
   
   def reducePatternsOnNodeV2(a: Map[String, Long], b: Map[String, Long]): Map[String, Long] =
     {
-    println("reduce")
     return a |+| b
     }
   
@@ -473,8 +472,8 @@ def getNonTypeVertexRDDV2(typedAugmentedGraph: Graph[(String,
      */
     val allSourceNodePatterns = edge.srcAttr.getpattern_map;
     val allDestinationNodePatterns = edge.dstAttr.getpattern_map
-    		println("s = " + edge.srcAttr.getlabel + " s size " + allDestinationNodePatterns.size + 
-    		    " and d= " +   edge.dstAttr.getlabel + " d size " + allDestinationNodePatterns.size )
+//    		println("s = " + edge.srcAttr.getlabel + " s size " + allDestinationNodePatterns.size + 
+//    		    " and d= " +   edge.dstAttr.getlabel + " d size " + allDestinationNodePatterns.size )
     if ((allSourceNodePatterns.size > 0) && (allDestinationNodePatterns.size > 0)) {
       allSourceNodePatterns.foreach(sr =>
         {

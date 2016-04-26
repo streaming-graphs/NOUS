@@ -394,9 +394,10 @@ val edges = edges_multiple.distinct
     println("starting map phase1");
     val triples: RDD[(String, String, String)] =
       sc.textFile(filename).filter(ln => isValidLineFromGraphFile(ln)).map { line =>
-        val fields = getFieldsFromLine(line);
-        if (fields.length ==4 && isEdgeLineLG(line))
-          (fields(1), "E", fields(3))
+        
+        val fields = getFieldsFromLineLG(line);
+        if (fields.length == 4 && isEdgeLineLG(line))
+          (fields(1), "E", fields(2))
         else if(fields.length == 3 && isVertexLineLG(line))
           (fields(1), "rdf:type", fields(2))
         else {

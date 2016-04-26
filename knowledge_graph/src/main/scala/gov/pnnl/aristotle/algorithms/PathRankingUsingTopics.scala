@@ -16,7 +16,7 @@ import gov.pnnl.aristotle.utils._
 object PathRanking {
 
    def main(args: Array[String]): Unit = {     
-    val sparkConf = new SparkConf().setAppName("get yago topics").setMaster("local")
+    val sparkConf = new SparkConf().setAppName("get yago topics")
     val sc = new SparkContext(sparkConf)
     Logger.getLogger("org").setLevel(Level.OFF)
     Logger.getLogger("akka").setLevel(Level.OFF)
