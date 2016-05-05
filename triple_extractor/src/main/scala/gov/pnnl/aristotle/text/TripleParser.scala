@@ -32,6 +32,8 @@ object TripleParser extends Serializable {
   private val props = new Properties()
   println("$$$$$$$$$$$ LOADING CORENLP MODELS")
   props.setProperty("annotators", "tokenize,ssplit,pos,lemma,ner,parse,depparse,mention,coref,natlog,openie")
+  // props.setProperty("annotators", "tokenize,ssplit,pos,lemma,ner")
+  props.setProperty("threads", "8")
   props.setProperty("openie.resolve_coref", "true")
   props.setProperty("openie.triple.all_nominals", "false")
   props.setProperty("openie.ignore_affinity", "true")
@@ -42,6 +44,8 @@ object TripleParser extends Serializable {
 
   private val propsWithoutCoref = new Properties()
   propsWithoutCoref.setProperty("annotators", "tokenize,ssplit,pos,lemma,ner,parse,depparse,mention,natlog,openie")
+  // propsWithoutCoref.setProperty("annotators", "tokenize,ssplit,pos,lemma,ner")
+  propsWithoutCoref.setProperty("threads", "8")
   // propsWithoutCoref.setProperty("annotators", "tokenize,ssplit,pos,lemma,ner,parse,mention")
   private val pipelineWithoutCoref = new StanfordCoreNLP(propsWithoutCoref)
 
@@ -124,8 +128,8 @@ object TripleParser extends Serializable {
           val word = t.get(classOf[TextAnnotation])
           val pos = t.get(classOf[PartOfSpeechAnnotation])
           val nerLabel = t.get(classOf[NamedEntityTagAnnotation])
-          // println("[" + nerLabel + "] TYPE OF [" + word + "]")
           val isNP = isNounPhrase(pos)
+          // println("[" + word + "] POS [" + pos + "]" + "] NER [" + nerLabel + "] isNP [" + isNP + "]")
           if (isNP) {
             if (npList.size == 0) {
               npList += (nerLabel + ":" + word)
@@ -182,12 +186,14 @@ object TripleParser extends Serializable {
       for (s <- sentences) {
         // println("***" + s)
         val sTriples = s.get(classOf[RelationTriplesAnnotation])
-        for (t <- sTriples) {
-          // println("---> " + t)
-          val sub = t.subjectGloss()
-          val obj = t.objectGloss()
-          val relation = t.relationGloss()
-          tripleBuffer += Triple(sub, relation, obj, t.confidence) 
+        if (sTriples != null) {
+          for (t <- sTriples) {
+            val sub = t.subjectGloss()
+            val obj = t.objectGloss()
+            val relation = t.relationGloss()
+            // println("---> " + sub + " -> " + relation + " -> " + obj)
+            tripleBuffer += Triple(sub, relation, obj, t.confidence) 
+          }
         }
       }
       tripleBuffer.toList.filter(t => TripleFilter.filter(t, namedPhrases))
@@ -212,13 +218,14 @@ object TripleParser extends Serializable {
 
   // def getCorefedAnnotation(doc: String): Annotation = {
   def getAnnotation(doc: String): Annotation = {
+    var t1 = 0L
     try {
       pipeline.process(doc)
       // val transformedText = new CorefTransform().transform(annotation)
       // pipeline.process(transformedText)
     } catch {
       case ex: java.lang.RuntimeException => {
-        //println("CAUGHT EXCEPTION FOR: " + doc)
+        println("\n\n\n\nCAUGHT java.lang.RuntimeException AT LINE 228")
         pipelineWithoutCoref.process(doc)
       }
     }
@@ -233,12 +240,23 @@ object TripleParser extends Serializable {
   }*/
 
   def getTriples(doc: String): List[Triple] = {
-    
+    // println("##########################")
+    // println(doc)
+    // println("##########################")
+    val t1 = System.currentTimeMillis
     val annotation = getAnnotation(doc)
+    val t2 = System.currentTimeMillis
     val namedPhrases = NamedPhraseExtractor.extract(annotation)
+    // println("********** NER output **********")
+    // namedPhrases.foreach(println)
+    // println("********** OpenIE output **********")
+    val t3 = System.currentTimeMillis
     //val srlTriples = new SemanticRoleLabelExtractor().extract(annotation)
     val openieTriples = OpenIEExtractor.extractFiltered(annotation, namedPhrases)
+    val t4 = System.currentTimeMillis
+    // println("getAnnotation = " + (t2-t1) + " NER = " + (t3-t2) + " OpenIE = " + (t4-t3))
     openieTriples 
+    //List[Triple]()
   }
 
   def getTriples1(doc: String): List[Triple] = {
@@ -250,5 +268,17 @@ object TripleParser extends Serializable {
       }
     }
     tripleBuffer.toList
+  }
+
+  def main(args: Array[String]) = {
+    if (args.size == 0) {
+      println("Missing argument = text-document-to-extract-triples")
+      System.exit(1)
+    }
+    val inPath = args(0)
+    val lines = scala.io.Source.fromFile(inPath).getLines.toList.filter(_.size != 0)
+    for (line <- lines) {
+      TripleParser.getTriples(line)
+    }
   }
 }
