@@ -20,11 +20,19 @@ object WebFeatureExtractor {
     new WebSource(path, result("url").asInstanceOf[String])
   }
   
-  def getText(path: String): String = {
+  def getMap(path: String): Map[String, Any] = {
     val doc = scala.io.Source.fromFile(path).mkString
     val result = JSON.parseFull(doc).getOrElse(Map.empty[String, Any])
         .asInstanceOf[Map[String, Any]]
-    val lines = result("text").asInstanceOf[String]
+    result
+  }
+
+  def get(path: String, key: String): String = {
+    val doc = scala.io.Source.fromFile(path).mkString
+    val result = JSON.parseFull(doc).getOrElse(Map.empty[String, Any])
+        .asInstanceOf[Map[String, Any]]
+    //val sd = result("structured_data").asInstanceOf[Map[String, Map[String, Any]]]
+    val lines = result(key).asInstanceOf[String]
     if (lines == null) {
       ""
     }

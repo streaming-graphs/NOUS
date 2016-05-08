@@ -16,13 +16,14 @@ import edu.stanford.nlp.naturalli.NaturalLogicAnnotations.RelationTriplesAnnotat
 import edu.stanford.nlp.ie.util.RelationTriple;
 import edu.stanford.nlp.simple._;
 
-case class Triple(val sub: String, val pred: String, val obj: String, val conf: Double) {
+case class Triple(val sub: String, val pred: String, val obj: String, val timestamp: String = "", val src: String = "", val conf: Double = 1.0) {
   override def toString(): String = {
     val sbuf = new StringBuilder()
     sbuf.append(sub).append("\t")
         .append(pred).append("\t")
         .append(obj).append("\t")
-        .append(conf)
+        .append(timestamp).append("\t")
+        .append(src)
     sbuf.toString
   }
 }
@@ -36,7 +37,7 @@ object TripleParser extends Serializable {
   props.setProperty("threads", "8")
   props.setProperty("openie.resolve_coref", "true")
   props.setProperty("openie.triple.all_nominals", "false")
-  props.setProperty("openie.ignore_affinity", "true")
+  // props.setProperty("openie.ignore_affinity", "true")
 
   private val badVerbs = Set("was")
   // props.setProperty("annotators", "tokenize,ssplit,pos,lemma,ner,parse,mention,coref")
@@ -192,7 +193,7 @@ object TripleParser extends Serializable {
             val obj = t.objectGloss()
             val relation = t.relationGloss()
             // println("---> " + sub + " -> " + relation + " -> " + obj)
-            tripleBuffer += Triple(sub, relation, obj, t.confidence) 
+            tripleBuffer += Triple(sub, relation, obj, "", "", t.confidence) 
           }
         }
       }
@@ -209,7 +210,7 @@ object TripleParser extends Serializable {
           val sub = t.subjectGloss()
           val obj = t.objectGloss()
           val relation = t.relationGloss()
-          tripleBuffer += Triple(sub, relation, obj, t.confidence) 
+          tripleBuffer += Triple(sub, relation, obj, "", "", t.confidence) 
         }
       }
       tripleBuffer.toList
@@ -239,6 +240,16 @@ object TripleParser extends Serializable {
       getCorefedAnnotation(doc)
   }*/
 
+  def reduceGroup(triples: List[Triple]): Triple = {
+    // triples.sortWith(_.obj < _.obj).last
+    triples.sortWith(_.obj.length < _.obj.length).last
+  }
+
+  def purge(triples: List[Triple]): List[Triple] = {
+    val groupedTriples = triples.groupBy(t => (t.sub + t.pred)).mapValues(reduceGroup)
+    groupedTriples.values.toList
+  }
+
   def getTriples(doc: String): List[Triple] = {
     // println("##########################")
     // println(doc)
@@ -255,19 +266,8 @@ object TripleParser extends Serializable {
     val openieTriples = OpenIEExtractor.extractFiltered(annotation, namedPhrases)
     val t4 = System.currentTimeMillis
     // println("getAnnotation = " + (t2-t1) + " NER = " + (t3-t2) + " OpenIE = " + (t4-t3))
-    openieTriples 
+    purge(openieTriples.filter(_.conf > 0.98))
     //List[Triple]()
-  }
-
-  def getTriples1(doc: String): List[Triple] = {
-    val document = new Document(doc)
-    val tripleBuffer = new ListBuffer[Triple]()
-    for (sent <- document.sentences()) {
-      for (triple <- sent.openieTriples()) {
-        tripleBuffer += Triple(triple.subjectLemmaGloss(), triple.relationLemmaGloss(), triple.objectLemmaGloss(), triple.confidence) 
-      }
-    }
-    tripleBuffer.toList
   }
 
   def main(args: Array[String]) = {
