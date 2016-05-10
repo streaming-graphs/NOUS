@@ -60,12 +60,17 @@
       <artifactId>spark-graphx_2.10</artifactId>
       <version>1.5.2</version>
       <scope>provided</scope>    
-   </dependency>
+    </dependency>
     <dependency>
+      <groupId>org.apache.tika</groupId>
+      <artifactId>tika-core</artifactId>
+      <version>1.12</version>
+    </dependency>
+    <!--dependency>
       <groupId>org.json4s</groupId>
       <artifactId>json4s-jackson_2.10</artifactId>
       <version>3.3.0.RC2</version>
-    </dependency>
+    </dependency-->
     <!--dependency>
       <groupId>ext-libs</groupId>
       <artifactId>easysrlclient-20160406</artifactId>

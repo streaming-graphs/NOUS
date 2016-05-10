@@ -44,7 +44,7 @@ object GraphBuilder {
             case "wsj" => WSJParser.getUrlTextPairs(path).flatMap(p => TripleParser.getTriples(p._2))
             case _ => {
               println(" NO MATCH to format")
-              List(Triple("1", "1", "1", 0.9))
+              List(Triple("1", "1", "1", "", "", 0.9))
             }
             
           }
