@@ -12,7 +12,7 @@ import gov.pnnl.aristotle.utils.NodeProp
 
 
 object InfoBox{
-  
+ /* 
    def main(args: Array[String]): Unit = {   
     val sparkConf = new SparkConf().setAppName("InfoBox")
     val sc = new SparkContext(sparkConf)
@@ -73,4 +73,6 @@ object InfoBox{
       println(" Found " + entity + " in graph")
     return id_s.apply(0)
   }
+  * 
+  */
 }
