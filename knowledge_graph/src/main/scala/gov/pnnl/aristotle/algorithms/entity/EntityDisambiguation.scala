@@ -173,10 +173,12 @@ object EntityDisambiguation {
   }
   
   def getBestStringMatchLabel(labels: Array[String], g: Graph[String, String]): Array[(VertexId, String)] = {
+    
+    // Finf all vertices that may correspond to any of the labels
     val candidateRDD = g.vertices.mapValues(_.toLowerCase()).filter(v => {
       var foundCand = false
       for(label <- labels){
-        if(label.startsWith(v._2)) foundCand = true
+        if(v._2.startsWith(label)) foundCand = true
       }
       foundCand
     })
@@ -190,11 +192,11 @@ object EntityDisambiguation {
     val results = Array.ofDim[(VertexId, String)](labels.length)
     var i = 0
     for(label <- labels) {
-      val candidatesForLabel = candidates.filter(_._2.startsWith(label))
-      if(candidatesForLabel.length == 0) {
+      val candidatesForGivenLabel = candidates.filter(_._2.startsWith(label))
+      if(candidatesForGivenLabel.length == 0) {
         results(i) = (-1, "")
       } else {
-        val sortedcandidatesForLabel = Sorting.quickSort(candidatesForLabel)(Ordering.by[(VertexId, String), String](_._2))
+        val sortedcandidatesForLabel = Sorting.quickSort(candidatesForGivenLabel)(Ordering.by[(VertexId, String), String](_._2))
         //val finalCandidateForLabel = sortedcandidatesForLabel(0)
       }
     }

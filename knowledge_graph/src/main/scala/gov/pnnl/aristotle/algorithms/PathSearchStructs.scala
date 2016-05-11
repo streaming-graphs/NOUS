@@ -12,8 +12,8 @@ import gov.pnnl.aristotle.utils._
 /** Basic data structure for edge. An Ordered Sequence of these constitutes a path
  *  
  */
-class PathEdge(srcId: Long, srcLabel:String, edgeLabel: String, dstId: Long, 
-    dstLabel: String, isOutgoing: Boolean = true) extends Serializable{
+class PathEdge(val srcId: Long, val srcLabel:String, val edgeLabel: String, val dstId: Long, 
+   val dstLabel: String, val isOutgoing: Boolean = true) extends Serializable{
   
   def edgeToString(): String = {
     var directionString = "->"
@@ -33,10 +33,7 @@ class PathEdge(srcId: Long, srcLabel:String, edgeLabel: String, dstId: Long,
  *  Auxiliary data is used to prune edges from a path during graph walk
  *  
  */
-class ExtendedVD[VD, VD2] (labelTemp : VD, extTemp : Option[VD2]) extends Serializable  {
-  val label: VD = labelTemp
-  val extension: Option[VD2]  = extTemp
-  
+class ExtendedVD[VD, VD2] (val label: VD,val extension : Option[VD2]) extends Serializable  {
   def labelToString = {
     label.toString
   }

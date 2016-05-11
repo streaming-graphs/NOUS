@@ -13,11 +13,15 @@ import scala.Array.canBuildFrom
 abstract class NbrData extends Serializable {
 } 
 
-class NbrDataWithEdgeAndNbrAttr[VD, ED](
-    val edgeAtttr : ED, 
-    val dstId: Long, 
-    val dstAttr: VD, 
-    val isOutgoing: Boolean = true) extends NbrData {}
+class NbrEdge( val dstId: Long, val dstAttr: String, val edgeAttr : String, 
+    val isOutgoing: Boolean = true) extends NbrData {
+  def toString(nodeLabel: String, maxEntityLabelSize: Int = Int.MaxValue): String = {
+     if(isOutgoing)
+           nodeLabel + "\t" + edgeAttr + "\t" + dstAttr
+          else 
+           dstAttr + "\t" + edgeAttr + "\t" + nodeLabel     
+  }
+}
 
 class NbrDataWithNbrAttr[VD](val dstId: Long, val dstAttr: VD)  extends NbrData {}
 
@@ -29,10 +33,8 @@ object NodeProp {
         if(id.isEmpty|| id.contains(edge.srcId)){
           if(edge.attr.toLowerCase() == KGraphProp.edgeLabelNodeType.toLowerCase())  
            edge.sendToSrc(edge.dstAttr)
-          else
-            edge.sendToSrc("")
         }},
-        (a, b) => a +";"+ b
+        (a, b) => a +"__"+ b
         )
   }
   
@@ -195,8 +197,24 @@ object NodeProp {
     print(" collected one hop nbrs for nodes:", nbrlist.count)
     return nbrlist;
   } 
+  
+  def getOneHopNbrEdges( g: Graph[String, String], filterRelations:Set[String]) : VertexRDD[Set[NbrEdge]] = {
+    
+    val nbrlist: VertexRDD[Set[NbrEdge]] =  g.aggregateMessages[Set[NbrEdge]](
+        edge => {         
+          if(!filterRelations.contains(edge.attr) || filterRelations.isEmpty) {
+            edge.sendToSrc(Set(new NbrEdge(edge.dstId, edge.dstAttr, edge.attr, true)))
+        	edge.sendToDst(Set(new NbrEdge(edge.srcId, edge.srcAttr, edge.attr, false)))
+          }
+        }, 
+        (a,b) => a ++ b
+    )
+    print(" collected one hop nbrs for nodes:", nbrlist.count)
+    return nbrlist;
+  } 
 
-  def getOneHopNbrIdsLabels( g: Graph[String, String], id: Array[Long], filterRelations:Set[String] = Set.empty) : VertexRDD[Set[(Long, String)]] = {
+  def getOneHopNbrIdsLabels( g: Graph[String, String], id: Array[Long], 
+      filterRelations:Set[String] = Set.empty) : VertexRDD[Set[(Long, String)]] = {
     val nbrlist: VertexRDD[Set[(Long, String)]] =  g.aggregateMessages[Set[(Long, String)]](
         edge => {         
           if(id.contains(edge.srcId) && (!filterRelations.contains(edge.attr) || filterRelations.isEmpty)) {
