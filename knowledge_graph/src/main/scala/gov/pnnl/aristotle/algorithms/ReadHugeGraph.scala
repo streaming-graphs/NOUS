@@ -51,6 +51,17 @@ object ReadHugeGraph {
     return line.toLowerCase().replaceAllLiterally("<", "").replaceAllLiterally(">", "").replace(" .", "").split("\\t").map(str => str.stripPrefix(" ").stripSuffix(" "));
   }
   
+  //(radio frequency interference	resulted in	crash near mcg		radio frequency interference	likely resulted in	crash of aircraft	,64)
+  def getFieldsFromPatternLine(line :String) : Array[String] = {
+    val tmp =  line.toLowerCase().replaceAllLiterally("<", "").replaceAllLiterally(">", "")
+    .replaceAllLiterally("(", "").replace(" .", "").replaceAllLiterally(")", "")
+    val i = tmp.lastIndexOf(",")
+    return Array(tmp.substring(0, i), tmp.substring(i+1))
+    //split(",").map(str => str.stripPrefix(" ").stripSuffix(" ").replaceAll(",", ""));
+  }
+  
+  
+  
   def getFieldsFromLineLG(line :String) : Array[String] = {
     return line.toLowerCase().replaceAllLiterally("<", "").replaceAllLiterally(">", "").replace(" .", "").split(" ").map(str => str.stripPrefix(" ").stripSuffix(" "));
   }
@@ -88,6 +99,27 @@ object ReadHugeGraph {
             fields(2).hashCode().toLong, new KGEdge(fields(1),-1L))
   }
   
+  def getPatternRDD_FromQuadruple(fields : Array[String]) : Edge[KGEdge] = {
+    if(fields(3).matches("^\\d{4}-\\d{2}-\\d{2}t.*$"))
+    {      
+    
+    val f = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+    val dateTime = f.parseDateTime(fields(3).replaceAll("t", " "));
+    val longtime = dateTime.getMillis()
+      return Edge(fields(0).hashCode().toLong, 
+            fields(2).hashCode().toLong, new KGEdge(fields(1),longtime))
+    }
+    else if(fields(3).matches("^\\d{4}$"))
+    {
+      
+            //println("found  edge "+fields(1))
+            return Edge(fields(0).hashCode().toLong, 
+            fields(2).hashCode().toLong, new KGEdge(fields(1),-1L))
+    }
+    else  
+    	return Edge(fields(0).hashCode().toLong, 
+            fields(2).hashCode().toLong, new KGEdge(fields(1),-1L))
+  }
     
 
   def getTemporalLabelledEdge_FromTriple(fields : Array[String]) : Edge[KGEdge] = {
@@ -158,7 +190,7 @@ object ReadHugeGraph {
             getVertex_FromString(fields(0))  
 
         }
-        else if (fields.length == 4) getVertex_FromString(fields(1))
+        else if (fields.length == 4) getVertex_FromString(fields(0))
         else
           getVertex_FromString(fields(0))
       }
@@ -178,7 +210,7 @@ object ReadHugeGraph {
 
         }
         else if (fields.length == 4)
-          getVertex_FromString(fields(3))
+          getVertex_FromString(fields(2))
         else
           try {
             getVertex_FromString(fields(2))

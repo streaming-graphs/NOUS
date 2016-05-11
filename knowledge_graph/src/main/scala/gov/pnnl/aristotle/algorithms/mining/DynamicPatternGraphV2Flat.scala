@@ -44,12 +44,13 @@ extends DynamicPatternGraph[KGNodeV2Flat, KGEdge] {
     val typedVertexRDD: VertexRDD[Map[String, Map[String, Int]]] =
       GraphProfiling.getTypedVertexRDD_Temporal(graph,
         writerSG, type_support, this.TYPE)
-    //typedVertexRDD.collect.foreach(f=>writerSG.println("type"+f.toString))
+    //typedVertexRDD.collect.foreach(f=>writerSG.println("type rdd"+f.toString))
         //System.exit(1)    
     // Now we have the type information collected in the original graph
     val typedAugmentedGraph: Graph[(String, Map[String, Map[String, Int]]), 
       KGEdge] = GraphProfiling.getTypedAugmentedGraph_Temporal(graph, 
           writerSG, typedVertexRDD)
+    //typedAugmentedGraph.vertices.collect.foreach(f=>writerSG.println("type graph"+f.toString))    
     var t1 = System.currentTimeMillis();
     writerSG.println("#Time to prepare base typed graph" + " =" +
       (t1 - t0) * 1e-3 + "seconds," + typedAugmentedGraph.vertices.count)
@@ -61,13 +62,14 @@ extends DynamicPatternGraph[KGNodeV2Flat, KGEdge] {
     val nonTypedVertexRDD: VertexRDD[Map[String, 
       Long]] =
         getNonTypeVertexRDDV2(typedAugmentedGraph)
-        //nonTypedVertexRDD.collect.foreach(f=>writerSG.println("non-type"+f.toString))
+    //nonTypedVertexRDD.collect.foreach(f=>writerSG.println("non-type"+f.toString))
     t0 = System.currentTimeMillis();
     val updatedGraph: Graph[KGNodeV2Flat, KGEdge] =
       typedAugmentedGraph.outerJoinVertices(nonTypedVertexRDD) {
         case (id, (label, something), Some(nbr)) => new KGNodeV2Flat(label, nbr,List.empty)
         case (id, (label, something), None) => new KGNodeV2Flat(label, Map(),List.empty)
       }
+    //updatedGraph.vertices.collect.foreach(f=>writerSG.println("updated graph"+f.toString))
     t1 = System.currentTimeMillis();
     writerSG.println("#Time to join base typed graph with input graph" +
       " =" + (t1 - t0) * 1e-3 + "s " + updatedGraph.vertices.count)
@@ -87,12 +89,12 @@ extends DynamicPatternGraph[KGNodeV2Flat, KGEdge] {
     val updateGraph_withsink = updateGraphWithSinkV2(updatedGraph)
     println("sink graph done")
     val result = null
+    //updateGraph_withsink.vertices.collect.foreach(f=>writerSG.println("updated with sink v = " + f.toString))
     this.input_graph
-    // = GraphPatternProfiler.fixGraphV2(updateGraph_withsink);
-    = GraphPatternProfiler.get_Frequent_SubgraphV2Flat(updateGraph_withsink, result, SUPPORT)
-//    = GraphPatternProfiler.fixGraphV2(GraphPatternProfiler.
-//      get_Frequent_SubgraphV2(updateGraph_withsink, result, SUPPORT));
-    
+    = GraphPatternProfiler.fixGraphV2Flat(
+    GraphPatternProfiler.get_Frequent_SubgraphV2Flat(updateGraph_withsink, result, SUPPORT))
+		//    = GraphPatternProfiler.fixGraphV2(GraphPatternProfiler.
+		//      get_Frequent_SubgraphV2(updateGraph_withsink, result, SUPPORT));
     return this
 
   }
@@ -196,6 +198,17 @@ def getNonTypeVertexRDD(typedAugmentedGraph: Graph[(String,
         })
     }
 
+/*
+ * This method takes a typed graph whre each node has all the types they 
+ * belong to. Output of this file is a Vertex RDD which has all the possible
+ * 1-edge patterns (at their source). So if the source which label "user5" has 2 
+ * types namely "person" and "user5" ( because of its degree) and destination 
+ * say "company10" also has two types "company" and "company10". The result will
+ * be a RDD where "user5" will have 4 1-edge patterns "person worksat company",
+ * "person worksat company10", "user5 worksat company", and "user5 worksat company10".
+ * 
+ * So in some sense, the methods' name is misleading. TODO: fix the name
+ */
 
 def getNonTypeVertexRDDV2(typedAugmentedGraph: Graph[(String, 
     Map[String, Map[String, Int]]), KGEdge]) : VertexRDD[Map[String, 
@@ -241,9 +254,13 @@ def getNonTypeVertexRDDV2(typedAugmentedGraph: Graph[(String,
 
     if (this.input_graph == null) {
       this.input_graph = gBatch.input_graph
-    }
+      val result = new DynamicPatternGraphV2Flat(minSup)
+    result.input_graph = this.input_graph
+    return result
 
-    var t0 = System.nanoTime()
+    }else
+    {
+    	    var t0 = System.nanoTime()
     val vertices_rdd: RDD[(VertexId, Map[String, Long])] =
       gBatch.input_graph.vertices.map(f => (f._1, f._2.getpattern_map))
 
@@ -270,6 +287,9 @@ def getNonTypeVertexRDDV2(typedAugmentedGraph: Graph[(String,
     val result = new DynamicPatternGraphV2Flat(minSup)
     result.input_graph = new_window_graph
     return result
+    }
+
+
   }
 
   def joinPatterns(gDep: PatternDependencyGraph, writerSG: PrintWriter,
@@ -309,17 +329,18 @@ def getNonTypeVertexRDDV2(typedAugmentedGraph: Graph[(String,
 	   */
 
       // Step 1: First do self join of existing n-size patterns to create 2*n patterns.
+      // TODO: This creats many issues. so disable it for now
       t0 = System.currentTimeMillis();
-      val g1 = GraphPatternProfiler.self_Instance_Join_GraphV2Flat(nThPatternGraph, iteration_id)
+      val g1 = nThPatternGraph//GraphPatternProfiler.self_Instance_Join_GraphV2Flat(nThPatternGraph, iteration_id)
       t1 = System.currentTimeMillis();
-      writerSG.println("#Time to do self_instance join graph" + " =" + (t1 - t0) * 1e-3 +
-        "s and" + "#TSize of self_instance update graph" + " =" + g1.vertices.first.toString)
-      writerSG.flush()
+//      writerSG.println("#Time to do self_instance join graph" + " =" + (t1 - t0) * 1e-3 +
+//        "s and" + "#TSize of self_instance update graph" + " =" + g1.vertices.first.toString)
+//      writerSG.flush()
 
       //Step 2 : Self Join 2 different patterns at a node to create 2*n size pattern
       var res = nThPatternGraph.vertices.map(v => (v._1,v._2.getInstanceCount))
       t0 = System.currentTimeMillis();
-      val newGraph = GraphPatternProfiler.self_Pattern_Join_GraphV2Flat(nThPatternGraph, iteration_id)
+      val newGraph = GraphPatternProfiler.self_Pattern_Join_GraphV2Flat(g1, iteration_id)
       t1 = System.currentTimeMillis();
       println("#Time to do self_pattern join graph" +
         " =" + (t1 - t0) * 1e-3 + "s and " +
@@ -389,7 +410,7 @@ def getNonTypeVertexRDDV2(typedAugmentedGraph: Graph[(String,
         (epred.srcAttr.getpattern_map.size != 0) & 
             (epred.dstAttr.getpattern_map.size != 0)))
 
-    if(iteration_id == 2)
+    if(iteration_id == 3)
     {
        val nPlusOneThPatternVertexRDD =
       newGraph.subgraph(epred =>
