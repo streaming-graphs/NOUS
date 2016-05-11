@@ -40,7 +40,7 @@ object Gen_Utils{
     val wordsInPhrase2 : Array[String] = databasePhrase.toLowerCase().split(splitters).sorted
     val numWords2 = wordsInPhrase2.length
    
-    val setSimilarity: Double = (wordsInPhrase1.intersect(wordsInPhrase2).size).toDouble/(numWords1)
+    val setSimilarity: Double = (wordsInPhrase1.intersect(wordsInPhrase2).size*2).toDouble/(numWords1+numWords2)
     if(setSimilarity >= matchThreshold) {
       println("String matched following phrases (score)=", queryPhrase, databasePhrase, setSimilarity)
       return setSimilarity 

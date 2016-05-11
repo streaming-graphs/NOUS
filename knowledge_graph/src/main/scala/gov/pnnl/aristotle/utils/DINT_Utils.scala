@@ -24,7 +24,7 @@ class DINTRecord(company:String, lob:String, examplarComp:String, hscodes:List[S
 }
 */
 object DINT_Utils {
-  
+  /*
   def main(args:Array[String]): Unit ={
     val sparkConf = new SparkConf().setAppName("PathSearch").setMaster("local")
     val sc = new SparkContext(sparkConf)
@@ -215,4 +215,6 @@ object DINT_Utils {
   def getLobToItemFile(confDir: String): String ={
     return(confDir + "/lob_item.csv")
   }
+  * 
+  */
 }

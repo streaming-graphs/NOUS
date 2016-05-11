@@ -67,6 +67,19 @@ object MatchStringCandidates {
       }})
   }
  
+  def constructVertexRDDWithType(g: Graph[String, String]): VertexRDD[String] = {
+        
+    val verticesWithType: VertexRDD[String] = NodeProp.getNodeType(g)
+    
+    // The vertices labels are joined with their aliases
+    // Vertex labels are of the form 
+    // "$nodeLabel;alias=$nodeAlias"
+    g.vertices.leftZipJoin(verticesWithType)((id, label, nodeType) => {
+      nodeType match{
+        case Some(aliasValues) => label + KGraphProp.typeSep + nodeType
+        case None => label
+      }})
+  }
  /* Given a list of "mentions" and a graph , return
   *  
   * VertexId -> 
