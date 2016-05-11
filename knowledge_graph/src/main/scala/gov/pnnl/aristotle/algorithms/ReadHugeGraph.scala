@@ -284,6 +284,39 @@ object ReadHugeGraph {
  
     return graph
   }
+  
+  def getGraphTimeStampedLAS(filename : String, sc : SparkContext): Graph[String, String] = {
+    println("starting map phase1");
+    val triples: RDD[(String, String, String)] =
+      sc.textFile(filename).filter(ln => isValidLineFromGraphFile(ln)).distinct.map { line =>
+        val fields = getFieldsFromLine(line);
+        if (fields.length == 4 || fields.length == 3){
+          var subj = fields(0).replace(',', ';')
+          val pred = fields(1).replace(',', ';')
+          var objt = fields(2).replace(',', ';')
+          if(subj == "drones")
+            subj = "drone"
+          if(objt == "drones")
+            objt = "drone"
+          
+          (subj, pred, objt)
+        } else {
+          println("Exception reading graph file line", line)
+          ("None", "None", "None")
+        }
+      }
+
+    triples.cache
+    val edges = triples.map(triple => Edge(triple._1.hashCode().toLong, triple._3.hashCode().toLong, triple._2))
+    val vertices = triples.flatMap(triple => Array((triple._1.hashCode().toLong, triple._1), (triple._3.hashCode().toLong, triple._3)))
+
+    println("starting map phase3 > Building graph");
+    val graph = Graph(vertices, edges);
+    println("edge count " + graph.edges.count)
+    println("vertices count" + graph.vertices.count)
+ 
+    return graph
+  }
  
   def getGraph(filename : String, sc : SparkContext): Graph[String, String] = {
     println("starting map phase1");
