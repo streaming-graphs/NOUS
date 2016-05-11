@@ -97,6 +97,19 @@
   	<version>0.12</version>
 	</dependency>
 	
+	<dependency>
+	<groupId>net.liftweb</groupId>
+	<artifactId>lift-webkit_2.10</artifactId>
+	<version>3.0-M1</version>
+</dependency>
+
+	<dependency>
+	  <groupId>org.json4s</groupId>
+	  <artifactId>json4s-native_2.10</artifactId>
+	  <version>3.1.0</version>
+	</dependency>
+
+	
 	<!-- <dependency>
 	    <groupId>gov.pnnl.aim.af</groupId>
 	    <artifactId>aim-ws-client-java</artifactId>
