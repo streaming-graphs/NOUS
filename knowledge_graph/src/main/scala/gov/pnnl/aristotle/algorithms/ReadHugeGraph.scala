@@ -81,7 +81,7 @@ object ReadHugeGraph {
     if(fields(3).matches("^\\d{4}-\\d{2}-\\d{2}t.*$"))
     {      
     
-    val f = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+    val f = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ssZ");
     val dateTime = f.parseDateTime(fields(3).replaceAll("t", " "));
     val longtime = dateTime.getMillis()
       return Edge(fields(0).hashCode().toLong, 
@@ -103,7 +103,7 @@ object ReadHugeGraph {
     if(fields(3).matches("^\\d{4}-\\d{2}-\\d{2}t.*$"))
     {      
     
-    val f = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+    val f = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss");
     val dateTime = f.parseDateTime(fields(3).replaceAll("t", " "));
     val longtime = dateTime.getMillis()
       return Edge(fields(0).hashCode().toLong, 
@@ -170,7 +170,7 @@ object ReadHugeGraph {
       sc.textFile(filename).filter(ln => isValidLineFromGraphFile(ln)).map { line =>
         val fields = getFieldsFromLine(line);
         //println("edge"+fields.toSet.toString())
-        if (fields.length == 4)
+        if (fields.length >= 4)
           getTemporalLabelledEdge_FromQuadruple(fields)
         else
           getTemporalLabelledEdge_FromTriple(fields)
@@ -182,15 +182,15 @@ object ReadHugeGraph {
     val vertexRDD1: RDD[(VertexId, String)] =
       sc.textFile(filename).filter(ln => isValidLineFromGraphFile(ln)).map { line =>
         val fields = getFieldsFromLine(line)
-        if ((fields.length == 4) && (fields(3).matches("^\\d{4}-\\d{2}-\\d{2}t.*$")))
+        if ((fields.length >= 4) && (fields(3).matches("^\\d{4}-\\d{2}-\\d{2}t.*$")))
           getVertex_FromString(fields(0))
-        else if ((fields.length == 4) && (fields(3).matches("^\\d{4}$")))
+        else if ((fields.length >= 4) && (fields(3).matches("^\\d{4}$")))
         {
             //println("found  "+fields.toSet.toString())
             getVertex_FromString(fields(0))  
 
         }
-        else if (fields.length == 4) getVertex_FromString(fields(0))
+        else if (fields.length >= 4) getVertex_FromString(fields(0))
         else
           getVertex_FromString(fields(0))
       }
@@ -201,15 +201,15 @@ object ReadHugeGraph {
         val fields = getFieldsFromLine(line)
         //println("ver2 "+fields.toSet.toString())
 
-        if ((fields.length == 4) && (fields(3).matches("^\\d{4}-\\d{2}-\\d{2}t.*$")))
+        if ((fields.length >= 4) && (fields(3).matches("^\\d{4}-\\d{2}-\\d{2}t.*$")))
           getVertex_FromString(fields(2))
-        else if ((fields.length == 4) && (fields(3).matches("^\\d{4}$")))
+        else if ((fields.length >= 4) && (fields(3).matches("^\\d{4}$")))
         {
             //println("found  2"+fields.toSet.toString())
             getVertex_FromString(fields(2))  
 
         }
-        else if (fields.length == 4)
+        else if (fields.length >= 4)
           getVertex_FromString(fields(2))
         else
           try {

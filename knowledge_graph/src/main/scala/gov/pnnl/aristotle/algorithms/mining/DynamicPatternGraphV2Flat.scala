@@ -507,7 +507,7 @@ def getNonTypeVertexRDDV2(typedAugmentedGraph: Graph[(String,
               //Ex. <Foo knows Bar> can be joined with any pattern at <Bar>
               if(sr._1.split("\\t")(2).equals(dst._1.split("\\t")(0)))
               {
-                println("send msg 1")
+                
                 GraphPatternProfiler.sendPatternV2Flat(sr._1, dst._1,
                       sr._2, dst._2, edge)
               }

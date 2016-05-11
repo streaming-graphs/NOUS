@@ -35,7 +35,7 @@ object GraphMiner {
    * Initialize the spark context and its run-time configurations
    */
 
-  val sparkConf = new SparkConf().setAppName("NOUS Graph Pattern Miner")
+  val sparkConf = new SparkConf().setAppName("NOUS Graph Pattern Miner").setMaster("local")
     .set("spark.rdd.compress", "true").set("spark.serializer",
       "org.apache.spark.serializer.KryoSerializer")
 
@@ -274,7 +274,7 @@ object GraphMiner {
         writerSG, 2, args(1).toInt)
         println("received frequent pattern rdd size"+pattern_in_this_batch.count)
       //pattern_in_this_batch.collect.foreach(f => writerSG.println(s"pattern_"+FilenameUtils.getBaseName(args(4)) +"= " + f.toString))
-      pattern_in_this_batch.saveAsTextFile("hdfs:///user/spark/LASFGMOP/"
+      pattern_in_this_batch.saveAsTextFile("hdfs:///user/spark/LASFGMOP2/"
           +"_lasminer")
         writerSG.flush()
       val t_b1 = System.nanoTime();
