@@ -876,11 +876,21 @@ def self_Pattern_Join_GraphV2(updateGraph_withsink: Graph[KGNodeV2, KGEdge],
        */
 
       for (i <- 0 until selfJoinPatterns.length) {
-        for (j <- i until selfJoinPatterns.length) {
-          var t0 = System.currentTimeMillis()
-          joinedPattern = joinedPattern +  (selfJoinPatterns(j)._1 + "|" +
-        selfJoinPatterns(i)._1 -> (selfJoinPatterns(j)._2 * selfJoinPatterns(i)._2))
-        var t1 = System.currentTimeMillis()
+        for (j <- i + 1 until selfJoinPatterns.length) {
+          //TODO: Another issue becasue of not knowing the exact instances is that 
+          // if in the step 1, 2 instances of "user5   buys    product" are used 
+          // to form a 2 edge pattern "user5   buys    product user5   buys    product"
+          // with support 1. But now in step 2, it will try to join with 
+          // sub-pattern "user5   buys    product" and form a 3-edge pattern
+          // "user5   buys    product user5   buys    product user5   buys    product"
+          // SO i am adding a sub-string check which is not always correct.
+          if (!selfJoinPatterns(j)._1.contains(selfJoinPatterns(i)._1) &&
+            !selfJoinPatterns(i)._1.contains(selfJoinPatterns(j)._1)) {
+            var t0 = System.currentTimeMillis()
+            joinedPattern = joinedPattern + (selfJoinPatterns(j)._1 + "|" +
+              selfJoinPatterns(i)._1 -> (selfJoinPatterns(j)._2 * selfJoinPatterns(i)._2))
+            var t1 = System.currentTimeMillis()
+          }
         }
       }
       new KGNodeV2(attr.getlabel, joinedPattern |+| attr.getpattern_map,List.empty)
@@ -914,14 +924,29 @@ def self_Pattern_Join_GraphV2(updateGraph_withsink: Graph[KGNodeV2, KGEdge],
        * For each pattern-instance of each pattern at both the source and 
        * destination, iterate over them and join them if they are disjointed 
        * instances.
+       * 
+       * TODO: because we are not tracking the actual instances, there is not way to 
+       * distinguish that follwoing pattern and its support is wrong:
+       *  person   buys        product         user5   buys    product  -> 4 
+       *  because where the person is same as user5.
        */
-
+      
       for (i <- 0 until selfJoinPatterns.length) {
-        for (j <- i until selfJoinPatterns.length) {
-          var t0 = System.currentTimeMillis()
-          joinedPattern = joinedPattern +  (selfJoinPatterns(j)._1 + "|" +
-        selfJoinPatterns(i)._1 -> (selfJoinPatterns(j)._2 * selfJoinPatterns(i)._2))
-        var t1 = System.currentTimeMillis()
+        for (j <- i + 1 until selfJoinPatterns.length) {
+          //TODO: Another issue becasue of not knowing the exact instances is that 
+          // if in the step 1, 2 instances of "user5   buys    product" are used 
+          // to form a 2 edge pattern "user5   buys    product user5   buys    product"
+          // with support 1. But now in step 2, it will try to join with 
+          // sub-pattern "user5   buys    product" and form a 3-edge pattern
+          // "user5   buys    product user5   buys    product user5   buys    product"
+          // SO i am adding a sub-string check which is not always correct.
+          if (!selfJoinPatterns(j)._1.contains(selfJoinPatterns(i)._1) &&
+            !selfJoinPatterns(i)._1.contains(selfJoinPatterns(j)._1)) {
+            var t0 = System.currentTimeMillis()
+            joinedPattern = joinedPattern + (selfJoinPatterns(j)._1 + "|" +
+              selfJoinPatterns(i)._1 -> (selfJoinPatterns(j)._2 * selfJoinPatterns(i)._2))
+            var t1 = System.currentTimeMillis()
+          }
         }
       }
       new KGNodeV2Flat(attr.getlabel, joinedPattern |+| attr.getpattern_map,List.empty)
@@ -1638,6 +1663,8 @@ def self_Pattern_Join_GraphV2(updateGraph_withsink: Graph[KGNodeV2, KGEdge],
       //pattern_support_rdd.collect.foreach(f=> println(f.toString))
       val tmpRDD = pattern_support_rdd.reduceByKey((a, b) => a + b)
       println("after reduce " + pattern_support_rdd.count)
+      //tmpRDD.collect.foreach(p => writerSGLog.println("gloabl pattern and its supprt" + p._1 + " " + p._2))
+      writerSGLog.flush()
       val frequent_pattern_support_rdd = tmpRDD.filter(f => ((f._2 >= SUPPORT) | (f._2 == -1)))
       var t1 = System.nanoTime()
       println("time to calculate rdd frequnet pattern in nanao" + (t1 - t0) * 1e-9 + "seconds," + "frequnet pattern rdd size " + frequent_pattern_support_rdd.count)
