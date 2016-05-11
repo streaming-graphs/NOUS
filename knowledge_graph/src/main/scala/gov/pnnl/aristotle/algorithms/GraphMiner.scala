@@ -35,7 +35,7 @@ object GraphMiner {
    * Initialize the spark context and its run-time configurations
    */
 
-  val sparkConf = new SparkConf().setAppName("NOUS Graph Pattern Miner").setMaster("local")
+  val sparkConf = new SparkConf().setAppName("NOUS Graph Pattern Miner")
     .set("spark.rdd.compress", "true").set("spark.serializer",
       "org.apache.spark.serializer.KryoSerializer")
 
