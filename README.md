@@ -56,20 +56,27 @@ On a spark Cluster Graph Mining code can be run using :
 This component requires following arguments:
 
 `[BASE_TYPE]      :   String value of any edge label between source and destination that is considerred as a 'type' of the source. Ex. <Barack Obama> rdf:type <Person>`
+
 `[MIN_SUPPORT]    :   Positive Integer value that specify minimum frequency of any pattern to be considered as "Frequent"`
+
 `[TYPE_THRESHOLD] :   Positive Integer value that specify minimum frequency of any Entity to be considered as a "type" `
+
 `[MAX_ITERATIONS] :   Positive Integer value that specify maximum number of iteration performed by graph miner component`
 
 
 `[SPARK_HOME]/bin/spark-submit --verbose --jars "[PATH_TO_NOUS_JAR]" --master [SPARK_MASTER]  --class "gov.pnnl.aristotle.algorithms.GraphMiner" [PATH_TO_NOUS_JAR]  [BASE_TYPE] [MIN_SUPPORT] [TYPE_THRESHOLD] [MAX_ITERATIONS] [INPUT_FILE_PATH `
 
+Please look at "Project Structure" section for more information.
 
 #### Graph Search:
 
 
 ## Project Structure: 
+
 NOUS code is organized as multiple maven projects (Check out section on Build/Run and Data to build and run test examples) : 
+
 ### triple_extractor : 
+
 Contains NLP code, takes text documents as input and produces triples of the form
 subject, predicate, object, timestamp, documentId
 * Parsers:  Identify format and extract data (text, timestamp, language - filters for english language, document metadata), supports:
@@ -103,9 +110,24 @@ TODO
 A major research contribution of NOUS is the development of a distributed algorithm for streaming graph mining. The algorithm accepts the stream of incoming triples as input, a window size parameter that represents the size of a sliding win- dow over the stream and reports the set of closed frequent patterns present in the window. 
 
 ##### Inputd
-Graph Mining Module supports different input graph formats mentioned above. [dronedata.ttl](https://github.com/streaming-graphs/NOUS/blob/master/data/graphmining/dronedata.ttl) input file in the "data/graphmining" directory shows one such format. The input file has tab separated values representing <subject> <relation_ship> <object> <timestamp> <source_id>
+Graph Mining Module supports different input graph formats. 
+
+[dronedata.ttl](https://github.com/streaming-graphs/NOUS/blob/master/data/graphmining/dronedata.ttl) input file in the "data/graphmining" directory shows one such format. The input file has tab separated values representing <subject> <relation_ship> <object> <timestamp> <source_id>
 
 `<FAA>     <releases>        <updated UAS guidance>    2015-09-22T13:00:49+00:00       http://www.uavexpertnews.com/faa-releases-updated-uas-guidance-tells-of-new-uas-leaders/`
+
+
+[citeseer.ttl](https://github.com/streaming-graphs/NOUS/blob/master/data/graphmining/citeseer.lg) data set contains a selection of the CiteSeer data set (http://citeseer.ist.psu.edu/).
+
+These papers are classified into one of the following six classes:
+
+	Agents
+	AI
+	DB
+	IR
+	M
+	HCI
+
 
 ##### Output
 
@@ -125,15 +147,8 @@ Next, we will run these rules through our filtering heuristics and rule-based re
 #### Entity Disambiguation: 
 
 
-Citeseer
---------
-This data set contains a selection of the CiteSeer data set (http://citeseer.ist.psu.edu/).
 
-These papers are classified into one of the following six classes:
+### Publicly Accessible Deliverables.
 
-	Agents
-	AI
-	DB
-	IR
-	ML
-	HCI
+1. Zhang, Baichuan, et al. "Trust from the past: Bayesian Personalized Ranking based Link Prediction in Knowledge Graphs." arXiv preprint arXiv:1601.03778 (2016).
+2. NOUS Presentation: TODO
