@@ -25,9 +25,9 @@ knowledge_graph component of the NOUS deals with construction of in-memory prope
 2. Graph Mining
 3. Graph Search
 
-
 ##### Entity Disambiguation: 
 
+TODO
 
 ##### Graph Mining Module:
 A major research contribution of NOUS is the development of a distributed algorithm for streaming graph mining. The algorithm accepts the stream of incoming triples as input, a window size parameter that represents the size of a sliding win- dow over the stream and reports the set of closed frequent patterns present in the window. 
@@ -44,7 +44,7 @@ Graph Mining Module generates output in multiple formats. One such format shows 
 `<schumer>        <require> <technology>    <faa>     <finalize regulations>      <before  fatal drone accident> => 210`
 
 
-
+#### triple_extractor:
 
 ### How to build and execute NOUS:
 #### Prerequisites
@@ -61,6 +61,7 @@ These components are executed using different syntax and parameters. Please read
 
 ##### Entity Disambiguation: 
 
+TODO
 
 ###### Graph Mining:
 On a spark Cluster Graph Mining code can be run using :
@@ -69,6 +70,7 @@ On a spark Cluster Graph Mining code can be run using :
 
 ##### Graph Search:
 
+TODO
 
 Data
 ====
