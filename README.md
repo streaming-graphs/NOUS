@@ -8,7 +8,7 @@ knowledge extracted from unstructured text, B) support for advanced trending and
 questions on a dynamic KG, and C) the ability to
 answer queries where the answer is embedded across multiple data sources.
 
-## Introduction	
+## 1. Introduction	
 NOUS provides complete suite of capabilities needed to build a domain specific knowledge graph
 from streaming data. This includes
  * Triple Extraction from Natural Language Text(NLP)
@@ -17,14 +17,14 @@ from streaming data. This includes
  * Rule Learning /Trend Discovery via Frequent Graph Mining
  * Question Answering
 
-## Build and Execute Hello World Program(s):
+## 2. Build and Execute Hello World Program(s):
 ### Prerequisites
 * Java 1.7 OR above
 * Maven
 * Apache Spark 1.2 OR above
 * HDFS File System (Optional)
 
-### Build
+### 2.1 Build
  Clone github repository 
 
 ` clone https://github.com/streaming-graphs/NOUS.git NOUS `
@@ -37,10 +37,10 @@ from streaming data. This includes
  ```
 Here `[Repo_Home]` is the path to your cloned directory `NOUS`. 
 
-### Run Hello World
+### 2.2 Run Hello World
 Each NOUS component is executed using different syntax and and with relevant parameters:
 
-#### Triple Extractor
+#### 2.2.1 Triple Extractor
 
 [triple-extractor.input](https://github.com/streaming-graphs/NOUS/blob/master/examples/triple-extractor/triple-extractor.input) File is used to demonstrate this component. Please read "Data" section for more information about the input and output data.
 
@@ -52,7 +52,7 @@ java -cp TripleParser-0.1-SNAPSHOT.jar gov.pnnl.aristotle.text.datasources.Plugi
 
 
 
-##### Graph Mining:
+##### 2.2.2 Graph Mining:
 On a spark Cluster Graph Mining code can be run using :
 
 ```bash
@@ -83,14 +83,14 @@ Ex. Triple such as <Barack Obama> rdf:type <Person> can be identified with BASE_
 
 Please look at "Project Structure" section for more information.
 
-#### Graph Search:
+#### 2.2.3 Graph Search:
 
 
-## Project Structure: 
+## 3 Project Structure: 
 
 NOUS code is organized as multiple maven projects (Check out section on Build/Run and Data to build and run test examples) : 
 
-### 1. triple_extractor : 
+### 3.1 triple_extractor : 
 
 Contains NLP code, takes text documents as input and produces triples of the form
 subject, predicate, object, timestamp, documentId
@@ -104,7 +104,7 @@ subject, predicate, object, timestamp, documentId
 See Run/Example section for running the code
 
 
-### 2. knowledge_graph : 
+### 3.2 knowledge_graph : 
 knowledge_graph component of the NOUS deals with construction of in-memory property graph and execution of analytical algorithms on newly created graph. It has following modules as part of it:
 1. algorithms.entity: Implements Entity Disambiguation as described by Han et al in "Collective Entity Linking in Web Text: A Graph-based Method, SIGIR 2011"
 2. algorithms.mining: Implements dynamic graph mining to find closed patterns over a sliding time window
@@ -114,17 +114,17 @@ knowledge_graph component of the NOUS deals with construction of in-memory prope
 
 TODO
 
-Data
-====
+## 4. Data
+
 Example datasets to run each module is in the data directory. The four data sets are described and credited below.
-#### Entity Disambiguation: 
+#### 4.1 Entity Disambiguation: 
 
 TODO
 
-#### Graph Mining:
+#### 4.2 Graph Mining:
 A major research contribution of NOUS is the development of a distributed algorithm for streaming graph mining. The algorithm accepts the stream of incoming triples as input, a window size parameter that represents the size of a sliding win- dow over the stream and reports the set of closed frequent patterns present in the window. 
 
-##### Inputd
+##### Input
 Graph Mining Module supports different input graph formats. 
 
 [dronedata.ttl](https://github.com/streaming-graphs/NOUS/blob/master/data/graphmining/dronedata.ttl) input file in the "data/graphmining" directory shows one such format. The input file has tab separated values representing <subject> <relation_ship> <object> <timestamp> <source_id>
@@ -151,7 +151,7 @@ Graph Mining Module generates output in multiple formats. One such format shows 
 `<schumer>        <require> <technology>    <faa>     <finalize regulations>      <before  fatal drone accident> => 210`
 
 
-### triple_extractor:
+### 4.3 triple_extractor:
 
 Example:  Given a sentence ``Aerialtronics is back on tour with four exhibitions in the United States and Europe in April and May, including the AUVSI Unmanned Systems 2015 trade show at the World Congress Centre in Atlanta.", we will initially extract the following from step 4:
 Named Entities: Aerialtronics, United States, Europle, April, World Congress Centre, Atlanta.
@@ -159,7 +159,7 @@ Raw triples:
 Triple1: (Aerialtronics, is back on, tour with four exhibitions).
 Triple2: (World Congress Centre, in, Atlanta).
 Next, we will run these rules through our filtering heuristics and rule-based relation extractors.  The first one will be rejected as we reject triples with no named entity in the subject phrase.  The second one will be mapped to (World Congress Centre, is-located, Atlanta) using a rule that says (org, in, location) => (org,is-located-location).
-#### Entity Disambiguation: 
+#### 4.4 Graph Search
 
 
 
