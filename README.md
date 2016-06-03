@@ -25,7 +25,13 @@ from streaming data. This includes
 * HDFS File System (Optional)
 
 ### Build
-Clone github repository and perform maven build using `mvn package` command
+1. Clone github repository 
+
+` clone https://github.com/streaming-graphs/NOUS.git NOUS `
+
+2. perform maven build 
+
+ `mvn package` 
 
 ### Run
 Each NOUS component is executed using different syntax and parameters:
