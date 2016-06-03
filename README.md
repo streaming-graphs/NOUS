@@ -38,7 +38,7 @@ from streaming data. This includes
 Here `[Repo_Home]` is the path to your cloned directory `NOUS`. 
 
 ### 2.3 Run Hello World
-Each NOUS component is executed using different syntax and and with relevant parameters:
+Each NOUS component is executed using slightly different syntax and with relevant parameters:
 
 #### 2.3.1 Triple Extractor
 
