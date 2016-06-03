@@ -20,9 +20,19 @@ NOUS provides complete suite of capa- bilities needed to build a domain specific
 ##### Graph Mining Module:
 A major research contribution of NOUS is the development of a distributed algorithm for streaming graph mining. The algorithm accepts the stream of incoming triples as input, a window size parameter that represents the size of a sliding win- dow over the stream and reports the set of closed frequent patterns present in the window. 
 
+###### Input
 Graph Mining Module supports different input graph formats mentioned above. "dronedata.ttl" input file in the "data/graphmining" directory shows one such format. The input file has tab separated values representing <subject> <relation_ship> <object> <timestamp> <source_id>
 
-`FAA     releases        updated UAS guidance    2015-09-22T13:00:49+00:00       http://www.uavexpertnews.com/faa-releases-updated-uas-guidance-tells-of-new-uas-leaders/`
+`<FAA>     <releases>        <updated UAS guidance>    2015-09-22T13:00:49+00:00       http://www.uavexpertnews.com/faa-releases-updated-uas-guidance-tells-of-new-uas-leaders/`
+
+###### Output
+
+Graph Mining Module generates output in multiple formats. One such format shows discovered patterns with it occurrence frequency.
+
+`(schumer        require technology on   organization    faa     must finalize regulations before        fatal drone accident    ,210)`
+
+
+
 
 ### How to build and execute NOUS:
 #### Prerequisites
