@@ -37,7 +37,7 @@ object GraphMiner {
 
   val sparkConf = new SparkConf().setAppName("NOUS Graph Pattern Miner")
     .set("spark.rdd.compress", "true").set("spark.serializer",
-      "org.apache.spark.serializer.KryoSerializer")
+      "org.apache.spark.serializer.KryoSerializer").setMaster("local")
 
   sparkConf.registerKryoClasses(Array.empty)
   val sc = new SparkContext(sparkConf)
@@ -273,9 +273,8 @@ object GraphMiner {
       pattern_in_this_batch = GraphPatternProfiler.get_sorted_patternV2Flat(gWin.input_graph,
         writerSG, 2, args(1).toInt)
         println("received frequent pattern rdd size"+pattern_in_this_batch.count)
-      //pattern_in_this_batch.collect.foreach(f => writerSG.println(s"pattern_"+FilenameUtils.getBaseName(args(4)) +"= " + f.toString))
-      pattern_in_this_batch.saveAsTextFile("hdfs:///user/spark/LASFGMOP2/"
-          +"_lasminer")
+      pattern_in_this_batch.collect.foreach(f => writerSG.println(s"pattern_"+FilenameUtils.getBaseName(args(4)) +"= " + f.toString))
+      pattern_in_this_batch.saveAsTextFile("LASFGMOP_lasminer_wsj")
         writerSG.flush()
       val t_b1 = System.nanoTime();
       println("#Time to mine the batch" + " =" + (t_b1 - t_b0) * 1e-9 + "seconds," +
