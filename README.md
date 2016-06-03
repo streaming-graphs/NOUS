@@ -17,7 +17,8 @@ NOUS provides complete suite of capa- bilities needed to build a domain specific
 * Query Question-Answering
 
 #### knowledge_graph
-##### Graph Mining Module: A major research contribution of NOUS is the development of a distributed algorithm for streaming graph mining. The algorithm accepts the stream of incoming triples as input, a window size parameter that represents the size of a sliding win- dow over the stream and reports the set of closed frequent patterns present in the window. 
+##### Graph Mining Module:
+A major research contribution of NOUS is the development of a distributed algorithm for streaming graph mining. The algorithm accepts the stream of incoming triples as input, a window size parameter that represents the size of a sliding win- dow over the stream and reports the set of closed frequent patterns present in the window. 
 
 ### How to build and execute NOUS:
 #### Prerequisites
