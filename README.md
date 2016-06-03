@@ -23,10 +23,12 @@ NOUS code is organized as multiple maven projects (Check out section on Build/Ru
 ### triple_extractor : 
 Contains NLP code, takes text documents as input and produces triples of the form
 subject, predicate, object, timestamp, documentId
-*1.  Parsers:  Parsers to extract data from 1) ordinary text files, 2) web pages supporting OpenGraph protocol, 3) JSON 
-It will extract publication timestamp (or crawled timestamp if publication time is not available), the URL of the published information and the body of text to parse triples. The language detector module filters for English documents.
-*2 Triple extraction:  TripleParser.scala performs the following tasks to extract triples from every sentence of a given document: a) named entity extraction, b) co-reference resolution and c) triple extraction via Open Information Extraction (OpenIE) and Semantic Role Labeling (SRL).  We use Stanford CoreNLP as the underlying library for most tasks and EasySRL from University of Washington for Semantic Role Labeling. TripleFilter.scala a number of heuristics to extract final triples from the OpenIE/SRL output.
-*3  Relation Extraction:  Step produces a large number of predicates (ranging into thousands), which need to be mapped to a few predicates (tens to couple hundreds).  RelationMiner.scala provides an implementation of a Distant Supervision algorithm for extracting relations.  Given a file with a list of seed subject-predicate pairs and a file containing a list of text corpus files, it will extract a set of rules for the target relation.  The rules are written out to an output file which should be reviewed by a human expert.  
+* Parsers:  Identify format and extract data (text, timestamp, language - filters for english language, document metadata), supports:
+	* 1) ordinary text files, 2) web pages supporting OpenGraph protocol, 3) JSON 
+
+* Triple extraction:  TripleParser.scala performs the following tasks to extract triples from every sentence of a given document: a) named entity extraction, b) co-reference resolution and c) triple extraction via Open Information Extraction (OpenIE) and Semantic Role Labeling (SRL).  We use Stanford CoreNLP as the underlying library for most tasks and EasySRL from University of Washington for Semantic Role Labeling. TripleFilter.scala a number of heuristics to extract final triples from the OpenIE/SRL output.
+
+* Relation Extraction:  Triple extraction produces a large number of predicates (ranging into thousands), which need to be mapped to a few predicates (tens to couple hundreds).  RelationMiner.scala provides an implementation of a Distant Supervision algorithm for extracting relations.  Given a file with a list of seed subject-predicate pairs and a file containing a list of text corpus files, it will extract a set of rules for the target relation.  The rules are written out to an output file which should be reviewed by a human expert.  
 
 Example:  Given a sentence ``Aerialtronics is back on tour with four exhibitions in the United States and Europe in April and May, including the AUVSI Unmanned Systems 2015 trade show at the World Congress Centre in Atlanta.", we will initially extract the following from step 4:
 Named Entities: Aerialtronics, United States, Europle, April, World Congress Centre, Atlanta.
