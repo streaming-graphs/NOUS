@@ -10,13 +10,25 @@ NOUS provides complete suite of capa- bilities needed to build a domain specific
 
 ### Major Components of the NOUS are :
 
-* Trusted Source Selection
-* Streaming Data Extraction & Fusion
-* Pattern Mining
-* Link Predication
-* Query Question-Answering
+1. Data Source Selectioin
+2. Triple Extraction from Natural Language Text
+3. Mapping Raw Triples to Knowledge Graph
+4. Confidence Estimation via Link Prediction
+5. Rule Learning via Frequent Graph Mining
+6. Question Answering
 
-#### knowledge_graph
+### Project Structure
+
+#### knowledge_graph : 
+knowledge_graph component of the NOUS deals with construction of in-memory property graph and execution of analytical algorithms on newly created graph. It has follwoing modules as part of it:
+1. Entiti Disambiguation
+2. Graph Mining
+3. Graph Search
+
+
+##### Entity Disambiguation: 
+
+
 ##### Graph Mining Module:
 A major research contribution of NOUS is the development of a distributed algorithm for streaming graph mining. The algorithm accepts the stream of incoming triples as input, a window size parameter that represents the size of a sliding win- dow over the stream and reports the set of closed frequent patterns present in the window. 
 
@@ -47,9 +59,15 @@ NOUS is developed as a maven project so the easiest way to build the project is 
 NOUS includes various components such as Graph Mining, Graph Profiling, Graph Search etc.
 These components are executed using different syntax and parameters. Please read individual component section to find it execution syntax.
 
-###### Graph Mining 
+##### Entity Disambiguation: 
+
+
+###### Graph Mining:
 On a spark Cluster Graph Mining code can be run using :
 `[SPARK_HOME]/bin/spark-submit --verbose --jars "[PATH_TO_NOUS_JAR]" --master [SPARK_MASTER]  --class "gov.pnnl.aristotle.algorithms.GraphMiner" [PATH_TO_NOUS_JAR]  [BASE_TYPE] [MIN_SUPPORT] [TYPE_THRESHOLD] [MAX_ITERATIONS] [INPUT_FILE_PATH `
+
+
+##### Graph Search:
 
 
 Data
