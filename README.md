@@ -163,7 +163,7 @@ Next, we will run these rules through our filtering heuristics and rule-based re
 
 
 
-### Publicly Accessible Deliverables.
+### 5. Publicly Accessible Deliverables.
 
 1. Zhang, Baichuan, et al. "Trust from the past: Bayesian Personalized Ranking based Link Prediction in Knowledge Graphs." arXiv preprint arXiv:1601.03778 (2016).
 2. NOUS Presentation: TODO
