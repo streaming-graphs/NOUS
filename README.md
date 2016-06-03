@@ -42,7 +42,9 @@ Each NOUS component is executed using different syntax and and with relevant par
 
 `cd [Repo_Home]/triple_extractor`
 
-`java -cp TripleParser-0.1-SNAPSHOT.jar gov.pnnl.aristotle.text.datasources.Plugins data/triple-extractor/triple-parser.input data/triple-extractor/triple.output`
+```java
+java -cp TripleParser-0.1-SNAPSHOT.jar gov.pnnl.aristotle.text.datasources.Plugins data/triple-extractor/triple-parser.input data/triple-extractor/triple.output
+```
 
 
 
@@ -55,16 +57,20 @@ On a spark Cluster Graph Mining code can be run using :
 
 This component requires following arguments:
 
-`[BASE_TYPE]      :   String value of any edge label between source and destination that is considerred as a 'type' of the source. Ex. <Barack Obama> rdf:type <Person>`
+```
+[BASE_TYPE]      :   String value of any edge label between source and destination that is considerred as a 'type' of the source. Ex. <Barack Obama> rdf:type <Person>
 
-`[MIN_SUPPORT]    :   Positive Integer value that specify minimum frequency of any pattern to be considered as "Frequent"`
+[MIN_SUPPORT]    :   Positive Integer value that specify minimum frequency of any pattern to be considered as "Frequent"
 
-`[TYPE_THRESHOLD] :   Positive Integer value that specify minimum frequency of any Entity to be considered as a "type" `
+[TYPE_THRESHOLD] :   Positive Integer value that specify minimum frequency of any Entity to be considered as a "type" 
 
-`[MAX_ITERATIONS] :   Positive Integer value that specify maximum number of iteration performed by graph miner component`
+[MAX_ITERATIONS] :   Positive Integer value that specify maximum number of iteration performed by graph miner component
+```
 
 
-`[SPARK_HOME]/bin/spark-submit --verbose --jars "[PATH_TO_NOUS_JAR]" --master [SPARK_MASTER]  --class "gov.pnnl.aristotle.algorithms.GraphMiner" [PATH_TO_NOUS_JAR]  [BASE_TYPE] [MIN_SUPPORT] [TYPE_THRESHOLD] [MAX_ITERATIONS] [INPUT_FILE_PATH `
+```java
+[SPARK_HOME]/bin/spark-submit --verbose --jars "[PATH_TO_NOUS_JAR]" --master [SPARK_MASTER]  --class "gov.pnnl.aristotle.algorithms.GraphMiner" [PATH_TO_NOUS_JAR]  [BASE_TYPE] [MIN_SUPPORT] [TYPE_THRESHOLD] [MAX_ITERATIONS] [INPUT_FILE_PATH]
+```
 
 Please look at "Project Structure" section for more information.
 
