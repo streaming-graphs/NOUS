@@ -17,6 +17,39 @@ from streaming data. This includes
  * Rule Learning /Trend Discovery via Frequent Graph Mining
  * Question Answering
 
+## Build and Execute NOUS:
+### Prerequisites
+* Java 1.7 OR above
+* Maven
+* Apache Spark 1.2 OR above
+* HDFS File System (Optional)
+
+### Build
+Clone github repository and perform maven build using `mvn package` command
+
+### Run
+Each NOUS component is executed using different syntax and parameters:
+
+#### Triple Extractor
+java -cp TripleParser-0.1-SNAPSHOT.jar gov.pnnl.aristotle.text.datasources.Plugins data/triple-extractor/triple-parser.input data/triple-extractor/triple.output
+
+Example:  Given a sentence ``Aerialtronics is back on tour with four exhibitions in the United States and Europe in April and May, including the AUVSI Unmanned Systems 2015 trade show at the World Congress Centre in Atlanta.", we will initially extract the following from step 4:
+Named Entities: Aerialtronics, United States, Europle, April, World Congress Centre, Atlanta.
+Raw triples: 
+Triple1: (Aerialtronics, is back on, tour with four exhibitions).
+Triple2: (World Congress Centre, in, Atlanta).
+Next, we will run these rules through our filtering heuristics and rule-based relation extractors.  The first one will be rejected as we reject triples with no named entity in the subject phrase.  The second one will be mapped to (World Congress Centre, is-located, Atlanta) using a rule that says (org, in, location) => (org,is-located-location).
+#### Entity Disambiguation: 
+
+
+
+##### Graph Mining:
+On a spark Cluster Graph Mining code can be run using :
+`[SPARK_HOME]/bin/spark-submit --verbose --jars "[PATH_TO_NOUS_JAR]" --master [SPARK_MASTER]  --class "gov.pnnl.aristotle.algorithms.GraphMiner" [PATH_TO_NOUS_JAR]  [BASE_TYPE] [MIN_SUPPORT] [TYPE_THRESHOLD] [MAX_ITERATIONS] [INPUT_FILE_PATH `
+
+
+#### Graph Search:
+
 
 ## Project Structure: 
 NOUS code is organized as multiple maven projects (Check out section on Build/Run and Data to build and run test examples) : 
@@ -40,40 +73,6 @@ knowledge_graph component of the NOUS deals with construction of in-memory prope
 3. algorithms.search: Implements question answering for entity(What/Who) and path queries (Why X did Y/How X relates to Y)
 
 
-## Build and execute NOUS:
-### Prerequisites
-* Java 1.7 OR above
-* Maven
-* Apache Spark 1.2 OR above
-* HDFS File System (Optional)
-
-### Build
-NOUS is developed as a maven project so the easiest way to build the project is to use `mvn package`
-### Run
-NOUS includes various components such as Graph Mining, Graph Profiling, Graph Search etc.
-These components are executed using different syntax and parameters. Please read individual component section to find it execution syntax.
-
-### Run
-
-#### Triple Extractor
-java -cp TripleParser-0.1-SNAPSHOT.jar gov.pnnl.aristotle.text.datasources.Plugins data/triple-extractor/triple-parser.input data/triple-extractor/triple.output
-
-Example:  Given a sentence ``Aerialtronics is back on tour with four exhibitions in the United States and Europe in April and May, including the AUVSI Unmanned Systems 2015 trade show at the World Congress Centre in Atlanta.", we will initially extract the following from step 4:
-Named Entities: Aerialtronics, United States, Europle, April, World Congress Centre, Atlanta.
-Raw triples: 
-Triple1: (Aerialtronics, is back on, tour with four exhibitions).
-Triple2: (World Congress Centre, in, Atlanta).
-Next, we will run these rules through our filtering heuristics and rule-based relation extractors.  The first one will be rejected as we reject triples with no named entity in the subject phrase.  The second one will be mapped to (World Congress Centre, is-located, Atlanta) using a rule that says (org, in, location) => (org,is-located-location).
-#### Entity Disambiguation: 
-
-
-
-##### Graph Mining:
-On a spark Cluster Graph Mining code can be run using :
-`[SPARK_HOME]/bin/spark-submit --verbose --jars "[PATH_TO_NOUS_JAR]" --master [SPARK_MASTER]  --class "gov.pnnl.aristotle.algorithms.GraphMiner" [PATH_TO_NOUS_JAR]  [BASE_TYPE] [MIN_SUPPORT] [TYPE_THRESHOLD] [MAX_ITERATIONS] [INPUT_FILE_PATH `
-
-
-#### Graph Search:
 
 TODO
 
