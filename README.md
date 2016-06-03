@@ -29,7 +29,7 @@ Graph Mining Module supports different input graph formats mentioned above. "dro
 
 Graph Mining Module generates output in multiple formats. One such format shows discovered patterns with it occurrence frequency.
 
-`(schumer        require technology on   organization    faa     must finalize regulations before        fatal drone accident    ,210)`
+`<schumer>        <require> <technology>    <faa>     <finalize regulations>      <before  fatal drone accident> => 210`
 
 
 
