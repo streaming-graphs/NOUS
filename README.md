@@ -11,15 +11,29 @@ answer queries where the answer is embedded across multiple data sources.
 ## Introduction	
 NOUS provides complete suite of capabilities needed to build a domain specific knowledge graph
 from streaming data. This includes
-1. Triple Extraction from Natural Language Text(NLP)
-2. Mapping Raw Triples to Knowledge Graph
-3. Confidence Estimation via Link Prediction
-4. Rule Learning /Trend Discovery via Frequent Graph Mining
-5. Question Answering
+ * Triple Extraction from Natural Language Text(NLP)
+ * Mapping Raw Triples to Knowledge Graph
+ * Confidence Estimation via Link Prediction
+ * Rule Learning /Trend Discovery via Frequent Graph Mining
+ * Question Answering
 
-## Project Structure: For supported data formats and examples please see section on Data 
-### triple_extractor : Code for NLP, takes text documents as input and produces triples of the form
+
+## Project Structure: 
+NOUS code is organized as multiple maven projects (Check out section on Build/Run and Data to build and run test examples) : 
+### triple_extractor : 
+Contains NLP code, takes text documents as input and produces triples of the form
 subject, predicate, object, timestamp, documentId
+*1.  Parsers:  Parsers to extract data from 1) ordinary text files, 2) web pages supporting OpenGraph protocol, 3) JSON 
+It will extract publication timestamp (or crawled timestamp if publication time is not available), the URL of the published information and the body of text to parse triples. The language detector module filters for English documents.
+*2 Triple extraction:  TripleParser.scala performs the following tasks to extract triples from every sentence of a given document: a) named entity extraction, b) co-reference resolution and c) triple extraction via Open Information Extraction (OpenIE) and Semantic Role Labeling (SRL).  We use Stanford CoreNLP as the underlying library for most tasks and EasySRL from University of Washington for Semantic Role Labeling. TripleFilter.scala a number of heuristics to extract final triples from the OpenIE/SRL output.
+*3  Relation Extraction:  Step produces a large number of predicates (ranging into thousands), which need to be mapped to a few predicates (tens to couple hundreds).  RelationMiner.scala provides an implementation of a Distant Supervision algorithm for extracting relations.  Given a file with a list of seed subject-predicate pairs and a file containing a list of text corpus files, it will extract a set of rules for the target relation.  The rules are written out to an output file which should be reviewed by a human expert.  
+
+Example:  Given a sentence ``Aerialtronics is back on tour with four exhibitions in the United States and Europe in April and May, including the AUVSI Unmanned Systems 2015 trade show at the World Congress Centre in Atlanta.", we will initially extract the following from step 4:
+Named Entities: Aerialtronics, United States, Europle, April, World Congress Centre, Atlanta.
+Raw triples: 
+Triple1: (Aerialtronics, is back on, tour with four exhibitions).
+Triple2: (World Congress Centre, in, Atlanta).
+Next, we will run these rules through our filtering heuristics and rule-based relation extractors.  The first one will be rejected as we reject triples with no named entity in the subject phrase.  The second one will be mapped to (World Congress Centre, is-located, Atlanta) using a rule that says (org, in, location) => (org,is-located-location).
 
 ### knowledge_graph : 
 knowledge_graph component of the NOUS deals with construction of in-memory property graph and execution of analytical algorithms on newly created graph. It has following modules as part of it:
@@ -28,7 +42,7 @@ knowledge_graph component of the NOUS deals with construction of in-memory prope
 3. algorithms.search: Implements question answering for entity(What/Who) and path queries (Why X did Y/How X relates to Y)
 
 
-## How to build and execute NOUS:
+## Build and execute NOUS:
 ### Prerequisites
 * Java 1.7 OR above
 * Maven
@@ -42,10 +56,9 @@ NOUS includes various components such as Graph Mining, Graph Profiling, Graph Se
 These components are executed using different syntax and parameters. Please read individual component section to find it execution syntax.
 
 ### Run
-
 #### Entity Disambiguation: 
 
-TODO
+
 
 ##### Graph Mining:
 On a spark Cluster Graph Mining code can be run using :
