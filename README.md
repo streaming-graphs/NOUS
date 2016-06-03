@@ -51,9 +51,13 @@ java -cp TripleParser-0.1-SNAPSHOT.jar gov.pnnl.aristotle.text.datasources.Plugi
 ##### Graph Mining:
 On a spark Cluster Graph Mining code can be run using :
 
-`cd [Repo_Home]/knowledge_graph`
+```bash
+cd [Repo_Home]/knowledge_graph
+```
 
-`[SPARK_HOME]/bin/spark-submit --verbose --jars "[PATH_TO_NOUS_JAR]" --master [SPARK_MASTER]  --class "gov.pnnl.aristotle.algorithms.GraphMiner" target/knowledge_graph-0.1-SNAPSHOT-jar-with-dependencies.jar rdf:type 10 5 3 dronedata.ttl`
+```java
+[SPARK_HOME]/bin/spark-submit --verbose --jars "[PATH_TO_NOUS_JAR]" --master [SPARK_MASTER]  --class "gov.pnnl.aristotle.algorithms.GraphMiner" target/knowledge_graph-0.1-SNAPSHOT-jar-with-dependencies.jar rdf:type 10 5 3 dronedata.ttl
+```
 
 This component requires following arguments:
 
