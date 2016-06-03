@@ -29,10 +29,14 @@ from streaming data. This includes
 
 ` clone https://github.com/streaming-graphs/NOUS.git NOUS `
 
- Perform maven build in any of the module : `triple_extractor` OR `knowledge_graph` 
-
- `mvn package` 
-
+ Perform maven build in any of the module : `triple_extractor` OR `knowledge_graph` Ex:
+ 
+ ```bash
+ cd `/triple_extractor
+   
+ mvn package
+ ```
+Here `[Repo_Home]` is the path to your cloned directory `NOUS`. 
 ### Run Hello World
 Each NOUS component is executed using different syntax and and with relevant parameters:
 
@@ -85,7 +89,7 @@ Please look at "Project Structure" section for more information.
 
 NOUS code is organized as multiple maven projects (Check out section on Build/Run and Data to build and run test examples) : 
 
-### triple_extractor : 
+### 1. triple_extractor : 
 
 Contains NLP code, takes text documents as input and produces triples of the form
 subject, predicate, object, timestamp, documentId
@@ -99,7 +103,7 @@ subject, predicate, object, timestamp, documentId
 See Run/Example section for running the code
 
 
-### knowledge_graph : 
+### 2. knowledge_graph : 
 knowledge_graph component of the NOUS deals with construction of in-memory property graph and execution of analytical algorithms on newly created graph. It has following modules as part of it:
 1. algorithms.entity: Implements Entity Disambiguation as described by Han et al in "Collective Entity Linking in Web Text: A Graph-based Method, SIGIR 2011"
 2. algorithms.mining: Implements dynamic graph mining to find closed patterns over a sliding time window
