@@ -18,13 +18,13 @@ from streaming data. This includes
  * Question Answering
 
 ## 2. Build and Execute Hello World Program(s):
-### Prerequisites
+### 2.1 Prerequisites
 * Java 1.7 OR above
 * Maven
 * Apache Spark 1.2 OR above
 * HDFS File System (Optional)
 
-### 2.1 Build
+### 2.2 Build
  Clone github repository 
 
 ` clone https://github.com/streaming-graphs/NOUS.git NOUS `
@@ -37,10 +37,10 @@ from streaming data. This includes
  ```
 Here `[Repo_Home]` is the path to your cloned directory `NOUS`. 
 
-### 2.2 Run Hello World
+### 2.3 Run Hello World
 Each NOUS component is executed using different syntax and and with relevant parameters:
 
-#### 2.2.1 Triple Extractor
+#### 2.3.1 Triple Extractor
 
 [triple-extractor.input](https://github.com/streaming-graphs/NOUS/blob/master/examples/triple-extractor/triple-extractor.input) File is used to demonstrate this component. Please read "Data" section for more information about the input and output data.
 
@@ -52,7 +52,7 @@ java -cp TripleParser-0.1-SNAPSHOT.jar gov.pnnl.aristotle.text.datasources.Plugi
 
 
 
-##### 2.2.2 Graph Mining:
+##### 2.3.2 Graph Mining:
 On a spark Cluster Graph Mining code can be run using :
 
 ```bash
@@ -83,7 +83,7 @@ Ex. Triple such as <Barack Obama> rdf:type <Person> can be identified with BASE_
 
 Please look at "Project Structure" section for more information.
 
-#### 2.2.3 Graph Search:
+#### 2.3.3 Graph Search:
 
 
 ## 3 Project Structure: 
