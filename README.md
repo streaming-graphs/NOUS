@@ -32,11 +32,11 @@ from streaming data. This includes
  Perform maven build in any of the module : `triple_extractor` OR `knowledge_graph` Ex:
  
  ```bash
- cd `/triple_extractor
-   
+ cd [Repo_Home]/triple_extractor
  mvn package
  ```
 Here `[Repo_Home]` is the path to your cloned directory `NOUS`. 
+
 ### Run Hello World
 Each NOUS component is executed using different syntax and and with relevant parameters:
 
@@ -66,7 +66,8 @@ cd [Repo_Home]/knowledge_graph
 This component requires following arguments:
 
 ```
-[BASE_TYPE]      :   String value of any edge label between source and destination that is considerred as a 'type' of the source. Ex. <Barack Obama> rdf:type <Person>
+[BASE_TYPE]      :   String value of any edge label between source and destination that is considerred as a 'type' of the source. 
+Ex. Triple such as <Barack Obama> rdf:type <Person> can be identified with BASE_TYPE as "rdf:type"
 
 [MIN_SUPPORT]    :   Positive Integer value that specify minimum frequency of any pattern to be considered as "Frequent"
 
