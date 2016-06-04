@@ -54,6 +54,11 @@ java -cp target/uber-TripleParser-0.1-SNAPSHOT.jar gov.pnnl.aristotle.text.Tripl
 
 ##### 2.3.2 Graph Mining: 
 This module takes the triple file produced from NLP processing as input  and generates frequent patterns over a time sliding window.
+To run test examples (needs Spark), execute 
+```java
+[SPARK_HOME]/bin/spark-submit --verbose --jars "[PATH_TO_NOUS_JAR]" --master [SPARK_MASTER]  --class "gov.pnnl.aristotle.algorithms.GraphMiner" target/knowledge_graph-0.1-SNAPSHOT-jar-with-dependencies.jar rdf:type 10 5 3 ../examples/graphmining/dronedata.ttl
+```
+
 On a spark Cluster Graph Mining code can be run using :
 
 ```bash
@@ -62,9 +67,7 @@ cd [Repo_Home]/knowledge_graph
 ```java
 [SPARK_HOME]/bin/spark-submit --verbose --jars "[PATH_TO_NOUS_JAR]" --master [SPARK_MASTER]  --class "gov.pnnl.aristotle.algorithms.GraphMiner" [PATH_TO_NOUS_JAR]  [BASE_TYPE] [MIN_SUPPORT] [TYPE_THRESHOLD] [MAX_ITERATIONS] [INPUT_FILE_PATH]
 ```
-
 where:
-
 ```
 [BASE_TYPE]      :   String value of any edge label between source and destination that is considerred as a 'type' of the source. 
 Ex. Triple such as <Barack Obama> rdf:type <Person> can be identified with BASE_TYPE as "rdf:type"
@@ -76,34 +79,19 @@ Ex. Triple such as <Barack Obama> rdf:type <Person> can be identified with BASE_
 [MAX_ITERATIONS] :   Positive Integer value that specify maximum number of iteration performed by graph miner component
 ```
 
-To run test examples, execute 
-```java
-[SPARK_HOME]/bin/spark-submit --verbose --jars "[PATH_TO_NOUS_JAR]" --master [SPARK_MASTER]  --class "gov.pnnl.aristotle.algorithms.GraphMiner" target/knowledge_graph-0.1-SNAPSHOT-jar-with-dependencies.jar rdf:type 10 5 3 ../examples/graphmining/dronedata.ttl
-```
-Please look at "Project Structure" section for details on algorithm and code design.
-
 #### 2.3.3 Graph Search:
-This module takes the triple file produced from NLP processing as input and answers questions of form What/Who/Why interactively:
-* Query parameters are entered as
-* queryType_Entity_OtherParaneters
-* What/Who questions are answered as query type 1:
-	* 1_X => Tell me about X (e.g: 1_Google => What is Google)
-  	* 2_X_Y => Tell me about X in context of Y (e.g. 2_Harry Potter_author => Who authored Harry Potter series)
-* How/Why Questions as query type 3:
-  * 3_X_Y =>How X relates to Y (3_Lebron James_Urban Meyer => How does Lebron James know Urban Meyer)
-  * 3_X_Y_Context => Why X did Y in Context K (3_Amazon_Drones_bought => Why Amazon bought drones)
+This module takes the triple file produced from NLP processing as input and answers questions of form What/Who/Why interactively. Query parameters are entered separated by "_"
+* What/Who questions(Entity queries) are answered as query type 1 and 2 and Why/How(Path Queries) as query type 3 :
+	* 1_X implies ` Tell me about X (e.g: 1_Google => What is Google) `
+  	* 2_X_Y implies ` Tell me about X in context of Y (e.g. 2_Harry Potter_author => Who authored Harry Potter series)`
+  	* 3_X_Y implies ` How X relates to Y (3_Lebron James_Urban Meyer => How does Lebron James know Urban Meyer)`
 
-On a spark Cluster the question answering module can be started using :
-
+To run the question answering module, start the session using :
+To run example
 ```bash
 cd [Repo_Home]/knowledge_graph
 ```
 
-```java
-[SPARK_HOME]/bin/spark-submit --verbose --jars "[PATH_TO_NOUS_JAR]" --master [SPARK_MASTER]  --class "gov.pnnl.aristotle.algorithms.DemoDriver" [PATH_TO_NOUS_JAR]  [INPUT_FILE_PATH]
-```
-
-To run example
 ```java
 [SPARK_HOME]/bin/spark-submit --verbose --jars "[PATH_TO_NOUS_JAR]" --master [SPARK_MASTER]  --class "gov.pnnl.aristotle.algorithms.DemoDriver" target/knowledge_graph-0.1-SNAPSHOT-jar-with-dependencies.jar  ../examples/question-answering/search-input.ttl
 
@@ -111,6 +99,11 @@ Wait for graph to load and prompt for queries to appear, enter
 1_Drone
 3_CIA_Drone
 3_Amazon_Drone
+```
+
+In general: 
+```java
+[SPARK_HOME]/bin/spark-submit --verbose --jars "[PATH_TO_NOUS_JAR]" --master [SPARK_MASTER]  --class "gov.pnnl.aristotle.algorithms.DemoDriver" [PATH_TO_NOUS_JAR]  [INPUT_FILE_PATH]
 ```
 
 ## 3 NOUS Design: 
@@ -134,21 +127,44 @@ See Run/Example section above on instruction for running the code
 knowledge_graph component of the NOUS deals with construction of in-memory property graph and execution of analytical algorithms on newly created graph. It has following modules as part of it:
 1. algorithms.entity: Implements Entity Disambiguation as described by Han et al in "Collective Entity Linking in Web Text: A Graph-based Method, SIGIR 2011"
 2. algorithms.mining: Implements dynamic graph mining to find closed patterns over a sliding time window
-3. algorithms.search: Implements question answering for entity(What/Who) and path queries (Why X did Y/How X relates to Y)
+3. algorithms.pathRanking: Implements question answering 
 
 
-## 4. Data
+### 5. Publicly Accessible Deliverables.
+
+1. Zhang, Baichuan, et al. "Trust from the past: Bayesian Personalized Ranking based Link Prediction in Knowledge Graphs." arXiv preprint arXiv:1601.03778 (2016).
+2. NOUS Presentation: TODO
+3
+## 4. Data Formats
 
 Example datasets to run each module is in the data directory. The four data sets are described and credited below.
-#### 4.1 Entity Disambiguation: 
-
-TODO
-
-#### 4.2 Graph Mining:
+#### 4.1 Graph Mining:
 A major research contribution of NOUS is the development of a distributed algorithm for streaming graph mining. The algorithm accepts the stream of incoming triples as input, a window size parameter that represents the size of a sliding win- dow over the stream and reports the set of closed frequent patterns present in the window. 
 
+-##### Input
+ Graph Mining Module supports different input graph formats. 
+ 
+ [dronedata.ttl](https://github.com/streaming-graphs/NOUS/blob/master/data/graphmining/dronedata.ttl) input file in the "data/graphmining" directory shows one such format. The input file has tab separated values representing <subject> <relation_ship> <object> <timestamp> <source_id>
+ 
+ `<FAA>     <releases>        <updated UAS guidance>    2015-09-22T13:00:49+00:00       http://www.uavexpertnews.com/faa-releases-updated-uas-guidance-tells-of-new-uas-leaders/`
+  
+[citeseer.ttl](https://github.com/streaming-graphs/NOUS/blob/master/data/graphmining/citeseer.lg) data set contains a selection of the CiteSeer data set (http://citeseer.ist.psu.edu/).
+ 
+These papers are classified into one of the following six classes:
 
-
+      Agents
+ 	AI
+ 	DB
+ 	IR
+ 	M
+ 	HCI
+ 
+ 
+ ##### Output
+ 
+ Graph Mining Module generates output in multiple formats. One such format shows discovered patterns with it occurrence frequency.
+ 
+ `<schumer>        <require> <technology>    <faa>     <finalize regulations>      <before  fatal drone accident> => 210`
 
 ### 4.3 triple_extractor:
 
@@ -162,8 +178,3 @@ Next, we will run these rules through our filtering heuristics and rule-based re
 #### 4.4 Graph Search
 
 
-
-### 5. Publicly Accessible Deliverables.
-
-1. Zhang, Baichuan, et al. "Trust from the past: Bayesian Personalized Ranking based Link Prediction in Knowledge Graphs." arXiv preprint arXiv:1601.03778 (2016).
-2. NOUS Presentation: TODO
