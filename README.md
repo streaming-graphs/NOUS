@@ -133,16 +133,16 @@ See Run/Example section above on instruction for running the code
 knowledge_graph component of the NOUS deals with construction of in-memory property graph and execution of analytical algorithms on newly created graph. It has following modules as part of it:
 * algorithms.entity: Implements Entity Disambiguation as described by Han et al in "Collective Entity Linking in Web Text: A Graph-based Method, SIGIR 2011"
 * algorithms.mining: Implements dynamic graph mining to find closed patterns over a sliding time window
-* -##### Input
- Graph Mining Module supports different input graph formats. 
+  ##### Input
+  Graph Mining Module supports different input graph formats. 
  
  [dronedata.ttl](https://github.com/streaming-graphs/NOUS/blob/master/data/graphmining/dronedata.ttl) input file in the "data/graphmining" directory shows one such format. The input file has tab separated values representing <subject> <relation_ship> <object> <timestamp> <source_id>
  
  `<FAA>     <releases>        <updated UAS guidance>    2015-09-22T13:00:49+00:00       http://www.uavexpertnews.com/faa-releases-updated-uas-guidance-tells-of-new-uas-leaders/`
   
-[citeseer.ttl](https://github.com/streaming-graphs/NOUS/blob/master/data/graphmining/citeseer.lg) data set contains a selection of the CiteSeer data set (http://citeseer.ist.psu.edu/).
+ [citeseer.ttl](https://github.com/streaming-graphs/NOUS/blob/master/data/graphmining/citeseer.lg) data set contains a selection of the CiteSeer data set (http://citeseer.ist.psu.edu/).
  
-These papers are classified into one of the following six classes:
+ These papers are classified into one of the following six classes:
 
       Agents
  	AI
@@ -160,7 +160,7 @@ These papers are classified into one of the following six classes:
 
 * algorithms.pathRanking: Implements question answering using LDA based heristics to find most coherent paths linking two entities
 
-### 5. Publicly Accessible Deliverables.
+### 4. Publicly Accessible Deliverables.
 
 1. Zhang, Baichuan, et al. "Trust from the past: Bayesian Personalized Ranking based Link Prediction in Knowledge Graphs." arXiv preprint arXiv:1601.03778 (2016).
 2. NOUS Presentation: TODO
