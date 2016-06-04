@@ -86,8 +86,7 @@ This module takes the triple file produced from NLP processing as input and answ
   	* 2_X_Y implies ` Tell me about X in context of Y (e.g. 2_Harry Potter_author => Who authored Harry Potter series)`
   	* 3_X_Y implies ` How X relates to Y (3_Lebron James_Urban Meyer => How does Lebron James know Urban Meyer)`
 
-To run the question answering module, start the session using :
-To run example
+To run the question answering module for test example, start the session using :
 ```bash
 cd [Repo_Home]/knowledge_graph
 ```
@@ -121,27 +120,20 @@ subject, predicate, object, timestamp, documentId
 
 * Relation Extraction:  Triple extraction produces a large number of predicates (ranging into thousands), which need to be mapped to a few predicates (tens to couple hundreds).  RelationMiner.scala provides an implementation of a Distant Supervision algorithm for extracting relations.  Given a file with a list of seed subject-predicate pairs and a file containing a list of text corpus files, it will extract a set of rules for the target relation.  The rules are written out to an output file which should be reviewed by a human expert.  
 
+Test Example:  Given a sentence `Aerialtronics is back on tour with four exhibitions in the United States and Europe in April and May, including the AUVSI Unmanned Systems 2015 trade show at the World Congress Centre in Atlanta.`", we will initially extract the following from step 4:
+Named Entities: Aerialtronics, United States, Europle, April, World Congress Centre, Atlanta.
+Raw triples: 
+Triple1: (Aerialtronics, is back on, tour with four exhibitions).
+Triple2: (World Congress Centre, in, Atlanta).
+Next, we will run these rules through our filtering heuristics and rule-based relation extractors.  The first one will be rejected as we reject triples with no named entity in the subject phrase.  The second one will be mapped to (World Congress Centre, is-located, Atlanta) using a rule that says (org, in, location) => (org,is-located-location).
+
 See Run/Example section above on instruction for running the code
 
 ### 3.2 knowledge_graph : 
 knowledge_graph component of the NOUS deals with construction of in-memory property graph and execution of analytical algorithms on newly created graph. It has following modules as part of it:
-1. algorithms.entity: Implements Entity Disambiguation as described by Han et al in "Collective Entity Linking in Web Text: A Graph-based Method, SIGIR 2011"
-2. algorithms.mining: Implements dynamic graph mining to find closed patterns over a sliding time window
-3. algorithms.pathRanking: Implements question answering 
-
-
-### 5. Publicly Accessible Deliverables.
-
-1. Zhang, Baichuan, et al. "Trust from the past: Bayesian Personalized Ranking based Link Prediction in Knowledge Graphs." arXiv preprint arXiv:1601.03778 (2016).
-2. NOUS Presentation: TODO
-3
-## 4. Data Formats
-
-Example datasets to run each module is in the data directory. The four data sets are described and credited below.
-#### 4.1 Graph Mining:
-A major research contribution of NOUS is the development of a distributed algorithm for streaming graph mining. The algorithm accepts the stream of incoming triples as input, a window size parameter that represents the size of a sliding win- dow over the stream and reports the set of closed frequent patterns present in the window. 
-
--##### Input
+* algorithms.entity: Implements Entity Disambiguation as described by Han et al in "Collective Entity Linking in Web Text: A Graph-based Method, SIGIR 2011"
+* algorithms.mining: Implements dynamic graph mining to find closed patterns over a sliding time window
+* -##### Input
  Graph Mining Module supports different input graph formats. 
  
  [dronedata.ttl](https://github.com/streaming-graphs/NOUS/blob/master/data/graphmining/dronedata.ttl) input file in the "data/graphmining" directory shows one such format. The input file has tab separated values representing <subject> <relation_ship> <object> <timestamp> <source_id>
@@ -166,15 +158,9 @@ These papers are classified into one of the following six classes:
  
  `<schumer>        <require> <technology>    <faa>     <finalize regulations>      <before  fatal drone accident> => 210`
 
-### 4.3 triple_extractor:
+* algorithms.pathRanking: Implements question answering using LDA based heristics to find most coherent paths linking two entities
 
-Example:  Given a sentence `Aerialtronics is back on tour with four exhibitions in the United States and Europe in April and May, including the AUVSI Unmanned Systems 2015 trade show at the World Congress Centre in Atlanta.`", we will initially extract the following from step 4:
-Named Entities: Aerialtronics, United States, Europle, April, World Congress Centre, Atlanta.
-Raw triples: 
-Triple1: (Aerialtronics, is back on, tour with four exhibitions).
-Triple2: (World Congress Centre, in, Atlanta).
-Next, we will run these rules through our filtering heuristics and rule-based relation extractors.  The first one will be rejected as we reject triples with no named entity in the subject phrase.  The second one will be mapped to (World Congress Centre, is-located, Atlanta) using a rule that says (org, in, location) => (org,is-located-location).
+### 5. Publicly Accessible Deliverables.
 
-#### 4.4 Graph Search
-
-
+1. Zhang, Baichuan, et al. "Trust from the past: Bayesian Personalized Ranking based Link Prediction in Knowledge Graphs." arXiv preprint arXiv:1601.03778 (2016).
+2. NOUS Presentation: TODO
