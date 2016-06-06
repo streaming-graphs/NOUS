@@ -78,6 +78,37 @@ case class ResponseGraph(graphID: String, graph_item: Array[String])
       write(ans)
   }
  
+    def getMakeJSONRDDDefault(entitykey: String, 
+      patternrdd: RDD[(String, Long)],qtype :Int) : String = {
+
+    var alldata: Array[Data] = Array.empty
+var id = 0
+    patternrdd.collect.foreach(entry => {
+      //each entry is like this :
+      // (aerialtronics	manufacturer of	high performance multirotor aerial platforms		aerialtronics	announces	two new distribution partners	,List(20151205, 4, 20151213, 4))
+
+      val pattern_num_tabs_array = entry._1.replaceAll("\t+", "\t").split("\t")
+      var graphitem = ""
+      if (pattern_num_tabs_array.length > 3) {
+        for (i <- 0 to pattern_num_tabs_array.length - 1) {
+          graphitem = graphitem + pattern_num_tabs_array(i) + "\t"
+          if ((i % 3 == 2) && (i != pattern_num_tabs_array.length - 1))
+            graphitem = graphitem + ","
+        }
+      }
+      
+      var graph = ResponseGraph(s"graph$id", Array(graphitem))
+      val data = Data("1L", "test string in data", Array(graph), entry._2.toString)
+        alldata = alldata :+ data
+        id = id +1	
+    })
+    val res = Response("false", "test comment in response", alldata)
+      val ans = NOUSLASAnswer(qtype.toString, entitykey.split("_"), res)
+      implicit val formats = net.liftweb.json.DefaultFormats
+      write(ans)
+  }
+  
+  
     def getMakeJSONSearchRDD(search_answer: (String, List[String])) : String = {
 
     var graphitem: String = ""

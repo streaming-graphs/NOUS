@@ -1,24 +1,19 @@
 package gov.pnnl.aristotle.algorithms.mining
 
-import java.io.File
-import java.io.PrintWriter
-
-import scala.collection.JavaConversions.asScalaBuffer
-import scala.collection.JavaConversions.bufferAsJavaList
-import scala.collection.JavaConversions.seqAsJavaList
-
-import org.apache.solr.client.solrj.impl.HttpSolrServer
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
+import org.apache.solr.client.solrj.impl.HttpSolrServer
 import org.apache.spark.graphx.Graph
-import org.apache.spark.graphx.Graph.graphToGraphOps
-import org.apache.spark.graphx.VertexId
-import org.apache.spark.graphx.VertexRDD
-
-import gov.pnnl.aristotle.aiminterface.NousProfileAnswerStreamRecord
-import gov.pnnl.aristotle.algorithms.ReadHugeGraph
-import gov.pnnl.aristotle.algorithms.mining.datamodel.KGEdge
+import org.apache.spark.graphx.{VertexRDD,VertexId}
 import scalaz.Scalaz._
+import java.io.PrintWriter
+import java.io.File
+import gov.pnnl.aristotle.aiminterface.NousProfileAnswerStreamRecord
+import collection.JavaConversions._
+import gov.pnnl.aristotle.algorithms.mining.datamodel.KGEdge
+import gov.pnnl.aristotle.algorithms.ReadHugeGraph
+import org.apache.spark.graphx.Graph.graphToGraphOps
+import org.apache.spark.rdd.RDD
 
 object GraphProfiling {
     //val TYPE= "IS-A";
@@ -152,31 +147,22 @@ return typemap.toSeq.sortWith((a,b)=> a._2.length > b._2.length);
   }
 
   
-def showNodeTypeProfile(typemap : Map[String, List[(VertexId,(String, Map[String, Map[String, Int]]))]], inputType : String) : Unit = {
-    val listOfEntities = typemap.getOrElse(inputType, List())
-    if(listOfEntities.length > 0)
-    {
-      println("number of entities" + listOfEntities.size)
-      listOfEntities.foreach(e =>
-        {
-          val vertexMap = e._2;
-          println("============================")
-          println("Entity Label: " + vertexMap._1)
-          val allTypes = vertexMap._2.getOrElse("nodeType", Map())
-          if (allTypes.size > 0) {
-            print("This Entity also has follwoing types mentioned the Graph: ")
-            allTypes.foreach(t => print(t._1 + "  "))
-          }
-          println();
+def showNodeTypeProfile(typemap  : RDD[(String,List[String])], inputType : String) : Unit = {
+    
+  val entity_entry = typemap.filter(entry=> entry._1.equals(inputType)).collect
+  
+  entity_entry.foreach(entry=>{
+      val listOfEntities = entry._2
+      if (listOfEntities.length > 0) {
+        println("\n\n**** Number of entities of type '" + inputType + "' :" + listOfEntities.size)
+        listOfEntities.foreach(e =>
+          {
+            print(e + " | ")
+          })
+      }
+    })
+  		
 
-          val allOutboundNeighbourType = vertexMap._2.getOrElse("OutboundObjType", Map())
-          if (allOutboundNeighbourType.size > 0) {
-            print("This entity has follwoing types of Outbound Neighbours type and their count: ")
-            allOutboundNeighbourType.foreach(t => print(" (" + t._1 + "  " + t._2 + " )"))
-          }
-          println();
-        })
-    }
   }
  
 //TODO : better design this and getNodeTypeProfile.....method
@@ -458,7 +444,7 @@ def getTypedVertexRDD_Temporal(graph : Graph[String, KGEdge], writerSG : PrintWr
  {
 
       var degrees: VertexRDD[Int] = graph.degrees
-      //degrees.collect.foreach(f=>writerSG.println("degree" + f.toString))
+      degrees.collect.foreach(f=>writerSG.println("degree" + f.toString))
       println("finding tpye")
       println("type support is" + degreeLimit)
       var degreeGraph: Graph[(String, Map[String, Int]), KGEdge] = graph.outerJoinVertices(degrees) { (id, oldAttr, outDegOpt) =>
