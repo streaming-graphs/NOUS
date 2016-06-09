@@ -40,7 +40,7 @@ object LASPathSearchJSONBuilder {
     val vc = classOf[Text]
     val text = sc.newAPIHadoopFile(args(0),
         fc, kc, vc, sc.hadoopConfiguration)
-    //val hdfspath = "hdfs:///user/spark/LASPathSearchOP/"
+    //val hdfspath = "hdfs:///user/spark/LASPathSearchOPMay12/"
     val linesWithFileNames = text.asInstanceOf[NewHadoopRDD[LongWritable, Text]]
       .mapPartitionsWithInputSplit((inputSplit, iterator) => {
         val file = inputSplit.asInstanceOf[FileSplit]

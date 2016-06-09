@@ -25,8 +25,9 @@ object CreateGraphVizDotFile {
 
   def main(args: Array[String]): Unit = {
     
-   drawTTLFile("/sumitData/work/myprojects/AIM/aristotle-dev/knowledge_graph/triple_drone_sample.txt",
-       "/sumitData/work/myprojects/AIM/aristotle-dev/knowledge_graph/triple_drone_sample.dot")
+//   drawTTLFile("/sumitData/work/myprojects/AIM/aristotle-dev/knowledge_graph/triple_drone_sample.txt",
+//       "/sumitData/work/myprojects/AIM/aristotle-dev/knowledge_graph/triple_drone_sample.dot")
+    drawTTLFile("GraphMineInputTime5.txt", "GraphMineInputTime5.dot")
   }
 
   def drawGraphMiningOutputFile()

@@ -29,7 +29,35 @@ extends DynamicPatternGraph[KGNodeV2Flat, KGEdge] {
   var TYPE: String = "rdf:type"
   var SUPPORT: Int = minSup
   var type_support :Int = 2
+  var type_profile_rdd :RDD[(String,List[String])]= null
   var input_graph: Graph[KGNodeV2Flat, KGEdge] = null
+  
+  
+  def get_type_profile_rdd(typedAugmentedGraph: Graph[(String, Map[String, Map[String, Int]]), 
+      KGEdge]) : RDD[(String,List[String])]= 
+  {
+      type_profile_rdd = typedAugmentedGraph.vertices.flatMap(vertex =>
+        {
+          vertex._2._2.getOrElse("nodeType", Map()).map(a_type => (a_type._1, List(vertex._2._1)))
+        }).reduceByKey((a, b) => a |+| b)
+      type_profile_rdd
+    }
+  
+  
+  def getTypedGraph(graph: Graph[String, KGEdge],
+      writerSG: PrintWriter)
+  	: Graph[(String, Map[String, Map[String, Int]]), 
+      KGEdge] =
+  {
+      val typedVertexRDD: VertexRDD[Map[String, Map[String, Int]]] =
+        GraphProfiling.getTypedVertexRDD_Temporal(graph,
+          writerSG, type_support, this.TYPE)
+
+      // Now we have the type information collected in the original graph
+      val typedAugmentedGraph: Graph[(String, Map[String, Map[String, Int]]), KGEdge] = GraphProfiling.getTypedAugmentedGraph_Temporal(graph,
+        writerSG, typedVertexRDD)
+      return typedAugmentedGraph
+    }
   override def init(graph: Graph[String, KGEdge], writerSG: PrintWriter,basetype:String,
       type_support : Int): DynamicPatternGraphV2Flat = {
 
@@ -41,16 +69,14 @@ extends DynamicPatternGraph[KGNodeV2Flat, KGEdge] {
     println("***************support is " + SUPPORT)
 
     var t0 = System.currentTimeMillis();
-    val typedVertexRDD: VertexRDD[Map[String, Map[String, Int]]] =
-      GraphProfiling.getTypedVertexRDD_Temporal(graph,
-        writerSG, type_support, this.TYPE)
-    //typedVertexRDD.collect.foreach(f=>writerSG.println("type rdd"+f.toString))
-        //System.exit(1)    
+
     // Now we have the type information collected in the original graph
     val typedAugmentedGraph: Graph[(String, Map[String, Map[String, Int]]), 
-      KGEdge] = GraphProfiling.getTypedAugmentedGraph_Temporal(graph, 
-          writerSG, typedVertexRDD)
-    //typedAugmentedGraph.vertices.collect.foreach(f=>writerSG.println("type graph"+f.toString))    
+      KGEdge] = getTypedGraph(graph, writerSG)
+    
+          
+       
+      
     var t1 = System.currentTimeMillis();
     writerSG.println("#Time to prepare base typed graph" + " =" +
       (t1 - t0) * 1e-3 + "seconds," + typedAugmentedGraph.vertices.count)
@@ -58,6 +84,11 @@ extends DynamicPatternGraph[KGNodeV2Flat, KGEdge] {
     /*
      * Create RDD where Every vertex has all the 1 edge patterns it belongs to
      * Ex: Sumit: (person worksAt organizaion) , (person friendsWith person)
+     * 
+     * Read method comments
+     * ....
+     * ....
+     * ....So in some sense, the methods' name is misleading. TODO: fix the name
      */
     val nonTypedVertexRDD: VertexRDD[Map[String, 
       Long]] =
