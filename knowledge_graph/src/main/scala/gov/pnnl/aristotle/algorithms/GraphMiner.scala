@@ -187,6 +187,8 @@ object GraphMiner {
     var gDep = new PatternDependencyGraph
     var pattern_trend: Map[String, List[(Int, Int)]] = Map.empty
     var pattern_in_this_batch : RDD[(String, Long)] = null
+    var pattern__node_association : RDD[(String, Set[String])] = null
+    var node_pattern_association : RDD[(String, Set[String])] = null
     /*
      * Read all the files/folder one-by-one and construct an input graph
      */
@@ -272,9 +274,15 @@ object GraphMiner {
       gWin.input_graph = gWin.mergeBatchGraph(batch_window_intersection_graph.input_graph)
       pattern_in_this_batch = GraphPatternProfiler.get_sorted_patternV2Flat(gWin.input_graph,
         writerSG, 2, args(1).toInt)
+      pattern__node_association = GraphPatternProfiler.get_pattern_node_association_V2Flat(gWin.input_graph,
+        writerSG, 2, args(1).toInt)
+      node_pattern_association = GraphPatternProfiler.get_node_pattern_association_V2Flat(gWin.input_graph,
+        writerSG, 2, args(1).toInt)
         println("received frequent pattern rdd size"+pattern_in_this_batch.count)
-      pattern_in_this_batch.collect.foreach(f => writerSG.println(s"pattern_"+FilenameUtils.getBaseName(args(4)) +"= " + f.toString))
-      pattern_in_this_batch.saveAsTextFile("LASFGMOP_lasminer_wsj")
+      //pattern_in_this_batch.collect.foreach(f => writerSG.println(s"pattern_"+FilenameUtils.getBaseName(args(4)) +"= " + f.toString))
+      pattern_in_this_batch.saveAsTextFile("PatternSummary"+System.nanoTime())
+      pattern__node_association.saveAsTextFile("PatternNodeAssociation"+System.nanoTime())
+      node_pattern_association.saveAsTextFile("NodePatternAssociation"+System.nanoTime())
         writerSG.flush()
       val t_b1 = System.nanoTime();
       println("#Time to mine the batch" + " =" + (t_b1 - t_b0) * 1e-9 + "seconds," +
