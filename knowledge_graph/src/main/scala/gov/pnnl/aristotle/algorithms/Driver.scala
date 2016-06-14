@@ -31,7 +31,7 @@ import org.apache.hadoop.io.Text
 
 object Driver {
     
-  val sparkConf = new SparkConf().setAppName("Driver")
+  val sparkConf = new SparkConf().setAppName("Driver").setMaster("local")
     val sc = new SparkContext(sparkConf)
     Logger.getLogger("org").setLevel(Level.OFF)
      Logger.getLogger("akka").setLevel(Level.OFF)
