@@ -19,6 +19,7 @@ import java.util.Formatter.DateTime
 import org.joda.time.format.DateTimeFormat
 import gov.pnnl.aristotle.algorithms.mining.datamodel.KGEdge
 import gov.pnnl.aristotle.algorithms.mining.datamodel.KGEdge
+import java.util.Calendar
 
 object ReadHugeGraph {
 
@@ -60,7 +61,32 @@ object ReadHugeGraph {
     //split(",").map(str => str.stripPrefix(" ").stripSuffix(" ").replaceAll(",", ""));
   }
   
-  
+  def getFieldsFromPatternLine_BatchFormat(line :String) : Array[(String,List[(Int,Long)])] = {
+    val tmp =  line.toLowerCase().replaceAllLiterally("<", "").replaceAllLiterally(">", "")
+    .replaceAllLiterally("(", "").replace(" .", "").replaceAllLiterally(")", "")
+    val i = tmp.lastIndexOf(",")
+    val batch_support_array_raw = tmp.substring(i+1).trim().split("|")
+    val batched_support_array = batch_support_array_raw.map(f=> (f.split(" ")(0).toInt, f.split(" ")(1).toLong))
+    return  Array((tmp.substring(0, i),batched_support_array.toList))
+    //split(",").map(str => str.stripPrefix(" ").stripSuffix(" ").replaceAll(",", ""));
+  }
+  /*
+   * person works_at        company         company makes   sup_mt5         
+   * person  works_at        o5              o5      makes   sup_mt5         
+   * person  works_at        o5              pe    rson  works_at        company
+   * ,Set(otheruser0, user5)) 
+   */
+    def getFieldsFromPatternNodeLine(line :String) : Array[(String,(Int,List[String]))] = {
+    val tmp =  line.toLowerCase().replaceAllLiterally("<", "").replaceAllLiterally(">", "")
+    .replace(" .", "").replaceAllLiterally(")", "").replaceAllLiterally("(", "")
+    
+    val batch_support_array_raw = tmp.trim().split(",Set")
+    //val batched_support_array = batch_support_array_raw.map(f=> (f.split(" ")(0).toInt, f.split(" ")(1).toLong))
+    val key = batch_support_array_raw(0)
+    val value = batch_support_array_raw(1).split(",")
+    return  Array((batch_support_array_raw(0),(value.length,value.toList)))
+    //split(",").map(str => str.stripPrefix(" ").stripSuffix(" ").replaceAll(",", ""));
+  }
   
   def getFieldsFromLineLG(line :String) : Array[String] = {
     return line.toLowerCase().replaceAllLiterally("<", "").replaceAllLiterally(">", "").replace(" .", "").split(" ").map(str => str.stripPrefix(" ").stripSuffix(" "));
@@ -81,9 +107,9 @@ object ReadHugeGraph {
     if(fields(3).matches("^\\d{4}-\\d{2}-\\d{2}t.*$"))
     {      
     
-    val f = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ssZ");
-    val dateTime = f.parseDateTime(fields(3).replaceAll("t", " "));
-    val longtime = dateTime.getMillis()
+//    val f = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ssZ");
+//    val dateTime = f.parseDateTime(fields(3).replaceAll("t", " "));
+    	val longtime = 1L//dateTime.getMillis()
       return Edge(fields(0).hashCode().toLong, 
             fields(2).hashCode().toLong, new KGEdge(fields(1),longtime))
     }
@@ -472,8 +498,8 @@ val edges = edges_multiple.distinct
       }
 
     triples.cache
-    val edges = triples.map(triple => Edge(triple._1.hashCode().toLong, triple._3.hashCode().toLong, new KGEdge(triple._2,-1L)))
-    val vertices = triples.flatMap(triple => Array((triple._1.hashCode().toLong, triple._1), (triple._3.hashCode().toLong, triple._3)))
+    val edges = triples.filter(e=>(e._2.equalsIgnoreCase("none")==false)).map(triple => Edge(triple._1.hashCode().toLong, triple._3.hashCode().toLong, new KGEdge(triple._2,-1L)))
+    val vertices = triples.filter(v=>(v._2.equalsIgnoreCase("none")==false)).flatMap(triple => Array((triple._1.hashCode().toLong, triple._1), (triple._3.hashCode().toLong, triple._3)))
 
     println("starting map phase3 > Building graph");
     val graph = Graph(vertices, edges);

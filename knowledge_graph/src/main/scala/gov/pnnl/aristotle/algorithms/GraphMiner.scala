@@ -70,7 +70,7 @@ object GraphMiner {
     /*
      * Read all the files/folder one-by-one and construct an input graph
      */
-    for (i <- 4 to number_of_input_files - 1) {
+    for (i <- 6 to number_of_input_files - 1) {
 
       /*
        * Count the start time of the batch processing
@@ -81,23 +81,20 @@ object GraphMiner {
       var t1 = System.nanoTime();
       println("#Time to load the  graph" + " =" + (t1 - t0) * 1e-9 + "seconds," +
         "#First Vertex is" + " =" )
-      
-        
         
       /*
        *  gBatch is a pre-processed version of input graph. It has 1 edge 
        *  pattern on each vertex. all the other information is removed from the
        *  vertex. 
        */
+        println("*************INIT********")
       val gBatch = new DynamicPatternGraphV2Flat(minSup).init(input_graph, 
           writerSG,args(0),args(2).toInt)
-      //gBatch.input_graph.vertices.collect.foreach(f => writerSG.println("base vertex " +f.toString))
+      gBatch.input_graph.vertices.collect.foreach(f => println("base vertex " +f.toString))
       gWin.trim(i, windowSize)
       val batch_window_intersection_graph = gWin.merge(gBatch, sc)
       var level = 0;
       val iteration_limit: Int = args(3).toInt
-//      batch_window_intersection_graph.input_graph.vertices.collect.foreach(f
-//          =>writerSG.println("first batch graph ver"+f.toString))
       writerSG.flush()
       breakable {
         while (1 == 1) {
@@ -138,14 +135,9 @@ object GraphMiner {
           batch_window_intersection_graph.input_graph =
             GraphPatternProfiler.get_Frequent_SubgraphV2Flat(
               GraphPatternProfiler.fixGraphV2Flat(batch_window_intersection_graph.input_graph), null, minSup)
-//        batch_window_intersection_graph.input_graph.vertices.collect.foreach(f
-//          =>writerSG.println(s"interation $level batch graph ver"+f.toString))
         }
       }
  
-//      batch_window_intersection_graph.input_graph.vertices.collect.foreach(f =>
-//      writerSG.println("final batch graph is"+f.toString)  
-//      )
       /*
        * Now merger the mined intersection graph with original window
        */
@@ -213,13 +205,10 @@ object GraphMiner {
        */
       val gBatch = new DynamicPatternGraphV2Flat(minSup).init(input_graph, 
           writerSG,args(0),args(2).toInt)
-      //gBatch.input_graph.vertices.collect.foreach(f => writerSG.println("base vertex " +f.toString))
       gWin.trim(i, windowSize)
       val batch_window_intersection_graph = gWin.merge(gBatch, sc)
       var level = 0;
       val iteration_limit: Int = args(3).toInt
-//      batch_window_intersection_graph.input_graph.vertices.collect.foreach(f
-//          =>writerSG.println("first batch graph ver"+f.toString))
       writerSG.flush()
       breakable {
         while (1 == 1) {
@@ -260,14 +249,12 @@ object GraphMiner {
           batch_window_intersection_graph.input_graph =
             GraphPatternProfiler.get_Frequent_SubgraphV2Flat(
               GraphPatternProfiler.fixGraphV2Flat(batch_window_intersection_graph.input_graph), null, minSup)
-//        batch_window_intersection_graph.input_graph.vertices.collect.foreach(f
-//          =>writerSG.println(s"interation $level batch graph ver"+f.toString))
+        batch_window_intersection_graph.input_graph.vertices.collect.foreach(f
+          =>writerSG.println(s"interation $level batch graph ver"+f.toString))
         }
       }
  
-//      batch_window_intersection_graph.input_graph.vertices.collect.foreach(f =>
-//      writerSG.println("final batch graph is"+f.toString)  
-//      )
+
       /*
        * Now merger the mined intersection graph with original window
        */
@@ -279,7 +266,6 @@ object GraphMiner {
       node_pattern_association = GraphPatternProfiler.get_node_pattern_association_V2Flat(gWin.input_graph,
         writerSG, 2, args(1).toInt)
         println("received frequent pattern rdd size"+pattern_in_this_batch.count)
-      //pattern_in_this_batch.collect.foreach(f => writerSG.println(s"pattern_"+FilenameUtils.getBaseName(args(4)) +"= " + f.toString))
       pattern_in_this_batch.saveAsTextFile("PatternSummary"+System.nanoTime())
       pattern__node_association.saveAsTextFile("PatternNodeAssociation"+System.nanoTime())
       node_pattern_association.saveAsTextFile("NodePatternAssociation"+System.nanoTime())
