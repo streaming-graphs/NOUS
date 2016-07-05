@@ -26,6 +26,9 @@ import gov.pnnl.aristotle.algorithms.mining.datamodel.PatternInstance
 import gov.pnnl.aristotle.algorithms.mining.datamodel.WindowState
 import gov.pnnl.aristotle.algorithms.mining.GraphProfiling
 import gov.pnnl.aristotle.algorithms.mining.datamodel.KGNodeV2Flat
+import gov.pnnl.aristotle.algorithms.mining.datamodel.PatternConstraint
+import gov.pnnl.aristotle.algorithms.mining.datamodel.PatternConstraint
+import gov.pnnl.aristotle.algorithms.mining.datamodel.PatternGraph
 
 object GraphPatternProfiler {
 
@@ -95,9 +98,9 @@ object GraphPatternProfiler {
           {
             if (vertext_pattern._1.contains('|'))
               joinedPattern = joinedPattern + ((vertext_pattern._1.
-                replaceAll("\\|", "\t") -> vertext_pattern._2))
+                replaceAll("\\|", "\t").replaceAll("\t+", "\t") -> vertext_pattern._2))
             else
-              joinedPattern = joinedPattern + ((vertext_pattern._1 ->
+              joinedPattern = joinedPattern + ((vertext_pattern._1.replaceAll("\t+", "\t") ->
                 vertext_pattern._2))
           })
         new KGNodeV2Flat(attr.getlabel, joinedPattern,List.empty)
@@ -842,9 +845,12 @@ object GraphPatternProfiler {
 
       for (i <- 0 until selfJoinPatterns.length) {
         for (j <- i until selfJoinPatterns.length) {
+          println("doing self join")
           var t0 = System.currentTimeMillis()
           selfJoinPatterns(i)._2.foreach(src_instance => {
             selfJoinPatterns(j)._2.foreach(dst_instance => {
+                        println("inside self join")
+
               if (src_instance.equals(dst_instance))
                 joinedPattern = joinedPattern
               // Dont join to itself i.e. pattern with same instances
@@ -922,6 +928,84 @@ def self_Pattern_Join_GraphV2(updateGraph_withsink: Graph[KGNodeV2, KGEdge],
     return newGraph
   }
   
+def checkcross_join(pattern1 :String, pattern2 :String) : Boolean = 
+{
+  return !(pattern1.split("\t")(0).equalsIgnoreCase(pattern2.split("\t")(0)))
+}
+
+def compatible_join(pattern1 :String, pattern2 :String) : Boolean = 
+{
+  //if(pattern1.contains("type:person\tfriends_with"))
+    //println("found")
+  val basetpe : Set[String] = Set("type:person","type:company","type:product","type:sup_mt")
+  val pattern1_array = pattern1.split("\t")
+  val pattern2_array = pattern2.split("\t")
+  //check non-compatible first edge
+  if((pattern1_array(1).equalsIgnoreCase(pattern2_array(1))) 
+      && (pattern1_array(2).startsWith("type:") && !pattern2_array(2).startsWith("type:"))) return false
+  //type:person works_at        type:company      type:company        makes   type:sup_mt5
+  //type:person works_at        o5      o5  makes       type:sup_mt5    :4
+  else if((pattern1_array(1).equalsIgnoreCase(pattern2_array(1))) 
+      && (!pattern1_array(2).startsWith("type:") && pattern2_array(2).startsWith("type:"))) return false
+  //check non-compatible last edge
+  //type:person     buys    type:product            type:person     works_at        type:company
+  //type:person     works_at        o5              o5      makes   type:su    p_mt5    :4
+  else if((pattern1_array(pattern1_array.length - 2).equalsIgnoreCase(pattern2_array(1)))   
+      && ((pattern1_array(pattern1_array.length - 1).startsWith("type:") && !pattern2_array(2).startsWith("type:"))
+          || (!pattern1_array(pattern1_array.length - 1).startsWith("type:") && pattern2_array(2).startsWith("type:")))) return false
+  //pattern 2 originates from this node and its first edge is an instance edge of pattern 1's last edge  
+  else if((pattern1_array(1).equalsIgnoreCase(pattern2_array(pattern2_array.length - 2)))   
+      && ((pattern1_array(2).startsWith("type:") && !pattern2_array(pattern2_array.length - 1).startsWith("type:")) ||
+          (!pattern1_array(2).startsWith("type:") && pattern2_array(pattern2_array.length - 1).startsWith("type:")))) return false
+      
+  else if(pattern1_array.last.startsWith("type:") && pattern2_array.last.startsWith("type:")) return true
+  else if(pattern1_array.last.startsWith("type:") && !basetpe.contains(pattern2_array.last)) return true
+  else if(!pattern1_array.last.startsWith("type:") && !basetpe.contains(pattern2_array.last)) return true
+  return false
+}
+
+def non_overlapping(pattern1 :String, pattern2 :String) : Boolean =
+{
+      val pattern1array = pattern1.replaceAll("\t+", "\t").split("\t")
+      val pattern2array = pattern2.replaceAll("\t+", "\t").split("\t")
+      val p1a_length = pattern1array.length
+      val p2a_length = pattern2array.length
+      
+      if(pattern1.contains("person\tworks_at\tcompany"))
+      {
+       //println("found")
+      }
+      
+      if(p1a_length %3 !=0 || p2a_length %3 !=0)
+      {
+      	println(pattern1 + " wrong formatting and " + pattern2)
+      	//System.exit(1)
+      }
+      //check 4 combinations of 'boundary-edge' overlap
+      // a1b1, a1bn, anb1, anbn
+      if (
+          
+        (pattern1array(0).equalsIgnoreCase(pattern2array(0)) &&
+        pattern1array(1).equalsIgnoreCase(pattern2array(1)) &&
+        pattern1array(2).equalsIgnoreCase(pattern2array(2))) ||
+        
+        (pattern1array(0).equalsIgnoreCase(pattern2array(p2a_length-3)) &&
+        pattern1array(1).equalsIgnoreCase(pattern2array(p2a_length-2)) &&
+        pattern1array(2).equalsIgnoreCase(pattern2array(p2a_length-1))) ||
+        
+        
+        (pattern1array(p1a_length-3).equalsIgnoreCase(pattern2array(0)) &&
+        pattern1array(p1a_length-2).equalsIgnoreCase(pattern2array(1)) &&
+        pattern1array(p1a_length-1).equalsIgnoreCase(pattern2array(2))) ||
+        
+        (pattern1array(p1a_length-3).equalsIgnoreCase(pattern2array(p2a_length-3)) &&
+        pattern1array(p1a_length-2).equalsIgnoreCase(pattern2array(p2a_length-2)) &&
+        pattern1array(p1a_length-1).equalsIgnoreCase(pattern2array(p2a_length-1))) 
+      
+      
+      ) return false
+      return true
+}
     
         def self_Pattern_Join_GraphV2Flat(updateGraph_withsink: Graph[KGNodeV2Flat, KGEdge],
     join_size: Int): Graph[KGNodeV2Flat, KGEdge] = {
@@ -963,11 +1047,38 @@ def self_Pattern_Join_GraphV2(updateGraph_withsink: Graph[KGNodeV2, KGEdge],
           // "user5   buys    product user5   buys    product user5   buys    product"
           // SO i am adding a sub-string check which is not always correct.
           if (!selfJoinPatterns(j)._1.contains(selfJoinPatterns(i)._1) &&
-            !selfJoinPatterns(i)._1.contains(selfJoinPatterns(j)._1)) {
-            var t0 = System.currentTimeMillis()
-            joinedPattern = joinedPattern + (selfJoinPatterns(j)._1 + "|" +
-              selfJoinPatterns(i)._1 -> (selfJoinPatterns(j)._2 * selfJoinPatterns(i)._2))
-            var t1 = System.currentTimeMillis()
+            !selfJoinPatterns(i)._1.contains(selfJoinPatterns(j)._1) && 
+            (!checkcross_join(selfJoinPatterns(i)._1,selfJoinPatterns(j)._1)) &&
+            (non_overlapping(selfJoinPatterns(i)._1,selfJoinPatterns(j)._1)) &&
+            (compatible_join(selfJoinPatterns(i)._1,selfJoinPatterns(j)._1))
+          ) 
+          {
+
+            val pattern: String = selfJoinPatterns(j)._1.trim() + "|" + "\t" +
+              selfJoinPatterns(i)._1.trim() + "|"
+            val pg = new PatternGraph()
+            ///println("pattern is for dfs "+pattern)
+            pg.ConstructPatternGraph(pattern)
+            var dfspath = pg.DFS(selfJoinPatterns(j)._1.split("\t")(0))
+            if (dfspath.endsWith("|"))
+            {
+              val ind = dfspath.lastIndexOf("|")
+              dfspath = dfspath.substring(0, ind)
+              
+            }
+          	joinedPattern = joinedPattern + (dfspath -> (selfJoinPatterns(i)._2 * selfJoinPatterns(j)._2))
+//              if (GraphOrdering.comparegraph(selfJoinPatterns(j)._1, selfJoinPatterns(i)._1) < 0) {
+//                var t0 = System.currentTimeMillis()
+//                joinedPattern = joinedPattern + (selfJoinPatterns(j)._1 + "|" +
+//                  selfJoinPatterns(i)._1 -> (selfJoinPatterns(j)._2 * selfJoinPatterns(i)._2))
+//                var t1 = System.currentTimeMillis()
+//              } else if (GraphOrdering.comparegraph(selfJoinPatterns(j)._1, selfJoinPatterns(i)._1) > 0) {
+//                var t0 = System.currentTimeMillis()
+//                joinedPattern = joinedPattern + (selfJoinPatterns(i)._1 + "|" +
+//                  selfJoinPatterns(j)._1 -> (selfJoinPatterns(i)._2 * selfJoinPatterns(j)._2))
+//                var t1 = System.currentTimeMillis()
+//              }
+
           }
         }
       }
@@ -1672,7 +1783,6 @@ def self_Pattern_Join_GraphV2(updateGraph_withsink: Graph[KGNodeV2, KGEdge],
 	 * TODO : need to clean the code
 	 */
       println("checking frequent subgraph")
-      var t0 = System.nanoTime()
       var commulative_subgraph_index: Map[String, Int] = Map.empty;
 
       //TODO : Sumit: Use this RDD instead of the Map(below) to filter frequent pattersn
@@ -1688,27 +1798,10 @@ def self_Pattern_Join_GraphV2(updateGraph_withsink: Graph[KGNodeV2, KGEdge],
       //tmpRDD.collect.foreach(p => writerSGLog.println("gloabl pattern and its supprt" + p._1 + " " + p._2))
       writerSGLog.flush()
       val frequent_pattern_support_rdd = tmpRDD.filter(f => ((f._2 >= SUPPORT) | (f._2 == -1)))
-      var t1 = System.nanoTime()
-      println("time to calculate rdd frequnet pattern in nanao" + (t1 - t0) * 1e-9 + "seconds," + "frequnet pattern rdd size " + frequent_pattern_support_rdd.count)
       val frequent_patterns = frequent_pattern_support_rdd.keys.collect
       println()
-      var tt0 = System.nanoTime()
-      //      subgraph_with_pattern.vertices.collect.foreach(index_map => {
-      //        index_map._2.getpattern_map.foreach(index => {
-      //          if (index._2 == Set(0)) {
-      //            commulative_subgraph_index = commulative_subgraph_index + (index._1 ->
-      //              (commulative_subgraph_index.getOrElse(index._1, 0) + index._2.size))
-      //          }
-      //          val valid_pattern_instance = index._2
-      //          if (valid_pattern_instance.size > 0)
-      //            commulative_subgraph_index = commulative_subgraph_index + (index._1 ->
-      //              (commulative_subgraph_index.getOrElse(index._1, 0) + index._2.size))
-      //        })
-      //      })
-      //      commulative_subgraph_index = 
-      //        commulative_subgraph_index.filter(v => v._2 >= SUPPORT)
+
       var tt1 = System.nanoTime()
-      println("commulative_subgraph_index size" + commulative_subgraph_index.size + "time = " + (tt1 - tt0) * 1e-9 + "seconds,")
       val newGraph: Graph[KGNodeV2Flat, KGEdge] =
         subgraph_with_pattern.mapVertices((id, attr) => {
           var joinedPattern: Map[String, Long] = Map.empty
