@@ -42,7 +42,7 @@ object getYagoOnotlogy extends Serializable {
     val filepath = args(4)
 
     val multi_edge_graph = ReadHugeGraph.getTemporalGraph(filepath, sc)
-    val gBatch = new DynamicPatternGraphV2(1).init(multi_edge_graph,
+    val gBatch = new DynamicPatternGraphV2Flat(1).init(multi_edge_graph,
       writerSG, "rdf:type", 100)
     val new_graph = gBatch.input_graph.mapVertices((id, data) => new KGNodeV2Flat(data.getlabel, data.getpattern_map, List(new VertexProperty(1, data.label))))
     val res = getYagoOnoglogyRDD(new_graph)

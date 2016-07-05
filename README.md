@@ -17,6 +17,11 @@ from streaming data. This includes
  * Rule Learning /Trend Discovery via Frequent Graph Mining
  * Question Answering
 
+Relevant Publications
+
+1. Zhang, Baichuan, Sutanay Choudhury, Mohammad Al Hasan, Xia Ning, Khushbu Agarwal, Sumit Purohit, and Paola Gabriela Pesntez Cabrera. "Trust from the past: Bayesian Personalized Ranking based Link Prediction in Knowledge Graphs." SDM Workshop on Mining Networks and Graphs, 2016.
+2. Sutanay Choudhury, Khushbu Agarwal, Sumit Purohit,  Baichuan Zhang, Meg Pirrung, Will Smith, Mathew Thomas. "NOUS: Construction and Querying of Dynamic Knowledge Graphs". http://arxiv.org/abs/1606.02314, 2016.
+
 ## 2. Build and Execute Hello World Program(s):
 ### 2.1 Prerequisites
 * Java 1.7 OR above
@@ -161,8 +166,3 @@ Graph Mining Module supports different input graph formats.
 
 #### 3.2.3 algorithms.pathRanking
 Implements question answering using LDA based heristics to find most coherent paths linking two entities
-
-## 4. Publicly Accessible Deliverables.
-
-1. Zhang, Baichuan, et al. "Trust from the past: Bayesian Personalized Ranking based Link Prediction in Knowledge Graphs." arXiv preprint arXiv:1601.03778 (2016).
-2. NOUS Presentation: TODO

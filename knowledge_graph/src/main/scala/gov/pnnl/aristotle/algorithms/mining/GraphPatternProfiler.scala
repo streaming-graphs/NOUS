@@ -547,7 +547,7 @@ object GraphPatternProfiler {
 
     }
   
-        def get_sorted_patternV2Flat(graph: Graph[KGNodeV2Flat, KGEdge],
+ def get_sorted_patternV2Flat(graph: Graph[KGNodeV2Flat, KGEdge],
     writerSG: PrintWriter, id: Int, SUPPORT: Int): RDD[(String, Long)] =
     {
       val tmpRDD_non_sorted = get_Pattern_RDDV2Flat(graph)
@@ -563,7 +563,29 @@ object GraphPatternProfiler {
       return frq_tmpRDD
 
     }
-    
+ //
+ def get_pattern_node_association_V2Flat(graph: Graph[KGNodeV2Flat, KGEdge],
+    writerSG: PrintWriter, id: Int, SUPPORT: Int): RDD[(String, Set[String])] =
+    {
+
+      val v_rdd = graph.vertices.map(v => (v._2.getlabel, v._2.getpattern_map.keys))
+      val pattrn_rdd = v_rdd.flatMap(v => {
+        var pattern_set: Set[(String, Set[String])] = Set.empty
+        v._2.map(p_string => pattern_set = pattern_set + ((p_string, Set(v._1))))
+        pattern_set
+      }).reduceByKey((a, b) => a |+| b)
+
+      pattrn_rdd
+    }
+ 
+  def get_node_pattern_association_V2Flat(graph: Graph[KGNodeV2Flat, KGEdge],
+    writerSG: PrintWriter, id: Int, SUPPORT: Int): RDD[(String, Set[String])] =
+    {
+      return graph.vertices.map(v => 
+        (v._2.getlabel, v._2.getpattern_map.keys.toSet)).filter(v=>v._2.size > 0)
+    }
+  
+ //get_patter
  /**
  * Auxiliary method called by get_pattern method to collect all the pattern and 
  * their support across the graph and return only the frequent patterns.
