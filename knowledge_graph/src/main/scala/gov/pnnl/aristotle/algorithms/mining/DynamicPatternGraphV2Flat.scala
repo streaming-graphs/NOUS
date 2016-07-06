@@ -552,7 +552,7 @@ def getOneEdgePatterns(typedAugmentedGraph: Graph[(String,
       val new_dependency_graph_vertices_support: RDD[(VertexId, PGNode)] =
         tmp_commulative_RDD.map(pattern =>
           (pattern._1.hashCode().toLong,
-            new PGNode(pattern._1, pattern._2)))
+            new PGNode(pattern._1, pattern._2,-1)))
 
       //Edge(P1.hascode,P2.hashcode,1)
       // "1" is just an edge type which represent "part-of"

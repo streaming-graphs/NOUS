@@ -25,6 +25,10 @@ class WindowStateV3 {
 
   var window_graph: Graph[KGNodeV2Flat, KGEdge] = null
   var gDep = new PatternDependencyGraph
+  
+  
+  
+  
   def mergeBatchGraph(batch_graph: Graph[KGNodeV2Flat, KGEdge]) =
     {
     if(window_graph == null) {
@@ -64,7 +68,7 @@ class WindowStateV3 {
       val new_dependency_graph_vertices_support: RDD[(VertexId, PGNode)] =
         tmp_commulative_RDD.map(pattern =>
           (pattern._1.hashCode().toLong,
-            new PGNode(pattern._1, pattern._2)))
+            new PGNode(pattern._1, pattern._2,-1)))
 
       //Edge(P1.hascode,P2.hashcode,1)
       // "1" is just an edge type which represent "part-of"
@@ -88,6 +92,7 @@ class WindowStateV3 {
 
       this.gDep.graph = Graph(new_dependency_graph_vertices_support, new_dependency_graph_edges)
 
+      //Tag every node in the dependency graph with 
     }
   
     /*
