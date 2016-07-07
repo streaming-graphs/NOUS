@@ -65,7 +65,8 @@ object ReadHugeGraph {
     val tmp =  line.toLowerCase().replaceAllLiterally("<", "").replaceAllLiterally(">", "")
     .replaceAllLiterally("(", "").replace(" .", "").replaceAllLiterally(")", "")
     val i = tmp.lastIndexOf(",")
-    val batch_support_array_raw = tmp.substring(i+1).trim().split("|")
+    val remaining_string = tmp.substring(i+1).trim()
+    val batch_support_array_raw = remaining_string.split('|')
     val batched_support_array = batch_support_array_raw.map(f=> (f.split(" ")(0).toInt, f.split(" ")(1).toLong))
     return  Array((tmp.substring(0, i),batched_support_array.toList))
     //split(",").map(str => str.stripPrefix(" ").stripSuffix(" ").replaceAll(",", ""));
@@ -80,7 +81,7 @@ object ReadHugeGraph {
     val tmp =  line.toLowerCase().replaceAllLiterally("<", "").replaceAllLiterally(">", "")
     .replace(" .", "").replaceAllLiterally(")", "").replaceAllLiterally("(", "")
     
-    val batch_support_array_raw = tmp.trim().split(",Set")
+    val batch_support_array_raw = tmp.trim().split(",set")
     //val batched_support_array = batch_support_array_raw.map(f=> (f.split(" ")(0).toInt, f.split(" ")(1).toLong))
     val key = batch_support_array_raw(0)
     val value = batch_support_array_raw(1).split(",")

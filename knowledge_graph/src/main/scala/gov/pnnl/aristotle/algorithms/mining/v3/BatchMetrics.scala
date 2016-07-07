@@ -22,7 +22,7 @@ import java.io.File
 class BatchMetrics(val id:Int) extends Serializable {
 
   var pattern_in_this_batch : RDD[(String, Long)] = null
-  var pattern__node_association : RDD[(String, Set[String])] = null
+  var pattern__node_association : RDD[(String, Set[(Int,String)])] = null
   var node_pattern_association : RDD[(String, Set[String])] = null
     
   def updateBatchMetrics(batch_graph : Graph[KGNodeV2Flat, KGEdge], writerSG:PrintWriter, args:Array[String]) 

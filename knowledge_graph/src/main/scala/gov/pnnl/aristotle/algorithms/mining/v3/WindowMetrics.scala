@@ -20,7 +20,7 @@ import java.io.File
 class WindowMetrics extends Serializable {
 
   var pattern_in_this_winodw : RDD[(String, List[(Int,Long)])] = null
-  var pattern__node_association_window : RDD[(String, Set[String])] = null
+  var pattern__node_association_window : RDD[(String, Set[(Int,String)])] = null
   var node_pattern_association_window : RDD[(String, Set[String])] = null
 
   def updateWindowMetrics(batch_metrics : BatchMetrics)
@@ -39,10 +39,9 @@ class WindowMetrics extends Serializable {
 
     if(pattern__node_association_window!=null)
     {
-    	    val join_node_metrics = pattern__node_association_window.rightOuterJoin(batch_metrics.pattern__node_association)
-    this.pattern__node_association_window = join_node_metrics.map(node 
-        => (node._1, node._2._1.getOrElse(Set.empty) ++ node._2._2))
-    }else
+      val join_node_metrics = pattern__node_association_window.rightOuterJoin(batch_metrics.pattern__node_association)
+      this.pattern__node_association_window = join_node_metrics.map(node => (node._1, node._2._1.getOrElse(Set.empty) ++ node._2._2))
+    } else
     {
       this.pattern__node_association_window = batch_metrics.pattern__node_association
     }
@@ -51,7 +50,7 @@ class WindowMetrics extends Serializable {
     if(node_pattern_association_window!=null)
     {
     	    val join_node_pattern_metrics = node_pattern_association_window.rightOuterJoin(batch_metrics.node_pattern_association)
-    this.node_pattern_association_window = join_node_pattern_metrics.map(node 
+    	    		this.node_pattern_association_window = join_node_pattern_metrics.map(node 
         => (node._1, node._2._1.getOrElse(Set.empty) ++ node._2._2))
     }else
     {

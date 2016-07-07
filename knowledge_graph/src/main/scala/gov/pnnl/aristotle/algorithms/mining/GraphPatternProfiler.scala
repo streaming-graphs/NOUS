@@ -235,8 +235,8 @@ object GraphPatternProfiler {
         new_closed_graph = closed_patterns_graph.mapVertices((id, attr) => {
           if (stale_pattern.contains(attr.getnode_label))
             new PGNode(attr.getnode_label,
-              attr.getsupport - stale_pattern.getOrElse(attr.getnode_label, 0))
-          else new PGNode("", -1)
+              attr.getsupport - stale_pattern.getOrElse(attr.getnode_label, 0),-1)
+          else new PGNode("", -1,-1)
         })
       }
 
@@ -248,8 +248,8 @@ object GraphPatternProfiler {
           redundent_patterns_graph.mapVertices((id, attr) => {
             if (stale_pattern.contains(attr.getnode_label))
               new PGNode(attr.getnode_label,
-                attr.getsupport - stale_pattern.getOrElse(attr.getnode_label, 0))
-            else new PGNode("", -1)
+                attr.getsupport - stale_pattern.getOrElse(attr.getnode_label, 0),-1)
+            else new PGNode("", -1,-1)
           })
       }
 
@@ -261,15 +261,15 @@ object GraphPatternProfiler {
           promising_patterns_graph.mapVertices((id, attr) => {
             if (stale_pattern.contains(attr.getnode_label))
               new PGNode(attr.getnode_label,
-                attr.getsupport - stale_pattern.getOrElse(attr.getnode_label, 0))
-            else new PGNode("", -1)
+                attr.getsupport - stale_pattern.getOrElse(attr.getnode_label, 0),-1)
+            else new PGNode("", -1,-1)
           })
       }
 
       val new_dependency_graph = dependency_graph.mapVertices((id, attr) => {
         if (stale_pattern.contains(attr.getnode_label))
           new PGNode(attr.getnode_label,
-            attr.getsupport - stale_pattern.getOrElse(attr.getnode_label, 0))
+            attr.getsupport - stale_pattern.getOrElse(attr.getnode_label, 0),-1)
       })
 
       //    var promising_patterns_graph: Graph[PGNode, Int] = window_state.getpromising_patterns_graph;
@@ -568,16 +568,23 @@ object GraphPatternProfiler {
     }
  //
  def get_pattern_node_association_V2Flat(graph: Graph[KGNodeV2Flat, KGEdge],
-    writerSG: PrintWriter, id: Int, SUPPORT: Int): RDD[(String, Set[String])] =
+    writerSG: PrintWriter, id: Int, SUPPORT: Int): RDD[(String, Set[(Int,String)])] =
     {
 
-      val v_rdd = graph.vertices.map(v => (v._2.getlabel, v._2.getpattern_map.keys))
+   val v_degree  = graph.degrees//.map(v => (v._1,v._2))
+   val v_rdd_raw = graph.vertices
+   val v_rdd_raw_joined = v_degree.join(v_rdd_raw)
+   //v_rdd_raw_joined
+      val v_rdd :RDD[((Int,String), Iterable[String])] = v_rdd_raw_joined.map(v =>
+         ((v._2._1,v._2._2.getlabel), v._2._2.getpattern_map.keys))
+         val vb = v_rdd.map(v => v._1)
+         
+         
       val pattrn_rdd = v_rdd.flatMap(v => {
-        var pattern_set: Set[(String, Set[String])] = Set.empty
+        var pattern_set: Set[(String, Set[(Int,String)])] = Set.empty
         v._2.map(p_string => pattern_set = pattern_set + ((p_string, Set(v._1))))
         pattern_set
       }).reduceByKey((a, b) => a |+| b)
-
       pattrn_rdd
     }
  
@@ -756,7 +763,7 @@ object GraphPatternProfiler {
       ////RDD[(P1.hascode,(P1,250)),(P2.hashcode ,(P2,400)) , (P4.hashcode ,(P4,200)) ]
       val new_dependency_graph_vertices_support: RDD[(VertexId, PGNode)] = 
         tmp_commulative_RDD.map(pattern 
-            => (pattern._1.hashCode().toLong, new PGNode(pattern._1, pattern._2)))
+            => (pattern._1.hashCode().toLong, new PGNode(pattern._1, pattern._2,-1)))
 
       //Edge(P1.hascode,P2.hashcode,1)
       // "1" is just an edge type which represent "part-of"
@@ -783,7 +790,7 @@ object GraphPatternProfiler {
       val updated_vertices =
         existin_dependency_graph_vertices.
           union(new_dependency_graph_vertices_support).reduceByKey((a, b) =>
-            new PGNode(a.getnode_label, a.getsupport + b.getsupport))
+            new PGNode(a.getnode_label, a.getsupport + b.getsupport,-1))
       //TODO : creating new graph loose the previous indexing, so change it to spark JOIN 
 
       var updated_dependency_graph =

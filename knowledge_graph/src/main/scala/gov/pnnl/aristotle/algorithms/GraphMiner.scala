@@ -18,6 +18,8 @@ import org.apache.commons.io.FilenameUtils
 import org.apache.spark.rdd.RDD
 import gov.pnnl.aristotle.algorithms.mining.v3.CandidateGeneration
 import gov.pnnl.aristotle.algorithms.mining.v3.WindowStateV3
+import gov.pnnl.aristotle.algorithms.mining.v3.BatchMetrics
+import gov.pnnl.aristotle.algorithms.mining.v3.WindowMetrics
 
 /**
  * @author puro755
@@ -69,17 +71,18 @@ object GraphMiner {
     val window = new WindowStateV3()
     var gWin = new CandidateGeneration(minSup)
     var pattern_trend: Map[String, List[(Int, Int)]] = Map.empty
-    var pattern_in_this_batch : RDD[(String, Long)] = null
-    var pattern__node_association : RDD[(String, Set[String])] = null
-    var node_pattern_association : RDD[(String, Set[String])] = null
+    val window_metrics = new WindowMetrics()
     /*
      * Read all the files/folder one-by-one and construct an input graph
      */
     for (i <- 4 to number_of_input_files - 1) {
 
       /*
-       * Count the start time of the batch processing
+       * batch_id: each files is read as a new batch.
        */
+      batch_id = batch_id + 1
+      val batch_metrics = new BatchMetrics(batch_id)  
+
       val input_graph = getGraph(batch_id, i, args)
 
       /*
@@ -90,6 +93,12 @@ object GraphMiner {
       val gBatch = new CandidateGeneration(minSup).init(input_graph,
         writerSG, args(0), args(2).toInt)
       gWin.trim(i, windowSize)
+      
+      /*
+       * batch_window_intersection_graph is a common graph between gBatch and 
+       * gWindow. This is the graph which is mined by the algorithm. It includes
+       * all the patterns of the boundary nodes already minded in the gWindow.
+       */
       val batch_window_intersection_graph = gWin.merge(gBatch, sc)
       var level = 0;
       val iteration_limit: Int = args(3).toInt
@@ -98,23 +107,15 @@ object GraphMiner {
         while (1 == 1) {
           level = level + 1
           println(s"#####Iteration ID $level and interation_limit is $iteration_limit")
-          val t_i0 = System.nanoTime()
           if (level == iteration_limit) break;
 
-          /*
-           * calculate the join time for the main mining operation
-           */
-          val t_j0 = System.nanoTime()
           batch_window_intersection_graph.input_graph =
             batch_window_intersection_graph.joinPatterns(writerSG, level)
-          val t_j1 = System.nanoTime()
-          println("#Time to get join the patterns" + " =" + (t_j1 - t_j0) * 1e-9 + "seconds," +
-            "#TSize of first vertext of  window graph" + " =")
 
           /*
            * Update the dependency graph 
            */
-          window.updateGDep(batch_window_intersection_graph.input_graph,args(0))
+          window.updateGDep(batch_window_intersection_graph.input_graph,args(0),args(1).toInt)
 
           /*
              * Update the current graph by removing special purpose '|' symbols 
@@ -131,22 +132,16 @@ object GraphMiner {
        * Now merger the mined intersection graph with original window
        */
       window.mergeBatchGraph(batch_window_intersection_graph.input_graph)
-      pattern_in_this_batch = GraphPatternProfiler.get_sorted_patternV2Flat(gWin.input_graph,
-        writerSG, 2, args(1).toInt)
-      pattern__node_association = GraphPatternProfiler.get_pattern_node_association_V2Flat(gWin.input_graph,
-        writerSG, 2, args(1).toInt)
-      node_pattern_association = GraphPatternProfiler.get_node_pattern_association_V2Flat(gWin.input_graph,
-        writerSG, 2, args(1).toInt)
-      println("received frequent pattern rdd size" + pattern_in_this_batch.count)
-      //pattern_in_this_batch.collect.foreach(f => writerSG.println(s"pattern_"+FilenameUtils.getBaseName(args(4)) +"= " + f.toString))
-      pattern_in_this_batch.saveAsTextFile("PatternSummary" + System.nanoTime())
-      val writer_pattern = new PrintWriter(new File("GraphMiningPattern.txt"))
-      pattern_in_this_batch.collect.foreach(p => writer_pattern.println(p._1 + ":" + p._2))
-      writer_pattern.flush()
-      pattern__node_association.saveAsTextFile("PatternNodeAssociation" + System.nanoTime())
-      node_pattern_association.saveAsTextFile("NodePatternAssociation" + System.nanoTime())
+      batch_metrics.updateBatchMetrics(batch_window_intersection_graph.input_graph, writerSG, args)
+      window_metrics.updateWindowMetrics(batch_metrics)
+      
       writerSG.flush()
     }
+    
+    
+    window_metrics.saveWindowMetrics()
+    window.saveDepG
+
     var t_sc1 = System.nanoTime();
     println("#Time to load the  graph" + " =" + (t_sc1 - t_sc0) * 1e-9 + "seconds," +
       "#TSize of  edge_join update graph" + " =" + pattern_trend.size)
