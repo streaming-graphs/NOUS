@@ -1,6 +1,4 @@
-package gov.pnnl.aristotle.algorithms
-
-import scala.io.Source
+package gov.pnnl.aristotle.algorithms.PathSearch
 import org.apache.spark._
 import org.apache.spark.graphx._
 import org.apache.spark.rdd._
@@ -16,11 +14,11 @@ class PathEdge(val srcId: Long, val srcLabel:String, val edgeLabel: String, val 
    val dstLabel: String, val isOutgoing: Boolean = true) extends Serializable{
   
   def edgeToString(): String = {
-    var directionString = "->"
+    var directionString = "Outgoing"
     if(isOutgoing == false) 
-      directionString = "<-"
-    val stringRep = srcId.toString + " : " + srcLabel + " : " + edgeLabel + " : " +  directionString +  
-    " : "  + dstId.toString + " : " + dstLabel
+      directionString = "Incoming"
+    val stringRep = directionString + " ; " + srcLabel + " ; " + 
+    edgeLabel + " ; "  + dstLabel
     return stringRep
   }
   
@@ -29,13 +27,21 @@ class PathEdge(val srcId: Long, val srcLabel:String, val edgeLabel: String, val 
   }
 }
 
+
 /** Class template to extends graph vertex data with auxiliary data[Optional]
  *  Auxiliary data is used to prune edges from a path during graph walk
  *  
  */
 class ExtendedVD[VD, VD2] (val label: VD,val extension : Option[VD2]) extends Serializable  {
-  def labelToString = {
+  def labelToString(): String = {
     label.toString
+  }
+  
+  def extToString(): String = {
+   extension match {
+     case Some(extension) => extension.toString
+     case _ => ""
+   }
   }
 }
 
@@ -85,7 +91,8 @@ class MinDegreeFilter(minDegree: Long) extends NodeFilter[ExtendedVD[String, Int
   }
 }
 
-class CitationFilter(minDegree: Int, maxDegree: Int, wordDistTarget: Set[String], simCoefficient: Double = 0.1) extends NodeFilter[ExtendedVD[ String, (Int, Set[String])]] {
+class CitationFilter(minDegree: Int, maxDegree: Int, wordDistTarget: Set[String], 
+    simCoefficient: Double = 0.1) extends NodeFilter[ExtendedVD[ String, (Int, Set[String])]] {
   override def isMatch(targetNode : ExtendedVD[ String, (Int, Set[String])]) : Boolean = {
     targetNode.extension match {
       case Some(extension) => {
@@ -97,6 +104,8 @@ class CitationFilter(minDegree: Int, maxDegree: Int, wordDistTarget: Set[String]
     }
   }
 }
+
+
 /** Basic trait To define rank of an edge  and rank of a path
  *  Rank of a path = SomeFunction(of all edge in path)
  *  
@@ -105,22 +114,7 @@ trait PathRank {
   def edgeRank(edge: PathEdge): Double
   def pathRank(path: List[PathEdge]): Double
 }
-
-/*
-/** Defines method to add topic distribution to nodes of an existing graph
- *  For Nodes are extended with Option[], =>
- *  Nodes with topic get Some(topic),
- *  nodes without topic get "None"
- *  Note: Topic Id start from 1
- */
-object AddTopicsToGraph{
-   
-  // Adds topic distribution Array(topicid, topic strength) to each node
-  def addTopK[VD, ED](graph: Graph[VD, ED], topicsFileTopK: String, sc: SparkContext) : Graph[ ExtendedVD[VD,Array[(Int, Double)]], ED] = {
-    val topicsRDD : RDD[ (Long, Array[(Int, Double)])]= TopicLearner.getYagoTopicsRDDTopK(topicsFileTopK, sc)
-    graph.outerJoinVertices(topicsRDD)((vertexid, vertexData, topic) => new ExtendedVD(vertexData, topic))
-  }
-  
+ /* 
   // Adds topic distribution Array(topic strength) to each node ( topic id start from 1)
   def addAll[VD, ED](graph: Graph[VD, ED], topicsFileAll: String, sc: SparkContext) : Graph[ ExtendedVD[VD, Array[Double]], ED] = {
     val topicsRDD : RDD[(Long, Array[Double])]= TopicLearner.getYagoTopicsRDDAll(topicsFileAll, sc)

@@ -1,110 +1,23 @@
-package gov.pnnl.aristotle.algorithms
-
+package gov.pnnl.aristotle.algorithms.PathSearch
+/*
 import org.apache.spark._
 import org.apache.spark.graphx._
-import org.apache.spark.rdd.RDD
-import org.apache.spark.Aggregator
-import org.apache.spark.rdd.RDD
-import scala.math.Ordering
-import scala.util.Sorting
 import scala.collection.Set
-import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.HashMap
 import org.apache.log4j.Logger
 import org.apache.log4j.Level
 import scala.io.Source
-import java.nio.file.{Paths, Files}
-import java.nio.charset.StandardCharsets
-import gov.pnnl.aristotle.utils.{Gen_Utils, FileLoader}
+import gov.pnnl.aristotle.utils.Gen_Utils
 import gov.pnnl.aristotle.utils.NodeProp
 import gov.pnnl.aristotle.algorithms.entity.EntityDisambiguation
+import gov.pnnl.aristotle.algorithms.ReadHugeGraph
 
 object PathSearch {
 
 
-  def main(args: Array[String]): Unit = {     
-    val sparkConf = new SparkConf().setAppName("PathSearch")
-    val sc = new SparkContext(sparkConf)
-    Logger.getLogger("org").setLevel(Level.OFF)
-    Logger.getLogger("akka").setLevel(Level.OFF)
-    println("starting from main")
-    if(args.length < 3 || args.length > 4) {      println("Usage <pathToGraph> <Entity1> <Entity2> < outputDir> or")
-      println("Usage <pathToGraphFile> <entity_pair_file> < outputFile> ")
-      exit
-    }    
-    
-    val g: Graph[String, String] = Gen_Utils.time(ReadHugeGraph.getGraph(args(0), sc), "in Readgraph")
-    val allGraphNbrs: VertexRDD[Set[(Long, String, String)]] = Gen_Utils.time(NodeProp.getOneHopNbrIdsLabels(g), "collecting one hop nbrs ")
-    
-    
-    if(args.length == 4){
-      var moreEntities = true
-      val outDir = args(3)
-      val initialLabels: Array[String] = Array(args(1), args(2)) 
-      var entityLabels = initialLabels
-      
-      while(moreEntities == true){
-    	val allPaths = Gen_Utils.time(FindPaths(entityLabels, g, allGraphNbrs, sc), "finding path")
-        val result = entityLabels(0) +"," + entityLabels(1) + "\n" + createString(allPaths)
-        val outFile = outDir + "/" + entityLabels(0) + "_" + entityLabels(1)+ ".txt"
-        println(result)
-        Gen_Utils.writeToFile(outFile, result)
-        
-        val userInput: String = readLine("Done finding path b/w previous entity pair, do you wish to continue(Yes/no):")
-        if(userInput.toLowerCase() == "no") exit
-        entityLabels = readLine("Enter entity label, separated by comma : ").split(",")
-      }
-    } else if (args.length == 3) {
-      println("Reading entity Pairs from", args(1) )
-      val lines = Source.fromFile(args(1)).getLines()
-      val outDir = args(2)
-      for(line <- lines) {
-         val fields = line.split(",")
-         if(fields.length == 3) {
-            println("Finding path b/w", fields(0), " and ", fields(1))
-            val entityLabels = Array(fields(0), fields(1)) 
-            val allPaths = Gen_Utils.time(FindPaths(entityLabels, g, allGraphNbrs, sc), "finding path")
-            val outputFile = outDir +  "/" + fields(0) + "_" +fields(1) + ".out"
-            var result =  line + "\n" + createString(allPaths)
-            println(result)
-            Gen_Utils.writeToFile(outputFile, result)
-         }
-      }
-    }
-    
-    sc.stop() 
-  }
-  
-  def FindPaths(entityLabels: Array[String], g:Graph[String, String],allGraphNbrs: VertexRDD[Set[(Long, String, String)]], sc:SparkContext):  List[List[(Long, String, String)]] ={
-
-    if(entityLabels.length != 2) { 
-      println("Provide only 2 labels for path finding ")
-      return List.empty 
-    }
-    
-    // Find ids's of src and dest
-    println("Finding graph ids for ")
-    entityLabels.foreach(println(_))
-    val idLabel : Array[(VertexId, String)]  = EntityDisambiguation.getBestStringMatchLabel(entityLabels, g)
-    if((idLabel(0)._1 == -1) || (idLabel(1)._1 == -1)) { 
-      print("Cannot find matching entities for given labels, (src, dest) match =", idLabel(0)._2, idLabel(1)._2)
-      return List.empty 
-    }
-    println("Choosing first one, among available matches for " + entityLabels(0) + " = " +  idLabel(0)._2)
-    println("Choosing first one, among available matches for " + entityLabels(1) + " = " +  idLabel(1)._2)
-    
-    //Now find Paths between these known vertices
-    return FindPathKnownEntity(idLabel(0), idLabel(1), allGraphNbrs, sc)
-  }
-  
-  def FindPaths(entityLabels: Array[String], g:Graph[String, String], sc:SparkContext, ignoreRelations: Set[String]=Set.empty):  List[List[(Long, String, String)]] ={
-    val allGraphNbrs: VertexRDD[Set[(Long, String, String)]] = Gen_Utils.time(NodeProp.getOneHopNbrIdsLabels(g, ignoreRelations), "collecting one hop nbrs ")
-    allGraphNbrs.persist()
-    Gen_Utils.time(FindPaths(entityLabels, g, allGraphNbrs, sc), "finding path")
-  }
-
    /* given 2 node ids, finds all 0-4 hop path b/w them */
-  def FindPathKnownEntity(src: (VertexId, String), dest: (VertexId, String), allGraphNbrs:VertexRDD[Set[(Long, String, String)]], sc:SparkContext ): List[List[(Long, String, String)]] ={
+  def FindPathKnownEntity(src: (VertexId, String), dest: (VertexId, String), 
+  allGraphNbrs:VertexRDD[Set[(Long, String, String)]], sc:SparkContext ): List[List[(Long, String, String)]] = {
 
    val srcId: VertexId = src._1; val srcLabel: String = src._2
    val dstId: VertexId = dest._1; val dstLabel: String = dest._2  
@@ -274,4 +187,4 @@ object PathSearch {
     return commonNbrs
   }
 
-}
+}*/
