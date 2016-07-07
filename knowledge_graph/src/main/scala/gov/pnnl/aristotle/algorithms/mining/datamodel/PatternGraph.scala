@@ -39,28 +39,19 @@ class PatternGraph {
     //Build the adj list graph now
     this.adj = new Array[TreeSet[String]](v_map.size)
     //val emptyset : TreeSet[String] = new TreeSet()
-    // When a constact value emptyset is added to each array elemetn,
+    // When a constant value emptyset is added to each array elemetn,
     // its reference is shared and when later one value is changed, all get updated.
     // so create new local val in the map function and use it.
     this.adj = this.adj.map(f=>{val emptyset : TreeSet[String] = new TreeSet()
     emptyset})
-    //println("pattern array is "+pattern_array.toSet.toString())
     for(i <- 0 until (pattern_array.length-1) by 3 )
     {
       if(i%3==0)//its a source node
       {
         val subjectid = v_map.getOrElse(pattern_array(i),-1)
-//        val subject = new PatternNode(subjectid,pattern_array(i))
-//        val obj = new PatternNode(v_map.getOrElse(pattern_array(i+2),-1),pattern_array(i+2))
-//        val predicate = pattern_array(i+1)
-//        val triple = new PatternTriple(subject,predicate, obj)
         this.adj(subjectid).add((pattern_array(i) + "\t"+pattern_array(i+1)+"\t"+ pattern_array(i+2)))
       }
     }
-    
-    //println("build graph")
-    //v_map.foreach(f=> println(f.toString))
-    //this.adj.foreach(f=> println("adj list"+f.toString))
     
   }
   
@@ -96,7 +87,6 @@ class PatternGraph {
    			 var path : ListBuffer[String] = ListBuffer.empty
         // Call the recursive helper function to print DFS traversal
    			DFSUtil(v_map.getOrElse(v, -1), visited,path);
-   			//println("all path " + path.toString)
    			return path.toList mkString("\t")
     }
 }
