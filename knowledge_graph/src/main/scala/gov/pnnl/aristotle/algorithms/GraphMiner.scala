@@ -83,7 +83,7 @@ object GraphMiner {
       batch_id = batch_id + 1
       val batch_metrics = new BatchMetrics(batch_id)  
 
-      val input_graph = getGraph(batch_id, i, args)
+      val input_graph = ReadHugeGraph.getGraph(i, args,sc)
 
       /*
        *  gBatch is a pre-processed version of input graph. It has 1 edge 
@@ -152,20 +152,4 @@ object GraphMiner {
    sc.stop
   }
 
-  //TODO: move it to ReadHugeGraph without batch id
-  def getGraph(batch_id: Long, i: Int, args: Array[String]): Graph[String, KGEdge] =
-    {
-      val new_batch_id = batch_id + 1
-      var multi_edge_graph: Graph[String, KGEdge] = null
-      if (args(i).endsWith(".obj"))
-        multi_edge_graph = ReadHugeGraph.getGraphObj_KGEdge(args(i) + "/vertices", args(i) + "/edges", sc)
-      else if (args(i).endsWith(".lg"))
-        multi_edge_graph = ReadHugeGraph.getGraphLG_Temporal(args(i), sc)
-      else if(args(i).endsWith(".els"))
-        multi_edge_graph = ReadHugeGraph.getGraphElsevier_Temporal(args(i), sc) 
-      else
-        multi_edge_graph = ReadHugeGraph.getTemporalGraph(args(i), sc)
-
-        return multi_edge_graph.subgraph( vpred = (vid, attr) => attr != null )
-    }
 }
