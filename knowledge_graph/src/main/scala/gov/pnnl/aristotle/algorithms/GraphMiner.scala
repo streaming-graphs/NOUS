@@ -72,6 +72,7 @@ object GraphMiner {
     var gWin = new CandidateGeneration(minSup)
     var pattern_trend: Map[String, List[(Int, Int)]] = Map.empty
     val window_metrics = new WindowMetrics()
+    
     /*
      * Read all the files/folder one-by-one and construct an input graph
      */
@@ -83,7 +84,7 @@ object GraphMiner {
       batch_id = batch_id + 1
       val batch_metrics = new BatchMetrics(batch_id)  
 
-      val input_graph = ReadHugeGraph.getGraph(i, args,sc)
+      val input_graph = ReadHugeGraph.getGraph(i, args,sc	)
 
       /*
        *  gBatch is a pre-processed version of input graph. It has 1 edge 
@@ -92,7 +93,12 @@ object GraphMiner {
        */
       val gBatch = new CandidateGeneration(minSup).init(input_graph,
         writerSG, args(0), args(2).toInt)
-      gWin.trim(i, windowSize)
+      /*
+       *  Update the batch_id with its min/max time
+       */  
+      val batch_min_max_time = gBatch.getMinMaxTime()
+      gWin.batch_id_map + (batch_id -> batch_min_max_time)
+      //gWin.trim(i, windowSize)
       
       /*
        * batch_window_intersection_graph is a common graph between gBatch and 

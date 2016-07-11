@@ -1,11 +1,11 @@
 package gov.pnnl.aristotle.algorithms.mining
 
+
 import org.apache.spark.graphx.Graph
 import java.io.PrintWriter
 import org.apache.spark.graphx.VertexRDD
 import org.apache.spark.graphx.VertexId
 import scalaz.Scalaz._
-import gov.pnnl.aristotle.algorithms.mining.GraphProfiling
 import org.apache.spark.SparkContext
 import org.apache.spark.graphx.EdgeContext
 import scala.Array.canBuildFrom
@@ -574,8 +574,9 @@ object GraphPatternProfiler {
    val v_degree  = graph.degrees//.map(v => (v._1,v._2))
    val v_rdd_raw = graph.vertices
    val v_rdd_raw_joined = v_degree.innerZipJoin(v_rdd_raw)((id, degree, vnode) => (degree, vnode))
+   //.innerZipJoin(v_rdd_raw)((id, degree, vnode) => (degree, vnode))
    //v_rdd_raw_joined
-      val v_rdd :RDD[((Int,String), Iterable[String])] = v_rdd_raw_joined.map(v =>
+   val v_rdd :RDD[((Int,String), Iterable[String])] = v_rdd_raw_joined.map(v =>
          ((v._2._1,v._2._2.getlabel), v._2._2.getpattern_map.keys))
          val vb = v_rdd.map(v => v._1)
          

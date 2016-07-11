@@ -33,6 +33,8 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
   var SUPPORT: Int = minSup
   var type_support: Int = 2
   var input_graph: Graph[KGNodeV2Flat, KGEdge] = null
+  val batch_id_map : Map[Int,(Long,Long)] = Map.empty
+
   def init(graph: Graph[String, KGEdge], writerSG: PrintWriter, basetype: String,
     type_support: Int): CandidateGeneration = {
 
@@ -53,19 +55,15 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
      * Read method comments
      * ....
      * ....
-     * ....So in some sense, the methods' name is misleading. TODO: fix the name
+     * 
      */
-    val nonTypedVertexRDD: VertexRDD[Map[String, Long]] =
-      getOneEdgePatterns(typedAugmentedGraph)
-    //nonTypedVertexRDD.collect.foreach(f=>writerSG.println("non-type"+f.toString))
+    val nonTypedVertexRDD: VertexRDD[Map[String, Long]] = getOneEdgePatterns(typedAugmentedGraph)
     val updatedGraph: Graph[KGNodeV2Flat, KGEdge] =
       typedAugmentedGraph.outerJoinVertices(nonTypedVertexRDD) {
         case (id, (label, something), Some(nbr)) => new KGNodeV2Flat(label, nbr, List.empty)
         case (id, (label, something), None) => new KGNodeV2Flat(label, Map(), List.empty)
       }
-    /*
-     *  Filter : all nodes that don't have even a single pattern
-     */
+
     writerSG.flush()
     /*
      * update sink nodes and push source pattern at sink node with no destination information
@@ -177,7 +175,6 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
 	 * This method returns output graph only with frequnet subgraph. 
 	 * TODO : need to clean the code
 	 */
-      println("checking frequent subgraph")
       var commulative_subgraph_index: Map[String, Int] = Map.empty;
 
       //TODO : Sumit: Use this RDD instead of the Map(below) to filter frequent pattersn
@@ -186,14 +183,9 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
           {
             vertex._2.getpattern_map.map(f => (f._1, f._2)).toSet
           })
-      println("before reduce " + pattern_support_rdd.count)
-      //pattern_support_rdd.collect.foreach(f=> println(f.toString))
       val tmpRDD = pattern_support_rdd.reduceByKey((a, b) => a + b)
-      println("after reduce " + pattern_support_rdd.count)
-      //tmpRDD.collect.foreach(p => writerSGLog.println("gloabl pattern and its supprt" + p._1 + " " + p._2))
       val frequent_pattern_support_rdd = tmpRDD.filter(f => ((f._2 >= SUPPORT) | (f._2 == -1)))
       val frequent_patterns = frequent_pattern_support_rdd.keys.collect
-      println()
 
       var tt1 = System.nanoTime()
       val newGraph: Graph[KGNodeV2Flat, KGEdge] =
@@ -202,7 +194,6 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
           val vertex_pattern_map = attr.getpattern_map
           vertex_pattern_map.map(vertext_pattern =>
             {
-
               if (frequent_patterns.contains(vertext_pattern._1))
                 joinedPattern = joinedPattern + ((vertext_pattern._1 -> vertext_pattern._2))
             })
@@ -314,7 +305,8 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
             !selfJoinPatterns(i)._1.contains(selfJoinPatterns(j)._1) &&
             (!FilterHeuristics.checkcross_join(selfJoinPatterns(i)._1, selfJoinPatterns(j)._1)) &&
             (FilterHeuristics.non_overlapping(selfJoinPatterns(i)._1, selfJoinPatterns(j)._1)) &&
-            (FilterHeuristics.compatible_join(selfJoinPatterns(i)._1, selfJoinPatterns(j)._1))) {
+            (FilterHeuristics.compatible_join(selfJoinPatterns(i)._1, selfJoinPatterns(j)._1)) &&
+            (!FilterHeuristics.redundant_join(selfJoinPatterns(i)._1, selfJoinPatterns(j)._1,join_size))) {
 
             val pattern: String = selfJoinPatterns(j)._1.trim() + "|" + "\t" +
               selfJoinPatterns(i)._1.trim() + "|"
@@ -471,15 +463,27 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
       return update_tmp_graph
     }
 
-  /*helper function to clean window graph"
-   * 
+  /*
+   * helper function to clean window graph
+   * It is possible to use actual epoc time instaed of batchid 
+   * 	
    */
   def trim(now: Int, windowSize: Int) = {
 
-    //        input_graph = input_graph.subgraph(epred => epred.attr.getdatetime 
-    //            > (now - windowSize))
+    val cutoff : (Long,Long) = batch_id_map.getOrElse((now-windowSize), (-1, -1))
+    if(input_graph != null)
+    	input_graph = input_graph.subgraph(epred => (epred.attr.getdatetime <  cutoff._1))
   }
 
+  
+  def getMinMaxTime()
+  {
+    val min = this.input_graph.edges.map(e=>e.attr.getdatetime).reduce((time1,time2) => math.min(time1, time2))
+    val max = this.input_graph.edges.map(e=>e.attr.getdatetime).reduce((time1,time2) => math.max(time1, time2))
+    (min,max)
+  }
+  
+  
   /**
    * takes gBatch as input which is 'mined' batch graph and merge it with
    * existing window graph.

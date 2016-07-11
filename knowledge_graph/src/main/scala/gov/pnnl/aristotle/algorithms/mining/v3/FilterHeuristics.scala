@@ -52,6 +52,14 @@ object FilterHeuristics {
       return true
     }
 
+  def redundant_join(pattern1: String, pattern2: String, iteration_level:Int): Boolean =
+  {
+      val pattern1_array = pattern1.replaceAll("\t+", "\t").split("\t")
+      val pattern2_array = pattern2.replaceAll("\t+", "\t").split("\t")
+      if(pattern1_array.length + pattern2_array.length < iteration_level) return true
+      else return false
+  }
+  
   /*
    * Helper function to make sure type patterns are not getting joined to instance
    * pattern.

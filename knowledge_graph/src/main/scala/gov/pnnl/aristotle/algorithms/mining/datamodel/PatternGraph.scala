@@ -80,7 +80,6 @@ class PatternGraph {
     
    def DFS(v : String) : String = 
     {
-     
         // Mark all the vertices as not visited(set as
         // false by default in java)
         val visited : Array[Boolean] = new Array[Boolean](v_map.size);

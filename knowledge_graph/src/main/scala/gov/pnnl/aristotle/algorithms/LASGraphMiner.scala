@@ -19,6 +19,7 @@ import org.apache.spark.SparkContext._
 import org.apache.spark.rdd.RDD
 import java.io.PrintWriter
 import java.io.File
+import gov.pnnl.aristotle.algorithms.mining.analysis.LASPatternJSONBuilder
 
 /**
  * @author puro755
