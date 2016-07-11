@@ -77,8 +77,8 @@ object GraphMiner {
     /*
      * Read all the files/folder one-by-one and construct an input graph
      */
-    for(filepath <- Source.fromFile(args(4)).getLines()){
-
+    for(filepath <- Source.fromFile(args(4)).getLines().filter(str => !str.startsWith("#"))){
+    	
       /*
        * batch_id: each files is read as a new batch.
        */
@@ -118,7 +118,7 @@ object GraphMiner {
         while (1 == 1) {
           level = level + 1
           println(s"#####Iteration ID $level and interation_limit is $iteration_limit")
-          if (level == iteration_limit) break;
+          if (level > iteration_limit) break;
 
           batch_window_intersection_graph.input_graph = batch_window_intersection_graph.joinPatterns(writerSG, level)
 
