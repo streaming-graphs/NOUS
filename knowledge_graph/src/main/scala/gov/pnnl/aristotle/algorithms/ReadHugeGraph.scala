@@ -785,17 +785,17 @@ val edges = edges_multiple.distinct
   }
   
     //Called by Graph Miner main class
-  def getGraph(i: Int, args: Array[String],sc:SparkContext): Graph[String, KGEdge] =
+  def getGraphFileType(filepath:String,sc:SparkContext): Graph[String, KGEdge] =
     {
       var multi_edge_graph: Graph[String, KGEdge] = null
-      if (args(i).endsWith(".obj"))
-        multi_edge_graph = ReadHugeGraph.getGraphObj_KGEdge(args(i) + "/vertices", args(i) + "/edges", sc)
-      else if (args(i).endsWith(".lg"))
-        multi_edge_graph = ReadHugeGraph.getGraphLG_Temporal(args(i), sc)
-      else if(args(i).endsWith(".els"))
-        multi_edge_graph = ReadHugeGraph.getGraphElsevier_Temporal(args(i), sc) 
+      if (filepath.endsWith(".obj"))
+        multi_edge_graph = ReadHugeGraph.getGraphObj_KGEdge(filepath + "/vertices", filepath + "/edges", sc)
+      else if (filepath.endsWith(".lg"))
+        multi_edge_graph = ReadHugeGraph.getGraphLG_Temporal(filepath, sc)
+      else if(filepath.endsWith(".els"))
+        multi_edge_graph = ReadHugeGraph.getGraphElsevier_Temporal(filepath, sc) 
       else
-        multi_edge_graph = ReadHugeGraph.getTemporalGraph(args(i), sc)
+        multi_edge_graph = ReadHugeGraph.getTemporalGraph(filepath, sc)
 
         return multi_edge_graph.subgraph( vpred = (vid, attr) => attr != null )
     }

@@ -20,6 +20,7 @@ import gov.pnnl.aristotle.algorithms.mining.v3.CandidateGeneration
 import gov.pnnl.aristotle.algorithms.mining.v3.WindowStateV3
 import gov.pnnl.aristotle.algorithms.mining.v3.BatchMetrics
 import gov.pnnl.aristotle.algorithms.mining.v3.WindowMetrics
+import scala.io.Source
 
 /**
  * @author puro755
@@ -76,7 +77,7 @@ object GraphMiner {
     /*
      * Read all the files/folder one-by-one and construct an input graph
      */
-    for (i <- 4 to number_of_input_files - 1) {
+    for(filepath <- Source.fromFile(args(4)).getLines()){
 
       /*
        * batch_id: each files is read as a new batch.
@@ -84,15 +85,16 @@ object GraphMiner {
       batch_id = batch_id + 1
       val batch_metrics = new BatchMetrics(batch_id)  
 
-      val input_graph = ReadHugeGraph.getGraph(i, args,sc	)
+      val input_graph = ReadHugeGraph.getGraphFileType(filepath,sc	)
 
       /*
        *  gBatch is a pre-processed version of input graph. It has 1 edge 
        *  pattern on each vertex. all the other information is removed from the
        *  vertex. 
        */
-      val gBatch = new CandidateGeneration(minSup).init(input_graph,
-        writerSG, args(0), args(2).toInt)
+      val gBatch = new CandidateGeneration(minSup).init(input_graph, writerSG, args(0), args(2).toInt)
+      
+        
       /*
        *  Update the batch_id with its min/max time
        */  
@@ -106,6 +108,9 @@ object GraphMiner {
        * all the patterns of the boundary nodes already minded in the gWindow.
        */
       val batch_window_intersection_graph = gWin.merge(gBatch, sc)
+      batch_window_intersection_graph.input_graph = 
+        gWin.filterNonPatternSubGraphV2(batch_window_intersection_graph.input_graph)
+
       var level = 0;
       val iteration_limit: Int = args(3).toInt
       writerSG.flush()
@@ -115,13 +120,12 @@ object GraphMiner {
           println(s"#####Iteration ID $level and interation_limit is $iteration_limit")
           if (level == iteration_limit) break;
 
-          batch_window_intersection_graph.input_graph =
-            batch_window_intersection_graph.joinPatterns(writerSG, level)
+          batch_window_intersection_graph.input_graph = batch_window_intersection_graph.joinPatterns(writerSG, level)
 
           /*
            * Update the dependency graph 
            */
-          window.updateGDep(batch_window_intersection_graph.input_graph,args(0),args(1).toInt)
+          window.updateGDep(batch_window_intersection_graph.input_graph, args(0), args(1).toInt)
 
           /*
              * Update the current graph by removing special purpose '|' symbols 
@@ -135,7 +139,7 @@ object GraphMiner {
       }
 
       /*
-       * Now merger the mined intersection graph with original window
+       * Now merge the mined intersection graph with original window
        */
       window.mergeBatchGraph(batch_window_intersection_graph.input_graph)
       batch_metrics.updateBatchMetrics(batch_window_intersection_graph.input_graph, writerSG, args)

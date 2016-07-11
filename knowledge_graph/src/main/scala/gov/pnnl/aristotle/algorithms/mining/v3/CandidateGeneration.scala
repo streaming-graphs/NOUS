@@ -231,34 +231,20 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
     iteration_id: Int): Graph[KGNodeV2Flat, KGEdge] =
     {
 
-      /*
-	   * TODO: isomorphic patterns like these:
-	   * 6 (person       friends_with    person          person  likes   product         person  works_at        company         company makes   nt              nt      is_produced_in  state               state   famous_for      national_park   ,3)
-		 * 6 (person       likes   product         person  works_at        company         company makes   nt              nt      is_produced_in  state           state   famous_for      national_park               person  friends_with    person  ,3)
-		 * 6 (person       friends_with    person          person  works_at        company         company makes   nt              nt      is_produced_in  state           state   famous_for      natio    nal_park   ,3)
-	   * 
-	   * 
-	   */
-
       // Step 1: First do self join of existing n-size patterns to create 2*n patterns.
-      // TODO: This creates many scalability issues without increase in the research quality.
+      // This creates many scalability issues without increase in the result quality.
       // so disable it for now
       val g1 = nThPatternGraph //GraphPatternProfiler.self_Instance_Join_GraphV2Flat(nThPatternGraph, iteration_id)
 
       //Step 2 : Self Join 2 different patterns at a node to create 2*n size pattern
-      var res = nThPatternGraph.vertices.map(v => (v._1, v._2.getInstanceCount))
       val newGraph = self_Pattern_Join_GraphV2Flat(g1, iteration_id)
-      res = nThPatternGraph.vertices.map(v => (v._1, v._2.getInstanceCount))
 
-      //println("Second maximum number of instances on any node " + res.values.collect.max)
 
       /*
       *  STEP 3: instead of aggregating entire graph, map each edgetype
       */
-      val newGraph1 = filterNonPatternSubGraphV2(newGraph)
+      val nPlusOneThPatternGraph = edge_Pattern_Join_GraphV2(newGraph, writerSG, iteration_id)
       newGraph.unpersist(true) //Blocking call
-      val nPlusOneThPatternGraph = edge_Pattern_Join_GraphV2(newGraph1, writerSG, iteration_id)
-      newGraph1.unpersist(true) //Blocking call
       return nPlusOneThPatternGraph
     }
 
@@ -286,21 +272,15 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
        * destination, iterate over them and join them if they are disjointed 
        * instances.
        * 
-       * TODO: because we are not tracking the actual instances, there is not way to 
-       * distinguish that follwoing pattern and its support is wrong:
-       *  person   buys        product         user5   buys    product  -> 4 
-       *  because where the person is same as user5.
        */
 
       for (i <- 0 until selfJoinPatterns.length) {
         for (j <- i + 1 until selfJoinPatterns.length) {
-          //TODO: Another issue becasue of not knowing the exact instances is that 
-          // if in the step 1, 2 instances of "user5   buys    product" are used 
-          // to form a 2 edge pattern "user5   buys    product user5   buys    product"
-          // with support 1. But now in step 2, it will try to join with 
-          // sub-pattern "user5   buys    product" and form a 3-edge pattern
-          // "user5   buys    product user5   buys    product user5   buys    product"
-          // SO i am adding a sub-string check which is not always correct.
+          /*
+           * Adding various Filter Heuristics based on the graph structure, and
+           * entity type.
+           * IF two sub-grpahs are joined, they are joined based on their DFS lexicographic order
+           */
           if (!selfJoinPatterns(j)._1.contains(selfJoinPatterns(i)._1) &&
             !selfJoinPatterns(i)._1.contains(selfJoinPatterns(j)._1) &&
             (!FilterHeuristics.checkcross_join(selfJoinPatterns(i)._1, selfJoinPatterns(j)._1)) &&
@@ -311,7 +291,6 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
             val pattern: String = selfJoinPatterns(j)._1.trim() + "|" + "\t" +
               selfJoinPatterns(i)._1.trim() + "|"
             val pg = new PatternGraph()
-            ///println("pattern is for dfs "+pattern)
             pg.ConstructPatternGraph(pattern)
             var dfspath = pg.DFS(selfJoinPatterns(j)._1.split("\t")(0))
             if (dfspath.endsWith("|")) {
@@ -331,11 +310,15 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
     return newGraph
   }
 
+  /*
+   * Return a subgraph with at-least one pattern on the source or destination. 'type' edge is also removed
+   * from the graph because it is collected as node properties.
+   */
   def filterNonPatternSubGraphV2(updatedGraph: Graph[KGNodeV2Flat, KGEdge]): Graph[KGNodeV2Flat, KGEdge] =
     {
       return updatedGraph.subgraph(epred =>
         ((epred.attr.getlabel.equalsIgnoreCase(TYPE) != true) &&
-          ((epred.srcAttr.getpattern_map.size != 0) ||
+          ((epred.srcAttr.getpattern_map.size != 0) &&
             (epred.dstAttr.getpattern_map.size != 0))))
 
     }
@@ -355,42 +338,15 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
     writerSG: PrintWriter, iteration_id: Int): Graph[KGNodeV2Flat, KGEdge] = {
     var t0 = System.currentTimeMillis();
     writerSG.flush()
-    val newGraph = newGraph1.subgraph(epred =>
-      ((epred.attr.getlabel.equalsIgnoreCase(TYPE) != true) &&
-        (epred.srcAttr.getpattern_map.size != 0) &
-        (epred.dstAttr.getpattern_map.size != 0)))
-
-    if (iteration_id > 3) {
-      val nPlusOneThPatternVertexRDD =
-        newGraph.subgraph(epred =>
-          ((epred.attr.getlabel.equalsIgnoreCase(TYPE) != true) &&
-            ((epred.srcAttr.getpattern_map.size != 0) ||
-              (epred.dstAttr.getpattern_map.size != 0)))).aggregateMessages[Long](
-          edge => {
-            //if (edge.attr.getlabel.equalsIgnoreCase(TYPE) == false)
-            println("edge" + edge.srcAttr)
-            edge.sendToSrc(1)
-          }, (pattern1OnNodeN, pattern2OnNodeN) => {
-            println("reduce msg")
-            pattern1OnNodeN + pattern2OnNodeN
-          })
-
-      //val a = nPlusOneThPatternVertexRDD.mapValues(f=>f).reduce((a,b)=>a+b)
-      val b: Double = nPlusOneThPatternVertexRDD.map(f => f._2).sum
-      println("total number of mesages are " + b)
-      //System.exit(1)
-    }
 
     val nPlusOneThPatternVertexRDD =
-      newGraph.aggregateMessages[Map[String, Long]](
+      newGraph1.aggregateMessages[Map[String, Long]](
         edge => {
-          //if (edge.attr.getlabel.equalsIgnoreCase(TYPE) == false)
           sendPatternToNodeV2(edge, iteration_id)
-
         }, (pattern1OnNodeN, pattern2OnNodeN) => {
           reducePatternsOnNodeV2(pattern1OnNodeN, pattern2OnNodeN)
         })
-    val nPlusOneThPatternGraph = joinPatternGraphV2(newGraph, nPlusOneThPatternVertexRDD)
+    val nPlusOneThPatternGraph = joinPatternGraphV2(newGraph1, nPlusOneThPatternVertexRDD)
     
     return nPlusOneThPatternGraph
   }
@@ -403,13 +359,13 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
      */
     val allSourceNodePatterns = edge.srcAttr.getpattern_map;
     val allDestinationNodePatterns = edge.dstAttr.getpattern_map
-    //    		println("s = " + edge.srcAttr.getlabel + " s size " + allDestinationNodePatterns.size + 
-    //    		    " and d= " +   edge.dstAttr.getlabel + " d size " + allDestinationNodePatterns.size )
     if ((allSourceNodePatterns.size > 0) && (allDestinationNodePatterns.size > 0)) {
       allSourceNodePatterns.foreach(sr =>
         {
+          /*
+           * Edge Patterns grow one edge at a time
+           */
           if (getPatternSize(sr._1) == 1) {
-            //println("pattern size "+getPatternSize(sr._1) + "  in " + iteration_id)
             allDestinationNodePatterns.foreach(dst =>
               {
                 {
@@ -424,7 +380,6 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
           }
         })
     }
-    //println("done sending msg")
   }
 
   def sendPatternV2Flat(pattern1: String, pattern2: String,
@@ -438,7 +393,7 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
   //Helper fuction to make sure it is a 1-edge pattern
   def getPatternSize(patternKey: String): Int =
     {
-      val tocken_count = patternKey.trim().split("\t").length
+      val tocken_count = patternKey.trim().replaceAll("\t+", "\t").trim().split("\t").length
       if (tocken_count % 3 == 0)
         return tocken_count / 3
       else
