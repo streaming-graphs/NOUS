@@ -159,7 +159,6 @@ class WindowStateV3 {
         })
 
       //val only_frequent_dep_vertex_rdd = dep_vertex_rdd.filter(pred)  
-      println("rdd size 1 " + dep_vertex_rdd.count)
       val new_graph_infquent =
         this.gDep.graph.outerJoinVertices(dep_vertex_rdd) {
           case (id, pnode, Some(nbr)) => new PGNode(pnode.getnode_label, pnode.getsupport, math.max(pnode.getptype, nbr))
@@ -177,26 +176,15 @@ class WindowStateV3 {
     {
 
     	this.gDep.graph = getNewDepGraph(batch_graph, TYPE)
-      println("graph size 0 " + this.gDep.graph.vertices.count)
-      
-      
-      //Tag every node in the dependency graph with In-frequent, closed, and promising tag
+
+    	//Tag every node in the dependency graph with In-frequent, closed, and promising tag
       this.gDep.graph = this.gDep.graph.subgraph(vpred = (vid, attr) => attr != null)
 
-
-
       val new_graph = setFrequentClosedPromisingTag(SUPPORT)
-      println("graph size" + new_graph.vertices.count)
 
       // Set redundant tag
-      //val redundant_nodes = setRedundantTag(new_graph)
-      //println("rdd size 2" + redundant_nodes.count)
-
       this.gDep.graph = setRedundantTag(new_graph)
         
-      println("graph  size 2" + this.gDep.graph.vertices.count)
-
-      //this.gDep.graph.triplets.collect.foreach(t=> println(t.toString)) 
     }
 
   def saveDepG() {
@@ -223,7 +211,8 @@ class WindowStateV3 {
     pattern_dep_graph.saveAsTextFile("DependencyGraphSummary" + System.nanoTime())
     val dgep_v_rdd = this.gDep.graph.vertices.map(v => (v._1, v._2.getnode_label, v._2.getsupport, v._2.getptype))
     dgep_v_rdd.saveAsTextFile("DependencyGraphVertices" + System.nanoTime())
-
+    val dgep_e_rdd = this.gDep.graph.triplets.map(t=>(t.srcAttr.getnode_label+"#"+t.srcAttr.getptype, t.dstAttr.getnode_label+"#"+t.srcAttr.getptype))
+    dgep_e_rdd.saveAsTextFile("DependencyGraphEdges" + System.nanoTime())
   }
 
   /*
@@ -242,7 +231,7 @@ class WindowStateV3 {
        * Returns the RDD with each pattern-key and its support
        */
       val res = new_dependency_graph_vertices_RDD.reduceByKey((a, b) => a + b)
-      println("resutling patterkey-count size" + res.count)
+      //println("resutling patterkey-count size" + res.count)
       //res.collect.foreach(f=> println(f._1 + "   : " + f._2))
       return res
     }

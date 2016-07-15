@@ -476,6 +476,27 @@ val edges = edges_multiple.distinct
       
     }
     
+    
+    /**
+    * @author puro755
+    * read tsv file craeted by peng file which is a tsv file.  
+    * 
+    */
+    def getGraphTSV_Temporal(filename : String, 
+        sc : SparkContext): Graph[String, KGEdge] = {
+     
+      val non_type_graph = getTemporalGraph(filename, sc)
+      return non_type_graph	
+//      val all_source_nodes = non_type_graph.triplets.map(triplets 
+//        => (triplets.srcId, triplets.srcAttr)).distinct
+//      val new_eges_to_show_vertexttype = all_source_nodes.map(v
+//          =>Edge(v._1, "paper".hashCode().toLong, new KGEdge("rdf:type",-1L)))
+//      val paper_nod_rdd = sc.parallelize(Array(getVertex_FromString("paper")))
+//      return Graph(non_type_graph.vertices.union(paper_nod_rdd),
+//          non_type_graph.edges.union(new_eges_to_show_vertexttype))
+      
+    }
+    
     /*
      * Temporal version of getGraphLG
      */
@@ -793,7 +814,9 @@ val edges = edges_multiple.distinct
       else if (filepath.endsWith(".lg"))
         multi_edge_graph = ReadHugeGraph.getGraphLG_Temporal(filepath, sc)
       else if(filepath.endsWith(".els"))
-        multi_edge_graph = ReadHugeGraph.getGraphElsevier_Temporal(filepath, sc) 
+        multi_edge_graph = ReadHugeGraph.getGraphElsevier_Temporal(filepath, sc)
+      else if(filepath.endsWith(".tsv"))
+        multi_edge_graph = ReadHugeGraph.getGraphTSV_Temporal(filepath, sc)  
       else
         multi_edge_graph = ReadHugeGraph.getTemporalGraph(filepath, sc)
 

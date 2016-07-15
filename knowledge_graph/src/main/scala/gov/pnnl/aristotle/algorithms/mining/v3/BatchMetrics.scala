@@ -21,7 +21,10 @@ import java.io.File
  */
 class BatchMetrics(val id:Int) extends Serializable {
 
+  //key:pattern value: support
   var pattern_in_this_batch : RDD[(String, Long)] = null
+  
+  //key:pattern value: Set((node_degree,node_label))
   var pattern__node_association : RDD[(String, Set[(Int,String)])] = null
   var node_pattern_association : RDD[(String, Set[String])] = null
     
@@ -32,7 +35,7 @@ class BatchMetrics(val id:Int) extends Serializable {
     this.pattern__node_association = GraphPatternProfiler.get_pattern_node_association_V2Flat(batch_graph,
       writerSG, 2, args(1).toInt)
     this.node_pattern_association = GraphPatternProfiler.get_node_pattern_association_V2Flat(batch_graph,
-      writerSG, 2, args(1).toInt)
+      writerSG, id, args(1).toInt)
   }
   
   def saveBatchMetrics()

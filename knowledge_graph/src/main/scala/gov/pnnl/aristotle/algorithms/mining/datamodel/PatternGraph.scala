@@ -38,11 +38,12 @@ class PatternGraph {
  
     //Build the adj list graph now
     this.adj = new Array[TreeSet[String]](v_map.size)
+    
     //val emptyset : TreeSet[String] = new TreeSet()
     // When a constant value emptyset is added to each array elemetn,
     // its reference is shared and when later one value is changed, all get updated.
     // so create new local val in the map function and use it.
-    this.adj = this.adj.map(f=>{val emptyset : TreeSet[String] = new TreeSet()
+    this.adj = this.adj.map(f=>{val emptyset : TreeSet[String] = new TreeSet() 
     emptyset})
     for(i <- 0 until (pattern_array.length-1) by 3 )
     {

@@ -504,7 +504,7 @@ object GraphPatternProfiler {
       //tmpRDD.collect.foreach(f => writerSG.println("All:\t"  +f._1 + "\t" + f._2))
 
       val frq_tmpRDD = tmpRDD.filter(f => f._2 > SUPPORT)
-      println("number of patterns " + tmpRDD.filter(f => f._2 > SUPPORT).count)
+      //println("number of patterns " + tmpRDD.filter(f => f._2 > SUPPORT).count)
 
       //frq_tmpRDD.collect.foreach(f => writerSG.println("Frq:\t" +f._1 + "\t" + f._2))
       writerSG.flush()
@@ -525,7 +525,7 @@ object GraphPatternProfiler {
       //tmpRDD.collect.foreach(f => writerSG.println("All:\t"  +f._1 + "\t" + f._2))
 
       val frq_tmpRDD = tmpRDD.filter(f => f._2 > SUPPORT)
-      println("number of patterns " + tmpRDD.filter(f => f._2 > SUPPORT).count)
+      //println("number of patterns " + tmpRDD.filter(f => f._2 > SUPPORT).count)
 
       //frq_tmpRDD.collect.foreach(f => writerSG.println("Frq:\t" +f._1 + "\t" + f._2))
       writerSG.flush()
@@ -559,9 +559,7 @@ object GraphPatternProfiler {
       //tmpRDD.collect.foreach(f => writerSG.println("All:\t"  +f._1 + "\t" + f._2))
 
       val frq_tmpRDD = tmpRDD.filter(f => f._2 > SUPPORT)
-      println("number of patterns " + tmpRDD.filter(f => f._2 > SUPPORT).count)
 
-      //frq_tmpRDD.collect.foreach(f => writerSG.println("Frq:\t" +f._1 + "\t" + f._2))
       writerSG.flush()
       return frq_tmpRDD
 
@@ -679,8 +677,7 @@ object GraphPatternProfiler {
           }, (pattern1OnNodeN, pattern2OnNodeN) => {
             pattern1OnNodeN |+| pattern2OnNodeN
           })
-      println("patternRDD size is " + patternRDD.count)
-
+      
       /*
        * Collects all the patterns across the graph
        */
@@ -1739,9 +1736,10 @@ def non_overlapping(pattern1 :String, pattern2 :String) : Boolean =
             //          tmp
           })
       println("before reduce " + pattern_support_rdd.count)
-      //pattern_support_rdd.collect.foreach(f=> println(f.toString))
+      pattern_support_rdd.collect.foreach(f=> println(f.toString))
       val tmpRDD = pattern_support_rdd.reduceByKey((a, b) => a + b)
-      println("after reduce " + pattern_support_rdd.count)
+      println("after reduce " + tmpRDD.count)
+      tmpRDD.collect.foreach(f=> println(f.toString))
       val frequent_pattern_support_rdd = tmpRDD.filter(f => ((f._2 >= SUPPORT) | (f._2 == -1)))
       var t1 = System.nanoTime()
       println("time to calculate rdd frequnet pattern in nanao" + (t1 - t0) * 1e-9 + "seconds," + "frequnet pattern rdd size " + frequent_pattern_support_rdd.count)
@@ -1799,15 +1797,10 @@ def non_overlapping(pattern1 :String, pattern2 :String) : Boolean =
           {
             vertex._2.getpattern_map.map(f => (f._1, f._2)).toSet
           })
-      println("before reduce " + pattern_support_rdd.count)
-      //pattern_support_rdd.collect.foreach(f=> println(f.toString))
       val tmpRDD = pattern_support_rdd.reduceByKey((a, b) => a + b)
-      println("after reduce " + pattern_support_rdd.count)
-      //tmpRDD.collect.foreach(p => writerSGLog.println("gloabl pattern and its supprt" + p._1 + " " + p._2))
       writerSGLog.flush()
       val frequent_pattern_support_rdd = tmpRDD.filter(f => ((f._2 >= SUPPORT) | (f._2 == -1)))
       val frequent_patterns = frequent_pattern_support_rdd.keys.collect
-      println()
 
       var tt1 = System.nanoTime()
       val newGraph: Graph[KGNodeV2Flat, KGEdge] =
@@ -1816,7 +1809,6 @@ def non_overlapping(pattern1 :String, pattern2 :String) : Boolean =
           val vertex_pattern_map = attr.getpattern_map
           vertex_pattern_map.map(vertext_pattern =>
             {
-              
               if (frequent_patterns.contains(vertext_pattern._1))
                 joinedPattern = joinedPattern + ((vertext_pattern._1 -> vertext_pattern._2))
             })
@@ -1849,9 +1841,10 @@ def non_overlapping(pattern1 :String, pattern2 :String) : Boolean =
             vertex._2.getpattern_map.map(f => (f._1, f._2)).toSet
           })
       println("before reduce " + pattern_support_rdd.count)
-      //pattern_support_rdd.collect.foreach(f=> println(f.toString))
+      pattern_support_rdd.collect.foreach(f=> println(f.toString))
       val tmpRDD = pattern_support_rdd.reduceByKey((a, b) => a + b)
-      println("after reduce " + pattern_support_rdd.count)
+      println("after reduce " + tmpRDD.count)
+      tmpRDD.collect.foreach(f=> println(f.toString))
       val frequent_pattern_support_rdd = tmpRDD.filter(f => ((f._2 >= SUPPORT) | (f._2 == -1)))
       var t1 = System.nanoTime()
       println("time to calculate rdd frequnet pattern in nanao" + (t1 - t0) * 1e-9 + "seconds," + "frequnet pattern rdd size " + frequent_pattern_support_rdd.count)
