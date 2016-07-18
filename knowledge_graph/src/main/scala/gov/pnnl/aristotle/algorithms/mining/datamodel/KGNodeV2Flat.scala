@@ -12,7 +12,12 @@ case class KGNodeV2Flat(label: String,
   def getInstanceCount = {
     getpattern_map.values.map(f => f)
   }
-  def getlabel: String = return label
+
+  def getVertextPropLableArray : List[String] =
+    {
+      this.properties.map( vprop => vprop.property_label )
+    }
+  def getlabel : String = return label
   def getProperties: List[VertexProperty] = return properties
   def getpattern_map: Map[String, Long] = return pattern_map
 

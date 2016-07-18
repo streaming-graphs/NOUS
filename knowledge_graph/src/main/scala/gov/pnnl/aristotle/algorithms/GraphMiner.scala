@@ -41,7 +41,7 @@ object GraphMiner {
    */
 
   val sparkConf = new SparkConf().setAppName( "NOUS Graph Pattern Miner" ).set( "spark.rdd.compress", "true" )
-  .set( "spark.serializer","org.apache.spark.serializer.KryoSerializer" ).setMaster("local")
+  .set( "spark.serializer","org.apache.spark.serializer.KryoSerializer" )
 
   sparkConf.registerKryoClasses( Array.empty )
   val sc = new SparkContext( sparkConf )
@@ -89,13 +89,13 @@ object GraphMiner {
        *  pattern on each vertex. all the other information is removed from the
        *  vertex. 
        */
-      val gBatch = new CandidateGeneration( minSup ).init( input_graph, writerSG, args( 0 ), args( 2 ).toInt )
+      val gBatch = new CandidateGeneration( minSup ).init(sc, input_graph, writerSG, args( 0 ), args( 2 ).toInt )
 
       /*
        *  Update the batch_id with its min/max time
        */
-      val batch_min_max_time = gBatch.getMinMaxTime()
-      gWin.batch_id_map + ( batch_id -> batch_min_max_time )
+      //val batch_min_max_time = gBatch.getMinMaxTime()
+      //gWin.batch_id_map + ( batch_id -> batch_min_max_time )
       //gWin.trim(i, windowSize)
 
       /*
@@ -129,7 +129,7 @@ object GraphMiner {
              * patterns participate in construction a bigger pattern. 
              */
           batch_window_intersection_graph.input_graph =
-            GraphPatternProfiler.get_Frequent_SubgraphV2Flat(
+            GraphPatternProfiler.get_Frequent_SubgraphV2Flat(sc,
               GraphPatternProfiler.fixGraphV2Flat( batch_window_intersection_graph.input_graph ), null, minSup )
         }
       }
@@ -141,18 +141,18 @@ object GraphMiner {
       batch_metrics.updateBatchMetrics( batch_window_intersection_graph.input_graph, writerSG, args )
       window_metrics.updateWindowMetrics( batch_metrics )
 
-      val infrequent = window.gDep.graph.vertices.filter(v=>v._2.getptype == -1).count
-      val promising = window.gDep.graph.vertices.filter(v=>v._2.getptype == 0).count
-      val closed = window.gDep.graph.vertices.filter(v=>v._2.getptype == 1).count
-      val redundant = window.gDep.graph.vertices.filter(v=>v._2.getptype == 2).count
-      val frequent = promising + closed + redundant
-      
-      println("pattern type infreqent, promising, closed, redundant, frequent ie. pro+clo+red" , infrequent, " " , promising, " " , closed, " ", redundant, " " , frequent)
+//      val infrequent = window.gDep.graph.vertices.filter(v=>v._2.getptype == -1).count
+//      val promising = window.gDep.graph.vertices.filter(v=>v._2.getptype == 0).count
+//      val closed = window.gDep.graph.vertices.filter(v=>v._2.getptype == 1).count
+//      val redundant = window.gDep.graph.vertices.filter(v=>v._2.getptype == 2).count
+//      val frequent = promising + closed + redundant
+//      
+//      println("pattern type infreqent, promising, closed, redundant, frequent ie. pro+clo+red" , infrequent, " " , promising, " " , closed, " ", redundant, " " , frequent)
       writerSG.flush()
     }
 
-    window_metrics.saveWindowMetrics()
-    window.saveDepG
+    //window_metrics.saveWindowMetrics()
+    //window.saveDepG
 
     var t_sc1 = System.nanoTime();
     println( "#Time to load the  graph" + " =" + ( t_sc1 - t_sc0 ) * 1e-9 + "seconds," +

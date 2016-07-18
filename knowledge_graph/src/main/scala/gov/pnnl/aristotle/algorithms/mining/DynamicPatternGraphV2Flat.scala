@@ -109,7 +109,7 @@ extends DynamicPatternGraph[KGNodeV2Flat, KGEdge] {
     val updateGraph_withsink = updateGraphWithSinkV2(updatedGraph)
     println("sink graph done")
     val result = null
-    this.input_graph = GraphPatternProfiler.get_Frequent_SubgraphV2Flat(updateGraph_withsink, result, SUPPORT)
+    this.input_graph = GraphPatternProfiler.get_Frequent_SubgraphV2Flat(null,updateGraph_withsink, result, SUPPORT)
     return this
 
   }

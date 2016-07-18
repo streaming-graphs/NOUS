@@ -77,9 +77,6 @@ class WindowMetrics extends Serializable {
   def saveWindowMetrics()
   {
     pattern_in_this_winodw.saveAsTextFile("WindowPatternSummary" + System.nanoTime())
-    val writer_pattern = new PrintWriter(new File("WindowGraphMiningPattern.txt"))
-    pattern__node_association_window.collect.foreach(p => writer_pattern.println(p._1 + ":" + p._2))
-    writer_pattern.flush()
     pattern__node_association_window.saveAsTextFile("WidnowPatternNodeAssociation" + System.nanoTime())
     node_pattern_association_window.saveAsTextFile("WindowNodePatternAssociation" + System.nanoTime())
     node_pattern_association_per_batch.saveAsObjectFile("BatchNodePatternAssociation" + System.nanoTime())

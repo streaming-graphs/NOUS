@@ -22,6 +22,8 @@ import org.apache.spark.graphx.EdgeContext
 import org.apache.spark.SparkContext
 import org.apache.spark.graphx.VertexId
 import org.apache.spark.graphx.Edge
+import gov.pnnl.aristotle.algorithms.mining.datamodel.VertexProperty
+import gov.pnnl.aristotle.algorithms.mining.GraphPatternProfiler
 
 /**
  * @author puro755
@@ -35,7 +37,7 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
   var input_graph: Graph[KGNodeV2Flat, KGEdge] = null
   val batch_id_map : Map[Int,(Long,Long)] = Map.empty
 
-  def init(graph: Graph[String, KGEdge], writerSG: PrintWriter, basetype: String,
+  def init(sc : SparkContext, graph: Graph[String, KGEdge], writerSG: PrintWriter, basetype: String,
     type_support: Int): CandidateGeneration = {
 
     /*
@@ -72,7 +74,7 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
      */
     val updateGraph_withsink = updateGraphWithSinkV2(updatedGraph)
     val result = null
-    this.input_graph = get_Frequent_SubgraphV2Flat(updateGraph_withsink, result, SUPPORT)
+    this.input_graph = GraphPatternProfiler.get_Frequent_SubgraphV2Flat(sc,updatedGraph, result, SUPPORT)
     return this
   }
 
@@ -128,18 +130,30 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
 
   def updateGraphWithSinkV2(subgraph_with_pattern: Graph[KGNodeV2Flat, KGEdge]): Graph[KGNodeV2Flat, KGEdge] =
     {
-      val all_dest_nodes =
-        subgraph_with_pattern.triplets.map(triplets => (triplets.dstId, triplets.dstAttr)).distinct
-      val all_source_nodes =
-        subgraph_with_pattern.triplets.map(triplets => (triplets.srcId, triplets.srcAttr)).distinct
-      val all_sink_nodes =
-        all_dest_nodes.subtractByKey(all_source_nodes).map(sink_node => sink_node._2.getlabel).collect
-
+        val vertices_with_sink_status: VertexRDD[Int] =
+        subgraph_with_pattern.aggregateMessages[Int](
+          edge => {
+            edge.sendToSrc( 1 )
+            edge.sendToDst( 0 )
+          },
+          ( nodetype1, nodetype2 ) => nodetype1 + nodetype2 )
+        
+        val all_sink_nodes_rdd = vertices_with_sink_status.filter(v=>v._2==0)
+        
+        val graph_with_sink_info:  Graph[KGNodeV2Flat, KGEdge] =
+        subgraph_with_pattern.outerJoinVertices(all_sink_nodes_rdd) {
+          case ( id, kg_node, Some( nbr ) ) => new KGNodeV2Flat( kg_node.getlabel, kg_node.getpattern_map, kg_node.getProperties ++ List( new VertexProperty( 1, "sinknode" ) ) )
+          case ( id, kg_node, None )        => new KGNodeV2Flat( kg_node.getlabel, kg_node.getpattern_map, kg_node.getProperties )
+        }
+        
+      val sink_only_graph = graph_with_sink_info.subgraph(vpred = (vid, attr) => {
+        !attr.getVertextPropLableArray.contains("sinknode")
+      })
+      
       val graph_with_sink_node_pattern: VertexRDD[Map[String, Long]] =
-        subgraph_with_pattern.aggregateMessages[Map[String, Long]](
+        sink_only_graph.aggregateMessages[Map[String, Long]](
           edge => {
             if (edge.attr.getlabel.equalsIgnoreCase(TYPE) == false) {
-              if (all_sink_nodes.contains(edge.dstAttr.getlabel)) {
                 val srcnodepattern = edge.srcAttr.getpattern_map
                 val dstNodeLable: String = edge.dstAttr.getlabel
                 val srcNodeLable: String = edge.srcAttr.getlabel
@@ -152,7 +166,6 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
                     }
                   })
                 }
-              }
             }
           },
           (pattern1NodeN, pattern2NodeN) => {
@@ -166,44 +179,6 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
         }
 
       return updateGraph_withsink
-    }
-
-  def get_Frequent_SubgraphV2Flat(subgraph_with_pattern: Graph[KGNodeV2Flat, KGEdge],
-    result: Graph[PGNode, Int], SUPPORT: Int): Graph[KGNodeV2Flat, KGEdge] =
-    {
-      /*
-	 * This method returns output graph only with frequnet subgraph. 
-	 * TODO : need to clean the code
-	 */
-      var commulative_subgraph_index: Map[String, Int] = Map.empty;
-
-      //TODO : Sumit: Use this RDD instead of the Map(below) to filter frequent pattersn
-      val pattern_support_rdd: RDD[(String, Long)] =
-        subgraph_with_pattern.vertices.flatMap(vertex =>
-          {
-            vertex._2.getpattern_map.map(f => (f._1, f._2)).toSet
-          })
-      val tmpRDD = pattern_support_rdd.reduceByKey((a, b) => a + b)
-      val frequent_pattern_support_rdd = tmpRDD.filter(f => ((f._2 >= SUPPORT) | (f._2 == -1)))
-      val frequent_patterns = frequent_pattern_support_rdd.keys.collect
-
-      var tt1 = System.nanoTime()
-      val newGraph: Graph[KGNodeV2Flat, KGEdge] =
-        subgraph_with_pattern.mapVertices((id, attr) => {
-          var joinedPattern: Map[String, Long] = Map.empty
-          val vertex_pattern_map = attr.getpattern_map
-          vertex_pattern_map.map(vertext_pattern =>
-            {
-              if (frequent_patterns.contains(vertext_pattern._1))
-                joinedPattern = joinedPattern + ((vertext_pattern._1 -> vertext_pattern._2))
-            })
-          new KGNodeV2Flat(attr.getlabel, joinedPattern, List.empty)
-
-        })
-
-      val validgraph = newGraph.subgraph(epred =>
-        ((epred.srcAttr.getpattern_map != null) || (epred.dstAttr.getpattern_map != null)))
-      return validgraph;
     }
 
   def joinPatterns(writerSG: PrintWriter,
