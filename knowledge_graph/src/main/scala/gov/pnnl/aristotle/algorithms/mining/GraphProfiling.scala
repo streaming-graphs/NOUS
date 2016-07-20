@@ -410,8 +410,8 @@ def getNodeProfile(graph :Graph[(String, Map[String, Map[String, Int]]),
 // }
 
  def getTypedAugmentedGraph_Temporal(graph: Graph[String, KGEdge], writerSG: PrintWriter,
-     typedVertexRDD : VertexRDD[Map[String, Map[String, Int]]])
- :Graph[(String, Map[String, Map[String, Int]]), KGEdge] =
+     typedVertexRDD : VertexRDD[Map[String, Int]])
+ :Graph[(String, Map[String, Int]), KGEdge] =
  {
 	  return graph.outerJoinVertices(typedVertexRDD) {
       case (id, label, Some(nbr)) => (label, nbr)
@@ -440,7 +440,7 @@ def getNodeProfile(graph :Graph[(String, Map[String, Map[String, Int]]),
  */ 
 def getTypedVertexRDD_Temporal(graph : Graph[String, KGEdge], writerSG : PrintWriter,degreeLimit:Int,
     type_predicate:String)
- :VertexRDD[Map[String, Map[String, Int]]] =
+ :VertexRDD[Map[String, Int]] =
  {
 
       var degrees: VertexRDD[Int] = graph.degrees
@@ -461,15 +461,15 @@ def getTypedVertexRDD_Temporal(graph : Graph[String, KGEdge], writerSG : PrintWr
         }
       }
 
-      return degreeGraph.aggregateMessages[Map[String, Map[String, Int]]](
+      return degreeGraph.aggregateMessages[Map[String, Int]](
         edge =>
           {
             if (edge.srcAttr._2.contains("degree"))
-              edge.sendToSrc(Map("nodeType" -> Map(edge.srcAttr._1 -> 1)))
+              edge.sendToSrc(Map(edge.srcAttr._1 -> 1))
             if (edge.dstAttr._2.contains("degree"))
-              edge.sendToDst(Map("nodeType" -> Map(edge.dstAttr._1 -> 1)))
+              edge.sendToDst(Map(edge.dstAttr._1 -> 1))
             if (edge.attr.getlabel.equalsIgnoreCase(type_predicate)) {
-              edge.sendToSrc(Map("nodeType" -> Map("type:"+edge.dstAttr._1 -> 1)))
+              edge.sendToSrc(Map("type:"+edge.dstAttr._1 -> 1))
             }
           },
         (a, b) => { a |+| b })

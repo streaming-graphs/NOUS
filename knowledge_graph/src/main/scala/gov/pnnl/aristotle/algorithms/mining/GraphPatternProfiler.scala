@@ -568,19 +568,17 @@ object GraphPatternProfiler {
  def get_pattern_node_association_V2Flat(graph: Graph[KGNodeV2Flat, KGEdge],
     writerSG: PrintWriter, id: Int, SUPPORT: Int): RDD[(String, Set[(Int,String)])] =
     {
+      val v_degree = graph.degrees //.map(v => (v._1,v._2))
+      val v_rdd_raw = graph.vertices
+      val v_rdd_raw_joined = v_degree.innerZipJoin(v_rdd_raw)((id, degree, vnode) => (degree, vnode))
+      //.innerZipJoin(v_rdd_raw)((id, degree, vnode) => (degree, vnode))
+      //v_rdd_raw_joined
+      val v_rdd: RDD[((Int, String), Iterable[String])] = v_rdd_raw_joined.map(v =>
+        ((v._2._1, v._2._2.getlabel), v._2._2.getpattern_map.keys))
+      val vb = v_rdd.map(v => v._1)
 
-   val v_degree  = graph.degrees//.map(v => (v._1,v._2))
-   val v_rdd_raw = graph.vertices
-   val v_rdd_raw_joined = v_degree.innerZipJoin(v_rdd_raw)((id, degree, vnode) => (degree, vnode))
-   //.innerZipJoin(v_rdd_raw)((id, degree, vnode) => (degree, vnode))
-   //v_rdd_raw_joined
-   val v_rdd :RDD[((Int,String), Iterable[String])] = v_rdd_raw_joined.map(v =>
-         ((v._2._1,v._2._2.getlabel), v._2._2.getpattern_map.keys))
-         val vb = v_rdd.map(v => v._1)
-         
-         
       val pattrn_rdd = v_rdd.flatMap(v => {
-        var pattern_set: Set[(String, Set[(Int,String)])] = Set.empty
+        var pattern_set: Set[(String, Set[(Int, String)])] = Set.empty
         v._2.map(p_string => pattern_set = pattern_set + ((p_string, Set(v._1))))
         pattern_set
       }).reduceByKey((a, b) => a |+| b)
@@ -666,29 +664,13 @@ object GraphPatternProfiler {
   {
     /*
      *  collect all the pattern at each node
-     */  
-    val patternRDD =
-        graph.aggregateMessages[Set[(String, Long)]](
-          edge => {
-            if (edge.attr.getlabel.equalsIgnoreCase(TYPE) == false)
-              if ((edge.srcAttr != null) && (edge.srcAttr.getpattern_map != null))
-                edge.srcAttr.getpattern_map.foreach(pattern =>
-                  edge.sendToSrc(Set((pattern._1, pattern._2))))
-          }, (pattern1OnNodeN, pattern2OnNodeN) => {
-            pattern1OnNodeN |+| pattern2OnNodeN
+     */
+     val pattern_support_rdd: RDD[(String, Long)] =
+        graph.vertices.flatMap(vertex =>
+          {
+            vertex._2.getpattern_map.map(f => (f._1.replaceAll("\\|", "\t"), f._2)).toSet
           })
-      
-      /*
-       * Collects all the patterns across the graph
-       */
-      val new_dependency_graph_vertices_RDD: RDD[(String, Long)] =
-        patternRDD.flatMap(vertex => vertex._2.map(entry =>
-          (entry._1.replaceAll("\\|", "\t"), entry._2)))
-
-      /*
-       * Returns the RDD with each pattern-key and its support
-       */
-      return new_dependency_graph_vertices_RDD.reduceByKey((a, b) => a + b)
+      return pattern_support_rdd.reduceByKey((a, b) => a + b)
     }
     
   /*
@@ -1514,11 +1496,12 @@ def non_overlapping(pattern1 :String, pattern2 :String) : Boolean =
 
     //Get all the rdf:type dst node information on the source node
     var t0 = System.currentTimeMillis();
-    val typedVertexRDD: VertexRDD[Map[String, Map[String, Int]]] = 
+    val typedVertexRDD: VertexRDD[Map[String, Int]] = 
       GraphProfiling.getTypedVertexRDD_Temporal(graph, writerSG, TYPE_THRESHOLD, this.TYPE)
 
     // Now we have the type information collected in the original graph
-    val typedAugmentedGraph: Graph[(String, Map[String, Map[String, Int]]), KGEdge] = GraphProfiling.getTypedAugmentedGraph_Temporal(graph, writerSG, typedVertexRDD)
+    val typedAugmentedGraph: Graph[(String, Map[String, Int]), KGEdge] 
+    		= GraphProfiling.getTypedAugmentedGraph_Temporal(graph, writerSG, typedVertexRDD)
     var t1 = System.currentTimeMillis();
     writerSG.println("#Time to prepare base typed graph" + " =" + (t1 - t0) * 1e-3 + "s")
     //typedAugmentedGraph.vertices.collect.foreach(v => writerSG.println("graph 0" + v.toString))
@@ -1534,12 +1517,10 @@ def non_overlapping(pattern1 :String, pattern2 :String) : Boolean =
       edge => {
         if (edge.attr.getlabel.equalsIgnoreCase(TYPE) == false) {
           // Extra info for pattern
-          if (edge.srcAttr._2.contains("nodeType") 
-              && (edge.dstAttr._2.contains("nodeType"))) {
-            val dstnodetype = 
-              edge.dstAttr._2.getOrElse("nodeType", Map("unknownOOT" -> 1))
-            val srcnodetype = 
-              edge.srcAttr._2.getOrElse("nodeType", Map("unknownOOT" -> 1))
+          if ((edge.srcAttr._2.size > 0) 
+              && (edge.dstAttr._2.size > 0)) {
+            val dstnodetype = edge.dstAttr._2
+            val srcnodetype = edge.srcAttr._2
             val dstNodeLable: String = edge.dstAttr._1
             val srcNodeLable: String = edge.srcAttr._1
             srcnodetype.foreach(s => {
@@ -1785,7 +1766,7 @@ def non_overlapping(pattern1 :String, pattern2 :String) : Boolean =
     result: Graph[PGNode, Int], SUPPORT: Int): Graph[KGNodeV2Flat, KGEdge] =
     {
       /*
-	 * This method returns output graph only with frequnet subgraph. 
+	 * This method returns output graph with frequnet patterns only. 
 	 * TODO : need to clean the code
 	 */
       println("checking frequent subgraph")
@@ -1798,38 +1779,23 @@ def non_overlapping(pattern1 :String, pattern2 :String) : Boolean =
             vertex._2.getpattern_map.map(f => (f._1, f._2)).toSet
           })
       val tmpRDD = pattern_support_rdd.reduceByKey((a, b) => a + b)
-      writerSGLog.flush()
       val frequent_pattern_support_rdd = tmpRDD.filter(f => ((f._2 >= SUPPORT) | (f._2 == -1)))
 
-      val pattern_vertex_rdd : RDD[(String, List[Long])] =
+      val pattern_vertex_rdd: RDD[(String, Set[Long])] =
         subgraph_with_pattern.vertices.flatMap(vertex =>
           {
-            vertex._2.getpattern_map.map(f => (f._1, List(vertex._1))).toSet
-          }).reduceByKey((a, b) => a ++ b) // append vertexids on each node
+            vertex._2.getpattern_map.map(f => (f._1, Set(vertex._1))).toSet
+          }).reduceByKey((a, b) => a++b) // append vertexids on each node
       val join_frequent_node_vertex = frequent_pattern_support_rdd.leftOuterJoin(pattern_vertex_rdd)
       val vertex_pattern_reverse_rdd = join_frequent_node_vertex.flatMap(pattern_entry 
-          => (pattern_entry._2._2.getOrElse(List.empty).map(v_id 
-              => (v_id,List(pattern_entry._1))).toSet)).reduceByKey((a, b) => a ++ b)
+          => (pattern_entry._2._2.getOrElse(Set.empty).map(v_id => (v_id, Set(pattern_entry._1))))).reduceByKey((a, b) => a ++ b)
+      
       //originalMap.filterKeys(interestingKeys.contains)        
-      val frequent_graph :  Graph[KGNodeV2Flat, KGEdge] =
+      val frequent_graph: Graph[KGNodeV2Flat, KGEdge] =
         subgraph_with_pattern.outerJoinVertices(vertex_pattern_reverse_rdd) {
-          case ( id, kg_node, Some( nbr ) ) 
-          => new KGNodeV2Flat( kg_node.getlabel, kg_node.getpattern_map.filterKeys(nbr.toSet), kg_node.getProperties )
-          case ( id, kg_node, None )        => new KGNodeV2Flat( kg_node.getlabel, Map.empty, kg_node.getProperties )
+          case (id, kg_node, Some(nbr)) => new KGNodeV2Flat(kg_node.getlabel, kg_node.getpattern_map.filterKeys(nbr.toSet), kg_node.getProperties)
+          case (id, kg_node, None) => new KGNodeV2Flat(kg_node.getlabel, Map.empty, kg_node.getProperties)
         }
-//      var tt1 = System.nanoTime()
-//      val newGraph: Graph[KGNodeV2Flat, KGEdge] =
-//        subgraph_with_pattern.mapVertices((id, attr) => {
-//          var joinedPattern: Map[String, Long] = Map.empty
-//          val vertex_pattern_map = attr.getpattern_map
-//          vertex_pattern_map.map(vertext_pattern =>
-//            {
-//              if (frequent_patterns..contains(vertext_pattern._1))
-//                joinedPattern = joinedPattern + ((vertext_pattern._1 -> vertext_pattern._2))
-//            })
-//          new KGNodeV2Flat(attr.getlabel, joinedPattern,List.empty)
-//
-//        })
 
       val validgraph = frequent_graph.subgraph(epred =>
         ((epred.srcAttr.getpattern_map != null) || (epred.dstAttr.getpattern_map != null)))

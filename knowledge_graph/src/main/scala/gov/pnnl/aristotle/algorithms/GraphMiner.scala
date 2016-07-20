@@ -41,7 +41,7 @@ object GraphMiner {
    */
 
   val sparkConf = new SparkConf().setAppName( "NOUS Graph Pattern Miner" ).set( "spark.rdd.compress", "true" )
-  .set( "spark.serializer","org.apache.spark.serializer.KryoSerializer" )
+  .set( "spark.serializer","org.apache.spark.serializer.KryoSerializer" ).set("spark.shuffle.blockTransferService", "nio")
 
   sparkConf.registerKryoClasses( Array.empty )
   val sc = new SparkContext( sparkConf )
@@ -90,7 +90,6 @@ object GraphMiner {
        *  vertex. 
        */
       val gBatch = new CandidateGeneration( minSup ).init(sc, input_graph, writerSG, args( 0 ), args( 2 ).toInt )
-
       /*
        *  Update the batch_id with its min/max time
        */
@@ -151,8 +150,10 @@ object GraphMiner {
       writerSG.flush()
     }
 
-    //window_metrics.saveWindowMetrics()
-    //window.saveDepG
+    println("saving window")
+    
+    window_metrics.saveWindowMetrics()
+    window.saveDepG
 
     var t_sc1 = System.nanoTime();
     println( "#Time to load the  graph" + " =" + ( t_sc1 - t_sc0 ) * 1e-9 + "seconds," +

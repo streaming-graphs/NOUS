@@ -46,15 +46,15 @@ extends DynamicPatternGraph[KGNodeV2Flat, KGEdge] {
   
   def getTypedGraph(graph: Graph[String, KGEdge],
       writerSG: PrintWriter)
-  	: Graph[(String, Map[String, Map[String, Int]]), 
+  	: Graph[(String, Map[String, Int]), 
       KGEdge] =
   {
-      val typedVertexRDD: VertexRDD[Map[String, Map[String, Int]]] =
+      val typedVertexRDD: VertexRDD[Map[String, Int]] =
         GraphProfiling.getTypedVertexRDD_Temporal(graph,
           writerSG, type_support, this.TYPE)
 
       // Now we have the type information collected in the original graph
-      val typedAugmentedGraph: Graph[(String, Map[String, Map[String, Int]]), KGEdge] 
+      val typedAugmentedGraph: Graph[(String, Map[String, Int]), KGEdge] 
       = GraphProfiling.getTypedAugmentedGraph_Temporal(graph,
         writerSG, typedVertexRDD)
       return typedAugmentedGraph
@@ -75,7 +75,7 @@ extends DynamicPatternGraph[KGNodeV2Flat, KGEdge] {
     println("***************support is " + SUPPORT)
 
     // Now we have the type information collected in the original graph
-    val typedAugmentedGraph: Graph[(String, Map[String, Map[String, Int]]), 
+    val typedAugmentedGraph: Graph[(String, Map[String, Int]), 
       KGEdge] = getTypedGraph(graph, writerSG)
     
 
@@ -226,21 +226,18 @@ def getNonTypeVertexRDD(typedAugmentedGraph: Graph[(String,
  */
 
 def getOneEdgePatterns(typedAugmentedGraph: Graph[(String, 
-    Map[String, Map[String, Int]]), KGEdge]) : VertexRDD[Map[String, 
+    Map[String, Int]), KGEdge]) : VertexRDD[Map[String, 
       Long]] =
 {
       return typedAugmentedGraph.aggregateMessages[Map[String, Long]](
         edge => {
           if (edge.attr.getlabel.equalsIgnoreCase(TYPE) == false) {
             // Extra info for pattern
-            if (edge.srcAttr._2.contains("nodeType") &&
-              (edge.dstAttr._2.contains("nodeType"))) {
-              val dstnodetype =
-                edge.dstAttr._2.getOrElse("nodeType", Map("unknownOOT" -> 1))
-              val srcnodetype =
-                edge.srcAttr._2.getOrElse("nodeType", Map("unknownOOT" -> 1))
-              val dstNodeLable: String =
-                edge.dstAttr._1
+            if ((edge.srcAttr._2.size > 0) &&
+              (edge.dstAttr._2.size > 0)) {
+              val dstnodetype = edge.dstAttr._2
+              val srcnodetype = edge.srcAttr._2
+              val dstNodeLable: String = edge.dstAttr._1
               val srcNodeLable: String = edge.srcAttr._1
               srcnodetype.foreach(s => {
                 dstnodetype.foreach(d => {

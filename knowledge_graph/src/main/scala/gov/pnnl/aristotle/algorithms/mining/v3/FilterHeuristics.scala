@@ -19,8 +19,8 @@ object FilterHeuristics {
 
   def non_overlapping(pattern1: String, pattern2: String): Boolean =
     {
-      val pattern1array = pattern1.replaceAll("\t+", "\t").split("\t")
-      val pattern2array = pattern2.replaceAll("\t+", "\t").split("\t")
+      val pattern1array = pattern1.split("\t")
+      val pattern2array = pattern2.split("\t")
       val p1a_length = pattern1array.length
       val p2a_length = pattern2array.length
 
@@ -29,12 +29,16 @@ object FilterHeuristics {
       }
 
       if (p1a_length % 3 != 0 || p2a_length % 3 != 0) {
-        println(pattern1 + " wrong formatting and " + pattern2)
+        //println(pattern1 + " wrong formatting and " + pattern2)
         //System.exit(1)
+        return false
+        
       }
+      
       //check 4 combinations of 'boundary-edge' overlap
       // a1b1, a1bn, anb1, anbn
-      if ((pattern1array(0).equalsIgnoreCase(pattern2array(0)) &&
+      try{
+        if ((pattern1array(0).equalsIgnoreCase(pattern2array(0)) &&
         pattern1array(1).equalsIgnoreCase(pattern2array(1)) &&
         pattern1array(2).equalsIgnoreCase(pattern2array(2))) ||
 
@@ -48,14 +52,23 @@ object FilterHeuristics {
 
             (pattern1array(p1a_length - 3).equalsIgnoreCase(pattern2array(p2a_length - 3)) &&
               pattern1array(p1a_length - 2).equalsIgnoreCase(pattern2array(p2a_length - 2)) &&
-              pattern1array(p1a_length - 1).equalsIgnoreCase(pattern2array(p2a_length - 1)))) return false
+              pattern1array(p1a_length - 1).equalsIgnoreCase(pattern2array(p2a_length - 1)))) 
+          return false
+      }catch {
+  case e:Exception => {
+    //TODO
+    println(pattern1 + "NOUS Exception: wrong formatting and " + pattern2)
+    println("array 1 "+ pattern1array.toSet.toString)
+    println("array 2 "+ pattern2array.toSet.toString)
+  }
+} 
       return true
     }
 
   def redundant_join(pattern1: String, pattern2: String, iteration_level:Int): Boolean =
   {
-      val pattern1_array = pattern1.replaceAll("\t+", "\t").split("\t")
-      val pattern2_array = pattern2.replaceAll("\t+", "\t").split("\t")
+      val pattern1_array = pattern1.split("\t")
+      val pattern2_array = pattern2.split("\t")
       if(pattern1_array.length + pattern2_array.length < iteration_level) return true
       else return false
   }

@@ -48,7 +48,7 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
     println("***************support is " + SUPPORT)
 
     // Now we have the type information collected in the original graph
-    val typedAugmentedGraph: Graph[(String, Map[String, Map[String, Int]]), KGEdge] = getTypedGraph(graph, writerSG)
+    val typedAugmentedGraph: Graph[(String, Map[String, Int]), KGEdge] = getTypedGraph(graph, writerSG)
 
     /*
      * Create RDD where Every vertex has all the 1 edge patterns it belongs to
@@ -60,6 +60,7 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
      * 
      */
     val nonTypedVertexRDD: VertexRDD[Map[String, Long]] = getOneEdgePatterns(typedAugmentedGraph)
+    
     val updatedGraph: Graph[KGNodeV2Flat, KGEdge] =
       typedAugmentedGraph.outerJoinVertices(nonTypedVertexRDD) {
         case (id, (label, something), Some(nbr)) => new KGNodeV2Flat(label, nbr, List.empty)
@@ -79,31 +80,31 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
   }
 
   def getTypedGraph(graph: Graph[String, KGEdge],
-    writerSG: PrintWriter): Graph[(String, Map[String, Map[String, Int]]), KGEdge] =
+    writerSG: PrintWriter): Graph[(String, Map[String, Int]), KGEdge] =
     {
-      val typedVertexRDD: VertexRDD[Map[String, Map[String, Int]]] =
+      val typedVertexRDD: VertexRDD[Map[String, Int]] =
         GraphProfiling.getTypedVertexRDD_Temporal(graph,
           writerSG, type_support, this.TYPE)
 
       // Now we have the type information collected in the original graph
-      val typedAugmentedGraph: Graph[(String, Map[String, Map[String, Int]]), KGEdge] = GraphProfiling.getTypedAugmentedGraph_Temporal(graph,
+      val typedAugmentedGraph: Graph[(String, Map[String, Int]), KGEdge] = GraphProfiling.getTypedAugmentedGraph_Temporal(graph,
         writerSG, typedVertexRDD)
       return typedAugmentedGraph
     }
 
-  def getOneEdgePatterns(typedAugmentedGraph: Graph[(String, Map[String, 
-    Map[String, Int]]), KGEdge]): VertexRDD[Map[String, Long]] =
+  def getOneEdgePatterns(typedAugmentedGraph: Graph[(String,  
+    Map[String, Int]), KGEdge]): VertexRDD[Map[String, Long]] =
     {
       return typedAugmentedGraph.aggregateMessages[Map[String, Long]](
         edge => {
           if (edge.attr.getlabel.equalsIgnoreCase(TYPE) == false) {
             // Extra info for pattern
-            if (edge.srcAttr._2.contains("nodeType") &&
-              (edge.dstAttr._2.contains("nodeType"))) {
+            if ((edge.srcAttr._2.size > 0) &&
+              (edge.dstAttr._2.size > 0)) {
               val dstnodetype =
-                edge.dstAttr._2.getOrElse("nodeType", Map("unknownOOT" -> 1))
+                edge.dstAttr._2
               val srcnodetype =
-                edge.srcAttr._2.getOrElse("nodeType", Map("unknownOOT" -> 1))
+                edge.srcAttr._2
               val dstNodeLable: String =
                 edge.dstAttr._1
               val srcNodeLable: String = edge.srcAttr._1

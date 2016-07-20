@@ -79,6 +79,6 @@ class WindowMetrics extends Serializable {
     pattern_in_this_winodw.saveAsTextFile("WindowPatternSummary" + System.nanoTime())
     pattern__node_association_window.saveAsTextFile("WidnowPatternNodeAssociation" + System.nanoTime())
     node_pattern_association_window.saveAsTextFile("WindowNodePatternAssociation" + System.nanoTime())
-    node_pattern_association_per_batch.saveAsObjectFile("BatchNodePatternAssociation" + System.nanoTime())
+    //node_pattern_association_per_batch.saveAsObjectFile("BatchNodePatternAssociation" + System.nanoTime())
   }
 }

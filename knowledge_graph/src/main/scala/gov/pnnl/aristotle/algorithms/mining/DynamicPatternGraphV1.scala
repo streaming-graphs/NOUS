@@ -37,11 +37,11 @@ class DynamicPatternGraphV1(var minSup: Int) extends DynamicPatternGraph[KGNodeV
     println("***************support is " + SUPPORT)
 
     var t0 = System.currentTimeMillis();
-    val typedVertexRDD: VertexRDD[Map[String, Map[String, Int]]] =
+    val typedVertexRDD: VertexRDD[Map[String, Int]] =
       GraphProfiling.getTypedVertexRDD_Temporal(graph,
         writerSG, this.type_support, this.TYPE)
     // Now we have the type information collected in the original graph
-    val typedAugmentedGraph: Graph[(String, Map[String, Map[String, Int]]), 
+    val typedAugmentedGraph: Graph[(String, Map[String, Int]), 
       KGEdge] = GraphProfiling.getTypedAugmentedGraph_Temporal(graph, 
           writerSG, typedVertexRDD)
     var t1 = System.currentTimeMillis();
@@ -52,7 +52,7 @@ class DynamicPatternGraphV1(var minSup: Int) extends DynamicPatternGraph[KGNodeV
      * Create RDD where Every vertex has all the 1 edge patterns it belongs to
      * Ex: Sumit: (person worksAt organizaion) , (person friendsWith person)
      */
-    val nonTypedVertexRDD: VertexRDD[Map[String, 
+    val nonTypedVertexRDD: VertexRDD[Map[String,
       scala.collection.immutable.Set[PatternInstance]]] =
         getNonTypeVertexRDD(typedAugmentedGraph)
 
@@ -151,33 +151,30 @@ class DynamicPatternGraphV1(var minSup: Int) extends DynamicPatternGraph[KGNodeV
     }
   
 def getNonTypeVertexRDD(typedAugmentedGraph: Graph[(String, 
-    Map[String, Map[String, Int]]), KGEdge]) : VertexRDD[Map[String, 
+     Map[String, Int]), KGEdge]) : VertexRDD[Map[String, 
       scala.collection.immutable.Set[PatternInstance]]] =
 {
       return typedAugmentedGraph.aggregateMessages[Map[String, scala.collection.immutable.Set[PatternInstance]]](
         edge => {
           if (edge.attr.getlabel.equalsIgnoreCase(TYPE) == false) {
             // Extra info for pattern
-            if (edge.srcAttr._2.contains("nodeType") &&
-              (edge.dstAttr._2.contains("nodeType"))) {
-              val dstnodetype =
-                edge.dstAttr._2.getOrElse("nodeType", Map("unknownOOT" -> 1))
-              val srcnodetype =
-                edge.srcAttr._2.getOrElse("nodeType", Map("unknownOOT" -> 1))
-              val dstNodeLable: String =
-                edge.dstAttr._1
-              val srcNodeLable: String = edge.srcAttr._1
-              srcnodetype.foreach(s => {
-                dstnodetype.foreach(d => {
+            if ((edge.srcAttr._2.size > 0) &&
+              (edge.dstAttr._2.size > 0)) {
+              val dstnodetype = edge.dstAttr._2
+              val srcnodetype = edge.srcAttr._2
+              val dstNodeLable : String = edge.dstAttr._1
+              val srcNodeLable : String = edge.srcAttr._1
+              srcnodetype.foreach( s => {
+                dstnodetype.foreach( d => {
                   val patternInstance =
                     edge.attr.getlabel.toString() + "\t" + dstNodeLable
-                  edge.sendToSrc(Map(s._1 + "\t" + edge.attr.getlabel + "\t" +
+                  edge.sendToSrc( Map( s._1 + "\t" + edge.attr.getlabel + "\t" +
                     d._1 + "|"
-                    -> Set(new PatternInstance(scala.collection.immutable.
-                      Set((srcNodeLable.hashCode(),
-                        dstNodeLable.hashCode()))))))
-                })
-              })
+                    -> Set( new PatternInstance( scala.collection.immutable.
+                      Set( ( srcNodeLable.hashCode(),
+                        dstNodeLable.hashCode() ) ) ) ) ) )
+                } )
+              } )
             }
           }
         },

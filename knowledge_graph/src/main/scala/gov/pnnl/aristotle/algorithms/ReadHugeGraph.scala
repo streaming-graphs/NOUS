@@ -20,6 +20,7 @@ import org.joda.time.format.DateTimeFormat
 import gov.pnnl.aristotle.algorithms.mining.datamodel.KGEdge
 import gov.pnnl.aristotle.algorithms.mining.datamodel.KGEdge
 import java.util.Calendar
+import gov.pnnl.aristotle.algorithms.mining.datamodel.KGEdge
 
 object ReadHugeGraph {
 
@@ -193,74 +194,31 @@ object ReadHugeGraph {
   
    def getTemporalGraph(filename : String, sc : SparkContext): Graph[String, KGEdge] = {
     println("starting map phase1");
-    val edges_non_unique: RDD[Edge[KGEdge]] =
+    val quadruples: RDD[(String, String, String,String)] =
       sc.textFile(filename).filter(ln => isValidLineFromGraphFile(ln)).map { line =>
         val fields = getFieldsFromLine(line);
-        //println("edge"+fields.toSet.toString())
-        if (fields.length >= 4)
-          getTemporalLabelledEdge_FromQuadruple(fields)
-        else
-          getTemporalLabelledEdge_FromTriple(fields)
-      }
-    //val edges = edges_non_unique.distinct
-    val edges = edges_non_unique
-    //edges.cache()
-    println("starting map phase2");
-    val vertexRDD1: RDD[(VertexId, String)] =
-      sc.textFile(filename).filter(ln => isValidLineFromGraphFile(ln)).map { line =>
-        val fields = getFieldsFromLine(line)
-        if ((fields.length >= 4) && (fields(3).matches("^\\d{4}-\\d{2}-\\d{2}t.*$")))
-          getVertex_FromString(fields(0))
-        else if ((fields.length >= 4) && (fields(3).matches("^\\d{4}$")))
-        {
-            //println("found  "+fields.toSet.toString())
-            getVertex_FromString(fields(0))  
-
+        if (fields.length == 4)
+          (fields(0), fields(1), fields(2),fields(3))
+        else if(fields.length == 3)
+          (fields(0), fields(1), fields(2),"1L")
+        else {
+          println("Exception reading graph file line", line)
+          ("None", "None", "None","-1L")
         }
-        else if (fields.length >= 4) getVertex_FromString(fields(0))
-        else
-          getVertex_FromString(fields(0))
       }
-    println("starting map phase3");
-    //vertexRDD1.cache
-    val vertexRDD2: RDD[(VertexId, String)] =
-      sc.textFile(filename).filter(ln => isValidLineFromGraphFile(ln)).map { line =>
-        val fields = getFieldsFromLine(line)
-        //println("ver2 "+fields.toSet.toString())
 
-        if ((fields.length >= 4) && (fields(3).matches("^\\d{4}-\\d{2}-\\d{2}t.*$")))
-          getVertex_FromString(fields(2))
-        else if ((fields.length >= 4) && (fields(3).matches("^\\d{4}$")))
-        {
-            //println("found  2"+fields.toSet.toString())
-            getVertex_FromString(fields(2))  
+    quadruples.cache
+    val edges = quadruples.map(quadruple => {
+      Edge(quadruple._1.hashCode().toLong, quadruple._3.hashCode().toLong, new KGEdge(quadruple._2, -1L))
+    })
+    val vertices = quadruples.flatMap(triple => Array((triple._1.hashCode().toLong, triple._1), (triple._3.hashCode().toLong, triple._3)))
 
-        }
-        else if (fields.length >= 4)
-          getVertex_FromString(fields(2))
-        else
-          try {
-            getVertex_FromString(fields(2))
-          } catch {
-            case ex: java.lang.ArrayIndexOutOfBoundsException => {
-              println("Making Node :Array index Exception ")
-              println(fields.toSeq.toList.toString)
-
-              ("None".hashCode().toLong,
-                "None")
-            }
-          }
-      }
-    //vertexRDD2.cache
-    println("starting map phase4 > doing union");
-    val allvertex = vertexRDD1.union(vertexRDD2)
-
-    println("starting map phase5 > Building graph");
-    val graph = Graph(allvertex, edges);
-    //println("edge count " + graph.edges.count)
-    //println("vertices count" + graph.vertices.count)
-
-    //graph.vertices.foreach(v => println(v._2))
+    println("starting map phase3 > Building graph");
+    val graph = Graph(vertices, edges);
+    
+    println("edge count " + graph.edges.count)
+    println("vertices count" + graph.vertices.count)
+    
     return graph
   }
   
@@ -819,6 +777,7 @@ val edges = edges_multiple.distinct
         multi_edge_graph = ReadHugeGraph.getGraphTSV_Temporal(filepath, sc)  
       else
         multi_edge_graph = ReadHugeGraph.getTemporalGraph(filepath, sc)
+        //multi_edge_graph = ReadHugeGraph.getGraph(filepath,sc)
 
         return multi_edge_graph.subgraph( vpred = (vid, attr) => attr != null )
     }
