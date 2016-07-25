@@ -16,7 +16,7 @@ object Generate_TestGraph_ToMine {
   {
     for (file_id <- 5 to 5) {
       val base_time_factor = file_id
-      var base_time = file_id * 14
+      var base_time = (file_id * 14) % 60
       //14 because there are 14 triples and i am avoiding overlapping facts for now.
       val writerSG = new PrintWriter(new File("GraphMineInputTime" + file_id + ".txt"))
       val i = file_id
