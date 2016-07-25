@@ -11,7 +11,6 @@ import scala.util.control.Breaks._
 import scalaz.Scalaz._
 import gov.pnnl.aristotle.algorithms.mining.datamodel.KGEdge
 import gov.pnnl.aristotle.algorithms.mining.datamodel.PatternDependencyGraph
-import gov.pnnl.aristotle.algorithms.mining.DynamicPatternGraphV2Flat
 import gov.pnnl.aristotle.algorithms.mining.GraphPatternProfiler
 import org.apache.commons.io.FilenameUtils
 import org.apache.spark.rdd.RDD
@@ -40,8 +39,13 @@ object GraphMiner {
    * Remove .setMaster("local") before running this on a cluster
    */
 
-  val sparkConf = new SparkConf().setAppName( "NOUS Graph Pattern Miner" ).set( "spark.rdd.compress", "true" )
-  .set( "spark.serializer","org.apache.spark.serializer.KryoSerializer" ).set("spark.shuffle.blockTransferService", "nio")
+  val sparkConf = new SparkConf()
+    .setAppName("NOUS Graph Pattern Miner")
+    .set("spark.rdd.compress", "true")
+    .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+    .set("spark.shuffle.blockTransferService", "nio")
+    .setMaster("local")
+    
 
   sparkConf.registerKryoClasses( Array.empty )
   val sc = new SparkContext( sparkConf )
@@ -72,24 +76,28 @@ object GraphMiner {
     var pattern_trend : Map[String, List[( Int, Int )]] = Map.empty
 
     /*
-     * Read all the files/folder one-by-one and construct an input graph
+     * Read ` the files/folder one-by-one and construct an input graph
      */
-    for ( filepath <- Source.fromFile( args( 4 ) ).getLines().filter( str => !str.startsWith( "#" ) ) ) {
+    for (
+      filepath <- Source.fromFile(args(4)).
+        getLines().filter(str => !str.startsWith("#"))
+    ) {
 
     /*
      * batch_id: each files is read as a new batch.
      */
       batch_id = batch_id + 1
+      println(s"******Reading File $filepath with batch_id= $batch_id")
       val batch_metrics = new BatchMetrics( batch_id )
 
-      val input_graph = ReadHugeGraph.getGraphFileType( filepath, sc )
+      val input_graph = ReadHugeGraph.getGraphFileTypeInt( filepath, sc )
 
       /*
        *  gBatch is a pre-processed version of input graph. It has 1 edge 
        *  pattern on each vertex. all the other information is removed from the
        *  vertex. 
        */
-      val gBatch = new CandidateGeneration( minSup ).init(sc, input_graph, writerSG, args( 0 ), args( 2 ).toInt )
+      val gBatch = new CandidateGeneration( minSup ).init(sc, input_graph, writerSG, args( 0 ).toInt, args( 2 ).toInt )
       /*
        *  Update the batch_id with its min/max time
        */
@@ -102,7 +110,7 @@ object GraphMiner {
        * gWindow. This is the graph which is mined by the algorithm. It includes
        * all the patterns of the boundary nodes already minded in the gWindow.
        */
-      val batch_window_intersection_graph = gWin.merge( gBatch, sc )
+      val batch_window_intersection_graph = gWin.getInterSectionGraph( gBatch, sc )
       batch_window_intersection_graph.input_graph =
         gWin.filterNonPatternSubGraphV2( batch_window_intersection_graph.input_graph )
 
@@ -112,16 +120,14 @@ object GraphMiner {
       breakable {
         while ( 1 == 1 ) {
           level = level + 1
-          println( s"#####Iteration ID $level and interation_limit is $iteration_limit" )
+          //println( s"#####Iteration ID $level and interation_limit is $iteration_limit" )
           if ( level > iteration_limit ) break;
 
           batch_window_intersection_graph.input_graph = batch_window_intersection_graph.joinPatterns( writerSG, level )
-
           /*
            * Update the dependency graph 
            */
-          window.updateGDep( batch_window_intersection_graph.input_graph, args( 0 ), args( 1 ).toInt )
-
+          window.updateGDep( batch_window_intersection_graph.input_graph, args( 0 ).toInt, args( 1 ).toInt )
           /*
              * Update the current graph by removing special purpose '|' symbols 
              * in the pattern keys. This symbol is used to identify which small

@@ -11,6 +11,6 @@ package gov.pnnl.aristotle.algorithms.mining.datamodel
  * @author puro755
  *
  */
-class VertexProperty(val id: Long,val property_label: String) extends Serializable {
+class VertexProperty(val id: Long,val property_label: Int) extends Serializable {
   
 }

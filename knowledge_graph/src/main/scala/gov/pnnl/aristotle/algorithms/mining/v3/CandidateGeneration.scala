@@ -7,8 +7,8 @@
 package gov.pnnl.aristotle.algorithms.mining.v3
 
 import org.apache.spark.graphx.Graph
-import gov.pnnl.aristotle.algorithms.mining.datamodel.KGEdge
-import gov.pnnl.aristotle.algorithms.mining.datamodel.KGNodeV2Flat
+import gov.pnnl.aristotle.algorithms.mining.datamodel.KGEdgeInt
+import gov.pnnl.aristotle.algorithms.mining.datamodel.KGNodeV2FlatInt
 import java.io.PrintWriter
 import gov.pnnl.aristotle.algorithms.mining.GraphProfiling
 import org.apache.spark.graphx.VertexRDD
@@ -24,6 +24,8 @@ import org.apache.spark.graphx.VertexId
 import org.apache.spark.graphx.Edge
 import gov.pnnl.aristotle.algorithms.mining.datamodel.VertexProperty
 import gov.pnnl.aristotle.algorithms.mining.GraphPatternProfiler
+import gov.pnnl.aristotle.algorithms.mining.datamodel.KGEdgeInt
+import gov.pnnl.aristotle.algorithms.mining.datamodel.KGNodeV2FlatInt
 
 /**
  * @author puro755
@@ -31,13 +33,13 @@ import gov.pnnl.aristotle.algorithms.mining.GraphPatternProfiler
  */
 class CandidateGeneration(val minSup: Int) extends Serializable{
 
-  var TYPE: String = "rdf:type"
+  var TYPE: Int = 0
   var SUPPORT: Int = minSup
   var type_support: Int = 2
-  var input_graph: Graph[KGNodeV2Flat, KGEdge] = null
+  var input_graph: Graph[KGNodeV2FlatInt, KGEdgeInt] = null
   val batch_id_map : Map[Int,(Long,Long)] = Map.empty
 
-  def init(sc : SparkContext, graph: Graph[String, KGEdge], writerSG: PrintWriter, basetype: String,
+  def init(sc : SparkContext, graph: Graph[Int, KGEdgeInt], writerSG: PrintWriter, basetype: Int,
     type_support: Int): CandidateGeneration = {
 
     /*
@@ -48,8 +50,7 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
     println("***************support is " + SUPPORT)
 
     // Now we have the type information collected in the original graph
-    val typedAugmentedGraph: Graph[(String, Map[String, Int]), KGEdge] = getTypedGraph(graph, writerSG)
-
+    val typedAugmentedGraph: Graph[(Int, Map[Int, Int]), KGEdgeInt] = getTypedGraph(graph, writerSG)
     /*
      * Create RDD where Every vertex has all the 1 edge patterns it belongs to
      * Ex: Sumit: (person worksAt organizaion) , (person friendsWith person)
@@ -59,12 +60,11 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
      * ....
      * 
      */
-    val nonTypedVertexRDD: VertexRDD[Map[String, Long]] = getOneEdgePatterns(typedAugmentedGraph)
-    
-    val updatedGraph: Graph[KGNodeV2Flat, KGEdge] =
+    val nonTypedVertexRDD: VertexRDD[Map[List[Int], Long]] = getOneEdgePatterns(typedAugmentedGraph)
+    val updatedGraph: Graph[KGNodeV2FlatInt, KGEdgeInt] =
       typedAugmentedGraph.outerJoinVertices(nonTypedVertexRDD) {
-        case (id, (label, something), Some(nbr)) => new KGNodeV2Flat(label, nbr, List.empty)
-        case (id, (label, something), None) => new KGNodeV2Flat(label, Map(), List.empty)
+        case (id, (label, something), Some(nbr)) => new KGNodeV2FlatInt(label, nbr, List.empty)
+        case (id, (label, something), None) => new KGNodeV2FlatInt(label, Map(), List.empty)
       }
 
     writerSG.flush()
@@ -75,45 +75,38 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
      */
     val updateGraph_withsink = updateGraphWithSinkV2(updatedGraph)
     val result = null
-    this.input_graph = GraphPatternProfiler.get_Frequent_SubgraphV2Flat(sc,updatedGraph, result, SUPPORT)
+    this.input_graph = get_Frequent_SubgraphV2Flat(sc,updatedGraph, result, SUPPORT)
     return this
   }
 
-  def getTypedGraph(graph: Graph[String, KGEdge],
-    writerSG: PrintWriter): Graph[(String, Map[String, Int]), KGEdge] =
+  def getTypedGraph(graph: Graph[Int, KGEdgeInt],
+    writerSG: PrintWriter): Graph[(Int, Map[Int, Int]), KGEdgeInt] =
     {
-      val typedVertexRDD: VertexRDD[Map[String, Int]] =
+      val typedVertexRDD: VertexRDD[Map[Int, Int]] =
         GraphProfiling.getTypedVertexRDD_Temporal(graph,
-          writerSG, type_support, this.TYPE)
-
+          writerSG, type_support, this.TYPE.toInt)
       // Now we have the type information collected in the original graph
-      val typedAugmentedGraph: Graph[(String, Map[String, Int]), KGEdge] = GraphProfiling.getTypedAugmentedGraph_Temporal(graph,
+      val typedAugmentedGraph: Graph[(Int, Map[Int, Int]), KGEdgeInt] 
+    		  = GraphProfiling.getTypedAugmentedGraph_Temporal(graph,
         writerSG, typedVertexRDD)
       return typedAugmentedGraph
     }
 
-  def getOneEdgePatterns(typedAugmentedGraph: Graph[(String,  
-    Map[String, Int]), KGEdge]): VertexRDD[Map[String, Long]] =
+  def getOneEdgePatterns(typedAugmentedGraph: Graph[(Int,  
+    Map[Int, Int]), KGEdgeInt]): VertexRDD[Map[List[Int], Long]] =
     {
-      return typedAugmentedGraph.aggregateMessages[Map[String, Long]](
+      return typedAugmentedGraph.aggregateMessages[Map[List[Int], Long]](
         edge => {
-          if (edge.attr.getlabel.equalsIgnoreCase(TYPE) == false) {
+          if (edge.attr.getlabel != TYPE ) {
             // Extra info for pattern
             if ((edge.srcAttr._2.size > 0) &&
               (edge.dstAttr._2.size > 0)) {
-              val dstnodetype =
-                edge.dstAttr._2
-              val srcnodetype =
-                edge.srcAttr._2
-              val dstNodeLable: String =
-                edge.dstAttr._1
-              val srcNodeLable: String = edge.srcAttr._1
+              val dstnodetype = edge.dstAttr._2
+              val srcnodetype = edge.srcAttr._2
               srcnodetype.foreach(s => {
                 dstnodetype.foreach(d => {
-                  val patternInstance =
-                    edge.attr.getlabel.toString() + "\t" + dstNodeLable
-                  edge.sendToSrc(Map(s._1 + "\t" + edge.attr.getlabel + "\t" +
-                    d._1 + "|"
+                  edge.sendToSrc(Map(List(s._1, edge.attr.getlabel,
+                    d._1.hashCode(), -1)
                     -> 1))
                 })
               })
@@ -124,12 +117,12 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
           reducePatternsOnNodeV2(pattern1NodeN, pattern2NodeN)
         })
     }
-  def reducePatternsOnNodeV2(a: Map[String, Long], b: Map[String, Long]): Map[String, Long] =
+  def reducePatternsOnNodeV2(a: Map[List[Int], Long], b: Map[List[Int], Long]): Map[List[Int], Long] =
     {
       return a |+| b
     }
 
-  def updateGraphWithSinkV2(subgraph_with_pattern: Graph[KGNodeV2Flat, KGEdge]): Graph[KGNodeV2Flat, KGEdge] =
+  def updateGraphWithSinkV2(subgraph_with_pattern: Graph[KGNodeV2FlatInt, KGEdgeInt]): Graph[KGNodeV2FlatInt, KGEdgeInt] =
     {
         val vertices_with_sink_status: VertexRDD[Int] =
         subgraph_with_pattern.aggregateMessages[Int](
@@ -141,23 +134,23 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
         
         val all_sink_nodes_rdd = vertices_with_sink_status.filter(v=>v._2==0)
         
-        val graph_with_sink_info:  Graph[KGNodeV2Flat, KGEdge] =
+        val graph_with_sink_info:  Graph[KGNodeV2FlatInt, KGEdgeInt] =
         subgraph_with_pattern.outerJoinVertices(all_sink_nodes_rdd) {
-          case ( id, kg_node, Some( nbr ) ) => new KGNodeV2Flat( kg_node.getlabel, kg_node.getpattern_map, kg_node.getProperties ++ List( new VertexProperty( 1, "sinknode" ) ) )
-          case ( id, kg_node, None )        => new KGNodeV2Flat( kg_node.getlabel, kg_node.getpattern_map, kg_node.getProperties )
+          case ( id, kg_node, Some( nbr ) ) => new KGNodeV2FlatInt( kg_node.getlabel, kg_node.getpattern_map, kg_node.getProperties ++ List( new VertexProperty( 1, "sinknode".hashCode() ) ) )
+          case ( id, kg_node, None )        => new KGNodeV2FlatInt( kg_node.getlabel, kg_node.getpattern_map, kg_node.getProperties )
         }
         
       val sink_only_graph = graph_with_sink_info.subgraph(vpred = (vid, attr) => {
-        !attr.getVertextPropLableArray.contains("sinknode")
+        !attr.getVertextPropLableArray.contains("sinknode".hashCode())
       })
       
-      val graph_with_sink_node_pattern: VertexRDD[Map[String, Long]] =
-        sink_only_graph.aggregateMessages[Map[String, Long]](
+      val graph_with_sink_node_pattern: VertexRDD[Map[List[Int], Long]] =
+        sink_only_graph.aggregateMessages[Map[List[Int], Long]](
           edge => {
-            if (edge.attr.getlabel.equalsIgnoreCase(TYPE) == false) {
+            if (edge.attr.getlabel != TYPE) {
                 val srcnodepattern = edge.srcAttr.getpattern_map
-                val dstNodeLable: String = edge.dstAttr.getlabel
-                val srcNodeLable: String = edge.srcAttr.getlabel
+                val dstNodeLable: Int = edge.dstAttr.getlabel
+                val srcNodeLable: Int = edge.srcAttr.getlabel
                 if (srcNodeLable != null && dstNodeLable != null) {
                   srcnodepattern.foreach(s => {
                     if (s._1.contains(edge.attr.getlabel)) // TODO: fix this weak comparison 
@@ -173,17 +166,17 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
             reducePatternsOnNodeV2(pattern1NodeN, pattern2NodeN)
           })
 
-      val updateGraph_withsink: Graph[KGNodeV2Flat, KGEdge] =
+      val updateGraph_withsink: Graph[KGNodeV2FlatInt, KGEdgeInt] =
         subgraph_with_pattern.outerJoinVertices(graph_with_sink_node_pattern) {
-          case (id, kg_node, Some(nbr)) => new KGNodeV2Flat(kg_node.getlabel, kg_node.getpattern_map |+| nbr, List.empty)
-          case (id, kg_node, None) => new KGNodeV2Flat(kg_node.getlabel, kg_node.getpattern_map, List.empty)
+          case (id, kg_node, Some(nbr)) => new KGNodeV2FlatInt(kg_node.getlabel, kg_node.getpattern_map |+| nbr, List.empty)
+          case (id, kg_node, None) => new KGNodeV2FlatInt(kg_node.getlabel, kg_node.getpattern_map, List.empty)
         }
 
       return updateGraph_withsink
     }
 
   def joinPatterns(writerSG: PrintWriter,
-    level: Int): Graph[KGNodeV2Flat, KGEdge] = {
+    level: Int): Graph[KGNodeV2FlatInt, KGEdgeInt] = {
 
     // Now mine the smaller graph and return the graph with larger patterns
     return getAugmentedGraphNextSizeV2(this.input_graph,
@@ -202,9 +195,9 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
    *    pattern P1P2 of size n1+n2 on the source vertex
    */
 
-  def getAugmentedGraphNextSizeV2(nThPatternGraph: Graph[KGNodeV2Flat, KGEdge],
+  def getAugmentedGraphNextSizeV2(nThPatternGraph: Graph[KGNodeV2FlatInt, KGEdgeInt],
     writerSG: PrintWriter,
-    iteration_id: Int): Graph[KGNodeV2Flat, KGEdge] =
+    iteration_id: Int): Graph[KGNodeV2FlatInt, KGEdgeInt] =
     {
 
       // Step 1: First do self join of existing n-size patterns to create 2*n patterns.
@@ -224,62 +217,142 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
       return nPlusOneThPatternGraph
     }
 
-  def self_Pattern_Join_GraphV2Flat(updateGraph_withsink: Graph[KGNodeV2Flat, KGEdge],
-    join_size: Int): Graph[KGNodeV2Flat, KGEdge] = {
+  def self_Pattern_Join_GraphV2Flat(updateGraph_withsink: Graph[KGNodeV2FlatInt, KGEdgeInt],
+    join_size: Int): Graph[KGNodeV2FlatInt, KGEdgeInt] = {
     val newGraph = updateGraph_withsink.mapVertices((id, attr) => {
 
       /*
        * Initialize some local objects
        */
-      var selfJoinPatternstmp: List[(String, Long)] = List.empty
-      var joinedPattern: Map[String, Long] = Map.empty
+      var thisnodename = attr.getlabel
+      var thisnodemap = attr.getpattern_map
+      var selfJoinPatternstmp: List[(List[Int], Long)] = List.empty
+      var joinedPattern: Map[List[Int], Long] = Map.empty
 
       /*
        * Create a list of the pattern. List provides an ordering of the pattern
        */
       attr.getpattern_map.foreach(sr1 =>
         {
-          selfJoinPatternstmp = selfJoinPatternstmp ++ List(sr1);
+          selfJoinPatternstmp = selfJoinPatternstmp :+ sr1
         })
+        
       val selfJoinPatterns = selfJoinPatternstmp
 
       /*
-       * For each pattern-instance of each pattern at both the source and 
-       * destination, iterate over them and join them if they are disjointed 
+       * Pre-compute the join-able patterns to avoid double join and 
+       * wrong support calculation. 
+       * DFS key provides localized unique keys but it is still possible to construct same pattern key just by changing
+       * the 'glue' location. 'glue' use used to construct dependency graph.
+       *  
+       * Ex:
+       * 
+       * A: List(-1078222292, 160090837, 118807), and ,List(-1078222292, 160090837, -1237882651, -1078222292, 160090837, -361161128)  
+       * B: List(-1078222292, 160090837, -361161128, -1078222292, 160090837, 118807), and ,List(-1078222292, 160090837, -1237882651)
+       * C: List(-1078222292, 160090837, -1237882651, -1078222292, 160090837, 118807), and ,List(-1078222292, 160090837, -361161128))
+       * 
+       * based on lexicographic order edge with -1237882651 is 0, -361161128 is 1, and 118807 is 2
+       * 
+       * A and C will lead to same graph key with same 'glue' index : 0 glue 1 2
+       * B will lead to same key but with different 'glue' index : 0 1 glue 2
+       * 
+       * If we compare keys ignoring 'glue' we can find out that both they keys are same, and we need to join only 
+       * one of A,B,OR C.
+       */
+      var normalized_join : Map[List[Int],(List[Int], List[Int] ,List[Int], Long, Long)] = Map.empty
+      // normalized_bigger_pattern -> bigger_pattern_with_glue, smallerpattern1, smallerpattern2, smallerpattern1_support, smallerpattern2_support
+      for (i <- 0 until selfJoinPatterns.length) {
+        for (j <- i + 1 until selfJoinPatterns.length) {
+        	 /*
+           * Adding various Filter Heuristics based on the graph structure, and
+           * entity type.
+           * IF two sub-grpahs are joined, they are joined based on their DFS lexicographic order
+           */
+          val smallpattern1 = selfJoinPatterns(i)._1.filterNot(elm => elm == -1)
+          val smallpattern1_support : Long = selfJoinPatterns(i)._2
+          val smallpattern2 = selfJoinPatterns(j)._1.filterNot(elm => elm == -1)
+          val smallpattern2_support : Long = selfJoinPatterns(j)._2
+          if (!smallpattern2.contains(smallpattern1) &&
+            !smallpattern1.contains(smallpattern2) &&
+            (!FilterHeuristics.checkcross_join(smallpattern1, smallpattern2)) &&
+            (FilterHeuristics.non_overlapping(smallpattern1, smallpattern2)) &&
+            //(FilterHeuristics.compatible_join(selfJoinPatterns(i)._1, selfJoinPatterns(j)._1)) &&
+            (!FilterHeuristics.redundant_join(smallpattern1, smallpattern2,join_size))) {
+
+            val pattern = (smallpattern1 mkString ("\t")) + "|\t" + (smallpattern2 mkString ("\t")) + "|"
+            //send something like: -1078222292 160090837 -1237882651| -1078222292 160090837 -361161128|   
+            val pg = new PatternGraph()
+            pg.ConstructPatternGraph(pattern)
+            val startedge = smallpattern2.toArray
+            var dfspath = pg.DFS(startedge(0).toString())
+            var fixedpath = dfspath.split("\t").flatMap(str => {
+              if (str.endsWith("|"))
+                List(str.replaceAll("\\|", ""), "-1")
+              else List(str)
+            })
+            var dfspathlist = fixedpath.map(_.trim.toInt).toList
+            if (dfspathlist(dfspathlist.size - 1) == -1)
+              dfspathlist = dfspathlist.slice(0, dfspathlist.size - 1)
+              
+            normalized_join += (dfspathlist.filterNot(elm => elm == -1) 
+                -> (dfspathlist,smallpattern1, smallpattern2 , smallpattern1_support, smallpattern2_support)) 
+          }
+          
+          
+          
+        }
+      }  
+     
+      /*
+       *  Now only for join-able patters, 
+       */  
+       normalized_join.foreach(bigger_pattern =>{
+         joinedPattern = joinedPattern + (bigger_pattern._2._1 -> (bigger_pattern._2._4 * bigger_pattern._2._4))
+       }) 
+      /*
+       * For each pattern-instance of each pattern,
+       * iterate over them and join them if they are disjointed 
        * instances.
        * 
        */
-
-      for (i <- 0 until selfJoinPatterns.length) {
+     /* for (i <- 0 until selfJoinPatterns.length) {
         for (j <- i + 1 until selfJoinPatterns.length) {
           /*
            * Adding various Filter Heuristics based on the graph structure, and
            * entity type.
            * IF two sub-grpahs are joined, they are joined based on their DFS lexicographic order
            */
-          if (!selfJoinPatterns(j)._1.contains(selfJoinPatterns(i)._1) &&
-            !selfJoinPatterns(i)._1.contains(selfJoinPatterns(j)._1) &&
-            (!FilterHeuristics.checkcross_join(selfJoinPatterns(i)._1, selfJoinPatterns(j)._1)) &&
-            (FilterHeuristics.non_overlapping(selfJoinPatterns(i)._1, selfJoinPatterns(j)._1)) &&
-            (FilterHeuristics.compatible_join(selfJoinPatterns(i)._1, selfJoinPatterns(j)._1)) &&
-            (!FilterHeuristics.redundant_join(selfJoinPatterns(i)._1, selfJoinPatterns(j)._1,join_size))) {
-
-            val pattern: String = selfJoinPatterns(j)._1.trim() + "|" + "\t" +
-              selfJoinPatterns(i)._1.trim() + "|"
-            val pg = new PatternGraph()
-            pg.ConstructPatternGraph(pattern)
-            var dfspath = pg.DFS(selfJoinPatterns(j)._1.split("\t")(0))
-            if (dfspath.endsWith("|")) {
-              val ind = dfspath.lastIndexOf("|")
-              dfspath = dfspath.substring(0, ind)
-
-            }
-            joinedPattern = joinedPattern + (dfspath -> (selfJoinPatterns(i)._2 * selfJoinPatterns(j)._2))
+          val smallpattern1 = selfJoinPatterns(i)._1.filterNot(elm => elm == -1)
+          val smallpattern2 = selfJoinPatterns(j)._1.filterNot(elm => elm == -1)
+          if( (join_size == 2) && thisnodename.equalsIgnoreCase("paper_1")) 
+            println("tring to join ", smallpattern1 , " and ", smallpattern2 )
+          if (!smallpattern2.contains(smallpattern1) &&
+            !smallpattern1.contains(smallpattern2) &&
+            (!FilterHeuristics.checkcross_join(smallpattern1, smallpattern2)) &&
+            (FilterHeuristics.non_overlapping(smallpattern1, smallpattern2)) &&
+            //(FilterHeuristics.compatible_join(selfJoinPatterns(i)._1, selfJoinPatterns(j)._1)) &&
+            (!FilterHeuristics.redundant_join(smallpattern1, smallpattern2,join_size))) {
+        	  println("inside if code")
+            val pattern = (smallpattern1 mkString("\t")) + "|\t" + (smallpattern2 mkString("\t")) + "|" 
+           //send something like: -1078222292 160090837 -1237882651| -1078222292 160090837 -361161128|   
+           val pg = new PatternGraph()
+           pg.ConstructPatternGraph(pattern)
+           val startedge = smallpattern2.toArray
+           var dfspath = pg.DFS(startedge(0).toString())
+           var fixedpath = dfspath.split("\t").flatMap(str=>{
+             if(str.endsWith("|")) 
+               List(str.replaceAll("\\|", ""), "-1")
+             else List(str)
+               })
+           var dfspathlist = fixedpath.map(_.trim.toInt).toList
+           if(dfspathlist(dfspathlist.size -1) == -1)
+        	   dfspathlist = dfspathlist.slice(0, dfspathlist.size - 1)
+            joinedPattern = joinedPattern + (dfspathlist -> (selfJoinPatterns(i)._2 * selfJoinPatterns(j)._2))
 
           }
         }
-      }
-      new KGNodeV2Flat(attr.getlabel, joinedPattern |+| attr.getpattern_map, List.empty)
+      }*/
+      new KGNodeV2FlatInt(attr.getlabel, joinedPattern |+| attr.getpattern_map, List.empty)
 
     })
 
@@ -290,10 +363,10 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
    * Return a subgraph with at-least one pattern on the source or destination. 'type' edge is also removed
    * from the graph because it is collected as node properties.
    */
-  def filterNonPatternSubGraphV2(updatedGraph: Graph[KGNodeV2Flat, KGEdge]): Graph[KGNodeV2Flat, KGEdge] =
+  def filterNonPatternSubGraphV2(updatedGraph: Graph[KGNodeV2FlatInt, KGEdgeInt]): Graph[KGNodeV2FlatInt, KGEdgeInt] =
     {
       return updatedGraph.subgraph(epred =>
-        ((epred.attr.getlabel.equalsIgnoreCase(TYPE) != true) &&
+        ((epred.attr.getlabel != TYPE) &&
           ((epred.srcAttr.getpattern_map.size != 0) &&
             (epred.dstAttr.getpattern_map.size != 0))))
 
@@ -310,13 +383,13 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
    *
    *
    */
-  def edge_Pattern_Join_GraphV2(newGraph1: Graph[KGNodeV2Flat, KGEdge],
-    writerSG: PrintWriter, iteration_id: Int): Graph[KGNodeV2Flat, KGEdge] = {
+  def edge_Pattern_Join_GraphV2(newGraph1: Graph[KGNodeV2FlatInt, KGEdgeInt],
+    writerSG: PrintWriter, iteration_id: Int): Graph[KGNodeV2FlatInt, KGEdgeInt] = {
     var t0 = System.currentTimeMillis();
     writerSG.flush()
 
     val nPlusOneThPatternVertexRDD =
-      newGraph1.aggregateMessages[Map[String, Long]](
+      newGraph1.aggregateMessages[Map[List[Int], Long]](
         edge => {
           sendPatternToNodeV2(edge, iteration_id)
         }, (pattern1OnNodeN, pattern2OnNodeN) => {
@@ -327,7 +400,7 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
     return nPlusOneThPatternGraph
   }
 
-  def sendPatternToNodeV2(edge: EdgeContext[KGNodeV2Flat, KGEdge, Map[String, Long]],
+  def sendPatternToNodeV2(edge: EdgeContext[KGNodeV2FlatInt, KGEdgeInt, Map[List[Int], Long]],
     iteration_id: Int) {
 
     /*
@@ -346,7 +419,7 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
               {
                 {
                   //Ex. <Foo knows Bar> can be joined with any pattern at <Bar>
-                  if (sr._1.split("\\t")(2).equals(dst._1.split("\\t")(0))) {
+                  if (sr._1(2) == (dst._1(0))) {
 
                     sendPatternV2Flat(sr._1, dst._1,
                       sr._2, dst._2, edge)
@@ -358,18 +431,18 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
     }
   }
 
-  def sendPatternV2Flat(pattern1: String, pattern2: String,
+  def sendPatternV2Flat(pattern1: List[Int], pattern2: List[Int],
     instance1Dst: Long, instance2Dst: Long,
-    edge: EdgeContext[KGNodeV2Flat, KGEdge, Map[String, Long]]) {
+    edge: EdgeContext[KGNodeV2FlatInt, KGEdgeInt, Map[List[Int], Long]]) {
 
     var bigger_instance: Int = 0
-    edge.sendToSrc(Map(pattern1 + "|" + pattern2 -> instance2Dst))
+    edge.sendToSrc(Map(pattern1 ++ List(-1) ++ pattern2 -> instance2Dst))
   }
 
   //Helper fuction to make sure it is a 1-edge pattern
-  def getPatternSize(patternKey: String): Int =
+  def getPatternSize(patternKey: List[Int]): Int =
     {
-      val tocken_count = patternKey.trim().replaceAll("\t+", "\t").trim().split("\t").length
+      val tocken_count = patternKey.length
       if (tocken_count % 3 == 0)
         return tocken_count / 3
       else
@@ -378,16 +451,16 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
 
  
 
-  def joinPatternGraphV2(nThPatternGraph: Graph[KGNodeV2Flat, KGEdge],
-    nPlusOneThPatternVertexRDD: VertexRDD[Map[String, Long]]): Graph[KGNodeV2Flat, KGEdge] =
+  def joinPatternGraphV2(nThPatternGraph: Graph[KGNodeV2FlatInt, KGEdgeInt],
+    nPlusOneThPatternVertexRDD: VertexRDD[Map[List[Int], Long]]): Graph[KGNodeV2FlatInt, KGEdgeInt] =
     {
       val update_tmp_graph =
         nThPatternGraph.outerJoinVertices(nPlusOneThPatternVertexRDD) {
           case (id, a_kgnode, Some(nbr)) =>
-            new KGNodeV2Flat(a_kgnode.getlabel,
+            new KGNodeV2FlatInt(a_kgnode.getlabel,
               a_kgnode.getpattern_map |+| nbr, List.empty)
           case (id, a_kgnode, None) =>
-            new KGNodeV2Flat(a_kgnode.getlabel,
+            new KGNodeV2FlatInt(a_kgnode.getlabel,
               a_kgnode.getpattern_map, List.empty)
         }
       val result = null
@@ -419,7 +492,7 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
    * takes gBatch as input which is 'mined' batch graph and merge it with
    * existing window graph.
    */
-  def merge(gBatch: CandidateGeneration, sc: SparkContext): CandidateGeneration = {
+  def getInterSectionGraph(gBatch: CandidateGeneration, sc: SparkContext): CandidateGeneration = {
 
     if (this.input_graph == null) {
       this.input_graph = gBatch.input_graph
@@ -428,20 +501,14 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
       return result
 
     } else {
-      val vertices_rdd: RDD[(VertexId, Map[String, Long])] =
-        gBatch.input_graph.vertices.map(f => (f._1, f._2.getpattern_map))
-
-      val new_array: Array[VertexId] = 
-        gBatch.input_graph.vertices.map(a_vetext => a_vetext._1).toArray
-
-      val new_window_graph = this.input_graph.subgraph(vpred = (vid, attr) => {
-        new_array.contains(vid)
-      }).joinVertices[Map[String, Long]](vertices_rdd)((id,
+      val vertices_rdd: RDD[(VertexId, Map[List[Int], Long])] =
+        this.input_graph.vertices.map(f => (f._1, f._2.getpattern_map))
+      val new_window_graph = gBatch.input_graph.joinVertices[Map[List[Int], Long]](vertices_rdd)((id,
         kgnode, new_data) => {
         if (kgnode != null)
-          new KGNodeV2Flat(kgnode.getlabel, kgnode.getpattern_map |+| new_data, List.empty)
+          new KGNodeV2FlatInt(kgnode.getlabel, kgnode.getpattern_map |+| new_data, List.empty)
         else
-          new KGNodeV2Flat("", Map.empty, List.empty)
+          new KGNodeV2FlatInt(-1, Map.empty, List.empty)
       })
 
       val result = new CandidateGeneration(minSup)
@@ -451,6 +518,45 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
 
   }
 
-  
+      def get_Frequent_SubgraphV2Flat(sc:SparkContext,subgraph_with_pattern: Graph[KGNodeV2FlatInt, KGEdgeInt],
+    result: Graph[PGNode, Int], SUPPORT: Int): Graph[KGNodeV2FlatInt, KGEdgeInt] =
+    {
+      /*
+	 * This method returns output graph with frequnet patterns only. 
+	 * TODO : need to clean the code
+	 */
+      //println("checking frequent subgraph")
+      var commulative_subgraph_index: Map[String, Int] = Map.empty;
+
+      //TODO : Sumit: Use this RDD instead of the Map(below) to filter frequent pattersn
+      val pattern_support_rdd: RDD[(List[Int], Long)] =
+        subgraph_with_pattern.vertices.flatMap(vertex =>
+          {
+            vertex._2.getpattern_map.map(f => (f._1, f._2)).toSet
+          })
+      val tmpRDD = pattern_support_rdd.reduceByKey((a, b) => a + b)
+      val frequent_pattern_support_rdd = tmpRDD.filter(f => ((f._2 >= SUPPORT) | (f._2 == -1)))
+
+      val pattern_vertex_rdd: RDD[(List[Int], Set[Long])] =
+        subgraph_with_pattern.vertices.flatMap(vertex =>
+          {
+            vertex._2.getpattern_map.map(f => (f._1, Set(vertex._1))).toSet
+          }).reduceByKey((a, b) => a++b) // append vertexids on each node
+      val join_frequent_node_vertex = frequent_pattern_support_rdd.leftOuterJoin(pattern_vertex_rdd)
+      val vertex_pattern_reverse_rdd = join_frequent_node_vertex.flatMap(pattern_entry 
+          => (pattern_entry._2._2.getOrElse(Set.empty).map(v_id => (v_id, Set(pattern_entry._1))))).reduceByKey((a, b) => a ++ b)
+      
+      //originalMap.filterKeys(interestingKeys.contains)        
+      val frequent_graph: Graph[KGNodeV2FlatInt, KGEdgeInt] =
+        subgraph_with_pattern.outerJoinVertices(vertex_pattern_reverse_rdd) {
+          case (id, kg_node, Some(nbr)) => new KGNodeV2FlatInt(kg_node.getlabel, kg_node.getpattern_map.filterKeys(nbr.toSet), kg_node.getProperties)
+          case (id, kg_node, None) => new KGNodeV2FlatInt(kg_node.getlabel, Map.empty, kg_node.getProperties)
+        }
+
+      val validgraph = frequent_graph.subgraph(epred =>
+        ((epred.srcAttr.getpattern_map != null) || (epred.dstAttr.getpattern_map != null)))
+      return validgraph;
+    }
+ 
 
 }

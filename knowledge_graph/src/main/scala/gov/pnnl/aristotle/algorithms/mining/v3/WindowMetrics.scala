@@ -19,10 +19,39 @@ import java.io.File
  */
 class WindowMetrics extends Serializable {
 
-  var pattern_in_this_winodw : RDD[(String, List[(Int,Long)])] = null
-  var pattern__node_association_window : RDD[(String, Set[(Int,String)])] = null
-  var node_pattern_association_window : RDD[(String, Set[String])] = null
-  var node_pattern_association_per_batch : RDD[(String, Set[(Int, Set[String])]) ] = null
+  /*
+   * pattern key with its support in every batch
+   * Example : (List(1, 1, 46),List((13,1), (14,1), (15,1), (16,1), (17,1), (18,0), (19,0)))
+   * key : List(1, 1, 46) is a 1-edge pattern
+   * value : tuple of (batch_id, support value)
+   */
+  var pattern_in_this_winodw : RDD[(List[Int], List[(Int,Long)])] = null
+  
+  
+  /*
+   * pattern key with its participating nodes in each batch.
+   * TODO:
+   */
+  var pattern__node_association_window : RDD[(List[Int], Set[(Int,Int)])] = null
+  
+  /*
+   * Every node with its associated patterns in whole window
+   * Example : (21,Set(List(1, 1, 18), List(1, 1, 3), List(1, 1, 18, 1, 1, 3)))
+   * key : 21 is a node
+   * value : Set(List(1, 1, 18), List(1, 1, 3), List(1, 1, 18, 1, 1, 3))) is a
+   * 		set of patterns in the window
+   */
+  var node_pattern_association_window : RDD[(Int, Set[List[Int]])] = null
+  
+  /*
+   * Every node with its associated patterns in every batch
+   * Example :  (33,Set((9,Set(List(1, 1, 10), List(1, 1, 10, 1, 1, 24), List(1, 1, 10, 1, 1, 3), List(1, 1, 24, 1, 1, 3), List(1, 1, 3), List(1, 1, 24), List(1, 1, 10, 1, 1, 24, 1, 1, 3)))))
+   * key: 33 is a node
+   * value : Set((9,Set(List(1, 1, 10), List(1, 1, 10, 1, 1, 24), .....) is set of pattern in batch_id=9 . This example has
+   * patterns only in one batch.
+   */
+  var node_pattern_association_per_batch : RDD[(Int, Set[(Int, Set[List[Int]])]) ] = null
+  
   val batch_id_map : Map[Int,(Long,Long)] = Map.empty
 
   def updateWindowMetrics(batch_metrics : BatchMetrics)
@@ -79,6 +108,6 @@ class WindowMetrics extends Serializable {
     pattern_in_this_winodw.saveAsTextFile("WindowPatternSummary" + System.nanoTime())
     pattern__node_association_window.saveAsTextFile("WidnowPatternNodeAssociation" + System.nanoTime())
     node_pattern_association_window.saveAsTextFile("WindowNodePatternAssociation" + System.nanoTime())
-    //node_pattern_association_per_batch.saveAsObjectFile("BatchNodePatternAssociation" + System.nanoTime())
+    node_pattern_association_per_batch.saveAsTextFile("BatchNodePatternAssociation" + System.nanoTime())
   }
 }

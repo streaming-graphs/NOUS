@@ -27,6 +27,7 @@ class PatternGraph {
   {
     val pattern_array = pattern.replaceAll("\t+", "\t").split("\t")
     
+    //val pattern_array_with_valid_nodes = pattern_array.filterNot(elm => elm == "-1")
     for(i <- 0 to pattern_array.length-1)
       if((i%3==0) || (i%3==2))
           v_map = v_map + (pattern_array(i)->0)
@@ -45,7 +46,7 @@ class PatternGraph {
     // so create new local val in the map function and use it.
     this.adj = this.adj.map(f=>{val emptyset : TreeSet[String] = new TreeSet() 
     emptyset})
-    for(i <- 0 until (pattern_array.length-1) by 3 )
+    for(i <- 0 until (pattern_array.length-1) by 3 ) //jumped by 4 because -1 is part of the pattern key
     {
       if(i%3==0)//its a source node
       {

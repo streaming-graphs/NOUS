@@ -21,6 +21,7 @@ import gov.pnnl.aristotle.algorithms.mining.datamodel.KGEdge
 import gov.pnnl.aristotle.algorithms.mining.datamodel.KGEdge
 import java.util.Calendar
 import gov.pnnl.aristotle.algorithms.mining.datamodel.KGEdge
+import gov.pnnl.aristotle.algorithms.mining.datamodel.KGEdgeInt
 
 object ReadHugeGraph {
 
@@ -222,7 +223,40 @@ object ReadHugeGraph {
     return graph
   }
   
-  
+ def getTemporalGraphInt(filename : String, sc : SparkContext): Graph[Int, KGEdgeInt] = {
+    println("starting map phase1");
+    val quadruples: RDD[(Int, Int, Int,Long)] =
+      sc.textFile(filename).filter(ln => isValidLineFromGraphFile(ln)).map { line =>
+        val fields = getFieldsFromLine(line);
+        val f = DateTimeFormat.forPattern("yyyy/MM/dd HH:mm:ss.SSS");
+        val dateTime = f.parseDateTime(fields(3));
+    	val longtime = dateTime.getMillis()
+
+        if (fields.length == 4)
+          (fields(0).toInt, fields(1).toInt, fields(2).toInt,longtime)
+        else if(fields.length == 3)
+          (fields(0).toInt, fields(1).toInt, fields(2).toInt,0)
+        else {
+          println("Exception reading graph file line", line)
+          (-1,-1,-1,-1)
+        }
+      }
+
+    quadruples.cache
+    val edges = quadruples.map(quadruple => {
+      Edge(quadruple._1.toLong, quadruple._3.toLong, new KGEdgeInt(quadruple._2, quadruple._4))
+    })
+    val vertices = quadruples.flatMap(triple => Array((triple._1.toLong, triple._1), (triple._3.hashCode().toLong, triple._3)))
+
+    println("starting map phase3 > Building graph");
+    val graph = Graph(vertices, edges);
+    
+    println("edge count " + graph.edges.count)
+    println("vertices count" + graph.vertices.count)
+    
+    return graph
+  }
+   
   def getGraph_old(filename : String, sc : SparkContext): Graph[String, String] = {
     println("starting map phase1");
     val edges_non_unique: RDD[Edge[String]] =
@@ -445,14 +479,6 @@ val edges = edges_multiple.distinct
      
       val non_type_graph = getTemporalGraph(filename, sc)
       return non_type_graph	
-//      val all_source_nodes = non_type_graph.triplets.map(triplets 
-//        => (triplets.srcId, triplets.srcAttr)).distinct
-//      val new_eges_to_show_vertexttype = all_source_nodes.map(v
-//          =>Edge(v._1, "paper".hashCode().toLong, new KGEdge("rdf:type",-1L)))
-//      val paper_nod_rdd = sc.parallelize(Array(getVertex_FromString("paper")))
-//      return Graph(non_type_graph.vertices.union(paper_nod_rdd),
-//          non_type_graph.edges.union(new_eges_to_show_vertexttype))
-      
     }
     
     /*
@@ -780,6 +806,11 @@ val edges = edges_multiple.distinct
         //multi_edge_graph = ReadHugeGraph.getGraph(filepath,sc)
 
         return multi_edge_graph.subgraph( vpred = (vid, attr) => attr != null )
+    }
+  
+  def getGraphFileTypeInt(filepath:String,sc:SparkContext): Graph[Int, KGEdgeInt] =
+    {
+	  return ReadHugeGraph.getTemporalGraphInt(filepath, sc)
     }
   /*
 

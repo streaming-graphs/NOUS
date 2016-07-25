@@ -14,6 +14,7 @@ import gov.pnnl.aristotle.algorithms.mining.datamodel.KGEdge
 import gov.pnnl.aristotle.algorithms.ReadHugeGraph
 import org.apache.spark.graphx.Graph.graphToGraphOps
 import org.apache.spark.rdd.RDD
+import gov.pnnl.aristotle.algorithms.mining.datamodel.KGEdgeInt
 
 object GraphProfiling {
     //val TYPE= "IS-A";
@@ -409,9 +410,9 @@ def getNodeProfile(graph :Graph[(String, Map[String, Map[String, Int]]),
 //   
 // }
 
- def getTypedAugmentedGraph_Temporal(graph: Graph[String, KGEdge], writerSG: PrintWriter,
-     typedVertexRDD : VertexRDD[Map[String, Int]])
- :Graph[(String, Map[String, Int]), KGEdge] =
+ def getTypedAugmentedGraph_Temporal(graph: Graph[Int, KGEdgeInt], writerSG: PrintWriter,
+     typedVertexRDD : VertexRDD[Map[Int, Int]])
+ :Graph[(Int, Map[Int, Int]), KGEdgeInt] =
  {
 	  return graph.outerJoinVertices(typedVertexRDD) {
       case (id, label, Some(nbr)) => (label, nbr)
@@ -438,16 +439,16 @@ def getNodeProfile(graph :Graph[(String, Map[String, Map[String, Int]]),
  *  In this case, it is actually a single key value pair map.  The key is "nodeType".
  *  The value is a pair representing (type of the node, and the count of how many times the type/is-a relation occurred.
  */ 
-def getTypedVertexRDD_Temporal(graph : Graph[String, KGEdge], writerSG : PrintWriter,degreeLimit:Int,
-    type_predicate:String)
- :VertexRDD[Map[String, Int]] =
+def getTypedVertexRDD_Temporal(graph : Graph[Int, KGEdgeInt], writerSG : PrintWriter,degreeLimit:Int,
+    type_predicate:Int)
+ :VertexRDD[Map[Int, Int]] =
  {
 
       var degrees: VertexRDD[Int] = graph.degrees
       //degrees.collect.foreach(f=>writerSG.println("degree" + f.toString))
       println("finding tpye")
       println("type support is" + degreeLimit)
-      var degreeGraph: Graph[(String, Map[String, Int]), KGEdge] = graph.outerJoinVertices(degrees) { (id, oldAttr, outDegOpt) =>
+      var degreeGraph: Graph[(Int, Map[String, Int]), KGEdgeInt] = graph.outerJoinVertices(degrees) { (id, oldAttr, outDegOpt) =>
         outDegOpt match {
           case Some(deg) => {
             if(oldAttr.equals("pentagon"))
@@ -461,15 +462,16 @@ def getTypedVertexRDD_Temporal(graph : Graph[String, KGEdge], writerSG : PrintWr
         }
       }
 
-      return degreeGraph.aggregateMessages[Map[String, Int]](
+      return degreeGraph.aggregateMessages[Map[Int, Int]](
         edge =>
           {
             if (edge.srcAttr._2.contains("degree"))
               edge.sendToSrc(Map(edge.srcAttr._1 -> 1))
             if (edge.dstAttr._2.contains("degree"))
               edge.sendToDst(Map(edge.dstAttr._1 -> 1))
-            if (edge.attr.getlabel.equalsIgnoreCase(type_predicate)) {
-              edge.sendToSrc(Map("type:"+edge.dstAttr._1 -> 1))
+            if (edge.attr.getlabel == (type_predicate)) {
+              edge.sendToSrc(Map(edge.dstAttr._1 -> 1)) //TODO: if no type information is stored then how 
+              // do we avoid ontological joins :- store it in vertex properties.
             }
           },
         (a, b) => { a |+| b })

@@ -14,6 +14,8 @@ import gov.pnnl.aristotle.algorithms.mining.datamodel.KGEdge
 import gov.pnnl.aristotle.algorithms.mining.GraphPatternProfiler
 import java.io.PrintWriter
 import java.io.File
+import gov.pnnl.aristotle.algorithms.mining.datamodel.KGEdgeInt
+import gov.pnnl.aristotle.algorithms.mining.datamodel.KGNodeV2FlatInt
 
 /**
  * @author puro755
@@ -22,13 +24,13 @@ import java.io.File
 class BatchMetrics(val id:Int) extends Serializable {
 
   //key:pattern value: support
-  var pattern_in_this_batch : RDD[(String, Long)] = null
+  var pattern_in_this_batch : RDD[(List[Int], Long)] = null
   
   //key:pattern value: Set((node_degree,node_label))
-  var pattern__node_association : RDD[(String, Set[(Int,String)])] = null
-  var node_pattern_association : RDD[(String, Set[String])] = null
+  var pattern__node_association : RDD[(List[Int], Set[(Int,Int)])] = null
+  var node_pattern_association : RDD[(Int, Set[List[Int]])] = null
     
-  def updateBatchMetrics(batch_graph : Graph[KGNodeV2Flat, KGEdge], writerSG:PrintWriter, args:Array[String]) 
+  def updateBatchMetrics(batch_graph : Graph[KGNodeV2FlatInt, KGEdgeInt], writerSG:PrintWriter, args:Array[String]) 
   {
     this.pattern_in_this_batch = GraphPatternProfiler.get_sorted_patternV2Flat(batch_graph,
       writerSG, 2, args(1).toInt)
