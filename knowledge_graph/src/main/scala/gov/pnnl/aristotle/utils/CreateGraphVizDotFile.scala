@@ -77,9 +77,9 @@ object CreateGraphVizDotFile {
   }
   
   
-  def drawGraphMiningOutputFile()
+  def drawGraphMiningOutputFile(filepath : String)
   {
-    val path : String = "/sumitData/work/myprojects/AIM/aristotle-dev/knowledge_graph/traphMiningOutput.txt"
+    val path : String = filepath // "/sumitData/work/myprojects/AIM/aristotle-dev/knowledge_graph/traphMiningOutput.txt"
     var entity_Map :Map[String,Long] = Map.empty
     var all_patterns_dot = new PrintWriter(new File("all_pattern.dot"))
     var frequent_patterns = new PrintWriter(new File("frequent_pattern.dot"))
@@ -100,12 +100,6 @@ object CreateGraphVizDotFile {
   	{
   	  if(line.startsWith("All:"))
   	  {
-//  	    all_patterns_dot = new PrintWriter(new File(s"all_$all_pattern_counter.dot"))
-//  	    
-//  	    all_patterns_dot.println("digraph data {")
-//  	    all_patterns_dot.println('"'+"label" + '"' + "=Support_"
-//  	        +line.trim().split("\\t")(line.trim().split("\\t").length -1 ) )
-//  	    all_patterns_dot.println("rankdir=LR;")
       	appendQuadrupleToDotFile(line.replaceAll("All:", "").
   	  	    replaceAll("\t+", "\t"),all_patterns_dot)
   	    all_patterns_dot.println("}")
