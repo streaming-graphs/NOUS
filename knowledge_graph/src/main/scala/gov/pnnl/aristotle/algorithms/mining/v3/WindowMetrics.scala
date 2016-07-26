@@ -22,7 +22,7 @@ class WindowMetrics extends Serializable {
   /*
    * pattern key with its support in every batch
    * Example : (List(1, 1, 46),List((13,1), (14,1), (15,1), (16,1), (17,1), (18,0), (19,0)))
-   * key : List(1, 1, 46) is a 1-edge pattern
+   * key : List(1, 1, 46) is a pattern
    * value : tuple of (batch_id, support value)
    */
   var pattern_in_this_winodw : RDD[(List[Int], List[(Int,Long)])] = null
@@ -30,7 +30,9 @@ class WindowMetrics extends Serializable {
   
   /*
    * pattern key with its participating nodes in each batch.
-   * TODO:
+   * Example: (List(1, 1, 3),Set((3,0), (2,8)))
+   * key : List(1, 1, 3) is a pattern
+   * value : Set of tuple (node_degree, node_id) such as Set((3,0), (2,8)))
    */
   var pattern__node_association_window : RDD[(List[Int], Set[(Int,Int)])] = null
   

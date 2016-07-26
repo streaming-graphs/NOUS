@@ -98,6 +98,7 @@ object GraphMiner {
        *  vertex. 
        */
       val gBatch = new CandidateGeneration( minSup ).init(sc, input_graph, writerSG, args( 0 ).toInt, args( 2 ).toInt )
+
       /*
        *  Update the batch_id with its min/max time
        */
@@ -114,7 +115,7 @@ object GraphMiner {
       batch_window_intersection_graph.input_graph =
         gWin.filterNonPatternSubGraphV2( batch_window_intersection_graph.input_graph )
 
-      var level = 0;
+        var level = 0;
       val iteration_limit : Int = args( 3 ).toInt
       writerSG.flush()
       breakable {

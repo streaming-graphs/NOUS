@@ -27,7 +27,8 @@ object CreateGraphVizDotFile {
   def main(args: Array[String]): Unit = {
 
     //drawTTLFile("GraphMineInputTime5.txt", "GraphMineInputTime5.dot")
-    drawDepGraph("DependencyGraphEdges396174451444519/part-00000")
+    //drawDepGraph("DependencyGraphEdges396174451444519/part-00000")
+    drawDepGraph(args(0))
   }
 
   def drawDepGraph(filepath : String)
