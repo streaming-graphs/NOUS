@@ -101,18 +101,19 @@ class WindowStateV3 {
       //Create Edges in the dep graph
       // it has commulative count of all patterns on each vertex
     
-      val pattern_rdd =
-    		  batch_graph.vertices.flatMap(vertex =>
+      val pattern_rdd = batch_graph.vertices.flatMap(vertex =>
       {
         vertex._2.getpattern_map.map(pattern => (pattern._1, pattern._2)).toSet
       })
       val all_pattern_data = pattern_rdd.reduceByKey((a, b) => a + b)
-      val new_dependency_graph_vertices_support = getDepGraphVertexRDD(all_pattern_data, TYPE)
       
+      /*
+       * Get vertices and edges of the Dep Graph
+       */
+      val new_dependency_graph_vertices_support = getDepGraphVertexRDD(all_pattern_data, TYPE)
       val new_dependency_graph_edges = getDepGraphEdgeRDD(all_pattern_data)
-      val res =  Graph(new_dependency_graph_vertices_support, new_dependency_graph_edges)
-            
-      return res
+      
+      return Graph(new_dependency_graph_vertices_support, new_dependency_graph_edges)
     }
   
   def setRedundantTag(new_graph : Graph[PGNode,Int]) : Graph[PGNode,Int] =
@@ -181,20 +182,19 @@ class WindowStateV3 {
   def updateGDep(batch_graph: Graph[KGNodeV2FlatInt, KGEdgeInt], TYPE: Int, SUPPORT: Int) =
     {
 
-	
-    var updatedGDep = getNewDepGraph(batch_graph, TYPE)
-    	//Tag every node in the dependency graph with In-frequent, closed, and promising tag
-    	updatedGDep = updatedGDep.subgraph(vpred = (vid, attr) => attr != null)
+      var batch_GDep = getNewDepGraph(batch_graph, TYPE)
+      batch_GDep = batch_GDep.subgraph(vpred = (vid, attr) => attr != null)
 
-    	val new_graph = setFrequentClosedPromisingTag(updatedGDep,SUPPORT)
-    	// Set redundant tag
-        updatedGDep = setRedundantTag(new_graph)
-        //this.gDep.graph
-        if(this.gDep.graph == null)
-          this.gDep.graph = updatedGDep
-        else
-        	this.gDep.graph = Graph(this.gDep.graph.vertices.union(updatedGDep.vertices).distinct,
-        			this.gDep.graph.edges.union(updatedGDep.edges).distinct)
+      //Tag every node in the dependency graph with In-frequent, closed, and promising tag
+      val new_graph = setFrequentClosedPromisingTag(batch_GDep, SUPPORT)
+      // Set redundant tag
+      batch_GDep = setRedundantTag(new_graph)
+
+      if (this.gDep.graph == null)
+        this.gDep.graph = batch_GDep
+      else
+        this.gDep.graph = Graph(this.gDep.graph.vertices.union(batch_GDep.vertices).distinct,
+          this.gDep.graph.edges.union(batch_GDep.edges).distinct)
     }
 
   def saveDepG() {
@@ -218,6 +218,8 @@ class WindowStateV3 {
       val prop_name_list = f.pgprop.map(prop => prop)
       (f.getnode_label, prop_name_list.length, prop_name_list)
     })
+    
+    
     pattern_dep_graph.saveAsTextFile("DependencyGraphSummary" + System.nanoTime())
     val dgep_v_rdd = this.gDep.graph.vertices.map(v => (v._1, v._2.getnode_label, v._2.getsupport, v._2.getptype))
     dgep_v_rdd.saveAsTextFile("DependencyGraphVertices" + System.nanoTime())

@@ -25,50 +25,36 @@ object CreateGraphVizDotFile {
   
 
   def main(args: Array[String]): Unit = {
-    
-//   drawTTLFile("/sumitData/work/myprojects/AIM/aristotle-dev/knowledge_graph/triple_drone_sample.txt",
-//       "/sumitData/work/myprojects/AIM/aristotle-dev/knowledge_graph/triple_drone_sample.dot")
+
     //drawTTLFile("GraphMineInputTime5.txt", "GraphMineInputTime5.dot")
-    //drawDepGraph("DependencyGraphEdges1572095634163007/part-00000")
-    //drawDepGraph("DependencyGraphEdges1577874580323937/part-00000")
     drawDepGraph("DependencyGraphEdges396174451444519/part-00000")
-    //drawDepGraph("DependencyGraphEdges395219506729069/part-00000")
   }
 
   def drawDepGraph(filepath : String)
   {
 
-    //val path : String = "/sumitData/work/myprojects/AIM/aristotle-dev/knowledge_graph/traphMiningOutput.txt"
     var entity_Map: Map[String, Long] = Map.empty
     var all_patterns_dot = new PrintWriter(new File("all_patternint.dot"))
-    var frequent_patterns = new PrintWriter(new File("frequent_patternin.dot"))
     all_patterns_dot.println("digraph data {")
     all_patterns_dot.println("rankdir=LR;")
-    frequent_patterns.println("digraph data {")
-    frequent_patterns.println("rankdir=LR;")
     var all_pattern_counter = 0
     var frequent_pattern_counter = 0
     val fillcolor_map = Map((-1 -> "red"), (0 -> "forestgreen"), (1 -> "gold3"), (2 -> "cyan3"))
     //-1 infrequent, 0 promixing, 1 : closed, 2, redundant
     var allnodes: Map[String, Int] = Map.empty
-    
-    
-    
-    
+
     for (line <- Source.fromFile(filepath).getLines()) {
       if (line.startsWith("@") || line.startsWith("#") || line.isEmpty()) { ; }
       else {
         val clean_line_array = line.replaceAll("\\(", "").replaceAll("\\)", "").split("List")
         val src = clean_line_array(1)
         val dst = clean_line_array(2)
-        //allnodes = allnodes + ( src.split( "#" )( 0 ) -> src.split( "#" )( 1 ).toInt )
         allnodes = allnodes + (dst.split("#")(0) -> dst.split("#")(1).replaceAll(",", "").toInt)
-        
+
         /*
          * Avoid making self loop
          */
-        if(!src.split("#")(0).equalsIgnoreCase(dst.split("#")(0)))
-        {
+        if (!src.split("#")(0).equalsIgnoreCase(dst.split("#")(0))) {
           all_patterns_dot.println('"' + src.split("#")(0) + '"' + " -> " + '"' + dst.split("#")(0) +
             '"' + " [label=" + '"' + "part_of" + '"' + "]")
           all_pattern_counter += 1
@@ -82,11 +68,7 @@ object CreateGraphVizDotFile {
     all_patterns_dot.println("}")
     all_patterns_dot.flush()
 
-    //all_patterns_dot.println("}")
-    //frequent_patterns.println("}")
-
     all_patterns_dot.flush()
-    frequent_patterns.flush()
 
   }
   
