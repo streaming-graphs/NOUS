@@ -60,10 +60,10 @@ class WindowStateV3 {
   RDD[(VertexId, PGNode)] =
     {
       val new_dependency_graph_vertices_support: RDD[(VertexId, PGNode)] =
-        all_pattern_data.map(pattern =>
+        all_pattern_data.filter(pattern=>pattern._1.filterNot(elm => elm == -1).size != 0).map(pattern =>
           (pattern._1.filterNot(elm => elm == -1).hashCode(),
-            new PGNode(pattern._1.filterNot(elm => elm == -1).toString.hashCode(), pattern._2, -1)))
-      return new_dependency_graph_vertices_support
+            new PGNode(pattern._1.filterNot(elm => elm == -1), pattern._2, -1)))
+      return new_dependency_graph_vertices_support.distinct
     }
 
   /*
@@ -81,37 +81,38 @@ class WindowStateV3 {
             //val setNodes = p._1.replaceAll("\\|+", "\\|").split('|')
             val sep_index = vertex._1.indexOf(-1)
             val twoLists = vertex._1.splitAt(sep_index)
-            if ((twoLists._1.size % 3 == 2) && (twoLists._2.filterNot(elm => elm == -1).size % 3 == 2)) {
-              tmp = tmp ++ Array(Edge(twoLists._1.toString.hashCode(), vertex._1.filterNot(elm => elm == -1).toString.hashCode(), -1))
-              tmp = tmp ++ Array(Edge(twoLists._2.toString.hashCode(), vertex._1.filterNot(elm => elm == -1).toString.hashCode(), -1))
+            //If done want to generate base pattern for some reason, check (twoLists._2.size != 1)
+            if ((twoLists._1.size != 0) && (twoLists._2.size != 0) && (twoLists._1.size % 3 == 0) && (twoLists._2.filterNot(elm => elm == -1).size % 3 == 0)) {
+              tmp = tmp ++ Array(Edge(twoLists._1.hashCode(), vertex._1.filterNot(elm => elm == -1).hashCode(), 1))
+              tmp = tmp ++ Array(Edge(twoLists._2.filterNot(elm => elm == -1).hashCode(), vertex._1.filterNot(elm => elm == -1).hashCode(), 1))
             }
           
           tmp
         })
-      return new_dependency_graph_edges
+      return new_dependency_graph_edges.distinct
 
     }
 
   def getNewDepGraph(batch_graph: Graph[KGNodeV2FlatInt, KGEdgeInt], TYPE: Int): Graph[PGNode, Int] =
     {
-
       //Edge(P1.hascode,P2.hashcode,1)
       // "1" is just an edge type which represent "part-of"
       // int is used to save the space 
       //Create Edges in the dep graph
       // it has commulative count of all patterns on each vertex
     
-          val pattern_rdd =
-        batch_graph.vertices.flatMap(vertex =>
-          {
-            vertex._2.getpattern_map.map(pattern => (pattern._1, pattern._2)).toSet
-          })
+      val pattern_rdd =
+    		  batch_graph.vertices.flatMap(vertex =>
+      {
+        vertex._2.getpattern_map.map(pattern => (pattern._1, pattern._2)).toSet
+      })
       val all_pattern_data = pattern_rdd.reduceByKey((a, b) => a + b)
-
       val new_dependency_graph_vertices_support = getDepGraphVertexRDD(all_pattern_data, TYPE)
+      
       val new_dependency_graph_edges = getDepGraphEdgeRDD(all_pattern_data)
-
-      return Graph(new_dependency_graph_vertices_support, new_dependency_graph_edges)
+      val res =  Graph(new_dependency_graph_vertices_support, new_dependency_graph_edges)
+            
+      return res
     }
   
   def setRedundantTag(new_graph : Graph[PGNode,Int]) : Graph[PGNode,Int] =
@@ -130,18 +131,18 @@ class WindowStateV3 {
         case (id, pnode, None) => {
           if ((pnode == null) || (pnode.getnode_label == null) || (pnode.getsupport == null) || (pnode.getptype == null)) {
             println("null")
-            new PGNode("test".hashCode(), -1, -1)
+            new PGNode(List.empty, -1, -1)
           } else
             new PGNode(pnode.getnode_label, pnode.getsupport, pnode.getptype)
         }
       }
     }
   
-  def setFrequentClosedPromisingTag(SUPPORT:Int) : Graph[PGNode,Int] =
+  def setFrequentClosedPromisingTag(graph :Graph[PGNode, Int],SUPPORT:Int) : Graph[PGNode,Int] =
   {
       
     //Set their status as closed, redundant, promising
-      val dep_vertex_rdd = this.gDep.graph.aggregateMessages[Int](
+      val dep_vertex_rdd = graph.aggregateMessages[Int](
         edge => {
           if (edge.srcAttr.getsupport < SUPPORT) edge.sendToSrc(-1)
           else {
@@ -165,11 +166,11 @@ class WindowStateV3 {
         }
       //val only_frequent_dep_vertex_rdd = dep_vertex_rdd.filter(pred)  
       val new_graph_infquent =
-        this.gDep.graph.outerJoinVertices(dep_vertex_rdd) {
+        graph.outerJoinVertices(dep_vertex_rdd) {
           case (id, pnode, Some(nbr)) => new PGNode(pnode.getnode_label, pnode.getsupport, math.max(pnode.getptype, nbr))
           case (id, pnode, None) => if ((pnode == null) || (pnode.getnode_label == null) || (pnode.getsupport == null) || (pnode.getptype == null)) {
             println("null")
-            new PGNode("test".hashCode(), -1, -1)
+            new PGNode(List.empty, -1, -1)
           } else
             new PGNode(pnode.getnode_label, pnode.getsupport, pnode.getptype)
         }
@@ -180,19 +181,25 @@ class WindowStateV3 {
   def updateGDep(batch_graph: Graph[KGNodeV2FlatInt, KGEdgeInt], TYPE: Int, SUPPORT: Int) =
     {
 
-    	this.gDep.graph = getNewDepGraph(batch_graph, TYPE)
+	
+    var updatedGDep = getNewDepGraph(batch_graph, TYPE)
     	//Tag every node in the dependency graph with In-frequent, closed, and promising tag
-    	this.gDep.graph = this.gDep.graph.subgraph(vpred = (vid, attr) => attr != null)
+    	updatedGDep = updatedGDep.subgraph(vpred = (vid, attr) => attr != null)
 
-    	val new_graph = setFrequentClosedPromisingTag(SUPPORT)
+    	val new_graph = setFrequentClosedPromisingTag(updatedGDep,SUPPORT)
     	// Set redundant tag
-        this.gDep.graph = setRedundantTag(new_graph)
-        
+        updatedGDep = setRedundantTag(new_graph)
+        //this.gDep.graph
+        if(this.gDep.graph == null)
+          this.gDep.graph = updatedGDep
+        else
+        	this.gDep.graph = Graph(this.gDep.graph.vertices.union(updatedGDep.vertices).distinct,
+        			this.gDep.graph.edges.union(updatedGDep.edges).distinct)
     }
 
   def saveDepG() {
     //Collect all super graph on the source (up to size 3 iterations) 
-    val newGraph = this.gDep.graph.pregel[List[VertexProperty]](List.empty[VertexProperty],
+    val newGraph = this.gDep.graph.pregel[List[List[Int]]](List.empty,
       3, EdgeDirection.In)(
         (id, dist, newDist) =>
           {
@@ -201,20 +208,20 @@ class WindowStateV3 {
             newpdgnode
           }, // Vertex Program
         triplet => { // Send Message
-          val newprop = new VertexProperty(triplet.dstId, triplet.dstAttr.getnode_label)
+          val newprop = triplet.dstAttr.getnode_label
           Iterator((triplet.srcId, List(newprop)))
         },
         (a, b) => a ++ b // Merge Message
         )
 
     val pattern_dep_graph = newGraph.vertices.mapValues(f => {
-      val prop_name_list = f.pgprop.map(prop => prop.property_label)
+      val prop_name_list = f.pgprop.map(prop => prop)
       (f.getnode_label, prop_name_list.length, prop_name_list)
     })
     pattern_dep_graph.saveAsTextFile("DependencyGraphSummary" + System.nanoTime())
     val dgep_v_rdd = this.gDep.graph.vertices.map(v => (v._1, v._2.getnode_label, v._2.getsupport, v._2.getptype))
     dgep_v_rdd.saveAsTextFile("DependencyGraphVertices" + System.nanoTime())
-    val dgep_e_rdd = this.gDep.graph.triplets.map(t=>(t.srcAttr.getnode_label+"#"+t.srcAttr.getptype, t.dstAttr.getnode_label+"#"+t.srcAttr.getptype))
+    val dgep_e_rdd = this.gDep.graph.triplets.map(t => (t.srcAttr.getnode_label + "#" + t.srcAttr.getptype, t.dstAttr.getnode_label + "#" + t.srcAttr.getptype))
     dgep_e_rdd.saveAsTextFile("DependencyGraphEdges" + System.nanoTime())
   }
 
@@ -235,7 +242,6 @@ class WindowStateV3 {
        * Returns the RDD with each pattern-key and its support
        */
       val res = new_dependency_graph_vertices_RDD.reduceByKey((a, b) => a + b)
-      //println("resutling patterkey-count size" + res.count)
       return res
     }
 }

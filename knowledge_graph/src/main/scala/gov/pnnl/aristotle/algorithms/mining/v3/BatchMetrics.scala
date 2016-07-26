@@ -43,9 +43,6 @@ class BatchMetrics(val id:Int) extends Serializable {
   def saveBatchMetrics()
   {
     pattern_in_this_batch.saveAsTextFile("PatternSummary" + System.nanoTime())
-    val writer_pattern = new PrintWriter(new File("GraphMiningPattern.txt"))
-    pattern_in_this_batch.collect.foreach(p => writer_pattern.println(p._1 + ":" + p._2))
-    writer_pattern.flush()
     pattern__node_association.saveAsTextFile("PatternNodeAssociation" + System.nanoTime())
     node_pattern_association.saveAsTextFile("NodePatternAssociation" + System.nanoTime())
   }
