@@ -268,6 +268,7 @@ def fixGraphV2Flat(graph: Graph[KGNodeV2FlatInt, KGEdgeInt]):
     {
       val v_degree = graph.degrees //.map(v => (v._1,v._2))
       val v_rdd_raw = graph.vertices
+      
       val v_rdd_raw_joined = v_degree.innerZipJoin(v_rdd_raw)((id, degree, vnode) => (degree, vnode))
       //.innerZipJoin(v_rdd_raw)((id, degree, vnode) => (degree, vnode))
       //v_rdd_raw_joined
