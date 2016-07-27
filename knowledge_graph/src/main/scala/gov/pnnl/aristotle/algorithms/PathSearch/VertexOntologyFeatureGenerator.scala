@@ -14,6 +14,7 @@ import gov.pnnl.aristotle.algorithms.ReadHugeGraph
 import org.apache.spark.rdd.RDD.numericRDDToDoubleRDDFunctions
 import org.apache.spark.rdd.RDD.rddToPairRDDFunctions
 import scala.Array.canBuildFrom
+import gov.pnnl.aristotle.algorithms.PathSearch.PathSearchUtils._
 
 object VertexOntologyGenerator {
   
@@ -63,7 +64,8 @@ object VertexOntologyGenerator {
         triplet.sendToDst(1)
     }, (a,b) => a+b)
     
-    val wordnetWithLabels = wordnetEntities.innerZipJoin(g.vertices)((id, numNbrs, label) => (label, numNbrs))
+    val wordnetWithLabels = wordnetEntities.innerZipJoin(g.vertices)((id, numNbrs, label) => 
+      (label, numNbrs))
     println("number of total wordnet categories=", wordnetWithLabels.count)
     wordnetWithLabels.saveAsTextFile(outputDir + "/wordnetClusterStats")
   }
@@ -121,14 +123,11 @@ object VertexOntologyGenerator {
   def getFieldsFromLine(line :String) : Array[String] = {
     return line.toLowerCase().replaceAllLiterally("<", "").replaceAllLiterally(">", "").replace(" .", "").split("\\t").map(str => str.stripPrefix(" ").stripSuffix(" "));
   }
-  def isValidLineFromGraphFile(ln : String) : Boolean ={
-    val isvalid = ( (ln.startsWith("@") ==false) && (ln.startsWith("#")==false) && (ln.isEmpty()==false))
-    isvalid
-  }
+  
   
   /* Finds entity pairs with more than 1 edge between them. */
   def groupEdgesByVertexPair(inputFile: String, sc: SparkContext): Unit = {
-    val triples = sc.textFile(inputFile).filter(ln => isValidLineFromGraphFile(ln)).map { line =>
+    val triples = sc.textFile(inputFile).filter(ln => PathSearchUtils.isValidLine(ln)).map { line =>
         val fields = getFieldsFromLine(line);
         if (fields.length == 4)
           (fields(1), fields(2), fields(3))
@@ -204,7 +203,7 @@ object VertexOntologyGenerator {
     val nodesWithClusterIdAndLabels = clusterAssignments.join(vertLabels)
     nodesWithClusterIdAndLabels.saveAsTextFile(outputFile)
   }
-  
+  /*
   def CreateAndSaveGraphClusters(graphInputFile: String, outputFile : String, 
       numClusters : Int, numIter:Int, sc: SparkContext): 
   PowerIterationClusteringModel = {
@@ -237,6 +236,8 @@ object VertexOntologyGenerator {
     }
     model
   }
+  * 
+  */
 
   def CreateAndSaveOntologyGraph(g: Graph[String, String], outFile: String): Unit = {
     val nodesWithTypes: VertexRDD[SortedSet[VertexId]] = getNodeTypesSortedById(g)
