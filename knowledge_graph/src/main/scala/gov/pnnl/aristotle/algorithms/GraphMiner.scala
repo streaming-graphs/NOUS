@@ -61,12 +61,19 @@ object GraphMiner {
 
     var t_sc0 = System.nanoTime();
 
+    if(args.length != 5) {
+      println("Usage: <edge label denoting node type> <minSupport> " + 
+          " <type threshold for node> <numIterations> "  + 
+          " <BatchInfoFile (containingPathToDataDirectoriesPerBatch)>")
+    }
     /*
 	 * Read multiple files. Each file is treated as a new batch.
 	 */
-    val minSup = args( 1 ).toInt;
-    val format : String = args( 4 )
-    val number_of_input_files = args.size
+    val baseEdgeType = args(0).toInt
+    val minSup = args(1).toInt;
+    val nodeTypeThreshold = args(2).toInt
+    val numIter = args(3).toInt
+    val listBatchFiles = args(4)
     val windowSize = 5
     val window = new WindowStateV3()
     val window_metrics = new WindowMetrics()
@@ -79,7 +86,7 @@ object GraphMiner {
      * Read ` the files/folder one-by-one and construct an input graph
      */
     for (
-      filepath <- Source.fromFile(args(4)).
+      filepath <- Source.fromFile(listBatchFiles).
         getLines().filter(str => !str.startsWith("#"))
     ) {
 
@@ -97,7 +104,7 @@ object GraphMiner {
        *  pattern on each vertex. all the other information is removed from the
        *  vertex. 
        */
-      val gBatch = new CandidateGeneration( minSup ).init(sc, input_graph, writerSG, args( 0 ).toInt, args( 2 ).toInt )
+      val gBatch = new CandidateGeneration(minSup).init(sc, input_graph, writerSG, baseEdgeType, nodeTypeThreshold)
 
       /*
        *  Update the batch_id with its min/max time
@@ -116,19 +123,19 @@ object GraphMiner {
         gWin.filterNonPatternSubGraphV2( batch_window_intersection_graph.input_graph )
 
         var level = 0;
-      val iteration_limit : Int = args( 3 ).toInt
+      
       writerSG.flush()
       breakable {
         while ( 1 == 1 ) {
           level = level + 1
           //println( s"#####Iteration ID $level and interation_limit is $iteration_limit" )
-          if ( level > iteration_limit ) break;
+          if ( level > numIter ) break;
 
           batch_window_intersection_graph.input_graph = batch_window_intersection_graph.joinPatterns( writerSG, level )
           /*
            * Update the dependency graph 
            */
-          window.updateGDep( batch_window_intersection_graph.input_graph, args( 0 ).toInt, args( 1 ).toInt )
+          window.updateGDep( batch_window_intersection_graph.input_graph, baseEdgeType , minSup)
           /*
              * Update the current graph by removing special purpose '|' symbols 
              * in the pattern keys. This symbol is used to identify which small
