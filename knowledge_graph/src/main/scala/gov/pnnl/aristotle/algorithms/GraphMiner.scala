@@ -62,9 +62,10 @@ object GraphMiner {
     var t_sc0 = System.nanoTime();
 
     if(args.length != 5) {
-      println("Usage: <edge label denoting node type> <minSupport> " + 
+      println("Usage: <edge label denoting node type(Int)> <minSupport> " + 
           " <type threshold for node> <numIterations> "  + 
           " <BatchInfoFile (containingPathToDataDirectoriesPerBatch)>")
+      exit
     }
     /*
 	 * Read multiple files. Each file is treated as a new batch.
