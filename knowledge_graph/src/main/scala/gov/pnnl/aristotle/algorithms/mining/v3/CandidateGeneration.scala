@@ -106,7 +106,7 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
               srcnodetype.foreach(s => {
                 dstnodetype.foreach(d => {
                   edge.sendToSrc(Map(List(s._1, edge.attr.getlabel,
-                    d._1.hashCode(), -1)
+                    d._1, -1)
                     -> 1))
                 })
               })
@@ -309,49 +309,7 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
        normalized_join.foreach(bigger_pattern =>{
          joinedPattern = joinedPattern + (bigger_pattern._2._1 -> (bigger_pattern._2._4 * bigger_pattern._2._4))
        }) 
-      /*
-       * For each pattern-instance of each pattern,
-       * iterate over them and join them if they are disjointed 
-       * instances.
-       * 
-       */
-     /* for (i <- 0 until selfJoinPatterns.length) {
-        for (j <- i + 1 until selfJoinPatterns.length) {
-          /*
-           * Adding various Filter Heuristics based on the graph structure, and
-           * entity type.
-           * IF two sub-grpahs are joined, they are joined based on their DFS lexicographic order
-           */
-          val smallpattern1 = selfJoinPatterns(i)._1.filterNot(elm => elm == -1)
-          val smallpattern2 = selfJoinPatterns(j)._1.filterNot(elm => elm == -1)
-          if( (join_size == 2) && thisnodename.equalsIgnoreCase("paper_1")) 
-            println("tring to join ", smallpattern1 , " and ", smallpattern2 )
-          if (!smallpattern2.contains(smallpattern1) &&
-            !smallpattern1.contains(smallpattern2) &&
-            (!FilterHeuristics.checkcross_join(smallpattern1, smallpattern2)) &&
-            (FilterHeuristics.non_overlapping(smallpattern1, smallpattern2)) &&
-            //(FilterHeuristics.compatible_join(selfJoinPatterns(i)._1, selfJoinPatterns(j)._1)) &&
-            (!FilterHeuristics.redundant_join(smallpattern1, smallpattern2,join_size))) {
-        	  println("inside if code")
-            val pattern = (smallpattern1 mkString("\t")) + "|\t" + (smallpattern2 mkString("\t")) + "|" 
-           //send something like: -1078222292 160090837 -1237882651| -1078222292 160090837 -361161128|   
-           val pg = new PatternGraph()
-           pg.ConstructPatternGraph(pattern)
-           val startedge = smallpattern2.toArray
-           var dfspath = pg.DFS(startedge(0).toString())
-           var fixedpath = dfspath.split("\t").flatMap(str=>{
-             if(str.endsWith("|")) 
-               List(str.replaceAll("\\|", ""), "-1")
-             else List(str)
-               })
-           var dfspathlist = fixedpath.map(_.trim.toInt).toList
-           if(dfspathlist(dfspathlist.size -1) == -1)
-        	   dfspathlist = dfspathlist.slice(0, dfspathlist.size - 1)
-            joinedPattern = joinedPattern + (dfspathlist -> (selfJoinPatterns(i)._2 * selfJoinPatterns(j)._2))
 
-          }
-        }
-      }*/
       new KGNodeV2FlatInt(attr.getlabel, joinedPattern |+| attr.getpattern_map, List.empty)
 
     })
@@ -366,10 +324,12 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
   def filterNonPatternSubGraphV2(updatedGraph: Graph[KGNodeV2FlatInt, KGEdgeInt]): Graph[KGNodeV2FlatInt, KGEdgeInt] =
     {
       return updatedGraph.subgraph(epred =>
-        ((epred.attr.getlabel != TYPE) &&
-          ((epred.srcAttr.getpattern_map.size != 0) &&
-            (epred.dstAttr.getpattern_map.size != 0))))
-
+        ((epred.attr.getlabel != TYPE)))
+		/*
+		 * &&
+		          ((epred.srcAttr.getpattern_map.size != 0) &&
+		            (epred.dstAttr.getpattern_map.size != 0)))
+		 */
     }
 
   /**

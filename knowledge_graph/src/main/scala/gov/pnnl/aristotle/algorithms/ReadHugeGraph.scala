@@ -22,6 +22,7 @@ import gov.pnnl.aristotle.algorithms.mining.datamodel.KGEdge
 import java.util.Calendar
 import gov.pnnl.aristotle.algorithms.mining.datamodel.KGEdge
 import gov.pnnl.aristotle.algorithms.mining.datamodel.KGEdgeInt
+import org.apache.spark.graphx.PartitionStrategy
 
 object ReadHugeGraph {
 
@@ -227,10 +228,17 @@ object ReadHugeGraph {
     println("starting map phase1");
     val quadruples: RDD[(Int, Int, Int,Long)] =
       sc.textFile(filename).filter(ln => isValidLineFromGraphFile(ln)).map { line =>
+        var longtime = -1L
         val fields = getFieldsFromLine(line);
-        val f = DateTimeFormat.forPattern("yyyy/MM/dd HH:mm:ss.SSS");
-        val dateTime = f.parseDateTime(fields(3));
-    	val longtime = dateTime.getMillis()
+        try{
+          val f = DateTimeFormat.forPattern("yyyy/MM/dd HH:mm:ss.SSS");
+          val dateTime = f.parseDateTime(fields(3));
+          longtime = dateTime.getMillis()
+        }catch{
+          case ex: org.joda.time.IllegalFieldValueException => {
+          }
+        }
+        
 
         if (fields.length == 4)
           (fields(0).toInt, fields(1).toInt, fields(2).toInt,longtime)
@@ -254,7 +262,7 @@ object ReadHugeGraph {
     println("edge count " + graph.edges.count)
     println("vertices count" + graph.vertices.count)
     
-    return graph
+    return graph.partitionBy(PartitionStrategy.EdgePartition2D)
   }
    
   def getGraph_old(filename : String, sc : SparkContext): Graph[String, String] = {
@@ -486,8 +494,6 @@ val edges = edges_multiple.distinct
      */
     
   def getGraphLG_Temporal(filename : String, sc : SparkContext): Graph[String, KGEdge] = {
-    
-    
     println("starting map phase1");
     val triples: RDD[(String, String, String)] =
       sc.textFile(filename).filter(ln => isValidLineFromGraphFile(ln)).map { line =>
@@ -511,57 +517,35 @@ val edges = edges_multiple.distinct
     val graph = Graph(vertices, edges);
  
     return graph
-    
-    
-   /*
-    * older code reading file multiple time
- 
-     println("starting map phase1");
-     val edges: RDD[Edge[KGEdge]] =
-      sc.textFile(filename).filter(ln => isValidLineFromGraphFile(ln)).map { line =>
-      val fields: Array[String] = getFieldsFromLineLG(line);
-      if(fields.length ==4 && isEdgeLineLG(line)) {
-       Edge(fields(1).hashCode().toLong, fields(2).hashCode().toLong, new KGEdge("E",-1L))
-      } 
-      else if(fields.length == 3 && isVertexLineLG(line)) {
-        Edge(fields(1).hashCode.toLong, fields(2).hashCode().toLong, new KGEdge("rdf:type",-1L))   
-      }
-      else {
-        println("Incorrect format", line)
-        exit
-      }
-     }
-
-    //edges.cache()
-    println("starting map phase2");
-    val vertices: RDD[(VertexId, String)] =
-      sc.textFile("1"+filename).filter(ln => isValidLineFromGraphFile(ln) && isVertexLineLG(ln)).map { line =>
-        val fields = getFieldsFromLineLG(line)
-        if(fields.length != 3) {
-          println("Incorrect graph format", line)
-          exit
-        }
-        val node1 = getVertex_FromString(fields(1))
-        val node2 = getVertex_FromString("Type_" + fields(2))
-        
-        //Array(node1, node2)
-        node1
-        
-    }
-  
-    println("starting map phase3 > Building graph");
-    val graph = Graph(vertices, edges);
-    //println("edge count " + graph.edges.count)
-    //println("vertices count" + graph.vertices.count)
-  
-    //graph.vertices.foreach(v => println(v._2))
-    //graph.edges.foreach(println(_))
-    return graph
-    *     */
-    
   }  
   
   
+      
+  def getGraphLG_TemporalInt(filename : String, sc : SparkContext): Graph[Int, KGEdgeInt] = {
+    println("starting map phase1");
+    val triples: RDD[(Int, Int, Int)] =
+      sc.textFile(filename).filter(ln => isValidLineFromGraphFile(ln)).map { line =>
+        
+        val fields = getFieldsFromLineLG(line);
+        if (fields.length == 4 && isEdgeLineLG(line))
+          (fields(1).toInt, 11, fields(2).toInt)
+        else if(fields.length == 3 && isVertexLineLG(line))
+          (fields(1).toInt, 10, fields(2).toInt)
+        else {
+          println("Exception reading graph file line", line)
+          (-1, -1, -1)
+        }
+      }
+
+    triples.cache
+    val edges = triples.filter(e=>(e._2!= -1)).map(triple => Edge(triple._1.toLong, triple._3.toLong, new KGEdgeInt(triple._2,-1L)))
+    val vertices = triples.filter(v=>(v._2 != -1)).flatMap(triple => Array((triple._1.toLong, triple._1), (triple._3.toLong, triple._3)))
+
+    println("starting map phase3 > Building graph");
+    val graph = Graph(vertices, edges);
+ 
+    return graph
+  }  
   
   def getGraphLG(filename : String, sc : SparkContext): Graph[String, String] = {
      println("starting map phase1");
@@ -810,7 +794,10 @@ val edges = edges_multiple.distinct
   
   def getGraphFileTypeInt(filepath:String,sc:SparkContext): Graph[Int, KGEdgeInt] =
     {
-	  return ReadHugeGraph.getTemporalGraphInt(filepath, sc)
+	  if (filepath.endsWith(".lg"))
+        return ReadHugeGraph.getGraphLG_TemporalInt(filepath, sc)
+      else 
+    return ReadHugeGraph.getTemporalGraphInt(filepath, sc)
     }
   /*
 

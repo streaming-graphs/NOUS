@@ -20,6 +20,7 @@ import org.apache.spark.SparkContext._
 import gov.pnnl.aristotle.algorithms.mining.datamodel.VertexProperty
 import org.apache.spark.graphx.EdgeDirection
 import org.apache.spark.graphx.VertexRDD
+import org.apache.spark.graphx.PartitionStrategy
 /**
  * @author puro755
  *
@@ -113,7 +114,7 @@ class WindowStateV3 {
       val new_dependency_graph_vertices_support = getDepGraphVertexRDD(all_pattern_data, TYPE)
       val new_dependency_graph_edges = getDepGraphEdgeRDD(all_pattern_data)
       
-      return Graph(new_dependency_graph_vertices_support, new_dependency_graph_edges)
+      return Graph(new_dependency_graph_vertices_support, new_dependency_graph_edges).partitionBy(PartitionStrategy.EdgePartition2D)
     }
   
   def setRedundantTag(new_graph : Graph[PGNode,Int]) : Graph[PGNode,Int] =
@@ -157,14 +158,14 @@ class WindowStateV3 {
         }, (status1, status2) => {
           math.min(status1, status2)
         })
-        if(dep_vertex_rdd.count == 0)
-        {
-          //set all nodes  as closed.
-          val new_graph = this.gDep.graph.mapVertices((id, attr) => {
-            new PGNode(attr.getnode_label, attr.getsupport, 1)
-          })
-          return new_graph
-        }
+//        if(dep_vertex_rdd.count == 0)
+//        {
+//          //set all nodes  as closed.
+//          val new_graph = this.gDep.graph.mapVertices((id, attr) => {
+//            new PGNode(attr.getnode_label, attr.getsupport, 1)
+//          })
+//          return new_graph
+//        }
       //val only_frequent_dep_vertex_rdd = dep_vertex_rdd.filter(pred)  
       val new_graph_infquent =
         graph.outerJoinVertices(dep_vertex_rdd) {
@@ -194,7 +195,7 @@ class WindowStateV3 {
         this.gDep.graph = batch_GDep
       else
         this.gDep.graph = Graph(this.gDep.graph.vertices.union(batch_GDep.vertices).distinct,
-          this.gDep.graph.edges.union(batch_GDep.edges).distinct)
+          this.gDep.graph.edges.union(batch_GDep.edges).distinct).partitionBy(PartitionStrategy.EdgePartition2D)
     }
 
   def saveDepG() {

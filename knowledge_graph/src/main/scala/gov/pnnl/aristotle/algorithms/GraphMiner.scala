@@ -44,7 +44,6 @@ object GraphMiner {
     .set("spark.rdd.compress", "true")
     .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
     .set("spark.shuffle.blockTransferService", "nio")
-    .setMaster("local")
     
 
   sparkConf.registerKryoClasses( Array.empty )
@@ -90,6 +89,7 @@ object GraphMiner {
       println(s"******Reading File $filepath with batch_id= $batch_id")
       val batch_metrics = new BatchMetrics( batch_id )
 
+      //val input_graph = ReadHugeGraph.getGraphFileTypeInt( filepath, sc )
       val input_graph = ReadHugeGraph.getGraphFileTypeInt( filepath, sc )
 
       /*
