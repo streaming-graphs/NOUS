@@ -60,7 +60,8 @@ object PathFeatureGenerator {
     
     //saveFeatureRDD(graphFile, outputDir, sc)
     //savePageRank(graphFile, outputDir, sc)
-    saveDegree(graphFile, outputDir, sc)
+    //saveDegree(graphFile, outputDir, sc)
+    saveNbrs(graphFile, outputDir, sc)
     //saveEdgeRankPerVertex(graphFile, outputDir, sc)
   }
   
@@ -69,7 +70,18 @@ object PathFeatureGenerator {
     val degree = g.degrees
     val degreeWithLabel = degree.join(g.vertices)
     val degreeWithLabelOnly = degreeWithLabel.map(v => (v._2._2, v._2._1))
-    degreeWithLabel.saveAsTextFile(outputDir + "/vertices.degrees.txt")
+    degreeWithLabelOnly.saveAsTextFile(outputDir + "/vertices.degrees.txt")
+  }
+  
+  def saveNbrs(graphFile: String, outputDir: String, sc: SparkContext): Unit = {
+    val g: Graph[String, String] = ReadHugeGraph.getGraph(graphFile, sc)
+    val nbrs = g.aggregateMessages[Set[String]](triplet => {
+      triplet.sendToSrc(Set(triplet.dstAttr))
+      triplet.sendToDst(Set(triplet.srcAttr))
+      }, (a,b) => a++b)
+      
+     val nbrsWithLabel = g.vertices.innerZipJoin(nbrs)((id, label, nbrlist) => (label, nbrlist))
+     nbrsWithLabel.saveAsTextFile(outputDir + "/vertices.nbrs.txt")
   }
   
   def savePageRank(graphFile: String, outputDir: String, sc: SparkContext): Unit = 

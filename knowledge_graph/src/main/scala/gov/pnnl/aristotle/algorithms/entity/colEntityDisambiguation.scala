@@ -42,7 +42,10 @@ class ColEntityDisamb[VD, ED] {
     //1. Get candidates entities for each mention
     val mentionLabels: List[Mention] = allMentionsWithData.keys.toList
     val mentionToEntityMap: Map[Mention, Iterable[Entity]] = 
-      getMatchCandidates(mentionLabels, vertexRDDWithAlias, phraseMatchThreshold)    
+      getMatchCandidates(mentionLabels, vertexRDDWithAlias, phraseMatchThreshold) 
+      
+     //1.1 If unable to find any potential candidate for a given mention,
+     // will create new entity in knowledge graph as nous:mention
     val mentionsWithoutEntityMatch: Set[Mention] = mentionLabels.toSet--mentionToEntityMap.keys.toSet
     val mentionsWithData = allMentionsWithData.--(mentionsWithoutEntityMatch)
     println("Mentions without any entity match")
@@ -52,7 +55,7 @@ class ColEntityDisamb[VD, ED] {
       return finalMatches.toMap
     
     
-    // 2. Score each candidate entity using graph neighbourhood data
+    // 2. Score each candidate entity using graph neighborhood data
     val candidateIds: Array[NodeId] = mentionToEntityMap.values.flatMap(listEntities => listEntities.map(entity => entity._1)).toArray
     println("Number of potential candidates=", candidateIds.size)
     val  nbrsOfCandidateEntities: Map[NodeId, Set[Entity]] = NodeProp.getOneHopNbrIdsLabels(g, candidateIds).toArray.toMap    
@@ -60,7 +63,8 @@ class ColEntityDisamb[VD, ED] {
       ColEntityDisScores.getEntityMentionCompScore(mentionsWithData, 
           mentionToEntityMap, nbrsOfCandidateEntities, 
           mentionToEntityMatchThreshold, phraseMatchThreshold)
-    
+  
+          
     //3. Score semantic relatedness between entity candidates of each mention
     val entityToEntitySemanticRelScore: Map[(Entity, Entity), SimScore] = 
       ColEntityDisScores.getSemanticRelatedEntitiesScore(mentionToEntityScore.values, nbrsOfCandidateEntities, numVerticesInGraph)

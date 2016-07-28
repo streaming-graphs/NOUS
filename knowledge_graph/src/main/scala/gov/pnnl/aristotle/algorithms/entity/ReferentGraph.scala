@@ -13,8 +13,8 @@ class ReferentGraph(mentionsWithData: Map[String, MentionData],
    
     
     val vertices: Map[NodeId, LabelWithWt] = getVertices(mentionsWithData, mentionToEntityScore)
-    val allEdges = getEdges(mentionToEntityScore, entityToEntitySemanticRelScore)
-    val allEdgesBySrcId: Map[NodeId, List[LocalDirectedEdge[Double]]] = 
+    private val allEdges = getEdges(mentionToEntityScore, entityToEntitySemanticRelScore)
+    private val allEdgesBySrcId: Map[NodeId, List[LocalDirectedEdge[Double]]] = 
       allEdges.groupBy(edge => edge._1).mapValues(iterOfEdges => {
         val totalWtEdges: Double = iterOfEdges.map(edge => edge._2._1).fold(0.0)((s1, s2) => s1+s2)
         iterOfEdges.toList.map(dirEdge => new LocalDirectedEdge[Double](dirEdge._2._1/totalWtEdges, dirEdge._2._2))

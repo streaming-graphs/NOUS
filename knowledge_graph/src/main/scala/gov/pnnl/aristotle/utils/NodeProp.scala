@@ -27,19 +27,33 @@ class NbrDataWithNbrAttr[VD](val dstId: Long, val dstAttr: VD)  extends NbrData 
 
 class NbrDataId
 object NodeProp {
- 
+  /*
+  def getNodeTypeArray(g: Graph[String, String], id: Array[Long] = Array.empty) : 
+  VertexRDD[Array[String]] = {  
+      return g.aggregateMessages[Array[String]]( edge => { 
+        if(id.isEmpty|| id.contains(edge.srcId)){
+          if(edge.attr.toLowerCase() == KGraphProp.edgeLabelNodeType.toLowerCase())  
+           edge.sendToSrc(Array(edge.dstAttr))
+        }},
+        (a, b) => a ++ b
+        )
+  }
+*/
+
   def getNodeType(g: Graph[String, String], id: Array[Long] = Array.empty) : VertexRDD[String] = {  
-      return g.aggregateMessages[String]( edge => { 
+       val verticesWithType = g.aggregateMessages[String]( edge => { 
         if(id.isEmpty|| id.contains(edge.srcId)){
           if(edge.attr.toLowerCase() == KGraphProp.edgeLabelNodeType.toLowerCase())  
            edge.sendToSrc(edge.dstAttr)
         }},
         (a, b) => a +"__"+ b
         )
+     
+        verticesWithType.mapValues(vertexType => "VERTEX_TYPE="+vertexType)
   }
   
   def getNodeAlias(g: Graph[String, String], id: Array[Long] = Array.empty) : VertexRDD[String] = {  
-      return g.aggregateMessages[String]( edge => { 
+      val verticesWithAlias =  g.aggregateMessages[String]( edge => { 
         if(id.isEmpty || id.contains(edge.srcId)) {
           for( aliasPredicate <- KGraphProp.edgeLabelNodeAlias) {
             if(aliasPredicate.toLowerCase() == edge.attr.toLowerCase())
@@ -47,10 +61,11 @@ object NodeProp {
           }
         }       
       },
-      (a, b) => a +";"+ b
+      (a, b) => a +"__"+ b
       )
+      verticesWithAlias.mapValues(alias => "ALIAS="+alias)     
   }
-
+  
   // Given a list of vertex id in graph , get neighbour list that link to this node with a given relation
   // Do we need to define a filter on neighbours that can contribute to this count?
   //def getWikiLinks(id: Array[Long], relationLabel: String, validSrcNodesProperty: String, isOutgoing: Boolean, g: Graph[String, String] ): VertexRDD[Array[Long]] = 

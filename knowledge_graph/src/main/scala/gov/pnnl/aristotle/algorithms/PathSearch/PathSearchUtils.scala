@@ -29,9 +29,10 @@ object PathSearchUtils {
        return Array.empty[(VertexId, ExtendedVD[VD, VD2])]
      }
     
-     Sorting.quickSort(srcCandidates)(Ordering.by[(VertexId, ExtendedVD[VD, VD2]), String](_._2.labelToString))
-     Sorting.quickSort(destCandidates)(Ordering.by[(VertexId, ExtendedVD[VD, VD2]), String](_._2.labelToString))
- 
+     Sorting.quickSort(srcCandidates)(
+         Ordering.by[(VertexId, ExtendedVD[VD, VD2]), String](_._2.labelToString))
+     Sorting.quickSort(destCandidates)(
+         Ordering.by[(VertexId, ExtendedVD[VD, VD2]), String](_._2.labelToString))
      return Array(srcCandidates(0), destCandidates(0))
    }
 
@@ -81,10 +82,13 @@ object PathSearchUtils {
         }
    }
   
-
+   def isValidLine(ln : String) : Boolean ={
+    val isvalid = ( (ln.startsWith("@") ==false) && (ln.startsWith("#")==false) && (ln.isEmpty()==false))
+    isvalid
+   }
     
    /*
-   def printAndWritePathsAlias[VD, ED](allPaths: List[List[PathEdge]], 
+   def printAndWritePathsRemovingAlias[VD, ED](allPaths: List[List[PathEdge]], 
       filename: String): Unit = {
     if(allPaths.length > 0) {
       println(" Paths = \n")
@@ -124,10 +128,6 @@ object PathSearchUtils {
      val entityPairs = sc.textFile(filename).filter(isValidLine(_)).map(v=> v.split("\t")).filter(_.size == 2).map(v => (v(0), v(1)))
      entityPairs.foreach(println(_))
      entityPairs.collect.toList
-   }
-   
-   def isValidLine(ln : String) : Boolean ={
-    ( (ln.startsWith("@") ==false) && (ln.startsWith("#")==false) && (ln.isEmpty()==false))
    }
    
     /* 

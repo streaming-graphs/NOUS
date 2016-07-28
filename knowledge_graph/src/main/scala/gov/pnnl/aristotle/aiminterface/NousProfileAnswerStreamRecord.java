@@ -33,9 +33,11 @@ public class NousProfileAnswerStreamRecord extends org.apache.avro.specific.Spec
     this.profile = profile;
   }
 
-  public org.apache.avro.Schema getSchema() { return SCHEMA$; }
+  @Override
+public org.apache.avro.Schema getSchema() { return SCHEMA$; }
   // Used by DatumWriter.  Applications should not call. 
-  public java.lang.Object get(int field$) {
+  @Override
+public java.lang.Object get(int field$) {
     switch (field$) {
     case 0: return version;
     case 1: return uuid;
@@ -46,7 +48,8 @@ public class NousProfileAnswerStreamRecord extends org.apache.avro.specific.Spec
     }
   }
   // Used by DatumReader.  Applications should not call. 
-  @SuppressWarnings(value="unchecked")
+  @Override
+@SuppressWarnings(value="unchecked")
   public void put(int field$, java.lang.Object value$) {
     switch (field$) {
     case 0: version = (java.lang.Integer)value$; break;

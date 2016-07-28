@@ -16,7 +16,7 @@ import gov.pnnl.aristotle.algorithms.ReadHugeGraph
 import scala.Array.canBuildFrom
 
 
-
+/*
 object EntityDisambiguation {
 
   def main(args: Array[String]): Unit = {   
@@ -203,4 +203,4 @@ object EntityDisambiguation {
     return results
   }
  
-}
+}*/
