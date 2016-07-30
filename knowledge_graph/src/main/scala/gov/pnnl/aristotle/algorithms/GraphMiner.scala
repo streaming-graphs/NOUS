@@ -42,8 +42,8 @@ object GraphMiner {
   val sparkConf = new SparkConf()
     .setAppName("NOUS Graph Pattern Miner")
     .set("spark.rdd.compress", "true")
-    .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
     .set("spark.shuffle.blockTransferService", "nio")
+    
     
 
   sparkConf.registerKryoClasses( Array.empty )
@@ -104,9 +104,18 @@ object GraphMiner {
        *  gBatch is a pre-processed version of input graph. It has 1 edge 
        *  pattern on each vertex. all the other information is removed from the
        *  vertex. 
+       *  
+       *  gBatch is has all the one edge patterns on every node
+       *  Example : (2101833240, Map(List(48, 2, 1516351, -1) -> 1, List(48, 3, 0, -1) -> 1))
+       *  
+       *  2101833240: VertexId of the node
+       *  List(48, 2, 1516351, -1) : is the pattern key. At this point of the algorithm
+       *  every key ends with -1 that is used to construct bigger size patterns.
+       *  
+       *  -> 1 : is local support of the pattern on this node only (thats why it is called local support) 
        */
       val gBatch = new CandidateGeneration(minSup).init(sc, input_graph, writerSG, baseEdgeType, nodeTypeThreshold)
-
+      
       /*
        *  Update the batch_id with its min/max time
        */
@@ -145,6 +154,10 @@ object GraphMiner {
           batch_window_intersection_graph.input_graph =
             GraphPatternProfiler.get_Frequent_SubgraphV2Flat(sc,
               GraphPatternProfiler.fixGraphV2Flat( batch_window_intersection_graph.input_graph ), null, minSup )
+          val pat2 = batch_window_intersection_graph.input_graph.vertices.map(v=>{
+       (v._1, v._2.getpattern_map.size)
+      })
+      pat2.saveAsTextFile("pat2"+System.nanoTime())
         }
       }
 

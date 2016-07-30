@@ -106,7 +106,7 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
               srcnodetype.foreach(s => {
                 dstnodetype.foreach(d => {
                   edge.sendToSrc(Map(List(s._1, edge.attr.getlabel,
-                    d._1, -1)
+                    d._1.hashCode(), -1)
                     -> 1))
                 })
               })
@@ -207,7 +207,11 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
 
       //Step 2 : Self Join 2 different patterns at a node to create 2*n size pattern
       val newGraph = self_Pattern_Join_GraphV2Flat(g1, iteration_id)
-
+//      val pat1 = newGraph.triplets.map(t=>{
+//       (t.srcAttr.getlabel, t.dstAttr.getlabel, t.srcAttr.getpattern_map.toString, t.dstAttr.getpattern_map.toString)
+//      })
+//      pat1.saveAsTextFile("selfjoinedge"+System.nanoTime())
+//      System.exit(1)
 
       /*
       *  STEP 3: instead of aggregating entire graph, map each edgetype
@@ -307,7 +311,7 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
        *  Now only for join-able patters, 
        */  
        normalized_join.foreach(bigger_pattern =>{
-         joinedPattern = joinedPattern + (bigger_pattern._2._1 -> (bigger_pattern._2._4 * bigger_pattern._2._4))
+         joinedPattern = joinedPattern + (bigger_pattern._2._1 -> (bigger_pattern._2._4 * bigger_pattern._2._5))
        }) 
 
       new KGNodeV2FlatInt(attr.getlabel, joinedPattern |+| attr.getpattern_map, List.empty)
