@@ -911,57 +911,6 @@ def non_overlapping(pattern1 :String, pattern2 :String) : Boolean =
       return validgraph;
     }
  
-    def get_Frequent_SubgraphV2Flat(sc:SparkContext,subgraph_with_pattern: Graph[KGNodeV2FlatInt, KGEdgeInt],
-    result: Graph[PGNode, Int], SUPPORT: Int): Graph[KGNodeV2FlatInt, KGEdgeInt] =
-    {
-      /*
-	 * This method returns output graph with frequnet patterns only. 
-	 * TODO : need to clean the code
-	 */
-      println("checking frequent subgraph")
-      var commulative_subgraph_index: Map[String, Int] = Map.empty;
-
-      //TODO : Sumit: Use this RDD instead of the Map(below) to filter frequent pattersn
-      //TODO: this calculation of getting frequent patters is happening in dep graph update also.
-      // try to do it once
-      val pattern_support_rdd: RDD[(List[Int], Long)] =
-        subgraph_with_pattern.vertices.flatMap(vertex =>
-          {
-            vertex._2.getpattern_map.map(f => (f._1, f._2)).toSet
-          })
-      val tmpRDD = pattern_support_rdd.reduceByKey((a, b) => a + b)
-      val frequent_pattern_support_rdd = tmpRDD.filter(f => ((f._2 >= SUPPORT) | (f._2 == -1)))
-
-      /*
-       * For each pattern, get set of participating/origin nodes
-       */
-      val pattern_vertex_rdd: RDD[(List[Int], Set[Long])] =
-        subgraph_with_pattern.vertices.flatMap(vertex =>
-          {
-            vertex._2.getpattern_map.map(f => (f._1, Set(vertex._1))).toSet
-          }).reduceByKey((a, b) => a++b) // append vertexids on each node
-      val join_frequent_node_vertex = frequent_pattern_support_rdd.leftOuterJoin(pattern_vertex_rdd)
-     
-      /*
-       * For each vertex, get a set of all frequent pattersn.
-       */
-      val vertex_pattern_reverse_rdd = join_frequent_node_vertex.flatMap(pattern_entry 
-          => (pattern_entry._2._2.getOrElse(Set.empty).map(v_id => (v_id, Set(pattern_entry._1))))).reduceByKey((a, b) => a ++ b)
-      
-      /*
-       *  Get new graph where each node has only the frequent pattersn.
-       */      
-      val frequent_graph: Graph[KGNodeV2FlatInt, KGEdgeInt] =
-        subgraph_with_pattern.outerJoinVertices(vertex_pattern_reverse_rdd) {
-          case (id, kg_node, Some(nbr)) => new KGNodeV2FlatInt(kg_node.getlabel, kg_node.getpattern_map.filterKeys(nbr.toSet), kg_node.getProperties)
-          case (id, kg_node, None) => new KGNodeV2FlatInt(kg_node.getlabel, Map.empty, kg_node.getProperties)
-        }
-
-      val validgraph = frequent_graph.subgraph(epred =>
-        ((epred.srcAttr.getpattern_map != null) || (epred.dstAttr.getpattern_map != null)))
-      return validgraph;
-    }
- 
      
     
  def get_Frequent_SubgraphV2(subgraph_with_pattern: Graph[KGNodeV2, KGEdge],

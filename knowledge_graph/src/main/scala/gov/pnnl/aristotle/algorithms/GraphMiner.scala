@@ -152,7 +152,7 @@ object GraphMiner {
              * patterns participate in construction a bigger pattern. 
              */
           batch_window_intersection_graph.input_graph =
-            GraphPatternProfiler.get_Frequent_SubgraphV2Flat(sc,
+            gWin.get_Frequent_SubgraphV2Flat(sc,
               GraphPatternProfiler.fixGraphV2Flat( batch_window_intersection_graph.input_graph ), null, minSup )
 
         }

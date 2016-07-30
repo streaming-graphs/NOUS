@@ -207,12 +207,14 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
 
       //Step 2 : Self Join 2 different patterns at a node to create 2*n size pattern
       val newGraph = self_Pattern_Join_GraphV2Flat(g1, iteration_id)
-//      val pat1 = newGraph.triplets.map(t=>{
-//       (t.srcAttr.getlabel, t.dstAttr.getlabel, t.srcAttr.getpattern_map.toString, t.dstAttr.getpattern_map.toString)
-//      })
-//      pat1.saveAsTextFile("selfjoinedge"+System.nanoTime())
-//      System.exit(1)
-
+      val pattern_support_rdd: RDD[(List[Int], Long)] =
+        newGraph.vertices.flatMap(vertex =>
+          {
+            vertex._2.getpattern_map.map(f => (f._1, f._2)).toSet
+          })
+      val tmpRDD = pattern_support_rdd.reduceByKey((a, b) => a + b)
+      val frequent_pattern_support_rdd = tmpRDD.filter(f => ((f._2 >= SUPPORT) | (f._2 == -1)))
+      frequent_pattern_support_rdd.saveAsTextFile("frequentpattern_afterselfjoin" + System.nanoTime())
       /*
       *  STEP 3: instead of aggregating entire graph, map each edgetype
       */
@@ -489,10 +491,10 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
 	 * This method returns output graph with frequnet patterns only. 
 	 * TODO : need to clean the code
 	 */
-      //println("checking frequent subgraph")
-      var commulative_subgraph_index: Map[String, Int] = Map.empty;
-
+      println("checking frequent subgraph")
       //TODO : Sumit: Use this RDD instead of the Map(below) to filter frequent pattersn
+      //TODO: this calculation of getting frequent patters is happening in dep graph update also.
+      // try to do it once
       val pattern_support_rdd: RDD[(List[Int], Long)] =
         subgraph_with_pattern.vertices.flatMap(vertex =>
           {
@@ -501,16 +503,25 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
       val tmpRDD = pattern_support_rdd.reduceByKey((a, b) => a + b)
       val frequent_pattern_support_rdd = tmpRDD.filter(f => ((f._2 >= SUPPORT) | (f._2 == -1)))
 
+      /*
+       * For each pattern, get set of participating/origin nodes
+       */
       val pattern_vertex_rdd: RDD[(List[Int], Set[Long])] =
         subgraph_with_pattern.vertices.flatMap(vertex =>
           {
             vertex._2.getpattern_map.map(f => (f._1, Set(vertex._1))).toSet
           }).reduceByKey((a, b) => a++b) // append vertexids on each node
       val join_frequent_node_vertex = frequent_pattern_support_rdd.leftOuterJoin(pattern_vertex_rdd)
+     
+      /*
+       * For each vertex, get a set of all frequent pattersn.
+       */
       val vertex_pattern_reverse_rdd = join_frequent_node_vertex.flatMap(pattern_entry 
           => (pattern_entry._2._2.getOrElse(Set.empty).map(v_id => (v_id, Set(pattern_entry._1))))).reduceByKey((a, b) => a ++ b)
       
-      //originalMap.filterKeys(interestingKeys.contains)        
+      /*
+       *  Get new graph where each node has only the frequent pattersn.
+       */      
       val frequent_graph: Graph[KGNodeV2FlatInt, KGEdgeInt] =
         subgraph_with_pattern.outerJoinVertices(vertex_pattern_reverse_rdd) {
           case (id, kg_node, Some(nbr)) => new KGNodeV2FlatInt(kg_node.getlabel, kg_node.getpattern_map.filterKeys(nbr.toSet), kg_node.getProperties)
