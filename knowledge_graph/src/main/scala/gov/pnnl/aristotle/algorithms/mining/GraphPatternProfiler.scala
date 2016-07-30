@@ -932,16 +932,25 @@ def non_overlapping(pattern1 :String, pattern2 :String) : Boolean =
       val tmpRDD = pattern_support_rdd.reduceByKey((a, b) => a + b)
       val frequent_pattern_support_rdd = tmpRDD.filter(f => ((f._2 >= SUPPORT) | (f._2 == -1)))
 
+      /*
+       * For each pattern, get set of participating/origin nodes
+       */
       val pattern_vertex_rdd: RDD[(List[Int], Set[Long])] =
         subgraph_with_pattern.vertices.flatMap(vertex =>
           {
             vertex._2.getpattern_map.map(f => (f._1, Set(vertex._1))).toSet
           }).reduceByKey((a, b) => a++b) // append vertexids on each node
       val join_frequent_node_vertex = frequent_pattern_support_rdd.leftOuterJoin(pattern_vertex_rdd)
+     
+      /*
+       * For each vertex, get a set of all frequent pattersn.
+       */
       val vertex_pattern_reverse_rdd = join_frequent_node_vertex.flatMap(pattern_entry 
           => (pattern_entry._2._2.getOrElse(Set.empty).map(v_id => (v_id, Set(pattern_entry._1))))).reduceByKey((a, b) => a ++ b)
       
-      //originalMap.filterKeys(interestingKeys.contains)        
+      /*
+       *  Get new graph where each node has only the frequent pattersn.
+       */      
       val frequent_graph: Graph[KGNodeV2FlatInt, KGEdgeInt] =
         subgraph_with_pattern.outerJoinVertices(vertex_pattern_reverse_rdd) {
           case (id, kg_node, Some(nbr)) => new KGNodeV2FlatInt(kg_node.getlabel, kg_node.getpattern_map.filterKeys(nbr.toSet), kg_node.getProperties)

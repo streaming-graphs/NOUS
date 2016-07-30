@@ -154,10 +154,7 @@ object GraphMiner {
           batch_window_intersection_graph.input_graph =
             GraphPatternProfiler.get_Frequent_SubgraphV2Flat(sc,
               GraphPatternProfiler.fixGraphV2Flat( batch_window_intersection_graph.input_graph ), null, minSup )
-          val pat2 = batch_window_intersection_graph.input_graph.vertices.map(v=>{
-       (v._1, v._2.getpattern_map.size)
-      })
-      pat2.saveAsTextFile("pat2"+System.nanoTime())
+
         }
       }
 
