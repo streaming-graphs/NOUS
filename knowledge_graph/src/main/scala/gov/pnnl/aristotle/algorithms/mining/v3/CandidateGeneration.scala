@@ -207,14 +207,6 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
 
       //Step 2 : Self Join 2 different patterns at a node to create 2*n size pattern
       val newGraph = self_Pattern_Join_GraphV2Flat(g1, iteration_id)
-      val pattern_support_rdd: RDD[(List[Int], Long)] =
-        newGraph.vertices.flatMap(vertex =>
-          {
-            vertex._2.getpattern_map.map(f => (f._1, f._2)).toSet
-          })
-      val tmpRDD = pattern_support_rdd.reduceByKey((a, b) => a + b)
-      val frequent_pattern_support_rdd = tmpRDD.filter(f => ((f._2 >= SUPPORT) | (f._2 == -1)))
-      frequent_pattern_support_rdd.saveAsTextFile("frequentpattern_afterselfjoin" + System.nanoTime())
       /*
       *  STEP 3: instead of aggregating entire graph, map each edgetype
       */
