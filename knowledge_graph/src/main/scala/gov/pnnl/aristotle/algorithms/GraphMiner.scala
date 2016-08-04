@@ -43,6 +43,8 @@ object GraphMiner {
     .setAppName("NOUS Graph Pattern Miner")
     .set("spark.rdd.compress", "true")
     .set("spark.shuffle.blockTransferService", "nio")
+    .set("spark.serializer",
+      "org.apache.spark.serializer.KryoSerializer")
 
     
     
