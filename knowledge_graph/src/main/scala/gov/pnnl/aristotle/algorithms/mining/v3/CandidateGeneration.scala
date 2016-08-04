@@ -38,7 +38,7 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
   var type_support: Int = 2
   var input_graph: Graph[KGNodeV2FlatInt, KGEdgeInt] = null
   val batch_id_map : Map[Int,(Long,Long)] = Map.empty
-
+  println("**************CREATING GRAPH************")
   def init(sc : SparkContext, graph: Graph[Int, KGEdgeInt], writerSG: PrintWriter, basetype: Int,
     type_support: Int): CandidateGeneration = {
 
@@ -151,7 +151,7 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
                 val srcnodepattern = edge.srcAttr.getpattern_map
                 val dstNodeLable: Int = edge.dstAttr.getlabel
                 val srcNodeLable: Int = edge.srcAttr.getlabel
-                if (srcNodeLable != null && dstNodeLable != null) {
+                if ((srcNodeLable != null) && (dstNodeLable != null)) {
                   srcnodepattern.foreach(s => {
                     if (s._1.contains(edge.attr.getlabel)) // TODO: fix this weak comparison 
                     {
@@ -203,10 +203,10 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
       // Step 1: First do self join of existing n-size patterns to create 2*n patterns.
       // This creates many scalability issues without increase in the result quality.
       // so disable it for now
-      val g1 = nThPatternGraph //GraphPatternProfiler.self_Instance_Join_GraphV2Flat(nThPatternGraph, iteration_id)
+      //val g1 = nThPatternGraph //GraphPatternProfiler.self_Instance_Join_GraphV2Flat(nThPatternGraph, iteration_id)
 
       //Step 2 : Self Join 2 different patterns at a node to create 2*n size pattern
-      val newGraph = self_Pattern_Join_GraphV2Flat(g1, iteration_id)
+      val newGraph = self_Pattern_Join_GraphV2Flat(nThPatternGraph, iteration_id)
       /*
       *  STEP 3: instead of aggregating entire graph, map each edgetype
       */
@@ -217,7 +217,7 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
 
   def self_Pattern_Join_GraphV2Flat(updateGraph_withsink: Graph[KGNodeV2FlatInt, KGEdgeInt],
     join_size: Int): Graph[KGNodeV2FlatInt, KGEdgeInt] = {
-    val newGraph = updateGraph_withsink.mapVertices((id, attr) => {
+    return  updateGraph_withsink.mapVertices((id, attr) => {
 
       /*
        * Initialize some local objects
@@ -312,7 +312,7 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
 
     })
 
-    return newGraph
+    //return newGraph
   }
 
   /*
@@ -503,13 +503,16 @@ class CandidateGeneration(val minSup: Int) extends Serializable{
           {
             vertex._2.getpattern_map.map(f => (f._1, Set(vertex._1))).toSet
           }).reduceByKey((a, b) => a++b) // append vertexids on each node
+          
+
       val join_frequent_node_vertex = frequent_pattern_support_rdd.leftOuterJoin(pattern_vertex_rdd)
      
       /*
        * For each vertex, get a set of all frequent pattersn.
        */
       val vertex_pattern_reverse_rdd = join_frequent_node_vertex.flatMap(pattern_entry 
-          => (pattern_entry._2._2.getOrElse(Set.empty).map(v_id => (v_id, Set(pattern_entry._1))))).reduceByKey((a, b) => a ++ b)
+          => (pattern_entry._2._2.getOrElse(Set.empty).map(v_id 
+              => (v_id, Set(pattern_entry._1))))).reduceByKey((a, b) => a ++ b)
       
       /*
        *  Get new graph where each node has only the frequent pattersn.

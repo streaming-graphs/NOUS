@@ -43,6 +43,7 @@ object GraphMiner {
     .setAppName("NOUS Graph Pattern Miner")
     .set("spark.rdd.compress", "true")
     .set("spark.shuffle.blockTransferService", "nio")
+
     
     
 
@@ -53,6 +54,7 @@ object GraphMiner {
    * Initialize Log File Writer & Set up the Logging level
    */
   val writerSG = new PrintWriter( new File( "GraphMiningOutput.txt" ) )
+  //val writerSG2 = new PrintWriter( new File( "GraphMiningOutputSampleHold.txt" ) )
   Logger.getLogger( "org" ).setLevel( Level.OFF )
   Logger.getLogger( "akka" ).setLevel( Level.OFF )
 
@@ -66,6 +68,7 @@ object GraphMiner {
           " <BatchInfoFile (containingPathToDataDirectoriesPerBatch)>")
       exit
     }
+    
     /*
 	 * Read multiple files. Each file is treated as a new batch.
 	 */
@@ -77,7 +80,7 @@ object GraphMiner {
     val windowSize = 5
     val window = new WindowStateV3()
     val window_metrics = new WindowMetrics()
-
+    
     var batch_id = -1;
     var gWin = new CandidateGeneration( minSup )
     var pattern_trend : Map[String, List[( Int, Int )]] = Map.empty
@@ -97,7 +100,6 @@ object GraphMiner {
       println(s"******Reading File $filepath with batch_id= $batch_id")
       val batch_metrics = new BatchMetrics( batch_id )
 
-      //val input_graph = ReadHugeGraph.getGraphFileTypeInt( filepath, sc )
       val input_graph = ReadHugeGraph.getGraphFileTypeInt( filepath, sc )
 
       /*
@@ -132,13 +134,14 @@ object GraphMiner {
       batch_window_intersection_graph.input_graph =
         gWin.filterNonPatternSubGraphV2( batch_window_intersection_graph.input_graph )
 
+     
         var level = 0;
       
       writerSG.flush()
       breakable {
         while ( 1 == 1 ) {
           level = level + 1
-          //println( s"#####Iteration ID $level and interation_limit is $iteration_limit" )
+          println( s"#####Iteration ID $level and interation_limit is " )
           if ( level > numIter ) break;
 
           batch_window_intersection_graph.input_graph = batch_window_intersection_graph.joinPatterns( writerSG, level )
@@ -173,6 +176,18 @@ object GraphMiner {
 //      
 //      println("pattern type infreqent, promising, closed, redundant, frequent ie. pro+clo+red" , infrequent, " " , promising, " " , closed, " ", redundant, " " , frequent)
       writerSG.flush()
+      
+            val pattern_support_rdd: RDD[(List[Int], Long)] =
+        batch_window_intersection_graph.input_graph.vertices.flatMap(vertex =>
+          {
+            vertex._2.getpattern_map.map(f => (f._1, f._2)).toSet
+          })
+      val tmpRDD = pattern_support_rdd.reduceByKey((a, b) => a + b)
+      val frequent_pattern_support_rdd = tmpRDD.filter(f => ((f._2 >= minSup) | (f._2 == -1)))
+      
+      //writerSG2.println(filepath, "\t", batch_window_intersection_graph.input_graph.edges.count, "\t", frequent_pattern_support_rdd.count)
+      //writerSG2.flush()
+
     }
 
     println("saving window")

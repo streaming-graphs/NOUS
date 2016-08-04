@@ -227,7 +227,7 @@ object ReadHugeGraph {
  def getTemporalGraphInt(filename : String, sc : SparkContext): Graph[Int, KGEdgeInt] = {
     println("starting map phase1");
     val quadruples: RDD[(Int, Int, Int,Long)] =
-      sc.textFile(filename).filter(ln => isValidLineFromGraphFile(ln)).map { line =>
+      sc.textFile(filename,47).filter(ln => isValidLineFromGraphFile(ln)).map { line =>
         var longtime = -1L
         val fields = getFieldsFromLine(line);
         try{
@@ -254,7 +254,8 @@ object ReadHugeGraph {
     val edges = quadruples.map(quadruple => {
       Edge(quadruple._1.toLong, quadruple._3.toLong, new KGEdgeInt(quadruple._2, quadruple._4))
     })
-    val vertices = quadruples.flatMap(triple => Array((triple._1.toLong, triple._1), (triple._3.hashCode().toLong, triple._3)))
+    val vertices = quadruples.flatMap(triple 
+        => Array((triple._1.toLong, triple._1), (triple._3.hashCode().toLong, triple._3)))
 
     println("starting map phase3 > Building graph");
     val graph = Graph(vertices, edges);
