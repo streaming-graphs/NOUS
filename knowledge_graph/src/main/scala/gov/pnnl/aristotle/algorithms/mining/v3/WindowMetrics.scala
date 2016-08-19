@@ -36,6 +36,8 @@ class WindowMetrics extends Serializable {
    */
   var pattern__node_association_window : RDD[(List[Int], Set[(Int,Int)])] = null
   
+  
+  
   /*
    * Every node with its associated patterns in whole window
    * Example : (21,Set(List(1, 1, 18), List(1, 1, 3), List(1, 1, 18, 1, 1, 3)))
@@ -44,6 +46,8 @@ class WindowMetrics extends Serializable {
    * 		set of patterns in the window
    */
   var node_pattern_association_window : RDD[(Int, Set[List[Int]])] = null
+  
+  
   
   /*
    * Every node with its associated patterns in every batch
@@ -55,6 +59,7 @@ class WindowMetrics extends Serializable {
   var node_pattern_association_per_batch : RDD[(Int, Set[(Int, Set[List[Int]])]) ] = null
   
   val batch_id_map : Map[Int,(Long,Long)] = Map.empty
+  val outputfile  = new PrintWriter( new File( "GraphMiningWindowMetrics.txt" ) )
 
   def updateWindowMetrics(batch_metrics : BatchMetrics)
   {
@@ -107,9 +112,18 @@ class WindowMetrics extends Serializable {
   
   def saveWindowMetrics()
   {
+    /*
     pattern_in_this_winodw.saveAsTextFile("WindowPatternSummary" + System.nanoTime())
     pattern__node_association_window.saveAsTextFile("WidnowPatternNodeAssociation" + System.nanoTime())
     node_pattern_association_window.saveAsTextFile("WindowNodePatternAssociation" + System.nanoTime())
     node_pattern_association_per_batch.saveAsTextFile("BatchNodePatternAssociation" + System.nanoTime())
+    * 
+    */
+    outputfile.println(pattern_in_this_winodw.first.toString)
+    outputfile.println(pattern__node_association_window.first.toString)
+    outputfile.println(node_pattern_association_window.first.toString)
+    outputfile.println(node_pattern_association_per_batch.first.toString)
+    outputfile.println("SUCCESS")
+    outputfile.flush()
   }
 }

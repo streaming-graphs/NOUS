@@ -96,7 +96,7 @@ object ReadHugeGraph {
     return line.toLowerCase().replaceAllLiterally("<", "").replaceAllLiterally(">", "").replace(" .", "").split(" ").map(str => str.stripPrefix(" ").stripSuffix(" "));
   }
   def isValidLineFromGraphFile(ln : String) : Boolean ={
-    ( (ln.startsWith("@") ==false) && (ln.startsWith("#")==false) && (ln.isEmpty()==false))
+    ((ln.startsWith("3210#") ==false) &&  (ln.startsWith("@") ==false) && (ln.startsWith("#")==false) && (ln.isEmpty()==false))
   }
   
   /**
@@ -234,20 +234,29 @@ object ReadHugeGraph {
           val f = DateTimeFormat.forPattern("yyyy/MM/dd HH:mm:ss.SSS");
           val dateTime = f.parseDateTime(fields(3));
           longtime = dateTime.getMillis()
-        }catch{
-          case ex: org.joda.time.IllegalFieldValueException => {
-          }
-        }
-        
-
-        if (fields.length == 4)
+                  if (fields.length == 4)
           (fields(0).toInt, fields(1).toInt, fields(2).toInt,longtime)
         else if(fields.length == 3)
           (fields(0).toInt, fields(1).toInt, fields(2).toInt,0)
         else {
-          println("Exception reading graph file line", line)
+          //println("Exception reading graph file line", line)
           (-1,-1,-1,-1)
         }
+        }catch{
+          case ex: org.joda.time.IllegalFieldValueException => {
+            (-1,-1,-1,-1)
+          }
+          case ex: java.lang.ArrayIndexOutOfBoundsException =>
+            {
+              //println("AIOB:", line)
+              (-1,-1,-1,-1)
+            }
+          case ex: java.lang.NumberFormatException =>
+            (-1,-1,-1,-1)
+        }
+        
+
+
       }
 
     quadruples.cache

@@ -39,26 +39,15 @@ object GraphMiner {
    * Remove .setMaster("local") before running this on a cluster
    */
 
-  val sparkConf = new SparkConf()
-    .setAppName("NOUS Graph Pattern Miner")
-    .set("spark.rdd.compress", "true")
-    .set("spark.shuffle.blockTransferService", "nio")
-    .set("spark.serializer",
-      "org.apache.spark.serializer.KryoSerializer")
-
-    
-    
-
-  sparkConf.registerKryoClasses( Array.empty )
-  val sc = new SparkContext( sparkConf )
+ val sc = SparkContextInitializer.sc
 
   /*
    * Initialize Log File Writer & Set up the Logging level
    */
   val writerSG = new PrintWriter( new File( "GraphMiningOutput.txt" ) )
   //val writerSG2 = new PrintWriter( new File( "GraphMiningOutputSampleHold.txt" ) )
-  Logger.getLogger( "org" ).setLevel( Level.OFF )
-  Logger.getLogger( "akka" ).setLevel( Level.OFF )
+  Logger.getLogger( "org" ).setLevel( Level.DEBUG )
+  Logger.getLogger( "akka" ).setLevel( Level.DEBUG )
 
   def main( args : Array[String] ) : Unit = {
 
@@ -118,8 +107,9 @@ object GraphMiner {
        *  
        *  -> 1 : is local support of the pattern on this node only (thats why it is called local support) 
        */
+      t_sc0 = System.nanoTime()
       val gBatch = new CandidateGeneration(minSup).init(sc, input_graph, writerSG, baseEdgeType, nodeTypeThreshold)
-      
+
       /*
        *  Update the batch_id with its min/max time
        */
@@ -132,7 +122,7 @@ object GraphMiner {
        * gWindow. This is the graph which is mined by the algorithm. It includes
        * all the patterns of the boundary nodes already minded in the gWindow.
        */
-      val batch_window_intersection_graph = gWin.getInterSectionGraph( gBatch, sc )
+      val batch_window_intersection_graph = window.getInterSectionGraph( gBatch, sc ,minSup)
       batch_window_intersection_graph.input_graph =
         gWin.filterNonPatternSubGraphV2( batch_window_intersection_graph.input_graph )
 
@@ -198,7 +188,7 @@ object GraphMiner {
     window.saveDepG
 
     var t_sc1 = System.nanoTime();
-    println( "#Time to load the  graph" + " =" + ( t_sc1 - t_sc0 ) * 1e-9 + "seconds," +
+    println( "#Time to Mine the Graph and Persist the  results" + " =" + ( t_sc1 - t_sc0 ) * 1e-9 + "seconds," +
       "#TSize of  edge_join update graph" + " =" + pattern_trend.size )
 
     /*

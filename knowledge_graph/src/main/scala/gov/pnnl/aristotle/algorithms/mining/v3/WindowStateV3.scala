@@ -21,6 +21,11 @@ import gov.pnnl.aristotle.algorithms.mining.datamodel.VertexProperty
 import org.apache.spark.graphx.EdgeDirection
 import org.apache.spark.graphx.VertexRDD
 import org.apache.spark.graphx.PartitionStrategy
+import org.apache.spark.SparkContext
+import gov.pnnl.aristotle.algorithms.mining.datamodel.KGNodeV2FlatInt
+import gov.pnnl.aristotle.algorithms.mining.datamodel.KGNodeV2FlatInt
+import java.io.PrintWriter
+import java.io.File
 /**
  * @author puro755
  *
@@ -29,31 +34,77 @@ class WindowStateV3 {
 
   var window_graph: Graph[KGNodeV2FlatInt, KGEdgeInt] = null
   var gDep = new PatternDependencyGraph
-
+  val outputfile  = new PrintWriter( new File( "GraphMiningDepG.txt" ) )
   /*
    * Merge batch with window graph
    */
-  def mergeBatchGraph(batch_graph: Graph[KGNodeV2FlatInt, KGEdgeInt]) =
+  def mergeBatchGraph(intersection_batch_graph: Graph[KGNodeV2FlatInt, KGEdgeInt]) =
     {
       if (window_graph == null) {
-        WindowStateV3.this.window_graph = batch_graph
+        WindowStateV3.this.window_graph = intersection_batch_graph
 
       } else {
-        val vertices_rdd: RDD[(VertexId, Map[List[Int], Long])] =
+        /*val vertices_rdd: RDD[(VertexId, Array[(List[Int], Long)])] =
           batch_graph.vertices.map(f => (f._1, f._2.getpattern_map))
         
-         window_graph = WindowStateV3.this.window_graph.joinVertices[Map[List[Int], Long]](vertices_rdd)((id, kgnode, new_data) => {
+         window_graph = WindowStateV3.this.window_graph.joinVertices[Array[(List[Int], Long)]](vertices_rdd)((id, kgnode, new_data) => {
           if (kgnode != null)
             new KGNodeV2FlatInt(kgnode.getlabel,
-              kgnode.getpattern_map |+| new_data, List.empty)
+              kgnode.getpattern_map ++ new_data, List.empty)
+          		//IF operation is |+| for a map, it should not be a normal append of 
+          		// corresponding arrays. Should check it multiple locations.
           else
-            new KGNodeV2FlatInt(-1, Map.empty, List.empty)
+            new KGNodeV2FlatInt(-1, Array.empty, List.empty)
         })
+        * 
+        */
+        
+        val updated_vertices_full_join = this.window_graph.vertices.fullOuterJoin( intersection_batch_graph.vertices )
+        val emptynode = new KGNodeV2FlatInt(-1,Array.empty,List.empty)
+        val updated_vertices = updated_vertices_full_join.map( vertex 
+            => (vertex._1, new KGNodeV2FlatInt(vertex._2._1.getOrElse(emptynode).getlabel,
+                vertex._2._1.getOrElse(emptynode).getpattern_map ++ vertex._2._2.getOrElse(emptynode).getpattern_map,
+                vertex._2._1.getOrElse(emptynode).getProperties ++ vertex._2._2.getOrElse(emptynode).getProperties
+                )) )
+        this.window_graph = Graph(updated_vertices,
+          this.window_graph.edges.union(intersection_batch_graph.edges).distinct).partitionBy(PartitionStrategy.EdgePartition2D)
         
       }
       //window_graph.vertices.collect.foreach(f => println("final window graph sp " , f._1, " : " , f._2))
     }
 
+  
+    /**
+   * takes gBatch as input which is 'mined' batch graph and merge it with
+   * existing window graph.
+   */
+  def getInterSectionGraph(gBatch: CandidateGeneration, sc: SparkContext, minSup : Int): CandidateGeneration = {
+
+    if (this.window_graph == null) {
+      this.window_graph = gBatch.input_graph
+      val result = new CandidateGeneration(minSup)
+      result.input_graph = this.window_graph
+      return result
+
+    } else {
+      val vertices_rdd: RDD[(VertexId, Array[(List[Int], Long)])] =
+        this.window_graph.vertices.map(f => (f._1, f._2.getpattern_map))
+      val new_window_graph = gBatch.input_graph.joinVertices[Array[(List[Int], Long)]](vertices_rdd)((id,
+        kgnode, new_data) => {
+        if (kgnode != null)
+          new KGNodeV2FlatInt(kgnode.getlabel, kgnode.getpattern_map ++ new_data, List.empty)
+        else
+          new KGNodeV2FlatInt(-1, Array.empty, List.empty)
+      })
+
+      val result = new CandidateGeneration(minSup)
+      result.input_graph = new_window_graph
+      return result
+    }
+
+  }
+  
+  
   /*
    * create vertices rdd of dependency graph
    */
@@ -221,11 +272,16 @@ class WindowStateV3 {
     })
     
     
-    pattern_dep_graph.saveAsTextFile("DependencyGraphSummary" + System.nanoTime())
+    //pattern_dep_graph.saveAsTextFile("DependencyGraphSummary" + System.nanoTime())
+    outputfile.println(pattern_dep_graph.first._1.toString)
     val dgep_v_rdd = this.gDep.graph.vertices.map(v => (v._1, v._2.getnode_label, v._2.getsupport, v._2.getptype))
-    dgep_v_rdd.saveAsTextFile("DependencyGraphVertices" + System.nanoTime())
+    //dgep_v_rdd.saveAsTextFile("DependencyGraphVertices" + System.nanoTime())
+    outputfile.println(dgep_v_rdd.first.toString)
     val dgep_e_rdd = this.gDep.graph.triplets.map(t => (t.srcAttr.getnode_label + "#" + t.srcAttr.getptype, t.dstAttr.getnode_label + "#" + t.srcAttr.getptype))
-    dgep_e_rdd.saveAsTextFile("DependencyGraphEdges" + System.nanoTime())
+    //dgep_e_rdd.saveAsTextFile("DependencyGraphEdges" + System.nanoTime())
+    outputfile.println(dgep_e_rdd.first.toString)
+    outputfile.println("SUCCESS")
+    outputfile.flush()
   }
 
   /*
