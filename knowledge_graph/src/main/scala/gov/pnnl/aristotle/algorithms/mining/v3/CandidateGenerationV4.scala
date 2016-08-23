@@ -72,22 +72,19 @@ class CandidateGenerationV4(val minSup: Int) extends Serializable {
      * Create Edges of the GIP
      */
     val gip_edge = nonTypedVertexRDD.flatMap(vertex=>{
-      var all_gip_vertices : scala.collection.mutable.Set[Long]= scala.collection.mutable.Set.empty
-      vertex._2.map(a_pattern
-          =>all_gip_vertices += 
-            ((a_pattern._1.toString()+a_pattern._2.toString).hashCode().toLong))
+      var all_gip_vertices: scala.collection.mutable.Set[Long] = scala.collection.mutable.Set.empty
+      vertex._2.map(a_pattern => all_gip_vertices +=
+        ((a_pattern._1.toString() + a_pattern._2.toString).hashCode().toLong))
       val all_gip_vertices_list = all_gip_vertices.toList
       // make a list to get an order becase we need to cross join them
       // in next step.
       var i = 0
       var j = 0
-      var local_edges : scala.collection.mutable.Set[Edge[Int]] 
-    		  = scala.collection.mutable.Set.empty
-      for(i <- 0 to all_gip_vertices_list.length-1)
-      { for(j <- i to all_gip_vertices_list.length -1)
-        {
-          if(all_gip_vertices_list(i) != all_gip_vertices_list(j))
-        	  local_edges += Edge(all_gip_vertices_list(i),all_gip_vertices_list(j),1)
+      var local_edges: scala.collection.mutable.Set[Edge[Int]] = scala.collection.mutable.Set.empty
+      for (i <- 0 to all_gip_vertices_list.length - 1) {
+        for (j <- i to all_gip_vertices_list.length - 1) {
+          if (all_gip_vertices_list(i) != all_gip_vertices_list(j))
+            local_edges += Edge(all_gip_vertices_list(i), all_gip_vertices_list(j), 1)
         }
       }
       local_edges
@@ -105,8 +102,7 @@ class CandidateGenerationV4(val minSup: Int) extends Serializable {
         GraphProfiling.getTypedVertexRDD_Temporal(graph,
           writerSG, type_support, this.TYPE.toInt)
       // Now we have the type information collected in the original graph
-      val typedAugmentedGraph: Graph[(Int, Map[Int, Int]), KGEdgeInt] 
-    		  = GraphProfiling.getTypedAugmentedGraph_Temporal(graph,
+      val typedAugmentedGraph: Graph[(Int, Map[Int, Int]), KGEdgeInt] = GraphProfiling.getTypedAugmentedGraph_Temporal(graph,
         writerSG, typedVertexRDD)
       return typedAugmentedGraph
     }
@@ -114,9 +110,9 @@ class CandidateGenerationV4(val minSup: Int) extends Serializable {
       def getOneEdgePatterns(typedAugmentedGraph: Graph[(Int,  
     Map[Int, Int]), KGEdgeInt]): VertexRDD[Array[(List[Int],Set[PatternInstance])]] =
     {
-      return typedAugmentedGraph.aggregateMessages[Array[(List[Int],Set[PatternInstance])]](
+      return typedAugmentedGraph.aggregateMessages[Array[(List[Int], Set[PatternInstance])]](
         edge => {
-          if (edge.attr.getlabel != TYPE ) {
+          if (edge.attr.getlabel != TYPE) {
             // Extra info for pattern
             if ((edge.srcAttr._2.size > 0) &&
               (edge.dstAttr._2.size > 0)) {
