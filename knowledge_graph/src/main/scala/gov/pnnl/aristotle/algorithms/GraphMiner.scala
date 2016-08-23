@@ -179,17 +179,17 @@ object GraphMiner {
       
       //writerSG2.println(filepath, "\t", batch_window_intersection_graph.input_graph.edges.count, "\t", frequent_pattern_support_rdd.count)
       //writerSG2.flush()
-
+      writerSG.println(frequent_pattern_support_rdd.first.toString)
+      var t_sc1 = System.nanoTime();
+    println( "#Time to Mine the Graph and Persist the  results IN A Batch" + " =" + ( t_sc1 - t_sc0 ) * 1e-9 + "seconds," +
+      "#TSize of  edge_join update graph" + " =" + pattern_trend.size )
     }
 
     println("saving window")
     
-    window_metrics.saveWindowMetrics()
-    window.saveDepG
-
-    var t_sc1 = System.nanoTime();
-    println( "#Time to Mine the Graph and Persist the  results" + " =" + ( t_sc1 - t_sc0 ) * 1e-9 + "seconds," +
-      "#TSize of  edge_join update graph" + " =" + pattern_trend.size )
+    //window_metrics.saveWindowMetrics()
+    //window.saveDepG
+    
 
     /*
      * Stop the spark context
