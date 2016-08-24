@@ -16,5 +16,8 @@ class KGNodeV4(label: Int,
     pattern_map: Array[(List[Int], Set[PatternInstance])],properties:List[VertexProperty]) extends Serializable {
   //TODO: Boolean should go to an Instance, not the node
 
+    def getlabel : Int = return label
+  def getProperties: List[VertexProperty] = return properties
+  def getpattern_map: Array[(List[Int], Set[PatternInstance])] = return pattern_map
   
 }
