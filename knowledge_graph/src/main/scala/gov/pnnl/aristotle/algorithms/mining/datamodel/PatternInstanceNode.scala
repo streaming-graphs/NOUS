@@ -13,6 +13,12 @@ import java.io.Serializable
  *
  */
 class PatternInstanceNode(val pattern: List[Int],
-    val instance: Set[PatternInstance], val timestamp: Long) extends Serializable {
+    val instance: PatternInstance, val timestamp: Long) extends Serializable {
 
+  /*
+   * first Int is the pattern node key,
+   * second Int is the instance node key
+   */
+  var pattern_instance_map : Map[Int,Int] = Map.empty
+  
 }
