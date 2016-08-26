@@ -139,9 +139,13 @@ class CandidateGenerationV4(val minSup: Int) extends Serializable {
       for (src_type <- all_src_types)
         for (dst_type <- all_dst_types) {
           val gip_v_key = List(src_type , triple.attr.getlabel, dst_type, triple.srcAttr._1, triple.dstAttr._1).hashCode
+          val gip_v_patternedge = List(src_type , triple.attr.getlabel, dst_type)
           val gip_v_label = List(src_type , triple.attr.getlabel, dst_type, triple.srcAttr._1, triple.dstAttr._1)
           val gip_v_instance = new PatternInstance(Set((triple.srcAttr._1, triple.dstAttr._1)))
-          all_local_gip_vertices += ((gip_v_key, new PatternInstanceNode(gip_v_label, gip_v_instance, time_stamp)))
+          val gip_v_map = Map((src_type -> triple.srcAttr._1), (dst_type -> triple.dstAttr._1))
+          all_local_gip_vertices += ((gip_v_key, new PatternInstanceNode(gip_v_label, 
+              gip_v_patternedge,gip_v_instance, 
+              gip_v_map,time_stamp)))
         }
       all_local_gip_vertices
     })
@@ -199,7 +203,7 @@ class CandidateGenerationV4(val minSup: Int) extends Serializable {
 		})
 	}
   
-  def computeMinImageSupport(input_gpi : Graph[(Long,PatternInstanceNode), Int])
+  def computeMinImageSupport(input_gpi : Graph[PatternInstanceNode, Int])
 	  :RDD[(List[Int],Int)] =
   {
 
@@ -210,9 +214,9 @@ class CandidateGenerationV4(val minSup: Int) extends Serializable {
      * (P1,org,pnnl)
      * (P1,org,pnnl)
      */
-      val sub_pattern_key_rdd = input_gpi.vertices.flatMap(vertext => {
-        vertext._2._2.pattern_instance_map.map(pattern_instance_pair => {
-          ((vertext._2._2.pattern, pattern_instance_pair._1, pattern_instance_pair._2))
+      val sub_pattern_key_rdd = input_gpi.vertices.flatMap(vertex => {
+        vertex._2.pattern_instance_map.map(pattern_instance_pair => {
+          ((vertex._2.pattern_edge, pattern_instance_pair._1, pattern_instance_pair._2))
         })
       }).distinct
       //.reduceByKey((sub_pattern_instance_count1, sub_pattern_instance_count2) => sub_pattern_instance_count1 + sub_pattern_instance_count2)

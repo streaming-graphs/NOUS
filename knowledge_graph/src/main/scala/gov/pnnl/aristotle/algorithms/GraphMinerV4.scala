@@ -78,8 +78,12 @@ object GraphMinerV4 {
       val input_graph = ReadHugeGraph.getGraphFileTypeInt(filepath, sc)
 
       t_sc0 = System.nanoTime()
-      val GIP = new CandidateGenerationV4(minSup).init(sc, input_graph, writerSG, baseEdgeType, nodeTypeThreshold)
+      val batch_graph = new CandidateGenerationV4(minSup)
+      val GIP = batch_graph.init(sc, input_graph, writerSG, baseEdgeType, nodeTypeThreshold)
 
+      val misPatternSupport = batch_graph.computeMinImageSupport(GIP)
+      
+      
       val gip_vertices_4degree = GIP.degrees.filter(v => v._2 == 4).count
       val gip_vertices_1degree = GIP.degrees.filter(v => v._2 == 1).count
       val gip_vertices_2degree = GIP.degrees.filter(v => v._2 == 2).count
@@ -90,6 +94,10 @@ object GraphMinerV4 {
       println("nodes with 2 degree = ", gip_vertices_2degree)
       println("nodes with 3 degree = ", gip_vertices_3degree)
       println("nodes with 4 degree = ", gip_vertices_4degree)
+      
+      GIP.vertices.saveAsObjectFile("GIP/vertices/"+System.nanoTime())
+      GIP.edges.saveAsObjectFile("GIP/edges/"+System.nanoTime())
+      misPatternSupport.saveAsObjectFile("GIP/misPattenSupport"+System.nanoTime())
     }
 
   }
