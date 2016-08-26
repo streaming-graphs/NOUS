@@ -22,6 +22,7 @@ object SparkContextInitializer {
       "org.apache.spark.serializer.KryoSerializer")
       
       
+      
     
 
   sparkConf.registerKryoClasses( Array.empty )

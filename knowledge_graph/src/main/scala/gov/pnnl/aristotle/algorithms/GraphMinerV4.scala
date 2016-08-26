@@ -80,9 +80,8 @@ object GraphMinerV4 {
       t_sc0 = System.nanoTime()
       val batch_graph = new CandidateGenerationV4(minSup)
       val GIP = batch_graph.init(sc, input_graph, writerSG, baseEdgeType, nodeTypeThreshold)
-
-      val misPatternSupport = batch_graph.computeMinImageSupport(GIP)
       
+      val misPatternSupport = batch_graph.computeMinImageSupport(GIP)
       
       val gip_vertices_4degree = GIP.degrees.filter(v => v._2 == 4).count
       val gip_vertices_1degree = GIP.degrees.filter(v => v._2 == 1).count

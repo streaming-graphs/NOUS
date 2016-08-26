@@ -59,7 +59,7 @@ class CandidateGenerationV4(val minSup: Int) extends Serializable {
      * ....
      * 
      */
-    val oneEdgePatternOnVertexRDD: VertexRDD[Array[(List[Int], PatternInstance)]] = getOneEdgePatternsRDD(typedAugmentedGraph)    
+    val oneEdgePatternOnVertexRDD: RDD[(Long,Array[(List[Int], PatternInstance)])] = getOneEdgePatternsRDD(typedAugmentedGraph)    
 
     val gipVertices = getGIPVertices(typedAugmentedGraph)
     
@@ -80,7 +80,7 @@ class CandidateGenerationV4(val minSup: Int) extends Serializable {
       return typedAugmentedGraph
     }
  
- def getGIPEdges(oneEdgePatternOnVertexRDD: VertexRDD[Array[(List[Int], PatternInstance)]]) :
+ def getGIPEdges(oneEdgePatternOnVertexRDD: RDD[(Long,Array[(List[Int], PatternInstance)])]) :
  RDD[Edge[Int]] =
  {
      /*
@@ -106,8 +106,10 @@ class CandidateGenerationV4(val minSup: Int) extends Serializable {
               local_edges += Edge(all_gip_vertices_list(i).hashCode, all_gip_vertices_list(j).hashCode, 1)
           }
         }
+        
         local_edges
       })
+      println("*******size  " , gipEdges.count)
       return gipEdges
     }
     
@@ -153,34 +155,30 @@ class CandidateGenerationV4(val minSup: Int) extends Serializable {
  }
     
  def getOneEdgePatternsRDD(typedAugmentedGraph: Graph[(Int,  
-    Map[Int, Int]), KGEdgeInt]): VertexRDD[Array[(List[Int],PatternInstance)]] =
+    Map[Int, Int]), KGEdgeInt]): RDD[(Long, Array[(List[Int],PatternInstance)])] =
     {
-      return typedAugmentedGraph.aggregateMessages[Array[(List[Int], PatternInstance)]](
-        edge => {
-          if (edge.attr.getlabel != TYPE) {
-            // Extra info for pattern
-            if ((edge.srcAttr._2.size > 0) &&
-              (edge.dstAttr._2.size > 0)) {
-              val dstnodetype = edge.dstAttr._2.keys
-              val srcnodetype = edge.srcAttr._2.keys
-              srcnodetype.foreach(s => {
-                dstnodetype.foreach(d => {
-                  var pattern_instance: scala.collection.immutable.Set[(Int, Int)] = Set((edge.srcAttr._1,edge.dstAttr._1))
-                  edge.sendToSrc(Array(List(s, edge.attr.getlabel,
-                    d)
-                    -> new PatternInstance(pattern_instance)))
-                  edge.sendToDst(Array(List(s, edge.attr.getlabel,
-                    d)
-                    -> new PatternInstance(pattern_instance)))
-                })
-              })
-            }
-          }
-        },
-        (pattern1NodeN, pattern2NodeN) => {
-          reducePatternsOnNodeV2(pattern1NodeN, pattern2NodeN)
+
+      //val src_rdd = typedAugmentedGraph.triplets.groupBy(triple=>triple.srcId)
+      val result = typedAugmentedGraph.triplets.flatMap(triple => {
+        var localarrayList: scala.collection.mutable.ListBuffer[(List[Int], PatternInstance)] = scala.collection.mutable.ListBuffer.empty
+
+        val dstnodetype = triple.dstAttr._2.keys
+        val srcnodetype = triple.srcAttr._2.keys
+        srcnodetype.foreach(s => {
+          dstnodetype.foreach(d => {
+            var pattern_instance: scala.collection.immutable.Set[(Int, Int)] = Set((triple.srcAttr._1, triple.dstAttr._1))
+            localarrayList += ((List(s, triple.attr.getlabel, d), new PatternInstance(pattern_instance)))
+            //localarrayList += ((List(s, edge.attr.getlabel, d, new PatternInstance(pattern_instance)))
+          })
         })
+        Iterable((triple.srcId, localarrayList.toArray),
+          (triple.dstId, localarrayList.toArray))
+      }).reduceByKey((a, b) => a ++ b)
+      return result
+
     }
+   
+   
   def reducePatternsOnNodeV2(a: Array[(List[Int], PatternInstance)], 
       b: Array[(List[Int], PatternInstance)]): 
 	  Array[(List[Int], PatternInstance)] =
