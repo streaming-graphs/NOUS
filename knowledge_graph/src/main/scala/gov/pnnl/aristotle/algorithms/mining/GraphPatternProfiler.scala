@@ -92,15 +92,15 @@ def fixGraphV2Flat(graph: Graph[KGNodeV2FlatInt, KGEdgeInt]):
     Graph[KGNodeV2FlatInt, KGEdgeInt] =
     {
       val newGraph: Graph[KGNodeV2FlatInt, KGEdgeInt] = graph.mapVertices((id, attr) => {
-        var joinedPattern: Map[List[Int], Long] = Map.empty
+        var joinedPattern: Array[(List[Int], Long)] = Array.empty
         val vertex_pattern_map = attr.getpattern_map
         vertex_pattern_map.map(vertext_pattern =>
           {
             if (vertext_pattern._1.contains(-1))
-              joinedPattern = joinedPattern + ((vertext_pattern._1.filterNot(elm=> elm == -1)
-                 -> vertext_pattern._2))
+              joinedPattern = joinedPattern ++ Array((vertext_pattern._1.filterNot(elm=> elm == -1)
+                 , vertext_pattern._2))
             else
-              joinedPattern = joinedPattern + ((vertext_pattern._1 ->
+              joinedPattern = joinedPattern ++ Array((vertext_pattern._1 ,
                 vertext_pattern._2))
           })
         new KGNodeV2FlatInt(attr.getlabel, joinedPattern,List.empty)
@@ -273,7 +273,7 @@ def fixGraphV2Flat(graph: Graph[KGNodeV2FlatInt, KGEdgeInt]):
       //.innerZipJoin(v_rdd_raw)((id, degree, vnode) => (degree, vnode))
       //v_rdd_raw_joined
       val v_rdd: RDD[((Int, Int), Iterable[List[Int]])] = v_rdd_raw_joined.map(v =>
-        ((v._2._1, v._2._2.getlabel), v._2._2.getpattern_map.keys))
+        ((v._2._1, v._2._2.getlabel), v._2._2.getpattern_map.map(patter=>patter._1)))
       val vb = v_rdd.map(v => v._1)
 
       val pattrn_rdd = v_rdd.flatMap(v => {
@@ -288,7 +288,7 @@ def fixGraphV2Flat(graph: Graph[KGNodeV2FlatInt, KGEdgeInt]):
     writerSG: PrintWriter, id: Int, SUPPORT: Int): RDD[(Int, Set[List[Int]])] =
     {
       return graph.vertices.map(v => 
-        (v._2.getlabel, v._2.getpattern_map.keys.toSet)).filter(v=>v._2.size > 0)
+        (v._2.getlabel, v._2.getpattern_map.map(pattern=>pattern._1).toSet)).filter(v=>v._2.size > 0)
     }
   
  //get_patter
