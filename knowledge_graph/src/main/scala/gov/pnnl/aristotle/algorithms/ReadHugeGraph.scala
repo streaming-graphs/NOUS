@@ -269,8 +269,8 @@ object ReadHugeGraph {
     println("starting map phase3 > Building graph");
     val graph = Graph(vertices, edges);
     
-    println("edge count " + graph.edges.count)
-    println("vertices count" + graph.vertices.count)
+    //println("edge count " + graph.edges.count)
+    //println("vertices count" + graph.vertices.count)
     
     return graph.partitionBy(PartitionStrategy.EdgePartition2D)
   }

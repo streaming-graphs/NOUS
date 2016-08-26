@@ -12,13 +12,13 @@ import java.io.Serializable
  * @author puro755
  *
  */
-class PatternInstanceNode(val pattern: List[Int],
-    val instance: PatternInstance, val timestamp: Long) extends Serializable {
+class PatternInstanceNode(val pattern_id: List[Int],
+    val pattern_edge: List[Int] ,val instance_edge: PatternInstance,
+    val pattern_instance_map : Map[Int,Int],val timestamp: Long) extends Serializable {
 
   /*
    * first Int is the pattern node key,
    * second Int is the instance node key
    */
-  var pattern_instance_map : Map[Int,Int] = Map.empty
   
 }
