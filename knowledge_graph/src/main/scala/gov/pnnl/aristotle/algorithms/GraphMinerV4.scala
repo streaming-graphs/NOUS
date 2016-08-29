@@ -10,8 +10,11 @@ import java.io.PrintWriter
 import org.apache.log4j.Logger
 import org.apache.log4j.Level
 import scala.io.Source
-import gov.pnnl.aristotle.algorithms.mining.v3.CandidateGenerationV4
+import gov.pnnl.aristotle.algorithms.mining.v4.CandidateGenerationV4
 import java.io.File
+import org.apache.spark.graphx.Graph
+import gov.pnnl.aristotle.algorithms.mining.datamodel.PatternInstanceNode
+import gov.pnnl.aristotle.algorithms.mining.datamodel.KGEdgeInt
 
 
 /**
@@ -59,6 +62,7 @@ object GraphMinerV4 {
 
     var batch_id = -1;
     var gWin = new CandidateGenerationV4(minSup)
+    var winodow_GIP : Graph[PatternInstanceNode, Int] = null
     //var pattern_trend : Map[String, List[( Int, Int )]] = Map.empty
 
     /*
@@ -75,27 +79,30 @@ object GraphMinerV4 {
       println(s"******Reading File $filepath with batch_id= $batch_id")
       //val batch_metrics = new BatchMetrics( batch_id )
 
-      val input_graph = ReadHugeGraph.getGraphFileTypeInt(filepath, sc)
+      /*
+       * input_graph is the raw batch graph.
+       */
+      val input_graph : Graph[Int, KGEdgeInt] = ReadHugeGraph.getGraphFileTypeInt(filepath, sc)
 
       t_sc0 = System.nanoTime()
-      val batch_graph = new CandidateGenerationV4(minSup)
-      val GIP = batch_graph.init(sc, input_graph, writerSG, baseEdgeType, nodeTypeThreshold)
+      val batchGraphGenerator = new CandidateGenerationV4(minSup)
+      winodow_GIP = batchGraphGenerator.init(sc, input_graph, writerSG, baseEdgeType, nodeTypeThreshold,winodow_GIP)
       
-      val misPatternSupport = batch_graph.computeMinImageSupport(GIP)
+      val misPatternSupport = batchGraphGenerator.computeMinImageSupport(winodow_GIP)
       
-      val gip_vertices_4degree = GIP.degrees.filter(v => v._2 == 4).count
-      val gip_vertices_1degree = GIP.degrees.filter(v => v._2 == 1).count
-      val gip_vertices_2degree = GIP.degrees.filter(v => v._2 == 2).count
-      val gip_vertices_3degree = GIP.degrees.filter(v => v._2 == 3).count
+      val gip_vertices_4degree = winodow_GIP.degrees.filter(v => v._2 == 4).count
+      val gip_vertices_1degree = winodow_GIP.degrees.filter(v => v._2 == 1).count
+      val gip_vertices_2degree = winodow_GIP.degrees.filter(v => v._2 == 2).count
+      val gip_vertices_3degree = winodow_GIP.degrees.filter(v => v._2 == 3).count
 
-      println("total GIP nodes", GIP.vertices.count)
+      println("total GIP nodes", winodow_GIP.vertices.count)
       println("nodes with 1 degree = ", gip_vertices_1degree)
       println("nodes with 2 degree = ", gip_vertices_2degree)
       println("nodes with 3 degree = ", gip_vertices_3degree)
       println("nodes with 4 degree = ", gip_vertices_4degree)
       
-      GIP.vertices.saveAsObjectFile("GIP/vertices/"+System.nanoTime())
-      GIP.edges.saveAsObjectFile("GIP/edges/"+System.nanoTime())
+      winodow_GIP.vertices.saveAsObjectFile("GIP/vertices/"+System.nanoTime())
+      winodow_GIP.edges.saveAsObjectFile("GIP/edges/"+System.nanoTime())
       misPatternSupport.saveAsObjectFile("GIP/misPattenSupport"+System.nanoTime())
     }
 
