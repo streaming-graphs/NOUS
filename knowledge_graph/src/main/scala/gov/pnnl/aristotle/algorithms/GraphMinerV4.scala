@@ -88,21 +88,8 @@ object GraphMinerV4 {
           baseEdgeType, nodeTypeThreshold,winodow_GIP)
       
       val misPatternSupport = batchGraphGenerator.computeMinImageSupport(winodow_GIP)
-      
-      val gip_vertices_4degree = winodow_GIP.degrees.filter(v => v._2 == 4).count
-      val gip_vertices_1degree = winodow_GIP.degrees.filter(v => v._2 == 1).count
-      val gip_vertices_2degree = winodow_GIP.degrees.filter(v => v._2 == 2).count
-      val gip_vertices_3degree = winodow_GIP.degrees.filter(v => v._2 == 3).count
-
       println("total GIP nodes", winodow_GIP.vertices.count)
-      println("nodes with 1 degree = ", gip_vertices_1degree)
-      println("nodes with 2 degree = ", gip_vertices_2degree)
-      println("nodes with 3 degree = ", gip_vertices_3degree)
-      println("nodes with 4 degree = ", gip_vertices_4degree)
-      
-      winodow_GIP.vertices.saveAsObjectFile("GIP/vertices/"+System.nanoTime())
-      winodow_GIP.edges.saveAsObjectFile("GIP/edges/"+System.nanoTime())
-      misPatternSupport.saveAsObjectFile("GIP/misPattenSupport"+System.nanoTime())
+      misPatternSupport.saveAsTextFile("GIP/misPattenSupport"+System.nanoTime())
     }
 
   }
