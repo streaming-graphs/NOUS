@@ -42,7 +42,7 @@ class CandidateGenerationV4(val minSup: Int) extends Serializable {
   
   
     def init(sc : SparkContext, graph: Graph[Int, KGEdgeInt], writerSG: PrintWriter, basetype: Int,
-    type_support: Int):  Graph[PatternInstanceNode, Long] = {
+    type_support: Int, winodow_GIP : Graph[PatternInstanceNode, Long]):  Graph[PatternInstanceNode, Long] = {
 
     /*
      * Get all the rdf:type dst node information on the source node

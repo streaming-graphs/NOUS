@@ -62,7 +62,7 @@ object GraphMinerV4 {
 
     var batch_id = -1;
     var gWin = new CandidateGenerationV4(minSup)
-    var winodow_GIP : Graph[PatternInstanceNode, Int] = null
+    var winodow_GIP : Graph[PatternInstanceNode, Long] = null
     //var pattern_trend : Map[String, List[( Int, Int )]] = Map.empty
 
     /*
@@ -84,7 +84,8 @@ object GraphMinerV4 {
 
       t_sc0 = System.nanoTime()
       val batchGraphGenerator = new CandidateGenerationV4(minSup)
-      winodow_GIP = batchGraphGenerator.init(sc, input_graph, writerSG, baseEdgeType, nodeTypeThreshold,winodow_GIP)
+      winodow_GIP = batchGraphGenerator.init(sc, input_graph, writerSG, 
+          baseEdgeType, nodeTypeThreshold,winodow_GIP)
       
       val misPatternSupport = batchGraphGenerator.computeMinImageSupport(winodow_GIP)
       
