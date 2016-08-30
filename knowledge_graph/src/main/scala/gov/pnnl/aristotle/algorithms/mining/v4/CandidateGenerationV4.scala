@@ -4,7 +4,7 @@
  * @dAug 22, 2016
  * @knowledge_graph
  */
-package gov.pnnl.aristotle.algorithms.mining.v3
+package gov.pnnl.aristotle.algorithms.mining.v4
 
 import java.io.Serializable
 import org.apache.spark.graphx.Graph
@@ -22,6 +22,9 @@ import gov.pnnl.aristotle.algorithms.mining.datamodel.PatternInstance
 import gov.pnnl.aristotle.algorithms.mining.datamodel.PatternInstanceNode
 import org.apache.spark.rdd.RDD
 import gov.pnnl.aristotle.algorithms.mining.datamodel.PatternInstanceNode
+import org.apache.spark.rdd.RDD.rddToPairRDDFunctions
+import scala.Array.canBuildFrom
+import scala.Int.int2long
 
 /**
  * @author puro755
@@ -67,7 +70,23 @@ class CandidateGenerationV4(val minSup: Int) extends Serializable {
     
     val gipEdge = getGIPEdges(gipVertices)
     
-    return  Graph(gipVertices,gipEdge)
+    val new_GIP =  Graph(gipVertices,gipEdge)
+    
+    
+     /*
+     * If the current GIP is null, i.e. batch is = 0;
+     * Return the newly created GIP as the 'current_GIP'
+     */
+    if(winodow_GIP == null)
+    {
+      return winodow_GIP
+    }
+
+    /*
+     * Otherwise make a union of the newGIP and window_GIP
+     */
+    return Graph(winodow_GIP.vertices.union(new_GIP.vertices).distinct,
+        winodow_GIP.edges.union(new_GIP.edges).distinct)
   }
   
     def getTypedGraph(graph: Graph[Int, KGEdgeInt],
@@ -267,11 +286,11 @@ class CandidateGenerationV4(val minSup: Int) extends Serializable {
   
   
   
-  def maintainWindow(input_gpi: Graph[(Long,PatternInstanceNode), Int], cutoff_time : Long) 
-  : Graph[(Long,PatternInstanceNode), Int] =
+  def maintainWindow(input_gpi: Graph[PatternInstanceNode, Int], cutoff_time : Long) 
+  : Graph[PatternInstanceNode, Int] =
 	{
 		return input_gpi.subgraph(vpred = (vid,attr) => {
-		  attr._2.timestamp > cutoff_time
+		  attr.timestamp > cutoff_time
 		})
 	}
   
