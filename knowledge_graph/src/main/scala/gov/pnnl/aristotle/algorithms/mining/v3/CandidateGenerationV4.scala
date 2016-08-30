@@ -34,11 +34,12 @@ class CandidateGenerationV4(val minSup: Int) extends Serializable {
   var type_support: Int = 2
   var input_gpi: Graph[KGNodeV4, KGEdgeInt] = null
   val batch_id_map : Map[Int,(Long,Long)] = Map.empty
+  type LabelWithTypes = (Int, List[Int])
   println("**************CREATING GRAPH************")
   
   
     def init(sc : SparkContext, graph: Graph[Int, KGEdgeInt], writerSG: PrintWriter, basetype: Int,
-    type_support: Int):  Graph[PatternInstanceNode, Int] = {
+    type_support: Int):  Graph[PatternInstanceNode, Long] = {
 
     /*
      * Get all the rdf:type dst node information on the source node
@@ -48,8 +49,8 @@ class CandidateGenerationV4(val minSup: Int) extends Serializable {
     println("***************support is " + SUPPORT)
 
     // Now we have the type information collected in the original graph
-    val typedAugmentedGraph: Graph[(Int, Map[Int, Int]), KGEdgeInt] = getTypedGraph(graph, writerSG)
-
+    // val typedAugmentedGraph: Graph[(Int, Map[Int, Int]), KGEdgeInt] = getTypedGraph(graph, writerSG)
+    val typedAugmentedGraph: Graph[LabelWithTypes, KGEdgeInt] = getTypedGraphNoMap(graph, writerSG)
     /*
      * Create RDD where Every vertex has all the 1 edge patterns it belongs to
      * Ex: Sumit: (person worksAt organizaion) , (person friendsWith person)
@@ -59,11 +60,12 @@ class CandidateGenerationV4(val minSup: Int) extends Serializable {
      * ....
      * 
      */
-    val oneEdgePatternOnVertexRDD: RDD[(Long,Array[(List[Int], PatternInstance)])] = getOneEdgePatternsRDD(typedAugmentedGraph)    
-
-    val gipVertices = getGIPVertices(typedAugmentedGraph)
+//    val oneEdgePatternOnVertexRDD: RDD[(Long,Array[(List[Int], PatternInstance)])] = 
+//      getOneEdgePatternsRDDNoMap(typedAugmentedGraph)    
+//    
+    val gipVertices = getGIPVerticesNoMap(typedAugmentedGraph)
     
-    val gipEdge = getGIPEdges(oneEdgePatternOnVertexRDD)
+    val gipEdge = getGIPEdges(gipVertices)
     
     return  Graph(gipVertices,gipEdge)
   }
@@ -79,9 +81,25 @@ class CandidateGenerationV4(val minSup: Int) extends Serializable {
         writerSG, typedVertexRDD)
       return typedAugmentedGraph
     }
+    
+    def getTypedGraphNoMap(graph: Graph[Int, KGEdgeInt],
+    writerSG: PrintWriter): Graph[LabelWithTypes, KGEdgeInt] =
+    {
+      val typedVertexRDD: VertexRDD[List[Int]] =
+        GraphProfiling.getTypedVertexRDD_TemporalNoMap(graph,
+          writerSG, type_support, this.TYPE.toInt)
+      // Now we have the type information collected in the original graph
+          // join the vertices with type information
+      val typedAugmentedGraph: Graph[LabelWithTypes, KGEdgeInt] = 
+        GraphProfiling.getTypedAugmentedGraph_TemporalNoMap(graph,
+        writerSG, typedVertexRDD)
+        
+      
+      return typedAugmentedGraph
+    }
  
- def getGIPEdges(oneEdgePatternOnVertexRDD: RDD[(Long,Array[(List[Int], PatternInstance)])]) :
- RDD[Edge[Int]] =
+ def getGIPEdges(gip_vertices: RDD[(Long,PatternInstanceNode)]) :
+ RDD[Edge[Long]] =
  {
      /*
      * Create Edges of the GIP
@@ -90,28 +108,63 @@ class CandidateGenerationV4(val minSup: Int) extends Serializable {
      * Also if we try to store fat data on every vertex, it may become bottleneck
      * 
      */
-      val gipEdges = oneEdgePatternOnVertexRDD.flatMap(vertex => {
-        var all_gip_vertices: scala.collection.mutable.ListBuffer[List[Int]] = scala.collection.mutable.ListBuffer.empty
-        vertex._2.map(a_pattern => all_gip_vertices +=
-          (a_pattern._1 ++ List(a_pattern._2.get_instacne.head._1, a_pattern._2.get_instacne.head._2)))
-        // 'head' is used here because at this point of time it is only an one-edge instance
-        val all_gip_vertices_list = all_gip_vertices.toList
-        // make a list to get an order because we need to cross join them
-        // in next step.
-        var i = 0 ; var j = 0
-        var local_edges: scala.collection.mutable.Set[Edge[Int]] = scala.collection.mutable.Set.empty
-        for (i <- 0 to all_gip_vertices_list.length - 1) {
-          for (j <- i to all_gip_vertices_list.length - 1) {
-            if (all_gip_vertices_list(i) != all_gip_vertices_list(j))
-              local_edges += Edge(all_gip_vertices_list(i).hashCode, all_gip_vertices_list(j).hashCode, 1)
-          }
-        }
-        
+   val gipPatternIdPerDataNode  = gip_vertices.flatMap(patterVertex => Iterable((patterVertex._2.getSourceId,patterVertex._1),
+       (patterVertex._2.getDestinationId,patterVertex._1))).groupByKey()
+   
+       val gipEdges = gipPatternIdPerDataNode.flatMap(gipNode=>{
+         val edgeList = gipNode._2.toList
+         val dataGraphVertexId = gipNode._1
+         var local_edges : scala.collection.mutable.ArrayBuffer[Edge[Long]]  = scala.collection.mutable.ArrayBuffer()
+         for(i <- 0 to  (edgeList.size-2))
+         {
+           for(j <- i+1 to  (edgeList.size-1))
+           {
+             local_edges += Edge(edgeList(i), edgeList(j), dataGraphVertexId)
+           }
+         }
         local_edges
-      })
-      println("*******size  " , gipEdges.count)
+       })
+
+
       return gipEdges
     }
+ 
+ 
+ 
+ def getGIPVerticesNoMap(typedAugmentedGraph: Graph[LabelWithTypes, KGEdgeInt] ) :
+ RDD[(Long,PatternInstanceNode)] =
+ {
+       /*
+     * Create GIP from this graph
+     * 
+     * Every node has following structure:
+     * (Long,(List[Int],Set[PatternInstance],Long)
+     * Long: VertexId
+     * List[Int]: pattern key
+     * Set[PatternInstance]: pattern instances around the local edge 
+     * Long : timestamp of that pattern edge
+     */
+    val allGIPNodes : RDD[(Long,PatternInstanceNode)]= 
+      typedAugmentedGraph.triplets.filter(triple=>triple.attr.getlabel != TYPE).map(triple => {
+
+      //Local Execution on a triple edge; but needs source and destination
+      val source_node = triple.srcAttr
+      val destination_node = triple.dstAttr
+     // val time_stamp = triple.attr.getdatetime
+      val pred_type = triple.attr.getlabel
+      val src_type = source_node._2.head
+      val dst_type = destination_node._2.head
+      val gip_v_key = List(src_type, pred_type, dst_type, triple.srcId, triple.dstId).hashCode.toLong
+      val gip_pattern = List(src_type, pred_type, dst_type)
+      val gip_instance_edge = new PatternInstance(Set((triple.srcAttr._1, triple.srcAttr._1)))
+      val gip_v_map = Map((src_type->triple.srcAttr._1),(dst_type -> triple.dstAttr._1))
+      val timestamp = triple.attr.getdatetime
+      val gip_v_label :List[Int] = List(src_type, pred_type, dst_type, triple.srcAttr._1, triple.srcAttr._1)
+     val pattern = (gip_v_key, new PatternInstanceNode(gip_v_label, gip_pattern, gip_instance_edge,gip_v_map, timestamp) )
+     pattern 
+    })
+    return allGIPNodes
+ }
     
  def getGIPVertices(typedAugmentedGraph: Graph[(Int, Map[Int, Int]), KGEdgeInt] ) :
  RDD[(Long,PatternInstanceNode)] =
@@ -177,7 +230,28 @@ class CandidateGenerationV4(val minSup: Int) extends Serializable {
       return result
 
     }
-   
+ 
+    def getOneEdgePatternsRDDNoMap(typedAugmentedGraph: Graph[LabelWithTypes, KGEdgeInt]): 
+    RDD[(Long, Array[(List[Int],PatternInstance)])] =
+    {
+
+      //val src_rdd = typedAugmentedGraph.triplets.groupBy(triple=>triple.srcId)
+      val result = typedAugmentedGraph.triplets.flatMap(triple => {
+        var localarrayList: scala.collection.mutable.ListBuffer[(List[Int], PatternInstance)] = scala.collection.mutable.ListBuffer.empty
+
+        val d = triple.dstAttr._2.head
+        val s = triple.srcAttr._2.head
+     
+        var pattern_instance: scala.collection.immutable.Set[(Int, Int)] = Set((triple.srcAttr._1, triple.dstAttr._1))
+       localarrayList += ((List(s, triple.attr.getlabel, d), new PatternInstance(pattern_instance)))
+            //localarrayList += ((List(s, edge.attr.getlabel, d, new PatternInstance(pattern_instance)))
+         
+        Iterable((triple.srcId, localarrayList.toArray),
+          (triple.dstId, localarrayList.toArray))
+      }).reduceByKey((a, b) => a ++ b)
+      return result
+
+    }
    
   def reducePatternsOnNodeV2(a: Array[(List[Int], PatternInstance)], 
       b: Array[(List[Int], PatternInstance)]): 
@@ -201,7 +275,7 @@ class CandidateGenerationV4(val minSup: Int) extends Serializable {
 		})
 	}
   
-  def computeMinImageSupport(input_gpi : Graph[PatternInstanceNode, Int])
+  def computeMinImageSupport(input_gpi : Graph[PatternInstanceNode, Long])
 	  :RDD[(List[Int],Int)] =
   {
 

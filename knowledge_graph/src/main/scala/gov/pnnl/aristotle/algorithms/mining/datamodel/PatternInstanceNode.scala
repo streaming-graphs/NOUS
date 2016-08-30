@@ -21,4 +21,12 @@ class PatternInstanceNode(val pattern_id: List[Int],
    * second Int is the instance node key
    */
   
+  def getSourceId : Long =
+  {
+    this.instance_edge.get_instacne.head._1
+  }
+  def getDestinationId : Long =
+  {
+    this.instance_edge.get_instacne.head._2
+  }
 }

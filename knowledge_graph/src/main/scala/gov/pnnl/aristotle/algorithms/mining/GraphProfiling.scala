@@ -421,6 +421,18 @@ def getNodeProfile(graph :Graph[(String, Map[String, Map[String, Int]]),
     }
 
  }
+ 
+ def getTypedAugmentedGraph_TemporalNoMap(graph: Graph[Int, KGEdgeInt], writerSG: PrintWriter,
+     typedVertexRDD : VertexRDD[List[Int]])
+ :Graph[(Int, List[Int]), KGEdgeInt] =
+ {
+	  return graph.outerJoinVertices(typedVertexRDD) {
+      case (id, label, Some(nbr)) => (label, nbr)
+      case (id, label, None) => (label, List.empty[Int])
+      //TODO: WHY 	WILL NONE COMES INTO PICTURE ? EVERY NBR IS FROM ORIGINAL LIST 
+    }
+
+ }
 
  def getTypedAugmentedGraph(graph: Graph[String, String], writerSG: PrintWriter,
      typedVertexRDD : VertexRDD[Map[String, Map[String, Int]]])
@@ -476,6 +488,25 @@ def getTypedVertexRDD_Temporal(graph : Graph[Int, KGEdgeInt], writerSG : PrintWr
           },
         (a, b) => { a |+| b })
 
+    }
+ 
+/**
+ *  Returns a RDD where every vertex stores Map[String, Map[String, Int]].
+ *  In this case, it is actually a single key value pair map.  The key is "nodeType".
+ *  The value is a pair representing (type of the node, and the count of how many times the type/is-a relation occurred.
+ */ 
+def getTypedVertexRDD_TemporalNoMap(graph : Graph[Int, KGEdgeInt], writerSG : PrintWriter,degreeLimit:Int,
+    type_predicate:Int)
+ :VertexRDD[List[Int]] =
+ {
+     graph.aggregateMessages[List[Int]](edge =>
+          {
+            if (edge.attr.getlabel == (type_predicate)) {
+              edge.sendToSrc(List(edge.dstAttr)) //TODO: if no type information is stored then how 
+              // do we avoid ontological joins :- store it in vertex properties.
+            }
+          },
+        (a, b) => { a |+| b })
     }
  
 /**

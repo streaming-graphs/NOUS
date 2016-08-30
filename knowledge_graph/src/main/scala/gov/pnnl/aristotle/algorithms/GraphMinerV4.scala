@@ -64,10 +64,8 @@ object GraphMinerV4 {
     /*
      * Read ` the files/folder one-by-one and construct an input graph
      */
-    for (
-      filepath <- Source.fromFile(listBatchFiles).
-        getLines().filter(str => !str.startsWith("#"))
-    ) {
+    for (filepath <- Source.fromFile(listBatchFiles).
+        getLines().filter(str => !str.startsWith("#"))) {
      /*
      * batch_id: each files is read as a new batch.
      */

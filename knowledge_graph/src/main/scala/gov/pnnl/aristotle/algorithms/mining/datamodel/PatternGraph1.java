@@ -1,6 +1,6 @@
 package gov.pnnl.aristotle.algorithms.mining.datamodel;
 // Java program to print DFS traversal from a given given graph
-import java.io.*;
+// import java.io.*;
 import java.util.*;
 import gov.pnnl.aristotle.algorithms.mining.datamodel.PatternTriple;
  
