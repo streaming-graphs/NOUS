@@ -79,7 +79,7 @@ class CandidateGenerationV4(val minSup: Int) extends Serializable {
      */
     if(winodow_GIP == null)
     {
-      return winodow_GIP
+      return new_GIP
     }
 
     /*
@@ -305,6 +305,9 @@ class CandidateGenerationV4(val minSup: Int) extends Serializable {
      * (P1,org,pnnl)
      * (P1,org,pnnl)
      */
+    if(input_gpi == null)
+      println("null")
+
       val sub_pattern_key_rdd = input_gpi.vertices.flatMap(vertex => {
         vertex._2.pattern_instance_map.map(pattern_instance_pair => {
           ((vertex._2.pattern_edge, pattern_instance_pair._1, pattern_instance_pair._2))
