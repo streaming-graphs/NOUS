@@ -163,8 +163,13 @@ class CandidateGenerationV4(val minSup: Int) extends Serializable {
      * Set[PatternInstance]: pattern instances around the local edge 
      * Long : timestamp of that pattern edge
      */
+   val validTriples = typedAugmentedGraph.triplets.filter(triple=>triple.attr.getlabel != TYPE).
+      filter(triple=>triple.attr.getlabel != TYPE).filter(triple=>triple.srcAttr._2.size > 0)
+      .filter(triple=>triple.dstAttr._2.size > 0)
+      
     val allGIPNodes : RDD[(Long,PatternInstanceNode)]= 
-      typedAugmentedGraph.triplets.filter(triple=>triple.attr.getlabel != TYPE).map(triple => {
+      validTriples
+      .map(triple => {
 
       //Local Execution on a triple edge; but needs source and destination
       val source_node = triple.srcAttr
