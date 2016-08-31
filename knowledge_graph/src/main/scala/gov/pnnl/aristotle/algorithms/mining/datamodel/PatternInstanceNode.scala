@@ -12,7 +12,10 @@ import java.io.Serializable
  * @author puro755
  *
  */
-class PatternInstanceNode(val pattern_id: List[Int],
+
+
+class PatternInstanceNode(
+    val pattern_id: List[Int],
     val pattern_edge: List[Int] ,val instance_edge: PatternInstance,
     val pattern_instance_map : Map[Int,Int],val timestamp: Long) extends Serializable {
 
@@ -25,8 +28,12 @@ class PatternInstanceNode(val pattern_id: List[Int],
   {
     this.instance_edge.get_instacne.head._1
   }
+  
   def getDestinationId : Long =
   {
     this.instance_edge.get_instacne.head._2
   }
 }
+
+
+ 

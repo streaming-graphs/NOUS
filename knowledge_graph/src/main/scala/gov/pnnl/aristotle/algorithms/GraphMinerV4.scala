@@ -88,7 +88,6 @@ object GraphMinerV4 {
           baseEdgeType, nodeTypeThreshold,winodow_GIP)
       
       val misPatternSupport = batchGraphGenerator.computeMinImageSupport(winodow_GIP)
-      println("total GIP nodes", winodow_GIP.vertices.count)
       misPatternSupport.saveAsTextFile("GIP/misPattenSupport"+System.nanoTime())
     }
 

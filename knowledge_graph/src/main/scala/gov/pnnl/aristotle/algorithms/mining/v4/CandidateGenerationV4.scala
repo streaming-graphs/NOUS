@@ -38,6 +38,7 @@ class CandidateGenerationV4(val minSup: Int) extends Serializable {
   var input_gpi: Graph[KGNodeV4, KGEdgeInt] = null
   val batch_id_map : Map[Int,(Long,Long)] = Map.empty
   type LabelWithTypes = (Int, List[Int])
+  
   println("**************CREATING GRAPH************")
   
   
@@ -67,7 +68,7 @@ class CandidateGenerationV4(val minSup: Int) extends Serializable {
 //      getOneEdgePatternsRDDNoMap(typedAugmentedGraph)    
 //    
     val gipVertices = getGIPVerticesNoMap(typedAugmentedGraph)
-    gipVertices.collect.foreach(f=>println(f._1, f._2.pattern_edge,f._2.instance_edge))
+   
     val gipEdge = getGIPEdges(gipVertices)
     
     val new_GIP =  Graph(gipVertices,gipEdge)
@@ -113,7 +114,6 @@ class CandidateGenerationV4(val minSup: Int) extends Serializable {
         GraphProfiling.getTypedAugmentedGraph_TemporalNoMap(graph,
         writerSG, typedVertexRDD)
         
-      
       return typedAugmentedGraph
     }
  
@@ -179,7 +179,8 @@ class CandidateGenerationV4(val minSup: Int) extends Serializable {
       val gip_v_map = Map((src_type->triple.srcAttr._1),(dst_type -> triple.dstAttr._1))
       val timestamp = triple.attr.getdatetime
       val gip_v_label :List[Int] = List(src_type, pred_type, dst_type, triple.srcAttr._1, triple.dstAttr._1)
-     val pattern = (gip_v_key, new PatternInstanceNode(gip_v_label, gip_pattern, gip_instance_edge,gip_v_map, timestamp) )
+     val pattern = (gip_v_key, new PatternInstanceNode(gip_v_label, 
+         gip_pattern, gip_instance_edge,gip_v_map, timestamp) )
      pattern 
     })
     return allGIPNodes
