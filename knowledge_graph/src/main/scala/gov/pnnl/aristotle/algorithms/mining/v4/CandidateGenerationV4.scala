@@ -331,7 +331,8 @@ class CandidateGenerationV4(val minSup: Int) extends Serializable {
          * 
          */
 
-      }).reduceByKey((unique_instance1_count,unique_instance2_count) 
+      })
+      .reduceByKey((unique_instance1_count,unique_instance2_count) 
           => unique_instance1_count + unique_instance2_count)
       
      /*
