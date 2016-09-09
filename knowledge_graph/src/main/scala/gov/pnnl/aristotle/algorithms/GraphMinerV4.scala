@@ -87,6 +87,9 @@ object GraphMinerV4 {
       winodow_GIP = batchGraphGenerator.init(sc, input_graph, writerSG, 
           baseEdgeType, nodeTypeThreshold,winodow_GIP)
       
+      winodow_GIP.vertices.filter(v=>((v._2.pattern_edge == List(48,3,48) ||
+          (v._2.pattern_edge == List(48,4,48) )))).mapValues(nodeval 
+              => (nodeval.pattern_edge, nodeval.instance_edge.get_instacne.toString)).saveAsTextFile("GIP/vertices_part/"+ filepath.substring(filepath.length() - 20)+System.nanoTime())
       val misPatternSupport = batchGraphGenerator.computeMinImageSupport(winodow_GIP)
       misPatternSupport.saveAsTextFile("GIP/misPattenSupport"+System.nanoTime())
     }

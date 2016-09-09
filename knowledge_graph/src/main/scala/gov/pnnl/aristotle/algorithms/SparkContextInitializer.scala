@@ -20,6 +20,9 @@ object SparkContextInitializer {
     .set("spark.shuffle.blockTransferService", "nio")
     .set("spark.serializer",
       "org.apache.spark.serializer.KryoSerializer")
+      .setMaster("local")
+      
+      
       
       
       
