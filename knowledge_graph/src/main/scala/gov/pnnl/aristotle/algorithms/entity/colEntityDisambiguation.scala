@@ -42,7 +42,20 @@ class ColEntityDisamb[VD, ED] {
     //1. Get candidates entities for each mention
     val mentionLabels: List[Mention] = allMentionsWithData.keys.toList
     val mentionToEntityMap: Map[Mention, Iterable[Entity]] = 
-      getMatchCandidates(mentionLabels, vertexRDDWithAlias, phraseMatchThreshold) 
+      getMatchCandidates(mentionLabels, vertexRDDWithAlias, phraseMatchThreshold)
+    println("\nCandidate matches for each mention (in main function):")
+    mentionToEntityMap.foreach(matches => println(matches._1 + "=>"  + matches._2.toString))
+    // if no or only single candidates are found for each mention, then return
+    var isDisambNeeded = false;
+    for(cand <- mentionToEntityMap.values){
+      if(cand.size > 1){
+        isDisambNeeded = true;
+      }
+    }
+    if(!isDisambNeeded) {
+      println("No disambigutaion required as no mentions have  multiple cadidates")
+      exit
+    }
       
      //1.1 If unable to find any potential candidate for a given mention,
      // will create new entity in knowledge graph as nous:mention
@@ -50,15 +63,20 @@ class ColEntityDisamb[VD, ED] {
     val mentionsWithData = allMentionsWithData.--(mentionsWithoutEntityMatch)
     println("Mentions without any entity match")
     mentionsWithoutEntityMatch.foreach(println(_))
-    var finalMatches = initMapWithNewEntities(mentionsWithoutEntityMatch)
+    val finalMatches = initMapWithNewEntities(mentionsWithoutEntityMatch)
     if(mentionsWithoutEntityMatch.size == mentionLabels.size)
       return finalMatches.toMap
     
     
     // 2. Score each candidate entity using graph neighborhood data
-    val candidateIds: Array[NodeId] = mentionToEntityMap.values.flatMap(listEntities => listEntities.map(entity => entity._1)).toArray
-    println("Number of potential candidates=", candidateIds.size)
-    val  nbrsOfCandidateEntities: Map[NodeId, Set[Entity]] = NodeProp.getOneHopNbrIdsLabels(g, candidateIds).toArray.toMap    
+    val candidateIds: Array[NodeId] = mentionToEntityMap.values.flatMap(listEntities => 
+      listEntities.map(entity => entity._1)).toArray
+    println("Total number of potential candidates, to get neighbourhood data =", candidateIds.size)
+    val  nbrsOfCandidateEntities: Map[NodeId, Set[Entity]] = NodeProp.getOneHopNbrIdsLabels(g, candidateIds).toArray.toMap
+    // Put cheks that if no neighbourhood data is found about a node ,
+    // and a mention has only that entity , should we return best string match
+   
+    nbrsOfCandidateEntities.foreach(idWithNbrs => println(idWithNbrs._1, idWithNbrs._2))
     val mentionToEntityScore : Map[Mention, Set[(Entity, SimScore)]] = 
       ColEntityDisScores.getEntityMentionCompScore(mentionsWithData, 
           mentionToEntityMap, nbrsOfCandidateEntities, 
