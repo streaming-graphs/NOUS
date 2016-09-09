@@ -90,6 +90,15 @@ class CandidateGenerationV4(val minSup: Int) extends Serializable {
         winodow_GIP.edges.union(new_GIP.edges).distinct)
   }
   
+  
+  	def join(sc : SparkContext, graph: Graph[Int, KGEdgeInt], writerSG: PrintWriter, basetype: Int,
+    type_support: Int, winodow_GIP : Graph[PatternInstanceNode, Long])
+  	{
+  	  
+  	}
+  
+  
+  
     def getTypedGraph(graph: Graph[Int, KGEdgeInt],
     writerSG: PrintWriter): Graph[(Int, Map[Int, Int]), KGEdgeInt] =
     {
