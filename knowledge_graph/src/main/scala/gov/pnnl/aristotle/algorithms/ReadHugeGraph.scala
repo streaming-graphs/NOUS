@@ -403,7 +403,7 @@ object ReadHugeGraph {
       }
 
     triples.cache
-    val edges = triples.map(triple => Edge(triple._1.hashCode().toLong, triple._3.hashCode().toLong, triple._2))
+    val edges = triples.map(triple => Edge(triple._1.hashCode().toLong, triple._3.hashCode().toLong, triple._2)).distinct
     val vertices = triples.flatMap(triple => Array((triple._1.hashCode().toLong, triple._1), (triple._3.hashCode().toLong, triple._3)))
 
     println("starting map phase3 > Building graph");
