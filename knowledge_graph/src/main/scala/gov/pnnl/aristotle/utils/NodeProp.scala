@@ -63,7 +63,8 @@ object NodeProp {
       },
       (a, b) => a +"__"+ b
       )
-      verticesWithAlias.mapValues(alias => "ALIAS="+alias)     
+      //verticesWithAlias.mapValues(alias => "ALIAS="+alias)
+      verticesWithAlias
   }
   
   // Given a list of vertex id in graph , get neighbour list that link to this node with a given relation

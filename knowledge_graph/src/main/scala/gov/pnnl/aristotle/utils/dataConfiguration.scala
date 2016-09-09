@@ -6,7 +6,7 @@ import org.apache.spark.rdd._
 
 
 
-
+/*
 object KGraphProp {
   
   val edgeLabelNeighbourEntity = "linksTo"
@@ -47,6 +47,14 @@ object KGraphProp {
            
   }
   
+  */
+ object KGraphProp {
+  
+  val edgeLabelNeighbourEntity = ""
+  val edgeLabelNodeType = "is"
+  val edgeLabelNodeAlias : List[String]= List("represents")
+  val aliasSep: String = " <Alias> "
+  val typeSep :String = " <Type> "
 }
 
 object predicateTypeMapper{
