@@ -13,8 +13,7 @@ import gov.pnnl.fcsd.datasciences.graphBuilder.nlp.semanticParsers.SennaSemantic
 import scala.Array.canBuildFrom
 
 object MatchStringCandidates {
-
-
+  
   //given a graph of type [String, String] ,  return list of vertex ids containing given label
  def getMatches(label :String, g :Graph[String, String]): Array[Long] = {
    val matchingVertices =  g.vertices.filter(v => v._2.toLowerCase().contains(label.toLowerCase())).map(v => v._1).collect()   
@@ -30,23 +29,33 @@ object MatchStringCandidates {
 }
   
   class MatchMentions(mentions: Set[String], simThreshold: Double) extends Serializable{
-   // Matches the given entity label+alias to  
+   
+    // Returns all mentions that match this entity
+    // Matches the given entity label+alias to  
    def getMatch(vert: (VertexId, String)): Set[String] = {
      
      val labelWithAlias : Array[String] = vert._2.split(KGraphProp.aliasSep)
      
      if(labelWithAlias.length == 1){
+        
         val matchingMentions = mentions.filter( Gen_Utils.stringSim(labelWithAlias(0), _) >= simThreshold)
+        if(matchingMentions.size > 0) {
+        println("Found no alias, matched node : ", vert._2, " with :")
+        matchingMentions.foreach(println(_))
+        }
         matchingMentions
-     } else if (labelWithAlias.length == 2){
+     } else if (labelWithAlias.length == 2) {
        val matchingMentions = mentions.filter(mention => Gen_Utils.stringSim(labelWithAlias(0), mention) >= simThreshold || 
            Gen_Utils.stringSim(labelWithAlias(1), mention) > simThreshold)
        //val matchingMentions = mentions.filter(mention => labelWithAlias(0).contains(mention) || labelWithAlias(1).contains(mention) )
         //mentions.filter(labelWithAlias(0).contains(_))
+        if(matchingMentions.size > 0) {
+          println("Found alias, matched node : ", vert._2, " with :")
+          matchingMentions.foreach(println(_)) 
+        }
         matchingMentions
      } else {
-       
-       Set.empty[String]
+       Set.empty[String] 
      }
    }
 

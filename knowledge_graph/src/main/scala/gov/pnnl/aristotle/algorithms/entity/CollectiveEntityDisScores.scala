@@ -10,8 +10,8 @@ object ColEntityDisScores {
   
    /*Given 
    * a list of mentions (co-occuring in a paragraph) and their associated data types(from NLP)
-   * the list of candidate entities for each mention, is one exists
-   * The information about candidate entities (Neighbourhood data)
+   * the list of candidate entities for each mention, if one exists
+   * The information about candidate entities (Neighborhood data)
    * 
    * Output:
    * For each mention, provide matching entities along with Similarity score 
@@ -22,6 +22,7 @@ object ColEntityDisScores {
       phraseMatchThreshold: Double) :  Map[Mention, Set[(Entity, SimScore)]]= {
     
     val allMentionsInGivenContext = mentionsWithData.keys.toSet
+    println("Number of mentions to score", allMentionsInGivenContext.size)
     
     val mentionToEntityCompScore : Map[Mention, Set[(Entity, SimScore)]] = 
       mentionsToEntityMap.map(mentionToEntityList => {
