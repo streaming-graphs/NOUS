@@ -261,5 +261,14 @@ object DataToPatternGraph {
         case (id, label, None) => (label, List.empty[Int])
       }
     }
+   
+   
+def maintainWindow(input_gpi: PatternGraph, cutoff_time : Long) 
+  : PatternGraph =
+	{
+		return input_gpi.subgraph(vpred = (vid,attr) => {
+		  attr.timestamp > cutoff_time
+		})
+	}
  
 }
