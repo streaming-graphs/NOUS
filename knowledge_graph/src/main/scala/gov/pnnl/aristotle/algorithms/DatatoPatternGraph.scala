@@ -205,9 +205,18 @@ object DataToPatternGraph {
      * (Long,Array[(SinglePatternEdge, SingleInstanceEdge)]
      *
      */
-      val validTriples = typedAugmentedGraph.triplets.filter(triple => triple.attr.getlabel != typePred).
-        filter(triple => triple.attr.getlabel != typePred).filter(triple => triple.srcAttr._2.size > 0)
-        .filter(triple => triple.dstAttr._2.size > 0)
+     
+     
+     /*
+      * validTriples are the triples without any 'type' edge, and also without
+      * any edge where either the source or destination has pattern to 
+      * contribute 
+      */
+      val validTriples = typedAugmentedGraph.triplets.filter(triple 
+          => (triple.attr.getlabel != typePred) &&
+          	(triple.srcAttr._2.size > 0) &&
+          	(triple.dstAttr._2.size > 0)
+          )
 
       val allGIPNodes: RDD[(Long, PatternInstanceNode)] =
         validTriples
