@@ -10,11 +10,20 @@ import edu.stanford.nlp.pipeline.StanfordCoreNLP
 import edu.stanford.nlp.util.CoreMap
 import edu.stanford.nlp.ling.CoreAnnotations._
 import java.util.Properties
+import java.io._
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ListBuffer
 import edu.stanford.nlp.naturalli.NaturalLogicAnnotations.RelationTriplesAnnotation
 import edu.stanford.nlp.ie.util.RelationTriple;
 import edu.stanford.nlp.simple._;
+
+import org.json4s._
+//import org.json4s.JsonDSL._
+import org.json4s.jackson.JsonMethods._
+//import org.json4s.native.JsonMethods._
+import org.json4s.native.Serialization._
+import org.json4s.native.Serialization
+import collection.immutable.ListMap
 
 case class Triple(val sub: String, val pred: String, val obj: String, val timestamp: String = "", val src: String = "", val conf: Double = 1.0) {
   override def toString(): String = {
@@ -116,7 +125,7 @@ object TripleParser extends Serializable {
 
       def isNounPhrase(pos: String): Boolean = { 
         // if (pos == "NN" || pos == "NNS" || pos == "NNP" || pos == "NNPS") true else false
-        if (pos == "NNP" || pos == "NNPS") true else false
+        if (pos == "NNP" || pos == "NNPS" || pos == "JJ") true else false
       }   
   
       val sentences = annotation.get(classOf[SentencesAnnotation])
@@ -130,7 +139,7 @@ object TripleParser extends Serializable {
           val pos = t.get(classOf[PartOfSpeechAnnotation])
           val nerLabel = t.get(classOf[NamedEntityTagAnnotation])
           val isNP = isNounPhrase(pos)
-          // println("[" + word + "] POS [" + pos + "]" + "] NER [" + nerLabel + "] isNP [" + isNP + "]")
+          println("[" + word + "] POS [" + pos + "]" + "] NER [" + nerLabel + "] isNP [" + isNP + "]")
           if (isNP) {
             if (npList.size == 0) {
               npList += (nerLabel + ":" + word)
@@ -192,7 +201,7 @@ object TripleParser extends Serializable {
             val sub = t.subjectGloss()
             val obj = t.objectGloss()
             val relation = t.relationGloss()
-            // println("---> " + sub + " -> " + relation + " -> " + obj)
+            println("---> " + sub + " -> " + relation + " -> " + obj)
             tripleBuffer += Triple(sub, relation, obj, "", "", t.confidence) 
           }
         }
@@ -259,9 +268,9 @@ object TripleParser extends Serializable {
   }
 
   def getTriples(doc: String): List[Triple] = {
-    // println("##########################")
-    // println(doc)
-    // println("##########################")
+    println("##########################")
+    println(doc)
+    println("##########################")
     // val t1 = System.currentTimeMillis
     val annotation = getAnnotation(doc)
     // val t2 = System.currentTimeMillis
@@ -270,24 +279,93 @@ object TripleParser extends Serializable {
       List[Triple]()
     }
     else {
-      // println("********** NER output **********")
-      // namedPhrases.foreach(println)
+      println("********** NER output **********")
+      namedPhrases.foreach(println)
       // val t3 = System.currentTimeMillis
       //val srlTriples = new SemanticRoleLabelExtractor().extract(annotation)
       val openieTriples = OpenIEExtractor.extractFiltered(annotation, namedPhrases)
       
-      // println("********** OpenIE output **********")
-      // openieTriples.foreach(println)
+      println("********** OpenIE output **********")
+      openieTriples.foreach(println)
       // val t4 = System.currentTimeMillis
       // println("getAnnotation = " + (t2-t1) + " NER = " + (t3-t2) + " OpenIE = " + (t4-t3))
       val relations = purge(openieTriples.filter(_.conf > 0.98))
-      // println("********** Purged output **********")
-      // relations.foreach(println)
+      println("********** Purged output **********")
+      relations.foreach(println)
       val finalTriples = getTypeTriples(namedPhrases) ::: relations
-      // println("********** Final output **********")
-      // finalTriples.foreach(println)
+      println("********** Final output **********")
+      finalTriples.foreach(println)
       finalTriples
     }
+  }
+
+  object relate {
+    def unapply(x : Triple) = Some(x.sub, x.pred, x.obj, x.timestamp, x.src, x.conf) 
+  } 
+
+  def tos(t:Triple) : String = {t match {
+      //case relate(s,p,o,_,_,_) => s + "\t" + p + "\t" + o
+      case relate(s,p,o,_,_,_) => List("<"+s+">", "<"+p+">", "<"+o+">").mkString("  ")
+    }
+  }
+
+  def getDumpTriples(sentences: List[String], docname: String) = {
+    val result = ListMap("doc_name" -> docname)
+    var lst = new ListBuffer[ListMap[String,_]]() 
+    for (i <- 0 until sentences.size) {
+      val doc = sentences(i)
+      val annotation = getAnnotation(doc)
+      val namedPhrases = NamedPhraseExtractor.extract(annotation)
+      if (namedPhrases.size > 0) {
+        //val entities = namedPhrases.map(s => s.split(":").last)
+        val openieTriples = OpenIEExtractor.extractFiltered(annotation, namedPhrases)
+        lst += ListMap("sentence_id" -> i, "entities" -> namedPhrases, "triples" -> openieTriples.map(tos))  
+      }
+    } 
+
+    val finalresult = result + ("nlp_output" -> lst.toList)
+
+    import org.json4s.JsonDSL._
+    implicit val formats = DefaultFormats
+    val d = Extraction.decompose(finalresult)
+    val writer = new PrintWriter(new File("outputTest.json"))
+    writer.write(pretty(render(d)))
+    writer.close()
+  }
+
+  def encodeJson(src: AnyRef): JValue = {
+    import org.json4s.{ Extraction, NoTypeHints }
+    import org.json4s.JsonDSL.WithDouble._
+    import org.json4s.jackson.Serialization
+    implicit val formats = Serialization.formats(NoTypeHints)
+    Extraction.decompose(src)
+  }
+
+  def test(docname: String) = {
+    //implicit val formats = Serialization.formats(NoTypeHints)
+    //type DslConversion = T => JValue
+    //import org.json4s._
+    import org.json4s.JsonDSL._
+    //import org.json4s.{ Extraction, NoTypeHints }
+    //import org.json4s.jackson.Serialization
+    //implicit val formats = Serialization.formats(NoTypeHints)
+
+    val a = Map("enties" -> List("we","are","young"),"id" -> 1)
+    //val b  = a.view.map{ case(k,v) => (k, v) } toList
+    //val b = List("enties" -> List("we","are","young"),"id" -> 1)
+    val c = ("name" -> "joe")
+    //implicit val formats = Serialization.formats(NoTypeHints)
+    implicit val formats = DefaultFormats
+    val d = Extraction.decompose(a)
+    //val d = scala.util.parsing.json.JSONObject(a)
+    //val writer = new PrintWriter(new File("output.json"))
+    //writer.write(pretty(render(a)))
+    //writer.close()
+    //println(pretty(render(encodeJson(a))))
+    //println(compact(render(c)))
+    println(pretty(render(d)))
+    //println("test!")
+
   }
 
   def main(args: Array[String]) = {
@@ -297,6 +375,19 @@ object TripleParser extends Serializable {
     }
     val inPath = args(0)
     val lines = scala.io.Source.fromFile(inPath).getLines.toList.filter(_.size != 0)
+    //val lines = scala.io.Source.fromFile(inPath).getLines.mkString
+    val info = inPath.split("/").last
+    //implicit val formats = DefaultFormats
+    //case class Contents(sentence_id :Int, entities: List[String], triples:List[String])
+    //case class NLPoutput(doc_name: String, nlp_output: List[Contents])
+    //val re = parse(lines).extract[NLPoutput]
+    //println(re.nlp_output.size())
+    //for (entry <- re.nlpoutput.take(3)) {
+    //  println(entry.entities)
+    //}
+    //TripleParser.test(info)
+    //println(info)
+    //TripleParser.getDumpTriples(lines, info) //this is my function to dump out the json files!
     for (line <- lines) {
       TripleParser.getTriples(line)
     }

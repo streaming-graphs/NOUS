@@ -4,6 +4,7 @@ package gov.pnnl.aristotle.algorithms.entity
 import scala.collection.Map
 import breeze.linalg._
 import breeze.numerics._
+import breeze.linalg.inv._
 import gov.pnnl.aristotle.algorithms.entity.ColEntityTypes._
 
 object EvidenceProp{

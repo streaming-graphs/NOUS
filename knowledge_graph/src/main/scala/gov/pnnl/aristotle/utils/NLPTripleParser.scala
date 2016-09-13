@@ -11,7 +11,7 @@ import java.nio.file.{Paths, Files}
 
 
 
-class MentionData(val entityType: String, val initialEvidenceWeight: Double) { 
+class MentionData(val entityType: String, val initialEvidenceWeight : Double = 0.8) { 
   
   override def toString() :String = {
     entityType + ";" + initialEvidenceWeight.toString
