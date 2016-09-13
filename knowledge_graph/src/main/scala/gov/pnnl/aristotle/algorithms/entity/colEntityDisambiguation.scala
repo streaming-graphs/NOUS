@@ -63,9 +63,6 @@ class ColEntityDisamb[VD, ED] {
     val mentionsWithData = allMentionsWithData.--(mentionsWithoutEntityMatch)
     println("Mentions without any entity match")
     mentionsWithoutEntityMatch.foreach(println(_))
-<<<<<<< Updated upstream
-    val finalMatches = initMapWithNewEntities(mentionsWithoutEntityMatch)
-=======
     if(mentionToEntityMap.size < 2){
       println(" Cannot collectively disambigute a single mention")
       println("The candidates for mention:")
@@ -77,7 +74,6 @@ class ColEntityDisamb[VD, ED] {
       exit
     }
     var finalMatches = initMapWithNewEntities(mentionsWithoutEntityMatch)
->>>>>>> Stashed changes
     if(mentionsWithoutEntityMatch.size == mentionLabels.size)
       return finalMatches.toMap
     
