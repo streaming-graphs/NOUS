@@ -8,6 +8,9 @@ import org.apache.spark.graphx.Edge
 import org.apache.log4j.Logger
 import org.apache.log4j.Level
 import scala.io.Source
+import org.joda.time.format.DateTimeFormat
+import org.ini4j.Wini
+import java.io.File
 
 
 
@@ -77,28 +80,37 @@ object DataToPatternGraph {
     }
   
   def main(args: Array[String]): Unit = {
-    if (args.length != 4) {
-      println("Usage <BatchInfoFile (containingPathToDataDirectoriesPerBatch)> <OutDir> <typeEdge> <support>")
+    if (args.length != 1) {
+      println("Usage : <configuration file path>")
       exit
     } 
-    
+    val confFilePath = args(0)
     Logger.getLogger("org").setLevel(Level.OFF)
     Logger.getLogger("akka").setLevel(Level.OFF)
 
     val sc = SparkContextInitializer.sc
-    val pathOfBatchGraph = args(0)
-    val outDir = args(1)
-    val typePred = args(2).toInt
-    val support = args(3).toInt
     
+    val ini = new Wini(new File(confFilePath));
+    val pathOfBatchGraph = ini.get("run", "batchInfoFilePath");
+    val outDir = ini.get("run", "outDir")
+    val typePred = ini.get("run", "typeEdge").toInt
+    val support = ini.get("run", "support").toInt
+    val startTime = ini.get("run", "startTime").toInt
+    val batchSizeInTime = ini.get("run", "batchSizeInTime")
+    val windowSizeInBatchs = ini.get("run", "windowSizeInBatch").toInt
+
+    val batchSizeInMilliSeconds = getBatchSizerInMillSeconds(batchSizeInTime)
+    var currentBatchId = getBatchId(startTime, batchSizeInTime)
     
     /*
      * Read the files/folder one-by-one and construct an input graph
      */
     for (graphFile <- Source.fromFile(pathOfBatchGraph).
         getLines().filter(str => !str.startsWith("#"))) {
+    	
+      currentBatchId = currentBatchId + 1
 
-      val dataGraph: DataGraph = ReadHugeGraph.getGraphFileTypeInt(graphFile, sc)
+      val dataGraph: DataGraph = ReadHugeGraph.getGraphFileTypeInt(graphFile, sc, batchSizeInMilliSeconds)
       val patternGraph: PatternGraph = getPatternGraph(dataGraph, typePred, support)
       
       /*
@@ -143,6 +155,33 @@ object DataToPatternGraph {
     
   }
 
+  
+  def getBatchId(startTime : Int, batchSizeInTime : String) : Long =
+  {
+    val startTimeMilliSeconds = getStartTimeInMillSeconds(startTime)
+    val batchSizeInTimeIntMilliSeconds = getBatchSizerInMillSeconds(batchSizeInTime)
+    return (startTimeMilliSeconds / batchSizeInTimeIntMilliSeconds)
+  }
+  
+  def getBatchSizerInMillSeconds(batchSize : String) : Long =
+  {
+    val MSecondsInYear = 31556952000L
+    if(batchSize.endsWith("y"))
+    {
+      val batchSizeInYear : Int = batchSize.replaceAll("y", "").toInt
+      return batchSizeInYear * MSecondsInYear
+    }
+    return MSecondsInYear
+  }
+  
+  def getStartTimeInMillSeconds(startTime:Int) : Long = 
+  {
+    val startTimeString = startTime + "/01/01 00:00:00.000"
+    val f = DateTimeFormat.forPattern("yyyy/MM/dd HH:mm:ss.SSS");
+    val dateTime = f.parseDateTime(startTimeString);
+    return dateTime.getMillis()
+  }
+  
   def getPatternGraph(dataGraph: DataGraph, typePred: Int, support: Int): PatternGraph = {
     
     /*
@@ -263,11 +302,11 @@ object DataToPatternGraph {
     }
    
    
-def maintainWindow(input_gpi: PatternGraph, cutoff_time : Long) 
-  : PatternGraph =
+def maintainWindow(input_gpi: PatternGraph, currentBatchId : Int, windowSizeInBatch : Int) : PatternGraph =
 	{
-		return input_gpi.subgraph(vpred = (vid,attr) => {
-		  attr.timestamp > cutoff_time
+		val cutOffBatchId = currentBatchId - windowSizeInBatch
+		  return input_gpi.subgraph(vpred = (vid,attr) => {
+		  attr.timestamp > cutOffBatchId
 		})
 	}
  
