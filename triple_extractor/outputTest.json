@@ -1,0 +1,8 @@
+{
+  "doc_name" : "tripletest.txt",
+  "nlp_output" : [ {
+    "sentence_id" : 0,
+    "entities" : [ "O:uniform nonprecipitating", "O:SGP", "O:convective", "O:cloud-top radiative", "O:parameterized turbulent kinetic", "O:good", "O:substantial", "MISC:Doppler", "O:14-h", "O:strong", "O:cloud-top", "ORGANIZATION:Atmospheric Radiation Measurement", "O:Medium-Range Weather", "TIME:nighttime", "O:large-scale vertical", "O:local", "O:=", "O:vertical", "O:inversion-height", "SET:hourly", "ORGANIZATION:American Meteorological Society", "SET:Hourly", "LOCATION:Southern Great Plains", "O:Independent", "O:derivative", "O:horizontal", "O:European Centre" ],
+    "triples" : [ "<Program 's Southern Great Plains site>  <examine>  <entrainment processes>", "<Program 's Southern Great Plains site>  <are>  <used>", "<Program 's Southern Great Plains site>  <examine>  <cloud-top entrainment processes>", "<vertical velocity variance>  <is in>  <parameterized turbulent kinetic energy budget of entrainment zone>", "<vertical velocity variance term>  <is in>  <TKE entrainment formulation>", "<Independent estimates>  <were obtained from>  <inversion-height budget>", "<Independent estimates>  <were obtained from>  <budget>", "<Independent estimates>  <were>  <obtained>", "<substantial changes>  <is in>  <surface buoyancy production>", "<good agreement>  <is with>  <those calculated from inversion-height budget associated>" ]
+  } ]
+}

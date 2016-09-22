@@ -1,0 +1,407 @@
+##########################
+Observations made at the Atmospheric Radiation Measurement (ARM) Program's Southern Great Plains (SGP) site during uniform nonprecipitating stratocumulus cloud conditions for a 14-h period are used to examine cloud-top entrainment processes and parameterizations. The observations from a vertically pointing Doppler cloud radar provide estimates of vertical velocity variance and energy dissipation rate (EDR) terms in the parameterized turbulent kinetic energy (TKE) budget of the entrainment zone. Hourly averages of the vertical velocity variance term in the TKE entrainment formulation correlated strongly (r = 0.72) with the dissipation rate term in the entrainment zone, with an increased correlation (r = 0.92) when accounting for the nighttime decoupling of the boundary layer. Independent estimates of entrainment rates were obtained from an inversion-height budget using the local time derivative and horizontal advection of cloud-top height together with large-scale vertical velocity at the boundary layer inversion from the European Centre for Medium-Range Weather Forecasts (ECMWF) reanalysis model. The mean entrainment rate from the inversion-height budget during the 14-h period was 0.74 0.15 cm s-1and was used to calculate bulk coefficients for entrainment parameterizations based on convective velocity scale w* and TKE budgets of the entrainment zone. The hourly values of entrainment rates calculated using these coefficients exhibited good agreement with those calculated from the inversion-height budget associated with substantial changes in surface buoyancy production and cloud-top radiative cooling. The results indicate a strong potential for making entrainment rate estimates directly from radar vertical velocity variance and the EDR measurements. 2016 American Meteorological Society.
+##########################
+[Observations] POS [NNS]] NER [O] isNP [false]
+[made] POS [VBD]] NER [O] isNP [false]
+[at] POS [IN]] NER [O] isNP [false]
+[the] POS [DT]] NER [O] isNP [false]
+[Atmospheric] POS [NNP]] NER [ORGANIZATION] isNP [true]
+[Radiation] POS [NNP]] NER [ORGANIZATION] isNP [true]
+[Measurement] POS [NNP]] NER [ORGANIZATION] isNP [true]
+[-LRB-] POS [-LRB-]] NER [O] isNP [false]
+[ARM] POS [NN]] NER [O] isNP [false]
+[-RRB-] POS [-RRB-]] NER [O] isNP [false]
+[Program] POS [NN]] NER [O] isNP [false]
+['s] POS [POS]] NER [O] isNP [false]
+[Southern] POS [NNP]] NER [LOCATION] isNP [true]
+[Great] POS [NNP]] NER [LOCATION] isNP [true]
+[Plains] POS [NNP]] NER [LOCATION] isNP [true]
+[-LRB-] POS [-LRB-]] NER [O] isNP [false]
+[SGP] POS [NNP]] NER [O] isNP [true]
+[-RRB-] POS [-RRB-]] NER [O] isNP [false]
+[site] POS [NN]] NER [O] isNP [false]
+[during] POS [IN]] NER [O] isNP [false]
+[uniform] POS [JJ]] NER [O] isNP [true]
+[nonprecipitating] POS [JJ]] NER [O] isNP [true]
+[stratocumulus] POS [NN]] NER [O] isNP [false]
+[cloud] POS [NN]] NER [O] isNP [false]
+[conditions] POS [NNS]] NER [O] isNP [false]
+[for] POS [IN]] NER [O] isNP [false]
+[a] POS [DT]] NER [O] isNP [false]
+[14-h] POS [JJ]] NER [O] isNP [true]
+[period] POS [NN]] NER [O] isNP [false]
+[are] POS [VBP]] NER [O] isNP [false]
+[used] POS [VBN]] NER [O] isNP [false]
+[to] POS [TO]] NER [O] isNP [false]
+[examine] POS [VB]] NER [O] isNP [false]
+[cloud-top] POS [JJ]] NER [O] isNP [true]
+[entrainment] POS [NN]] NER [O] isNP [false]
+[processes] POS [NNS]] NER [O] isNP [false]
+[and] POS [CC]] NER [O] isNP [false]
+[parameterizations] POS [NNS]] NER [O] isNP [false]
+[.] POS [.]] NER [O] isNP [false]
+[The] POS [DT]] NER [O] isNP [false]
+[observations] POS [NNS]] NER [O] isNP [false]
+[from] POS [IN]] NER [O] isNP [false]
+[a] POS [DT]] NER [O] isNP [false]
+[vertically] POS [RB]] NER [O] isNP [false]
+[pointing] POS [VBG]] NER [O] isNP [false]
+[Doppler] POS [NNP]] NER [MISC] isNP [true]
+[cloud] POS [NN]] NER [O] isNP [false]
+[radar] POS [NN]] NER [O] isNP [false]
+[provide] POS [VBP]] NER [O] isNP [false]
+[estimates] POS [NNS]] NER [O] isNP [false]
+[of] POS [IN]] NER [O] isNP [false]
+[vertical] POS [JJ]] NER [O] isNP [true]
+[velocity] POS [NN]] NER [O] isNP [false]
+[variance] POS [NN]] NER [O] isNP [false]
+[and] POS [CC]] NER [O] isNP [false]
+[energy] POS [NN]] NER [O] isNP [false]
+[dissipation] POS [NN]] NER [O] isNP [false]
+[rate] POS [NN]] NER [O] isNP [false]
+[-LRB-] POS [-LRB-]] NER [O] isNP [false]
+[EDR] POS [NN]] NER [ORGANIZATION] isNP [false]
+[-RRB-] POS [-RRB-]] NER [O] isNP [false]
+[terms] POS [NNS]] NER [O] isNP [false]
+[in] POS [IN]] NER [O] isNP [false]
+[the] POS [DT]] NER [O] isNP [false]
+[parameterized] POS [JJ]] NER [O] isNP [true]
+[turbulent] POS [JJ]] NER [O] isNP [true]
+[kinetic] POS [JJ]] NER [O] isNP [true]
+[energy] POS [NN]] NER [O] isNP [false]
+[-LRB-] POS [-LRB-]] NER [O] isNP [false]
+[TKE] POS [NN]] NER [O] isNP [false]
+[-RRB-] POS [-RRB-]] NER [O] isNP [false]
+[budget] POS [NN]] NER [O] isNP [false]
+[of] POS [IN]] NER [O] isNP [false]
+[the] POS [DT]] NER [O] isNP [false]
+[entrainment] POS [NN]] NER [O] isNP [false]
+[zone] POS [NN]] NER [O] isNP [false]
+[.] POS [.]] NER [O] isNP [false]
+[Hourly] POS [JJ]] NER [SET] isNP [true]
+[averages] POS [NNS]] NER [O] isNP [false]
+[of] POS [IN]] NER [O] isNP [false]
+[the] POS [DT]] NER [O] isNP [false]
+[vertical] POS [JJ]] NER [O] isNP [true]
+[velocity] POS [NN]] NER [O] isNP [false]
+[variance] POS [NN]] NER [O] isNP [false]
+[term] POS [NN]] NER [O] isNP [false]
+[in] POS [IN]] NER [O] isNP [false]
+[the] POS [DT]] NER [O] isNP [false]
+[TKE] POS [NN]] NER [O] isNP [false]
+[entrainment] POS [NN]] NER [O] isNP [false]
+[formulation] POS [NN]] NER [O] isNP [false]
+[correlated] POS [VBD]] NER [O] isNP [false]
+[strongly] POS [RB]] NER [O] isNP [false]
+[-LRB-] POS [-LRB-]] NER [O] isNP [false]
+[r] POS [NN]] NER [O] isNP [false]
+[=] POS [JJ]] NER [O] isNP [true]
+[0.72] POS [CD]] NER [NUMBER] isNP [false]
+[-RRB-] POS [-RRB-]] NER [O] isNP [false]
+[with] POS [IN]] NER [O] isNP [false]
+[the] POS [DT]] NER [O] isNP [false]
+[dissipation] POS [NN]] NER [O] isNP [false]
+[rate] POS [NN]] NER [O] isNP [false]
+[term] POS [NN]] NER [O] isNP [false]
+[in] POS [IN]] NER [O] isNP [false]
+[the] POS [DT]] NER [O] isNP [false]
+[entrainment] POS [NN]] NER [O] isNP [false]
+[zone] POS [NN]] NER [O] isNP [false]
+[,] POS [,]] NER [O] isNP [false]
+[with] POS [IN]] NER [O] isNP [false]
+[an] POS [DT]] NER [O] isNP [false]
+[increased] POS [VBN]] NER [O] isNP [false]
+[correlation] POS [NN]] NER [O] isNP [false]
+[-LRB-] POS [-LRB-]] NER [O] isNP [false]
+[r] POS [NN]] NER [O] isNP [false]
+[=] POS [JJ]] NER [O] isNP [true]
+[0.92] POS [CD]] NER [NUMBER] isNP [false]
+[-RRB-] POS [-RRB-]] NER [O] isNP [false]
+[when] POS [WRB]] NER [O] isNP [false]
+[accounting] POS [VBG]] NER [O] isNP [false]
+[for] POS [IN]] NER [O] isNP [false]
+[the] POS [DT]] NER [O] isNP [false]
+[nighttime] POS [JJ]] NER [TIME] isNP [true]
+[decoupling] POS [NN]] NER [O] isNP [false]
+[of] POS [IN]] NER [O] isNP [false]
+[the] POS [DT]] NER [O] isNP [false]
+[boundary] POS [NN]] NER [O] isNP [false]
+[layer] POS [NN]] NER [O] isNP [false]
+[.] POS [.]] NER [O] isNP [false]
+[Independent] POS [NNP]] NER [O] isNP [true]
+[estimates] POS [NNS]] NER [O] isNP [false]
+[of] POS [IN]] NER [O] isNP [false]
+[entrainment] POS [NN]] NER [O] isNP [false]
+[rates] POS [NNS]] NER [O] isNP [false]
+[were] POS [VBD]] NER [O] isNP [false]
+[obtained] POS [VBN]] NER [O] isNP [false]
+[from] POS [IN]] NER [O] isNP [false]
+[an] POS [DT]] NER [O] isNP [false]
+[inversion-height] POS [JJ]] NER [O] isNP [true]
+[budget] POS [NN]] NER [O] isNP [false]
+[using] POS [VBG]] NER [O] isNP [false]
+[the] POS [DT]] NER [O] isNP [false]
+[local] POS [JJ]] NER [O] isNP [true]
+[time] POS [NN]] NER [O] isNP [false]
+[derivative] POS [JJ]] NER [O] isNP [true]
+[and] POS [CC]] NER [O] isNP [false]
+[horizontal] POS [JJ]] NER [O] isNP [true]
+[advection] POS [NN]] NER [O] isNP [false]
+[of] POS [IN]] NER [O] isNP [false]
+[cloud-top] POS [JJ]] NER [O] isNP [true]
+[height] POS [NN]] NER [O] isNP [false]
+[together] POS [RB]] NER [O] isNP [false]
+[with] POS [IN]] NER [O] isNP [false]
+[large-scale] POS [JJ]] NER [O] isNP [true]
+[vertical] POS [JJ]] NER [O] isNP [true]
+[velocity] POS [NN]] NER [O] isNP [false]
+[at] POS [IN]] NER [O] isNP [false]
+[the] POS [DT]] NER [O] isNP [false]
+[boundary] POS [NN]] NER [O] isNP [false]
+[layer] POS [NN]] NER [O] isNP [false]
+[inversion] POS [NN]] NER [O] isNP [false]
+[from] POS [IN]] NER [O] isNP [false]
+[the] POS [DT]] NER [O] isNP [false]
+[European] POS [JJ]] NER [O] isNP [true]
+[Centre] POS [NNP]] NER [O] isNP [true]
+[for] POS [IN]] NER [O] isNP [false]
+[Medium-Range] POS [NNP]] NER [O] isNP [true]
+[Weather] POS [NNP]] NER [O] isNP [true]
+[Forecasts] POS [NNS]] NER [O] isNP [false]
+[-LRB-] POS [-LRB-]] NER [O] isNP [false]
+[ECMWF] POS [NN]] NER [O] isNP [false]
+[-RRB-] POS [-RRB-]] NER [O] isNP [false]
+[reanalysis] POS [NN]] NER [O] isNP [false]
+[model] POS [NN]] NER [O] isNP [false]
+[.] POS [.]] NER [O] isNP [false]
+[The] POS [DT]] NER [O] isNP [false]
+[mean] POS [NN]] NER [O] isNP [false]
+[entrainment] POS [NN]] NER [O] isNP [false]
+[rate] POS [NN]] NER [O] isNP [false]
+[from] POS [IN]] NER [O] isNP [false]
+[the] POS [DT]] NER [O] isNP [false]
+[inversion-height] POS [JJ]] NER [O] isNP [true]
+[budget] POS [NN]] NER [O] isNP [false]
+[during] POS [IN]] NER [O] isNP [false]
+[the] POS [DT]] NER [O] isNP [false]
+[14-h] POS [JJ]] NER [O] isNP [true]
+[period] POS [NN]] NER [O] isNP [false]
+[was] POS [VBD]] NER [O] isNP [false]
+[0.74] POS [CD]] NER [NUMBER] isNP [false]
+[0.15] POS [CD]] NER [NUMBER] isNP [false]
+[cm] POS [NN]] NER [O] isNP [false]
+[s-1and] POS [NN]] NER [O] isNP [false]
+[was] POS [VBD]] NER [O] isNP [false]
+[used] POS [VBN]] NER [O] isNP [false]
+[to] POS [TO]] NER [O] isNP [false]
+[calculate] POS [VB]] NER [O] isNP [false]
+[bulk] POS [NN]] NER [O] isNP [false]
+[coefficients] POS [NNS]] NER [O] isNP [false]
+[for] POS [IN]] NER [O] isNP [false]
+[entrainment] POS [NN]] NER [O] isNP [false]
+[parameterizations] POS [NNS]] NER [O] isNP [false]
+[based] POS [VBN]] NER [O] isNP [false]
+[on] POS [IN]] NER [O] isNP [false]
+[convective] POS [JJ]] NER [O] isNP [true]
+[velocity] POS [NN]] NER [O] isNP [false]
+[scale] POS [NN]] NER [O] isNP [false]
+[w] POS [NN]] NER [O] isNP [false]
+[*] POS [NN]] NER [O] isNP [false]
+[and] POS [CC]] NER [O] isNP [false]
+[TKE] POS [NN]] NER [O] isNP [false]
+[budgets] POS [NNS]] NER [O] isNP [false]
+[of] POS [IN]] NER [O] isNP [false]
+[the] POS [DT]] NER [O] isNP [false]
+[entrainment] POS [NN]] NER [O] isNP [false]
+[zone] POS [NN]] NER [O] isNP [false]
+[.] POS [.]] NER [O] isNP [false]
+[The] POS [DT]] NER [O] isNP [false]
+[hourly] POS [JJ]] NER [SET] isNP [true]
+[values] POS [NNS]] NER [O] isNP [false]
+[of] POS [IN]] NER [O] isNP [false]
+[entrainment] POS [NN]] NER [O] isNP [false]
+[rates] POS [NNS]] NER [O] isNP [false]
+[calculated] POS [VBN]] NER [O] isNP [false]
+[using] POS [VBG]] NER [O] isNP [false]
+[these] POS [DT]] NER [O] isNP [false]
+[coefficients] POS [NNS]] NER [O] isNP [false]
+[exhibited] POS [VBD]] NER [O] isNP [false]
+[good] POS [JJ]] NER [O] isNP [true]
+[agreement] POS [NN]] NER [O] isNP [false]
+[with] POS [IN]] NER [O] isNP [false]
+[those] POS [DT]] NER [O] isNP [false]
+[calculated] POS [VBN]] NER [O] isNP [false]
+[from] POS [IN]] NER [O] isNP [false]
+[the] POS [DT]] NER [O] isNP [false]
+[inversion-height] POS [JJ]] NER [O] isNP [true]
+[budget] POS [NN]] NER [O] isNP [false]
+[associated] POS [VBN]] NER [O] isNP [false]
+[with] POS [IN]] NER [O] isNP [false]
+[substantial] POS [JJ]] NER [O] isNP [true]
+[changes] POS [NNS]] NER [O] isNP [false]
+[in] POS [IN]] NER [O] isNP [false]
+[surface] POS [NN]] NER [O] isNP [false]
+[buoyancy] POS [NN]] NER [O] isNP [false]
+[production] POS [NN]] NER [O] isNP [false]
+[and] POS [CC]] NER [O] isNP [false]
+[cloud-top] POS [JJ]] NER [O] isNP [true]
+[radiative] POS [JJ]] NER [O] isNP [true]
+[cooling] POS [NN]] NER [O] isNP [false]
+[.] POS [.]] NER [O] isNP [false]
+[The] POS [DT]] NER [O] isNP [false]
+[results] POS [NNS]] NER [O] isNP [false]
+[indicate] POS [VBP]] NER [O] isNP [false]
+[a] POS [DT]] NER [O] isNP [false]
+[strong] POS [JJ]] NER [O] isNP [true]
+[potential] POS [NN]] NER [O] isNP [false]
+[for] POS [IN]] NER [O] isNP [false]
+[making] POS [VBG]] NER [O] isNP [false]
+[entrainment] POS [NN]] NER [O] isNP [false]
+[rate] POS [NN]] NER [O] isNP [false]
+[estimates] POS [NNS]] NER [O] isNP [false]
+[directly] POS [RB]] NER [O] isNP [false]
+[from] POS [IN]] NER [O] isNP [false]
+[radar] POS [NN]] NER [O] isNP [false]
+[vertical] POS [JJ]] NER [O] isNP [true]
+[velocity] POS [NN]] NER [O] isNP [false]
+[variance] POS [NN]] NER [O] isNP [false]
+[and] POS [CC]] NER [O] isNP [false]
+[the] POS [DT]] NER [O] isNP [false]
+[EDR] POS [NN]] NER [ORGANIZATION] isNP [false]
+[measurements] POS [NNS]] NER [O] isNP [false]
+[.] POS [.]] NER [O] isNP [false]
+[2016] POS [CD]] NER [DATE] isNP [false]
+[American] POS [JJ]] NER [ORGANIZATION] isNP [true]
+[Meteorological] POS [NNP]] NER [ORGANIZATION] isNP [true]
+[Society] POS [NNP]] NER [ORGANIZATION] isNP [true]
+[.] POS [.]] NER [O] isNP [false]
+********** NER output **********
+O:uniform nonprecipitating
+O:SGP
+O:convective
+O:cloud-top radiative
+O:parameterized turbulent kinetic
+O:good
+O:substantial
+MISC:Doppler
+O:14-h
+O:strong
+O:cloud-top
+ORGANIZATION:Atmospheric Radiation Measurement
+O:Medium-Range Weather
+TIME:nighttime
+O:large-scale vertical
+O:local
+O:=
+O:vertical
+O:inversion-height
+SET:hourly
+ORGANIZATION:American Meteorological Society
+SET:Hourly
+LOCATION:Southern Great Plains
+O:Independent
+O:derivative
+O:horizontal
+O:European Centre
+---> Program 's Southern Great Plains site -> examine -> entrainment processes
+---> Program 's Southern Great Plains site -> are -> used
+---> Program 's Southern Great Plains site -> examine -> cloud-top entrainment processes
+---> Program -> 's Plains is -> SGP
+---> Program -> has -> Southern Great Plains
+---> observations -> provide -> estimates of vertical velocity variance
+---> observations -> provide -> estimates of velocity variance in parameterized energy budget
+---> observations -> provide -> estimates of velocity variance in energy budget of entrainment zone
+---> observations -> provide -> estimates of vertical velocity variance in parameterized kinetic energy
+---> observations -> provide -> estimates of velocity variance in parameterized turbulent energy
+---> observations -> provide -> estimates of vertical velocity variance in energy budget of entrainment zone
+---> vertical velocity variance -> is in -> parameterized turbulent kinetic energy budget of entrainment zone
+---> observations -> provide -> estimates of vertical velocity variance in energy budget
+---> observations -> provide -> estimates
+---> observations -> provide -> estimates of velocity variance in parameterized energy
+---> observations -> provide -> estimates of velocity variance in parameterized energy budget of entrainment zone
+---> observations -> provide -> estimates of velocity variance in kinetic energy
+---> observations -> provide -> estimates of velocity variance in turbulent energy
+---> observations -> provide -> estimates of velocity variance in turbulent kinetic energy
+---> observations -> provide -> estimates of vertical velocity variance in parameterized turbulent energy
+---> observations -> provide -> estimates of vertical velocity variance in energy
+---> observations -> provide -> estimates of velocity variance in parameterized turbulent kinetic energy
+---> observations -> provide -> estimates of velocity variance in energy budget
+---> observations -> provide -> estimates of vertical velocity variance in kinetic energy
+---> observations -> provide -> estimates of vertical velocity variance in parameterized energy budget
+---> observations -> provide -> estimates of velocity variance
+---> observations -> provide -> estimates of vertical velocity variance in turbulent energy
+---> observations -> provide -> estimates of velocity variance in parameterized kinetic energy
+---> observations -> provide -> estimates of vertical velocity variance in parameterized turbulent kinetic energy
+---> observations -> provide -> estimates of velocity variance in energy
+---> observations -> provide -> estimates of vertical velocity variance in parameterized energy budget of entrainment zone
+---> observations -> provide -> estimates of vertical velocity variance in parameterized energy
+---> observations -> provide -> estimates of vertical velocity variance in turbulent kinetic energy
+---> dissipation rate term -> is in -> entrainment zone
+---> vertical velocity variance term -> is in -> TKE entrainment formulation
+---> Independent estimates -> were obtained from -> inversion-height budget
+---> Independent estimates -> were obtained from -> budget
+---> Independent estimates -> were -> obtained
+---> entrainment rate -> was -> 0.74 0.15 cm s-1and used
+---> mean entrainment rate -> was -> 0.74 0.15 cm s-1and used
+---> entrainment rate -> was -> 0.74 0.15 cm s-1and
+---> mean entrainment rate -> was -> 0.74 0.15 cm s-1and
+---> substantial changes -> is in -> surface buoyancy production
+---> good agreement -> is with -> those calculated from inversion-height budget associated
+---> results -> indicate -> strong potential
+---> results -> indicate -> potential
+********** OpenIE output **********
+Program 's Southern Great Plains site	examine	entrainment processes		
+Program 's Southern Great Plains site	are	used		
+Program 's Southern Great Plains site	examine	cloud-top entrainment processes		
+vertical velocity variance	is in	parameterized turbulent kinetic energy budget of entrainment zone		
+vertical velocity variance term	is in	TKE entrainment formulation		
+Independent estimates	were obtained from	inversion-height budget		
+Independent estimates	were obtained from	budget		
+Independent estimates	were	obtained		
+substantial changes	is in	surface buoyancy production		
+good agreement	is with	those calculated from inversion-height budget associated		
+********** Purged output **********
+vertical velocity variance	is in	parameterized turbulent kinetic energy budget of entrainment zone		
+good agreement	is with	those calculated from inversion-height budget associated		
+Independent estimates	were	obtained		
+substantial changes	is in	surface buoyancy production		
+vertical velocity variance term	is in	TKE entrainment formulation		
+Program 's Southern Great Plains site	are	used		
+Independent estimates	were obtained from	inversion-height budget		
+Program 's Southern Great Plains site	examine	cloud-top entrainment processes		
+********** Final output **********
+Southern Great Plains	rdf:type	LOCATION		
+strong	rdf:type	O		
+good	rdf:type	O		
+convective	rdf:type	O		
+Doppler	rdf:type	MISC		
+cloud-top radiative	rdf:type	O		
+uniform nonprecipitating	rdf:type	O		
+American Meteorological Society	rdf:type	ORGANIZATION		
+Atmospheric Radiation Measurement	rdf:type	ORGANIZATION		
+large-scale vertical	rdf:type	O		
+=	rdf:type	O		
+cloud-top	rdf:type	O		
+14-h	rdf:type	O		
+Hourly	rdf:type	SET		
+substantial	rdf:type	O		
+derivative	rdf:type	O		
+hourly	rdf:type	SET		
+vertical	rdf:type	O		
+horizontal	rdf:type	O		
+SGP	rdf:type	O		
+inversion-height	rdf:type	O		
+parameterized turbulent kinetic	rdf:type	O		
+local	rdf:type	O		
+nighttime	rdf:type	TIME		
+Independent	rdf:type	O		
+European Centre	rdf:type	O		
+Medium-Range Weather	rdf:type	O		
+vertical velocity variance	is in	parameterized turbulent kinetic energy budget of entrainment zone		
+good agreement	is with	those calculated from inversion-height budget associated		
+Independent estimates	were	obtained		
+substantial changes	is in	surface buoyancy production		
+vertical velocity variance term	is in	TKE entrainment formulation		
+Program 's Southern Great Plains site	are	used		
+Independent estimates	were obtained from	inversion-height budget		
+Program 's Southern Great Plains site	examine	cloud-top entrainment processes		

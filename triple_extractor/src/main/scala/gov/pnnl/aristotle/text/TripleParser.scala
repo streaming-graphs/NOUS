@@ -124,13 +124,22 @@ object TripleParser extends Serializable {
     def extract(annotation: Annotation): Set[String] = { 
 
       def isNounPhrase(pos: String): Boolean = { 
-        // if (pos == "NN" || pos == "NNS" || pos == "NNP" || pos == "NNPS") true else false
-        if (pos == "NNP" || pos == "NNPS" || pos == "JJ") true else false
+        //if (pos == "NN" || pos == "NNS" || pos == "NNP" || pos == "NNPS") true else false
+        if (pos == "NN" || pos == "NNS" || pos == "NNP" || pos == "NNPS") true else false
       }   
+
+      def isDT(pos : String): Boolean = {
+        if (pos == "DT") true else false
+      } 
+
+      def isLRB(pos : String): Boolean = {
+        if (pos == "-LRB-") true else false
+      }
   
       val sentences = annotation.get(classOf[SentencesAnnotation])
       var isLastWordNP = false
       var npList = new ListBuffer[String]()
+      var posList = new ListBuffer[String]()
       val namedPhrases = new ListBuffer[String]()
   
       for (s <- sentences) {
@@ -138,29 +147,39 @@ object TripleParser extends Serializable {
           val word = t.get(classOf[TextAnnotation])
           val pos = t.get(classOf[PartOfSpeechAnnotation])
           val nerLabel = t.get(classOf[NamedEntityTagAnnotation])
-          val isNP = isNounPhrase(pos)
-          println("[" + word + "] POS [" + pos + "]" + "] NER [" + nerLabel + "] isNP [" + isNP + "]")
-          if (isNP) {
+
+          println("[" + word + "] POS [" + pos + "] NER [" + nerLabel + "]")
+          if (isDT(pos) || isNounPhrase(pos)) {
             if (npList.size == 0) {
               npList += (nerLabel + ":" + word)
-            }
-            else {
+            } else {
               npList += word
             }
-          }   
-          else if (isNP == false && isLastWordNP) {
-            namedPhrases += npList.toList.mkString(" ")
-            npList = new ListBuffer[String]()
-          }   
-          isLastWordNP = isNP
-        }   
-        if (isLastWordNP) {
-          namedPhrases += npList.toList.mkString(" ")
-        }   
-        isLastWordNP = false
-        npList = new ListBuffer[String]()
-      }   
-  
+            posList += pos
+          } else {
+            val poses = posList.toList
+            val mentions = npList.toList
+            if (poses.size > 0) {
+              if (poses.head == "-LRB-" || poses.head == "DT") {
+                if (mentions.drop(1).size > 1) {
+                  namedPhrases += (mentions.head.split(":")(0) + ":" + mentions.drop(1).mkString(" "))
+                }
+              } else if (poses.head == "NNP" || poses.head == "NNPS") {
+                  if (mentions.size > 1) {
+                    namedPhrases += mentions.mkString(" ")
+                  }
+              } 
+
+              posList.clear() 
+              npList.clear() 
+              if (isLRB(pos)) {
+                npList += (nerLabel + ":" + word)
+                posList += pos
+              }
+            }
+          } 
+        }
+      }
       namedPhrases.toList.toSet 
     }
   
@@ -268,9 +287,9 @@ object TripleParser extends Serializable {
   }
 
   def getTriples(doc: String): List[Triple] = {
-    println("##########################")
-    println(doc)
-    println("##########################")
+    //println("##########################")
+    //println(doc)
+    //println("##########################")
     // val t1 = System.currentTimeMillis
     val annotation = getAnnotation(doc)
     // val t2 = System.currentTimeMillis
@@ -285,16 +304,16 @@ object TripleParser extends Serializable {
       //val srlTriples = new SemanticRoleLabelExtractor().extract(annotation)
       val openieTriples = OpenIEExtractor.extractFiltered(annotation, namedPhrases)
       
-      println("********** OpenIE output **********")
-      openieTriples.foreach(println)
+      //println("********** OpenIE output **********")
+      //openieTriples.foreach(println)
       // val t4 = System.currentTimeMillis
       // println("getAnnotation = " + (t2-t1) + " NER = " + (t3-t2) + " OpenIE = " + (t4-t3))
       val relations = purge(openieTriples.filter(_.conf > 0.98))
-      println("********** Purged output **********")
-      relations.foreach(println)
+      //println("********** Purged output **********")
+      //relations.foreach(println)
       val finalTriples = getTypeTriples(namedPhrases) ::: relations
-      println("********** Final output **********")
-      finalTriples.foreach(println)
+      //println("********** Final output **********")
+      //finalTriples.foreach(println)
       finalTriples
     }
   }
@@ -313,6 +332,7 @@ object TripleParser extends Serializable {
     val result = ListMap("doc_name" -> docname)
     var lst = new ListBuffer[ListMap[String,_]]() 
     for (i <- 0 until sentences.size) {
+      println(i)
       val doc = sentences(i)
       val annotation = getAnnotation(doc)
       val namedPhrases = NamedPhraseExtractor.extract(annotation)
@@ -328,7 +348,7 @@ object TripleParser extends Serializable {
     import org.json4s.JsonDSL._
     implicit val formats = DefaultFormats
     val d = Extraction.decompose(finalresult)
-    val writer = new PrintWriter(new File("outputTest.json"))
+    val writer = new PrintWriter(new File("outputNew20.json"))
     writer.write(pretty(render(d)))
     writer.close()
   }
@@ -387,9 +407,9 @@ object TripleParser extends Serializable {
     //}
     //TripleParser.test(info)
     //println(info)
-    //TripleParser.getDumpTriples(lines, info) //this is my function to dump out the json files!
-    for (line <- lines) {
-      TripleParser.getTriples(line)
-    }
+    TripleParser.getDumpTriples(lines, info) //this is my function to dump out the json files!
+    //for (line <- lines) {
+    //  TripleParser.getTriples(line)
+    //}
   }
 }
