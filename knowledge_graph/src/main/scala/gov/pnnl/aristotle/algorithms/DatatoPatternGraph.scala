@@ -11,13 +11,16 @@ import scala.io.Source
 import org.joda.time.format.DateTimeFormat
 import org.ini4j.Wini
 import java.io.File
+import org.apache.spark.SparkContext
+import org.apache.spark.broadcast.Broadcast
+import org.apache.spark.graphx.EdgeTriplet
 
 
 
 object DataToPatternGraph {
   
   val maxPatternSize: Int = 4
-  type SinglePatternEdge = (Int, Int, Int)
+  type SinglePatternEdge = (Long, Long, Long)
   type Pattern = Array[SinglePatternEdge]
    
   type SingleInstanceEdge = (Long, Long , Long)
@@ -94,14 +97,17 @@ object DataToPatternGraph {
     val pathOfBatchGraph = ini.get("run", "batchInfoFilePath");
     val outDir = ini.get("run", "outDir")
     val typePred = ini.get("run", "typeEdge").toInt
-    val support = ini.get("run", "support").toInt
+    val isoSupport = ini.get("run", "isoSupport").toInt
+    val misSupport = ini.get("run", "misSupport").toInt
     val startTime = ini.get("run", "startTime").toInt
     val batchSizeInTime = ini.get("run", "batchSizeInTime")
     val windowSizeInBatchs = ini.get("run", "windowSizeInBatch").toInt
-
+    val maxIterations = log2(ini.get("run","maxPatternSize").toInt)
+    
+    
     val batchSizeInMilliSeconds = getBatchSizerInMillSeconds(batchSizeInTime)
     var currentBatchId = getBatchId(startTime, batchSizeInTime)
-    
+    var windowPatternGraph: PatternGraph = null
     /*
      * Read the files/folder one-by-one and construct an input graph
      */
@@ -109,35 +115,71 @@ object DataToPatternGraph {
         getLines().filter(str => !str.startsWith("#"))) {
     	
       currentBatchId = currentBatchId + 1
-
-      val dataGraph: DataGraph = ReadHugeGraph.getGraphFileTypeInt(graphFile, sc, batchSizeInMilliSeconds)
-      val patternGraph: PatternGraph = getPatternGraph(dataGraph, typePred, support)
+      
+      val incomingDataGraph: DataGraph = ReadHugeGraph.getGraphFileTypeInt(graphFile, sc, batchSizeInMilliSeconds)
+      val incomingPatternGraph: PatternGraph = getPatternGraph(incomingDataGraph,typePred)//getMISFrequentGraph(,sc,misSupport)
+      
+      var frequentPattern = getFrequentPatterns(computeMinImageSupport(incomingPatternGraph),misSupport)
+      
+		  /*
+		   * assumption is that number of frequent pattern will not be HUGE
+		   */
+		  var frequentPatternBroacdCasted : Broadcast[RDD[(Pattern,Int)]] = sc.broadcast(frequentPattern)
+		  var misFrequentIncomingPatternGraph = 
+		    getMISFrequentGraph(incomingPatternGraph,sc,frequentPatternBroacdCasted)
+      
       
       /*
-       * TODO: Support for Sliding Window
+       *  Support for Sliding Window
+       *
+       *	If the windowPatternGraph is null, i.e. it is the first batch.
+       *	Return the newly created incomingPatternGraph as the 'windowPatternGraph'
        * 
-      
-      		If the current GIP is null, i.e. batch is = 0;
-      		Return the newly created GIP as the 'winodow_GIP'
+     	 */
      
-		    if(winodow_GIP == null)
-		    {
-		      return new_GIP
-		    }
+		   if(windowPatternGraph == null)
+		   {
+		      windowPatternGraph = misFrequentIncomingPatternGraph
+		   }
 		
+		   /*
+		    * Remove out-of-window edges and nodes
+		    */
+       windowPatternGraph = maintainWindow(windowPatternGraph, currentBatchId, windowSizeInBatchs)
 		    
-		    Otherwise make a union of the newGIP and window_GIP
-		     
-		    return Graph(winodow_GIP.vertices.union(new_GIP.vertices).distinct,
-		        winodow_GIP.edges.union(new_GIP.edges).distinct)
-       */
-      
+      	
+      	/*
+      	 * Make a union of the incomingPatternGraph and windowPatternGraph
+      	 * windowPatternGraph is the one used in mining
+      	 */
+      	
+		    windowPatternGraph =  Graph(windowPatternGraph.vertices.union(incomingPatternGraph.vertices).distinct,
+		        windowPatternGraph.edges.union(incomingPatternGraph.edges).distinct)
+
       
       
        /*
-       * TODO: Mine the patternGraph by pattern Join
+       * TODO: Mine the windowPatternGraph by pattern Join
        */
-      
+      var currentIteration = 1
+      while(currentIteration <= maxIterations)
+      {
+        println("iteration " , currentIteration)
+        currentIteration = currentIteration + 1
+        //1 .join graph
+        windowPatternGraph = joinGraph(windowPatternGraph)
+        
+        //2. get new frequent Patterns, union them with existing patterns and broadcast
+        frequentPattern = frequentPattern.union(getFrequentPatterns(computeMinImageSupport(windowPatternGraph),misSupport))
+        var frequentPatternBroacdCasted : Broadcast[RDD[(Pattern,Int)]] = sc.broadcast(frequentPattern)
+        
+        //3. Get new graph
+        windowPatternGraph = 
+		    getMISFrequentGraph(windowPatternGraph,sc,frequentPatternBroacdCasted)
+        
+		    //4. trim the graph to remove orphan nodes (degree = 0)
+		    windowPatternGraph = trimGraph(windowPatternGraph, sc, frequentPatternBroacdCasted)
+      }
       
       
 
@@ -146,8 +188,14 @@ object DataToPatternGraph {
        * Save batch level patternGraph
        *  
        */
-      patternGraph.vertices.saveAsTextFile(outDir + "/" + "GIP/vertices" + System.nanoTime())
-
+      frequentPattern.map(entry
+          =>{
+        var pattern = ""
+        entry._1.foreach(f => pattern = pattern + f._1 + "\t" + f._2 + "\t" + f._3 + "\t")
+        pattern = pattern + entry._2
+        pattern
+      }).saveAsTextFile(outDir + "/" + "GIP/frequentPattern" 
+                  + System.nanoTime())
     }
     
     
@@ -155,6 +203,88 @@ object DataToPatternGraph {
     
   }
 
+  def getFrequentPatterns(patternsWithMIS :RDD[(Pattern, Int)],misSupport :Int) 
+  	:RDD[(Pattern, Int)] =
+  {
+    patternsWithMIS.filter(pattern_entry 
+      => pattern_entry._2 >= misSupport)
+  }
+  
+  
+  
+  def joinGraph(windowPatternGraph: PatternGraph ) : PatternGraph = 
+  {
+
+/*
+ * Input is a pattern graph. each node of existing pattern graph have a
+ * n-size pattern, every edge mean two patterns can be joined
+ * 
+ * This function follows the similar design as used in creating 1 edge 
+ * PatternGraph from DataGraph.
+ * 
+ * Vertex generation code is much simpler here.
+ * Edge Generation is almost same as getGIPEdges, but getGIPEdges creates key 
+ * as data node i.e. "Long" where as this methods creats an edge as key
+ * i.e. (Long, Long, Long)
+ */
+  println("in join")
+  val allGIPNodes: RDD[(Long, PatternInstanceNode)] =
+    windowPatternGraph.triplets
+      .map(triple => {
+        val newPatternInstanceMap = triple.srcAttr.patternInstMap ++ triple.dstAttr.patternInstMap
+        val timestamp = getMinTripleTime(triple)
+        val pattern = (getPatternInstanceNodeid(newPatternInstanceMap),
+          new PatternInstanceNode(newPatternInstanceMap, timestamp))
+        pattern
+      })
+
+     
+     /*
+     * Create Edges of the GIP
+     * 
+     * We try to join the nodes based on each common edge in samller graph.
+     * (P1 (sp,wrkAt,pnnl)) and (P2 (pnnl localtedin Richland)):
+     * we create RDD where the key is and edge ex: (sp,wrkAt,pnnl) and value is
+     * the pattern i.e. P1, P2, or (P1P2)
+     * After the "groupBy" on that key, we create edges between every pair of the
+     * patter.
+     */
+      val allPatternIdsPerInstanceEdge = allGIPNodes.flatMap(patterVertex => {
+        patterVertex._2.getInstance.flatMap(patternInstanceEdge => {
+          Iterable((patternInstanceEdge, patterVertex._1))
+        })
+      }).groupByKey()
+
+      val gipEdges = allPatternIdsPerInstanceEdge.flatMap(gipNode => {
+        val edgeList = gipNode._2.toList
+        val patternGraphVertexId = gipNode._1
+        var local_edges: scala.collection.mutable.ArrayBuffer[Edge[Long]] =
+          scala.collection.mutable.ArrayBuffer()
+        for (i <- 0 to (edgeList.size - 2)) {
+          for (j <- i + 1 to (edgeList.size - 1)) {
+            local_edges += Edge(edgeList(i), edgeList(j), 1L)
+            //we put 1L as the edge type. This means, we dont have any data on the 
+            // edge. Only information is that 
+          }
+        }
+        local_edges
+      })
+
+      return Graph(allGIPNodes, gipEdges)
+
+    }
+  
+  def getMinTripleTime(triple:EdgeTriplet[PatternInstanceNode, DataGraphNodeId]) : Long =
+  {
+    /*
+     * Not using scala.math.min as it makes it a heavy call
+     */
+    val srcTime = triple.srcAttr.timestamp
+    val dstTime = triple.dstAttr.timestamp
+    if(srcTime < dstTime)
+      return dstTime
+    return srcTime  
+  }
   
   def getBatchId(startTime : Int, batchSizeInTime : String) : Long =
   {
@@ -182,7 +312,7 @@ object DataToPatternGraph {
     return dateTime.getMillis()
   }
   
-  def getPatternGraph(dataGraph: DataGraph, typePred: Int, support: Int): PatternGraph = {
+  def getPatternGraph(dataGraph: DataGraph, typePred: Int): PatternGraph = {
     
     /*
      * Get initial typed graph
@@ -302,12 +432,108 @@ object DataToPatternGraph {
     }
    
    
-def maintainWindow(input_gpi: PatternGraph, currentBatchId : Int, windowSizeInBatch : Int) : PatternGraph =
+def maintainWindow(input_gpi: PatternGraph, currentBatchId : Long, windowSizeInBatchs : Int) : PatternGraph =
 	{
-		val cutOffBatchId = currentBatchId - windowSizeInBatch
+		val cutOffBatchId = currentBatchId - windowSizeInBatchs
 		  return input_gpi.subgraph(vpred = (vid,attr) => {
-		  attr.timestamp > cutOffBatchId
+		  (attr.timestamp > cutOffBatchId) || (attr.timestamp == -1L)
 		})
 	}
  
+def log2(x: Double) = scala.math.log(x)/scala.math.log(2)
+
+/**
+ * 
+ */
+def trimGraph(patternGraph: PatternGraph,sc:SparkContext, 
+    frequentPatternBC: Broadcast[RDD[(Pattern,Int)]]) : PatternGraph = 
+{
+  /*
+   * Now remove all the nodes with zero degree
+   */
+  val nonzeroVertices = patternGraph.degrees.filter(v=>v._2 > 0)
+  // Join Node Original Data With NodeType Data
+  val nonzeroVGraph  = patternGraph.outerJoinVertices(nonzeroVertices) {
+    case (id, label, Some(nbr)) => (label)
+    case (id, label, None) => (null)
+  }
+  return nonzeroVGraph.subgraph(vpred= (vid,attr) => attr!=null)
+  
+}
+
+def getMISFrequentGraph(patternGraph: PatternGraph,sc:SparkContext,
+    frequentPatternBC: Broadcast[RDD[(Pattern,Int)]]) : PatternGraph =
+{
+  val frequentGraph = patternGraph.subgraph(vpred = (vid,attr) => {
+		 val allfrequentPatterns = frequentPatternBC.value.collect
+		 allfrequentPatterns.contains(attr.getPattern)
+		})
+	return frequentGraph
+}
+  def computeMinImageSupport(input_gpi : PatternGraph)
+	  :RDD[(Pattern, Int)] =
+  {
+     /*
+     * A flat RDD like:
+     * (P1,person,sp)
+     * (P1,person,sc)
+     * (P1,org,pnnl)
+     * (P1,org,pnnl)
+     */
+    if(input_gpi == null)
+      println("null")
+
+      val sub_pattern_key_rdd = input_gpi.vertices.flatMap(vertex => {
+        vertex._2.patternInstMap.flatMap(pattern_instance_pair => {
+          Iterable((vertex._2.getPattern.toList, pattern_instance_pair._1._1, pattern_instance_pair._2._1),
+              (vertex._2.getPattern.toList, pattern_instance_pair._1._3, pattern_instance_pair._2._3))
+        })
+      }).distinct
+      //.reduceByKey((sub_pattern_instance_count1, sub_pattern_instance_count2) => sub_pattern_instance_count1 + sub_pattern_instance_count2)
+
+      val mis_rdd = sub_pattern_key_rdd.map(key=>{
+        ((key._1, key._2),1)
+         /*
+         * ((P1,person) , 1) from (P1,person,sp)
+         * ((P1,person) , 1) from (P1,person,sc)
+         * ((P1,org) , 1) from (P1,org,pnnl)
+         * 
+         */
+
+      })
+      .reduceByKey((unique_instance1_count,unique_instance2_count) 
+          => unique_instance1_count + unique_instance2_count)
+     /*
+     * Input is 'mis_rdd' which is a Cumulative RDD like:
+     * P1:person, 2
+     * P1:org, 1
+     * 
+     * Output is patternSup which gets minimum of all P1:x 
+     * so return (P1, 1)
+     * 
+     * Exception in thread "main" org.apache.spark.SparkException: 
+     * Cannot use map-side combining with array keys.
+     * Reason: Scala Array is just a wrapper around Java array and its hashCode doesn't depend on a content:
+     */
+      val patternSup  : RDD[(List[SinglePatternEdge], Int)] = mis_rdd.map(sup_pattern_key => {
+        //Emit (P1, 2) and (P1 1)
+       (sup_pattern_key._1._1,sup_pattern_key._2)
+      }).reduceByKey((full_pattern_instace_count1, full_pattern_instace_count2) => {
+       /*
+       * Not using Math lib to because it loads entire dir for min function.
+       * Also seen it failing in cluster mode.
+       */
+        if (full_pattern_instace_count1 < full_pattern_instace_count2)
+          full_pattern_instace_count1
+        else
+          full_pattern_instace_count2
+      })
+
+      /*
+       * TODO : Change it to List in the data structure becasue Array can not be used as a key.
+       * We can save the array-list-array work 
+       */
+      return patternSup.map(entry=>(entry._1.toArray,entry._2))
+    }
+  
 }
