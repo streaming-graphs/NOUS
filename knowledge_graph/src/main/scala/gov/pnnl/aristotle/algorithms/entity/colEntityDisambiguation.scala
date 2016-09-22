@@ -54,7 +54,7 @@ class ColEntityDisamb[VD, ED] {
     }
     if(!isDisambNeeded) {
       println("No disambigutaion required as no mentions have  multiple cadidates")
-      exit
+      //exit
     }
       
      //1.1 If unable to find any potential candidate for a given mention,
@@ -63,6 +63,11 @@ class ColEntityDisamb[VD, ED] {
     val mentionsWithData = allMentionsWithData.--(mentionsWithoutEntityMatch)
     println("Mentions without any entity match")
     mentionsWithoutEntityMatch.foreach(println(_))
+
+    var finalMatches = initMapWithNewEntities(mentionsWithoutEntityMatch)
+    if(mentionsWithoutEntityMatch.size == mentionLabels.size)
+      return finalMatches.toMap
+
     if(mentionToEntityMap.size < 2){
       println(" Cannot collectively disambigute a single mention")
       println("The candidates for mention:")
@@ -70,12 +75,10 @@ class ColEntityDisamb[VD, ED] {
         println(mentionCand._1 + ":")
         val candidates = mentionCand._2
         candidates.foreach(v => println(v._1 + "," + v._2))
+        finalMatches.put("o:" + mentionCand._1, (candidates.head, 1))
       }
-      exit
-    }
-    var finalMatches = initMapWithNewEntities(mentionsWithoutEntityMatch)
-    if(mentionsWithoutEntityMatch.size == mentionLabels.size)
       return finalMatches.toMap
+    }
     
     
     // 2. Score each candidate entity using graph neighborhood data
