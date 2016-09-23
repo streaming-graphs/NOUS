@@ -127,7 +127,7 @@ object DataToPatternGraph {
 		  var frequentPatternBroacdCasted : Broadcast[RDD[(Pattern,Int)]] = sc.broadcast(frequentPattern)
 		  var misFrequentIncomingPatternGraph = 
 		    getMISFrequentGraph(incomingPatternGraph,sc,frequentPatternBroacdCasted)
-      
+      println("frequent  pattern count",frequentPatternBroacdCasted.value.count)
       
       /*
        *  Support for Sliding Window
@@ -142,6 +142,8 @@ object DataToPatternGraph {
 		      windowPatternGraph = misFrequentIncomingPatternGraph
 		   }
 		
+      println("graph vertices count",windowPatternGraph.vertices.count)
+      println("graph edgess count",windowPatternGraph.edges.count)
 		   /*
 		    * Remove out-of-window edges and nodes
 		    */
@@ -153,11 +155,9 @@ object DataToPatternGraph {
       	 * windowPatternGraph is the one used in mining
       	 */
       	
-		    windowPatternGraph =  Graph(windowPatternGraph.vertices.union(incomingPatternGraph.vertices).distinct,
-		        windowPatternGraph.edges.union(incomingPatternGraph.edges).distinct)
+		    windowPatternGraph =  Graph(windowPatternGraph.vertices.union(misFrequentIncomingPatternGraph.vertices).distinct,
+		        windowPatternGraph.edges.union(misFrequentIncomingPatternGraph.edges).distinct)
 
-      
-      
        /*
        * TODO: Mine the windowPatternGraph by pattern Join
        */
@@ -170,15 +170,16 @@ object DataToPatternGraph {
         windowPatternGraph = joinGraph(windowPatternGraph)
         
         //2. get new frequent Patterns, union them with existing patterns and broadcast
+        println("updated frequent pattern" , frequentPattern.count)
         frequentPattern = frequentPattern.union(getFrequentPatterns(computeMinImageSupport(windowPatternGraph),misSupport))
         var frequentPatternBroacdCasted : Broadcast[RDD[(Pattern,Int)]] = sc.broadcast(frequentPattern)
-        
+        println("updated frequent patter after " , frequentPattern.count)
         //3. Get new graph
         windowPatternGraph = 
 		    getMISFrequentGraph(windowPatternGraph,sc,frequentPatternBroacdCasted)
         
 		    //4. trim the graph to remove orphan nodes (degree = 0)
-		    windowPatternGraph = trimGraph(windowPatternGraph, sc, frequentPatternBroacdCasted)
+		    //windowPatternGraph = trimGraph(windowPatternGraph, sc, frequentPatternBroacdCasted)
       }
       
       
@@ -236,7 +237,7 @@ object DataToPatternGraph {
         val pattern = (getPatternInstanceNodeid(newPatternInstanceMap),
           new PatternInstanceNode(newPatternInstanceMap, timestamp))
         pattern
-      })
+      }).cache
 
      
      /*
@@ -270,7 +271,8 @@ object DataToPatternGraph {
         local_edges
       })
 
-      return Graph(allGIPNodes, gipEdges)
+      return  Graph(allGIPNodes, gipEdges)
+      
 
     }
   
@@ -464,9 +466,14 @@ def trimGraph(patternGraph: PatternGraph,sc:SparkContext,
 def getMISFrequentGraph(patternGraph: PatternGraph,sc:SparkContext,
     frequentPatternBC: Broadcast[RDD[(Pattern,Int)]]) : PatternGraph =
 {
+  //If next line is inside subgraph method, it hangs.
+	val allfrequentPatterns = frequentPatternBC.value.collect
+	val allfrequentPatternsArray : Array[Pattern]= allfrequentPatterns.map(_._1)
   val frequentGraph = patternGraph.subgraph(vpred = (vid,attr) => {
-		 val allfrequentPatterns = frequentPatternBC.value.collect
-		 allfrequentPatterns.contains(attr.getPattern)
+    /*
+     * As Arrays is not a stable DS for key comparison so compare it element by element
+     */
+		 allfrequentPatternsArray.map(pattern=>pattern.sameElements(attr.getPattern)).reduce((ans1,ans2)=>ans1 || ans2)
 		})
 	return frequentGraph
 }
@@ -482,15 +489,12 @@ def getMISFrequentGraph(patternGraph: PatternGraph,sc:SparkContext,
      */
     if(input_gpi == null)
       println("null")
-
       val sub_pattern_key_rdd = input_gpi.vertices.flatMap(vertex => {
         vertex._2.patternInstMap.flatMap(pattern_instance_pair => {
           Iterable((vertex._2.getPattern.toList, pattern_instance_pair._1._1, pattern_instance_pair._2._1),
               (vertex._2.getPattern.toList, pattern_instance_pair._1._3, pattern_instance_pair._2._3))
         })
       }).distinct
-      //.reduceByKey((sub_pattern_instance_count1, sub_pattern_instance_count2) => sub_pattern_instance_count1 + sub_pattern_instance_count2)
-
       val mis_rdd = sub_pattern_key_rdd.map(key=>{
         ((key._1, key._2),1)
          /*
@@ -503,7 +507,7 @@ def getMISFrequentGraph(patternGraph: PatternGraph,sc:SparkContext,
       })
       .reduceByKey((unique_instance1_count,unique_instance2_count) 
           => unique_instance1_count + unique_instance2_count)
-     /*
+          /*
      * Input is 'mis_rdd' which is a Cumulative RDD like:
      * P1:person, 2
      * P1:org, 1
@@ -533,6 +537,7 @@ def getMISFrequentGraph(patternGraph: PatternGraph,sc:SparkContext,
        * TODO : Change it to List in the data structure becasue Array can not be used as a key.
        * We can save the array-list-array work 
        */
+      println("totaol mis patterns", patternSup.count)
       return patternSup.map(entry=>(entry._1.toArray,entry._2))
     }
   
