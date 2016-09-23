@@ -23,6 +23,7 @@ import java.util.Calendar
 import gov.pnnl.aristotle.algorithms.mining.datamodel.KGEdge
 import gov.pnnl.aristotle.algorithms.mining.datamodel.KGEdgeInt
 import org.apache.spark.graphx.PartitionStrategy
+import java.util.regex.Pattern
 
 object ReadHugeGraph {
 
@@ -224,7 +225,7 @@ object ReadHugeGraph {
     return graph
   }
   
- def getTemporalGraphInt(filename : String, sc : SparkContext): Graph[Int, KGEdgeInt] = {
+ def getTemporalGraphInt(filename : String, sc : SparkContext, batchSizeInMilliSeconds:Long = -1L): Graph[Int, KGEdgeInt] = {
     println("starting map phase1");
     val quadruples: RDD[(Int, Int, Int,Long)] =
       sc.textFile(filename).filter(ln => isValidLineFromGraphFile(ln)).map { line =>
@@ -232,10 +233,30 @@ object ReadHugeGraph {
         val fields = getFieldsFromLine(line);
         try{
           val f = DateTimeFormat.forPattern("yyyy/MM/dd HH:mm:ss.SSS");
-          val dateTime = f.parseDateTime(fields(3));
+          var parsedDate = fields(3).replaceAll("t", " ").trim()
+          /*
+           * if parseData is of pattern yyyy/MM/ HH:mm:ss.SSS
+           * then make it yyyy/MM/01 HH:mm:ss.SSS
+           * //(\d{4}\/\d{2}) (\d{2}:\d{2}:\d{2}\.\d{3}).*
+           */
+          val missingDay = "^(\\d{4}\\/\\d{2})( \\d{2}:\\d{2}:\\d{2}\\.\\d{3})$"
+          val pattern = Pattern.compile(missingDay)
+          val matcher = pattern.matcher(parsedDate)
+          if(matcher.matches())
+          {
+            parsedDate = matcher.group(1) + "/01" + matcher.group(2)
+          }
+          
+          val dateTime = f.parseDateTime(parsedDate);
           longtime = dateTime.getMillis()
-                  if (fields.length == 4)
-          (fields(0).toInt, fields(1).toInt, fields(2).toInt,longtime)
+          if (fields.length == 4)
+          {
+            if(batchSizeInMilliSeconds != -1L)
+              (fields(0).toInt, fields(1).toInt, fields(2).toInt,(longtime/batchSizeInMilliSeconds))
+            else  
+              (fields(0).toInt, fields(1).toInt, fields(2).toInt,longtime)
+          }
+        	  
         else if(fields.length == 3)
           (fields(0).toInt, fields(1).toInt, fields(2).toInt,0)
         else {
@@ -802,12 +823,12 @@ val edges = edges_multiple.distinct
         return multi_edge_graph.subgraph( vpred = (vid, attr) => attr != null )
     }
   
-  def getGraphFileTypeInt(filepath:String,sc:SparkContext): Graph[Int, KGEdgeInt] =
+  def getGraphFileTypeInt(filepath:String,sc:SparkContext, batchSizeInMilliSeconds: Long = -1L): Graph[Int, KGEdgeInt] =
     {
 	  if (filepath.endsWith(".lg"))
         return ReadHugeGraph.getGraphLG_TemporalInt(filepath, sc)
       else 
-    return ReadHugeGraph.getTemporalGraphInt(filepath, sc)
+    return ReadHugeGraph.getTemporalGraphInt(filepath, sc, batchSizeInMilliSeconds)
     }
   /*
 
