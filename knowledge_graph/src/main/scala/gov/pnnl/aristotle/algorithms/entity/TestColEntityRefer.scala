@@ -21,10 +21,12 @@ import gov.pnnl.aristotle.utils.{NLPTripleParser, NLPTriple,
 //import org.json4s.native.JsonMethods._
 //import org.json4s.native.Serialization._
 //import org.json4s.native.Serialization
+
 import collection.immutable.ListMap
 import scala.collection.mutable.LinkedHashMap 
 import scala.collection.mutable.ListBuffer
 import scala.util.parsing.json._
+import java.io._
 
 object RunColDisambRefer{
   
@@ -82,28 +84,32 @@ object RunColDisambRefer{
     def reverse(a: String) : Map[String, MentionData] = Map(a.split(":")(1) -> new MentionData(a.split(":")(0), 0.6))
 
     //val preThree = nlp_output.take(3).drop(2)
-    val preThree = nlp_output.takeRight(2)   // at most 20 abstracts
+    val preThree = nlp_output.take(20)   // at most 20 abstracts
     var total = 0
     var correct = 0
     var wrong = 0
     var docid = 0
     //var result = LinkedHashMap("mention : ActualEntity" -> "WronglyMappedEntity : Score")    
     var wrongresult = ListBuffer("mention : ActualEntity : WronglyMappedEntity : Score")
+    
+    val writer = new PrintWriter(new File("paperTriples.txt"))
     for(entry <- preThree){
       println(docid)
-      docid += 1
+      
       val allMentionsWithData: Map[String, MentionData] = entry("entities").asInstanceOf[List[String]].map(reverse).reduce(_++_) 
       allMentionsWithData.foreach(v => println(v._1 + "--(type, evidence weight)-->"+ v._2.toString))  
       
       val mentionMatches: Map[String, ((VertexId, String), Double)] = colEntityDisObj.disambiguate(
           allMentionsWithData, g, verticesWithAlias, phraseMatchThreshold, mentionToEntityMatchThreshold, 0.00001)
       
-      println
-      println("Disambiguation completed:")
-      mentionMatches.foreach((MentionWithMatch) => println(
-        MentionWithMatch._1 , "=>" , MentionWithMatch._2._1._1,  MentionWithMatch._2._1._2, 
-        MentionWithMatch._2._2)) 
-      /** the following is used for the accuracy statistics
+      
+          
+      //println
+      //println("Disambiguation completed:")
+      //mentionMatches.foreach((MentionWithMatch) => println(
+      //  MentionWithMatch._1 , "=>" , MentionWithMatch._2._1._1,  MentionWithMatch._2._1._2, 
+      //  MentionWithMatch._2._2)) 
+      ///** the following is used for the accuracy statistics
       for (item <- mentionMatches) {
         total += 1
         if (item._2._2 == 0) {
@@ -120,6 +126,7 @@ object RunColDisambRefer{
               //result += ((word + " : " + benchMark(word)) -> ("nous" + " : " + item._2._2.toString))
               wrongresult.append(List(word, benchMark(word), "nous", item._2._2.toString).mkString(" : "))
             }
+            writer.write("<paperID"+docid + ">\t" + "<hasMention>\t" + "<nous:" + word + ">\n")
         } else {
            val mentionWord = item._1.split(":")(1)
            if (benchMark(mentionWord) == item._2._1._2) {
@@ -129,10 +136,13 @@ object RunColDisambRefer{
              //result += ((mentionWord + " : " + benchMark(mentionWord)) -> (item._2._1._2 + " : " + item._2._2.toString))
              wrongresult.append(List(mentionWord, benchMark(mentionWord), item._2._1._2, item._2._2.toString).mkString(" : "))
            }
+           writer.write("<paperID"+docid + ">\t" + "<hasMention>\t" +"<"+item._2._1._2 + ">\n")
         }
       }
-      */
+      docid += 1
+      //*/
     }
+    writer.close()
  
     //println
     //println("total mentions: " + total)
