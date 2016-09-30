@@ -14,6 +14,8 @@ import java.io.File
 import org.apache.spark.SparkContext
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.graphx.EdgeTriplet
+import com.google.inject.spi.Dependency
+import org.apache.spark.graphx.EdgeDirection
 
 
 
@@ -22,16 +24,31 @@ object DataToPatternGraph {
   val maxPatternSize: Int = 4
   type SinglePatternEdge = (Long, Long, Long)
   type Pattern = Array[SinglePatternEdge]
-   
+  type PatternId = List[SinglePatternEdge] //TODO : Will Change it to Long
   type SingleInstanceEdge = (Long, Long , Long)
   type PatternInstance = Array[SingleInstanceEdge]
   
   type DataGraph = Graph[Int, KGEdgeInt]
   type DataGraphNodeId = Long
   type PatternGraph = Graph[PatternInstanceNode, DataGraphNodeId]
+  type DependencyGraph = Graph[DependencyNode, Long]
   type Label = Int
   type LabelWithTypes = (Label, List[Int])
-  
+  type PType = Int
+  class DependencyNode(val pattern: Pattern) extends Serializable
+  {
+    val id: Long  = getPatternId(pattern)
+    var ptype: PType = 0
+    var support :  Int = 0
+    /*
+     * ptype:
+     * -1 : Infrequent
+     *  0 : Promising
+     *  1 : Closed
+     *  2 : Redundant
+     */
+    
+  }
   class PatternInstanceNode(/// Constructed from hashing all nodes in pattern
     val patternInstMap : Array[(SinglePatternEdge, SingleInstanceEdge)],
     val timestamp: Long) extends Serializable {
@@ -72,6 +89,14 @@ object DataToPatternGraph {
    }
 }
   
+  def getPatternId(patternNode :
+      Pattern): Long = {
+      val patternInstHash: Int = patternNode.toList.map(patternEdge =>  {
+           patternEdge.hashCode
+         }).hashCode()
+         patternInstHash 
+    }
+  
   def getPatternInstanceNodeid(patternInstMap :
       Array[(SinglePatternEdge, SingleInstanceEdge)]): Long = {
       val patternInstHash: Int = patternInstMap.map(patternEdgeAndInst =>  {
@@ -92,7 +117,7 @@ object DataToPatternGraph {
     Logger.getLogger("akka").setLevel(Level.OFF)
 
     val sc = SparkContextInitializer.sc
-    
+
     val ini = new Wini(new File(confFilePath));
     val pathOfBatchGraph = ini.get("run", "batchInfoFilePath");
     val outDir = ini.get("run", "outDir")
@@ -102,12 +127,13 @@ object DataToPatternGraph {
     val startTime = ini.get("run", "startTime").toInt
     val batchSizeInTime = ini.get("run", "batchSizeInTime")
     val windowSizeInBatchs = ini.get("run", "windowSizeInBatch").toInt
-    val maxIterations = log2(ini.get("run","maxPatternSize").toInt)
+    val maxIterations = log2(ini.get("run", "maxPatternSize").toInt)
     
     
     val batchSizeInMilliSeconds = getBatchSizerInMillSeconds(batchSizeInTime)
     var currentBatchId = getBatchId(startTime, batchSizeInTime)
     var windowPatternGraph: PatternGraph = null
+    var dependencyGraph: DependencyGraph = null
     /*
      * Read the files/folder one-by-one and construct an input graph
      */
@@ -120,14 +146,13 @@ object DataToPatternGraph {
       val incomingPatternGraph: PatternGraph = getPatternGraph(incomingDataGraph,typePred)//getMISFrequentGraph(,sc,misSupport)
       
       var frequentPattern = getFrequentPatterns(computeMinImageSupport(incomingPatternGraph),misSupport)
-      
+      println("frequent  pattern count",frequentPattern.count)
 		  /*
 		   * assumption is that number of frequent pattern will not be HUGE
 		   */
-		  var frequentPatternBroacdCasted : Broadcast[RDD[(Pattern,Int)]] = sc.broadcast(frequentPattern)
+		  var frequentPatternBroacdCasted : Broadcast[RDD[(PatternId,Int)]] = sc.broadcast(frequentPattern)
 		  var misFrequentIncomingPatternGraph = 
-		    getMISFrequentGraph(incomingPatternGraph,sc,frequentPatternBroacdCasted)
-      println("frequent  pattern count",frequentPatternBroacdCasted.value.count)
+		    getMISFrequentGraph(incomingPatternGraph,sc,frequentPatternBroacdCasted,null)
       
       /*
        *  Support for Sliding Window
@@ -142,8 +167,6 @@ object DataToPatternGraph {
 		      windowPatternGraph = misFrequentIncomingPatternGraph
 		   }
 		
-      println("graph vertices count",windowPatternGraph.vertices.count)
-      println("graph edgess count",windowPatternGraph.edges.count)
 		   /*
 		    * Remove out-of-window edges and nodes
 		    */
@@ -158,25 +181,38 @@ object DataToPatternGraph {
 		    windowPatternGraph =  Graph(windowPatternGraph.vertices.union(misFrequentIncomingPatternGraph.vertices).distinct,
 		        windowPatternGraph.edges.union(misFrequentIncomingPatternGraph.edges).distinct)
 
-       /*
+		   /*
        * TODO: Mine the windowPatternGraph by pattern Join
        */
       var currentIteration = 1
       while(currentIteration <= maxIterations)
       {
-        println("iteration " , currentIteration)
+        println("iteration " , currentIteration, s"finding 2^$currentIteration max-size pattern")
         currentIteration = currentIteration + 1
         //1 .join graph
-        windowPatternGraph = joinGraph(windowPatternGraph)
+        val joinResult : (PatternGraph,DependencyGraph) = joinGraph(windowPatternGraph,dependencyGraph)
+        windowPatternGraph = joinResult._1
+        dependencyGraph = joinResult._2
+        
         
         //2. get new frequent Patterns, union them with existing patterns and broadcast
-        println("updated frequent pattern" , frequentPattern.count)
-        frequentPattern = frequentPattern.union(getFrequentPatterns(computeMinImageSupport(windowPatternGraph),misSupport))
-        var frequentPatternBroacdCasted : Broadcast[RDD[(Pattern,Int)]] = sc.broadcast(frequentPattern)
-        println("updated frequent patter after " , frequentPattern.count)
+        frequentPattern = frequentPattern.union(getFrequentPatterns(computeMinImageSupport(windowPatternGraph),misSupport)).distinct.cache
+        var frequentPatternBroacdCasted : Broadcast[RDD[(PatternId,Int)]] = sc.broadcast(frequentPattern)
+        
+        // update status of all patterns
+        dependencyGraph = updateGDepStatus(dependencyGraph,sc,frequentPatternBroacdCasted)
+        
+        //Get redundant patterns
+        val redundantPatterns = getRedundantPatterns(dependencyGraph)
+        var redundantPatternsBroacdCasted : Broadcast[RDD[(PatternId,Int)]] = sc.broadcast(redundantPatterns)
+        //Filter frequent pattern and get all non-redundant frequent patterns.
+        val nonreduncantFrequentPattern = frequentPattern.subtract(redundantPatterns)
+        var nonreduncantFrequentPatternBroacdCasted : Broadcast[RDD[(PatternId,Int)]] = sc.broadcast(nonreduncantFrequentPattern)
+        
+        
         //3. Get new graph
         windowPatternGraph = 
-		    getMISFrequentGraph(windowPatternGraph,sc,frequentPatternBroacdCasted)
+		    getMISFrequentGraph(windowPatternGraph,sc,nonreduncantFrequentPatternBroacdCasted,redundantPatterns)
         
 		    //4. trim the graph to remove orphan nodes (degree = 0)
 		    //windowPatternGraph = trimGraph(windowPatternGraph, sc, frequentPatternBroacdCasted)
@@ -188,7 +224,7 @@ object DataToPatternGraph {
       /*
        * Save batch level patternGraph
        *  
-       */
+       
       frequentPattern.map(entry
           =>{
         var pattern = ""
@@ -197,26 +233,144 @@ object DataToPatternGraph {
         pattern
       }).saveAsTextFile(outDir + "/" + "GIP/frequentPattern" 
                   + System.nanoTime())
+    
+    
+        //dependencyGraph.vertices.filter(v=>v._2!=null).collect.foreach(f=>println(f._1, f._2.pattern.toList))
+        //dependencyGraph.edges.collect.foreach(e=>println(e.srcId, e.attr, e.dstId))
+        dependencyGraph.triplets.map(e=>
+          e.srcAttr.pattern.toList +"#"+e.attr+"#"+e.dstAttr.pattern.toList+"#"+
+          e.srcAttr.ptype+"#"+e.dstAttr.ptype+"#"+e.srcAttr.support+"#"+e.dstAttr.support)
+          .saveAsTextFile("DepG"+System.nanoTime()+"/")
+          * 
+          */
     }
-    
-    
-
     
   }
 
-  def getFrequentPatterns(patternsWithMIS :RDD[(Pattern, Int)],misSupport :Int) 
-  	:RDD[(Pattern, Int)] =
+  def getFrequentPatterns(patternsWithMIS :RDD[(PatternId, Int)],misSupport :Int) 
+  	:RDD[(PatternId, Int)] =
   {
     patternsWithMIS.filter(pattern_entry 
       => pattern_entry._2 >= misSupport)
   }
   
-  
-  
-  def joinGraph(windowPatternGraph: PatternGraph ) : PatternGraph = 
+  def getRedundantPatterns(dependencyGraph:DependencyGraph) : RDD[(PatternId,Int)] =
   {
+    val redundantPaterns  = 
+      dependencyGraph.vertices.filter(gdepNode 
+          => gdepNode._2.ptype == 2).map(depNode=>{
+        (depNode._2.pattern.toList,depNode._2.support)
+      })
+    
+      return redundantPaterns
+  }
+  
+  def updateGDepStatus(dependencyGraph:DependencyGraph,sc:SparkContext,
+    frequentPatternBC: Broadcast[RDD[(PatternId,Int)]]) : DependencyGraph =
+  {
+    //dependencyGraph.vertices.collect.foreach(f=>println("dep graph v : " , f._1, f._2.pattern.toList, f._2.ptype, f._2.support))
+    
+    val allfrequentPatterns = frequentPatternBC.value.collect
+    val allfrequentPatternsMap = allfrequentPatterns.toMap
+    val new_graph = dependencyGraph.mapVertices((id, attr) => {
+      attr.support = allfrequentPatternsMap.getOrElse(attr.pattern.toList, -1)
+      attr
+    })
+    val frequentGDepGraph = new_graph.subgraph(vpred = (vid, attr)=>attr.support != -1)
 
-/*
+    val newGraph 
+        = frequentGDepGraph.pregel[List[Int]](List.empty,
+        		3, EdgeDirection.In)(
+          (id, dist, newDist) =>
+            {
+              if (!newDist.contains(2))
+                dist.ptype = 1
+              else
+                dist.ptype = 2
+              dist
+            }, // Vertex Program
+          triplet => { // Send Message
+            if (triplet.srcAttr.support == triplet.dstAttr.support) {
+              Iterator((triplet.srcId, List(2)))
+            } else
+              Iterator((triplet.srcId, List(1)))
+            //val newprop = triplet.dstAttr.getnode_label
+
+          },
+          (a, b) => a ++ b // Merge Message
+          )
+     
+//       newGraph.vertices.collect.foreach(f
+//        =>println("newGraph with ptype dep graph v : " , 
+//            f._1, f._2.pattern.toList, f._2.ptype, f._2.support))
+
+    newGraph
+  }
+  def joinGraph(windowPatternGraph: PatternGraph , dependencyGraph:DependencyGraph) :
+  (PatternGraph,DependencyGraph) = 
+  {
+      val newwindowPatternGraph = getUpdateWindowPatternGraph(windowPatternGraph, dependencyGraph)
+      val newDependencyGraph = getUpdatedDepGraph(windowPatternGraph, dependencyGraph)
+
+      return (newwindowPatternGraph, newDependencyGraph)
+  }
+  
+  def getUpdatedDepGraph(windowPatternGraph: PatternGraph , dependencyGraph:DependencyGraph)
+  : DependencyGraph =
+  {
+    /*
+     * For every edges between two patternNodes leads to 3 nodes and 2 edges
+     * 3 nodes have 2 parent nodes and one child node
+     * 2 edges are an edge between each parent and the child
+     */
+    
+    val newDepNodes: RDD[(Long, DependencyNode)] =
+        windowPatternGraph.triplets
+          .flatMap(triple => {
+            val dependencyNode = Iterable(
+              (getPatternId(triple.srcAttr.getPattern), new DependencyNode(triple.srcAttr.getPattern)),
+              (getPatternId(triple.dstAttr.getPattern), new DependencyNode(triple.dstAttr.getPattern)),
+              (getPatternId(triple.srcAttr.getPattern ++ triple.dstAttr.getPattern),
+                new DependencyNode(triple.srcAttr.getPattern ++ triple.dstAttr.getPattern)))
+            dependencyNode
+          }).cache
+
+      /*
+       * Create edges of Dep graph
+       */
+      val newDepEdges: RDD[Edge[Long]] =
+        windowPatternGraph.triplets
+          .flatMap(triple => {
+            val dependencyEdge = Iterable(new Edge(getPatternId(triple.srcAttr.getPattern),
+              getPatternId(triple.srcAttr.getPattern ++ triple.dstAttr.getPattern), 1L),
+              new Edge(getPatternId(triple.dstAttr.getPattern),
+                getPatternId(triple.srcAttr.getPattern ++ triple.dstAttr.getPattern), 1L))
+            dependencyEdge
+          }).distinct.cache
+      
+      /* 
+       * distinct above seems redundant as the line 
+       * newDependencyGraph = Graph(dependencyGraph.vertices.union(newDepNodes).distinct, 
+       * dependencyGraph.edges.union(newDepEdges).distinct) 
+       * does performs distinct. But for some reason TBD, that does not force distinct edges.
+       */
+      var newDependencyGraph : DependencyGraph = null
+      if(dependencyGraph == null)
+      {
+      	newDependencyGraph = Graph(newDepNodes,newDepEdges)
+      }else
+      {   newDependencyGraph = Graph(dependencyGraph.vertices.union(newDepNodes).distinct,
+        dependencyGraph.edges.union(newDepEdges).distinct)
+      }  
+
+    return newDependencyGraph
+    
+  }
+  
+  def getUpdateWindowPatternGraph(windowPatternGraph: PatternGraph , dependencyGraph:DependencyGraph)
+  : PatternGraph =
+  {
+        /*
  * Input is a pattern graph. each node of existing pattern graph have a
  * n-size pattern, every edge mean two patterns can be joined
  * 
@@ -228,19 +382,21 @@ object DataToPatternGraph {
  * as data node i.e. "Long" where as this methods creats an edge as key
  * i.e. (Long, Long, Long)
  */
-  println("in join")
-  val allGIPNodes: RDD[(Long, PatternInstanceNode)] =
-    windowPatternGraph.triplets
-      .map(triple => {
-        val newPatternInstanceMap = triple.srcAttr.patternInstMap ++ triple.dstAttr.patternInstMap
-        val timestamp = getMinTripleTime(triple)
-        val pattern = (getPatternInstanceNodeid(newPatternInstanceMap),
-          new PatternInstanceNode(newPatternInstanceMap, timestamp))
-        pattern
-      }).cache
+      println("in join")
+      val allGIPNodes: RDD[(Long, PatternInstanceNode)] =
+        windowPatternGraph.triplets
+          .map(triple => {
+            val newPatternInstanceMap = triple.srcAttr.patternInstMap ++ triple.dstAttr.patternInstMap
+            val timestamp = getMinTripleTime(triple)
+            val pattern = (getPatternInstanceNodeid(newPatternInstanceMap),
+              new PatternInstanceNode(newPatternInstanceMap, timestamp))
+            val dependencyEdge: Edge[Long] = new Edge(getPatternId(triple.srcAttr.getPattern),
+              getPatternId(triple.dstAttr.getPattern), getPatternInstanceNodeid(newPatternInstanceMap))
+            pattern
+          }).cache
 
-     
-     /*
+      
+      /*
      * Create Edges of the GIP
      * 
      * We try to join the nodes based on each common edge in samller graph.
@@ -269,13 +425,20 @@ object DataToPatternGraph {
           }
         }
         local_edges
-      })
+      }).cache
 
-      return  Graph(allGIPNodes, gipEdges)
-      
+      val existingGIPNodes = windowPatternGraph.vertices.cache
+      val existingGIPEdges = windowPatternGraph.edges.cache
 
-    }
-  
+      /*
+       * Newly created Nodes and Edges are already cached
+       * NOTE: removing call to distinct
+       */
+      val newwindowPatternGraph = Graph(existingGIPNodes.union(allGIPNodes),
+        existingGIPEdges.union(gipEdges))
+        
+      return newwindowPatternGraph  
+  }
   def getMinTripleTime(triple:EdgeTriplet[PatternInstanceNode, DataGraphNodeId]) : Long =
   {
     /*
@@ -464,11 +627,14 @@ def trimGraph(patternGraph: PatternGraph,sc:SparkContext,
 }
 
 def getMISFrequentGraph(patternGraph: PatternGraph,sc:SparkContext,
-    frequentPatternBC: Broadcast[RDD[(Pattern,Int)]]) : PatternGraph =
+    frequentPatternBC: Broadcast[RDD[(PatternId,Int)]],
+    redundantPatterns:RDD[(PatternId,Int)] = null) : PatternGraph =
 {
   //If next line is inside subgraph method, it hangs.
 	val allfrequentPatterns = frequentPatternBC.value.collect
-	val allfrequentPatternsArray : Array[Pattern]= allfrequentPatterns.map(_._1)
+	println("*****size of frquent patterns " , allfrequentPatterns.size)
+	allfrequentPatterns.foreach(f=>println("pattern ins " , f._1, f._2))
+	val allfrequentPatternsArray : Array[PatternId]= allfrequentPatterns.map(_._1)
   val frequentGraph = patternGraph.subgraph(vpred = (vid,attr) => {
     /*
      * As Arrays is not a stable DS for key comparison so compare it element by element
@@ -478,7 +644,7 @@ def getMISFrequentGraph(patternGraph: PatternGraph,sc:SparkContext,
 	return frequentGraph
 }
   def computeMinImageSupport(input_gpi : PatternGraph)
-	  :RDD[(Pattern, Int)] =
+	  :RDD[(PatternId, Int)] =
   {
      /*
      * A flat RDD like:
@@ -534,11 +700,10 @@ def getMISFrequentGraph(patternGraph: PatternGraph,sc:SparkContext,
       })
 
       /*
-       * TODO : Change it to List in the data structure becasue Array can not be used as a key.
+       * TODO : Change it to List in the data structure because Array can not be used as a key.
        * We can save the array-list-array work 
        */
-      println("totaol mis patterns", patternSup.count)
-      return patternSup.map(entry=>(entry._1.toArray,entry._2))
+      return patternSup.map(entry=>(entry._1,entry._2))
     }
   
 }
