@@ -16,6 +16,7 @@ import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.graphx.EdgeTriplet
 import com.google.inject.spi.Dependency
 import org.apache.spark.graphx.EdgeDirection
+import scala.util.Random
 
 
 
@@ -128,6 +129,7 @@ object DataToPatternGraph {
     val batchSizeInTime = ini.get("run", "batchSizeInTime")
     val windowSizeInBatchs = ini.get("run", "windowSizeInBatch").toInt
     val maxIterations = log2(ini.get("run", "maxPatternSize").toInt)
+    val supportScallingFactor = ini.get("run", "supportScallingFactor").toInt
     
     
     val batchSizeInMilliSeconds = getBatchSizerInMillSeconds(batchSizeInTime)
@@ -141,16 +143,19 @@ object DataToPatternGraph {
         getLines().filter(str => !str.startsWith("#"))) {
     	
       currentBatchId = currentBatchId + 1
-      
+      var t0 = System.nanoTime()
       val incomingDataGraph: DataGraph = ReadHugeGraph.getGraphFileTypeInt(graphFile, sc, batchSizeInMilliSeconds)
+      println("incoming graph v size ", incomingDataGraph.vertices.count)
+      var t1 = System.nanoTime()
+      println("Time to load graph and count its size is in seconds "+ (t1-t0) * 1e-9 + "seconds")
       val incomingPatternGraph: PatternGraph = getPatternGraph(incomingDataGraph,typePred)//getMISFrequentGraph(,sc,misSupport)
       
       var frequentPattern = getFrequentPatterns(computeMinImageSupport(incomingPatternGraph),misSupport)
-      println("frequent  pattern count",frequentPattern.count)
+      val freqPatternSamplingScheme = getSamplingSchemeForFrequentPatterns(frequentPattern,supportScallingFactor, misSupport)
 		  /*
 		   * assumption is that number of frequent pattern will not be HUGE
 		   */
-		  var frequentPatternBroacdCasted : Broadcast[RDD[(PatternId,Int)]] = sc.broadcast(frequentPattern)
+		  var frequentPatternBroacdCasted : Broadcast[RDD[(PatternId,Int,Double)]] = sc.broadcast(freqPatternSamplingScheme)
 		  var misFrequentIncomingPatternGraph = 
 		    getMISFrequentGraph(incomingPatternGraph,sc,frequentPatternBroacdCasted,null)
       
@@ -197,23 +202,28 @@ object DataToPatternGraph {
         
         //2. get new frequent Patterns, union them with existing patterns and broadcast
         frequentPattern = frequentPattern.union(getFrequentPatterns(computeMinImageSupport(windowPatternGraph),misSupport)).distinct.cache
-        var frequentPatternBroacdCasted : Broadcast[RDD[(PatternId,Int)]] = sc.broadcast(frequentPattern)
+        val freqPatternSamplingScheme = getSamplingSchemeForFrequentPatterns(frequentPattern,supportScallingFactor, misSupport)
+        var frequentPatternBroacdCasted : Broadcast[RDD[(PatternId,Int,Double)]] = sc.broadcast(freqPatternSamplingScheme)
         
         // update status of all patterns
-        dependencyGraph = updateGDepStatus(dependencyGraph,sc,frequentPatternBroacdCasted)
+        //dependencyGraph = updateGDepStatus(dependencyGraph,sc,frequentPatternBroacdCasted)
         
         //Get redundant patterns
-        val redundantPatterns = getRedundantPatterns(dependencyGraph)
-        var redundantPatternsBroacdCasted : Broadcast[RDD[(PatternId,Int)]] = sc.broadcast(redundantPatterns)
-        //Filter frequent pattern and get all non-redundant frequent patterns.
-        val nonreduncantFrequentPattern = frequentPattern.subtract(redundantPatterns)
-        var nonreduncantFrequentPatternBroacdCasted : Broadcast[RDD[(PatternId,Int)]] = sc.broadcast(nonreduncantFrequentPattern)
-        
+//        val redundantPatterns = getRedundantPatterns(dependencyGraph)
+//        var redundantPatternsBroacdCasted : Broadcast[RDD[(PatternId,Int)]] = sc.broadcast(redundantPatterns)
+//        //Filter frequent pattern and get all non-redundant frequent patterns.
+//        val nonreduncantFrequentPattern = frequentPattern.subtract(redundantPatterns)
+//        var nonreduncantFrequentPatternBroacdCasted : Broadcast[RDD[(PatternId,Int)]] = sc.broadcast(nonreduncantFrequentPattern)
+//        
         
         //3. Get new graph
-        windowPatternGraph = 
-		    getMISFrequentGraph(windowPatternGraph,sc,nonreduncantFrequentPatternBroacdCasted,redundantPatterns)
-        
+        try{
+          windowPatternGraph =
+            getMISFrequentGraph(windowPatternGraph, sc, frequentPatternBroacdCasted, null)
+        } catch
+        {
+          case e:Exception => println("*** FINISHED WITHOUT FINDING BIGGER PATTERNS **")
+        }
 		    //4. trim the graph to remove orphan nodes (degree = 0)
 		    //windowPatternGraph = trimGraph(windowPatternGraph, sc, frequentPatternBroacdCasted)
       }
@@ -247,6 +257,23 @@ object DataToPatternGraph {
     
   }
 
+  
+  def getSamplingSchemeForFrequentPatterns(frequentPattern : RDD[(PatternId, Int)],
+      supportScallingFactor : Int, misSupport : Int ) : RDD[(PatternId, Int,Double)] =
+  {
+    frequentPattern.map(pattern => {
+      var extraInstances: Double = 0.0
+      val cutOffInstance: Int = (supportScallingFactor * misSupport)
+      if (pattern._2 > supportScallingFactor * misSupport)
+        extraInstances = pattern._2 - cutOffInstance
+
+      // calculate the probability to retain that pattern edge
+
+      (pattern._1,
+        pattern._2, (1 - (extraInstances / pattern._2)))
+    })
+  }
+  
   def getFrequentPatterns(patternsWithMIS :RDD[(PatternId, Int)],misSupport :Int) 
   	:RDD[(PatternId, Int)] =
   {
@@ -383,6 +410,7 @@ object DataToPatternGraph {
  * i.e. (Long, Long, Long)
  */
       println("in join")
+      //println("window pattern graph size ", windowPatternGraph.vertices.count)
       val allGIPNodes: RDD[(Long, PatternInstanceNode)] =
         windowPatternGraph.triplets
           .map(triple => {
@@ -395,6 +423,7 @@ object DataToPatternGraph {
             pattern
           }).cache
 
+      //print("gipNodes count = " + allGIPNodes.count)
       
       /*
      * Create Edges of the GIP
@@ -415,18 +444,27 @@ object DataToPatternGraph {
       val gipEdges = allPatternIdsPerInstanceEdge.flatMap(gipNode => {
         val edgeList = gipNode._2.toList
         val patternGraphVertexId = gipNode._1
+        val edgeLimit = 2 // We only wants 2 edges from each possible pair at each node
         var local_edges: scala.collection.mutable.ArrayBuffer[Edge[Long]] =
           scala.collection.mutable.ArrayBuffer()
         for (i <- 0 to (edgeList.size - 2)) {
+          var edgeCnt = 0
           for (j <- i + 1 to (edgeList.size - 1)) {
-            local_edges += Edge(edgeList(i), edgeList(j), 1L)
+            if(edgeCnt < edgeLimit)
+            {
+            	local_edges += Edge(edgeList(i), edgeList(j), 1L)
+            	edgeCnt = edgeCnt + 1
+            }
+            
             //we put 1L as the edge type. This means, we dont have any data on the 
             // edge. Only information is that 
           }
         }
-        local_edges
+        local_edges.toList
       }).cache
 
+      //print("gipEdges count = " + gipEdges.count)
+      
       val existingGIPNodes = windowPatternGraph.vertices.cache
       val existingGIPEdges = windowPatternGraph.edges.cache
 
@@ -434,8 +472,14 @@ object DataToPatternGraph {
        * Newly created Nodes and Edges are already cached
        * NOTE: removing call to distinct
        */
-      val newwindowPatternGraph = Graph(existingGIPNodes.union(allGIPNodes),
-        existingGIPEdges.union(gipEdges))
+      //print("existingGIPEdes count = " + existingGIPEdges.count)
+      
+      val allnewNodes = existingGIPNodes.union(allGIPNodes).cache
+      val allnewEdges = existingGIPEdges.union(gipEdges).cache
+      
+     //println("building graph node", allnewNodes.count)
+     //println("building graph edge",allnewEdges.count)
+      val newwindowPatternGraph = Graph(allnewNodes, allnewEdges)
         
       return newwindowPatternGraph  
   }
@@ -627,19 +671,37 @@ def trimGraph(patternGraph: PatternGraph,sc:SparkContext,
 }
 
 def getMISFrequentGraph(patternGraph: PatternGraph,sc:SparkContext,
-    frequentPatternBC: Broadcast[RDD[(PatternId,Int)]],
+    frequentPatternBC: Broadcast[RDD[(PatternId,Int,Double)]],
     redundantPatterns:RDD[(PatternId,Int)] = null) : PatternGraph =
 {
   //If next line is inside subgraph method, it hangs.
 	val allfrequentPatterns = frequentPatternBC.value.collect
 	println("*****size of frquent patterns " , allfrequentPatterns.size)
-	allfrequentPatterns.foreach(f=>println("pattern ins " , f._1, f._2))
-	val allfrequentPatternsArray : Array[PatternId]= allfrequentPatterns.map(_._1)
+	allfrequentPatterns.foreach(f=>println("pattern ins " , f._1, f._2, f._3))
+	
+	val allfrequentPatternsArray : Array[(PatternId, Double)]= allfrequentPatterns.map(pattern 
+	    => (pattern._1, pattern._3))
   val frequentGraph = patternGraph.subgraph(vpred = (vid,attr) => {
     /*
      * As Arrays is not a stable DS for key comparison so compare it element by element
+     * NOTE : do i need to look all the pattern everytime ?
      */
-		 allfrequentPatternsArray.map(pattern=>pattern.sameElements(attr.getPattern)).reduce((ans1,ans2)=>ans1 || ans2)
+		 allfrequentPatternsArray.map(pattern
+		     =>{
+		       /*
+		        * Probabilistically pick the subgraph using two conditions
+		        * 1. the vertex belongs to a frequent pattern
+		        * 2. IF it belongs to a frequent pattern, it should be pick up
+		        *    probabilistically based on its cutOff limit
+		        */
+		       
+		       var keepEdge = pattern._1.sameElements(attr.getPattern) 
+		       if(Random.nextDouble <= pattern._2)
+		         keepEdge = keepEdge && true
+		         else keepEdge = keepEdge && false
+		       keepEdge
+		     }).reduce((ans1,ans2)=>ans1 || ans2)
+
 		})
 	return frequentGraph
 }
