@@ -287,9 +287,9 @@ object TripleParser extends Serializable {
   }
 
   def getTriples(doc: String): List[Triple] = {
-    //println("##########################")
-    //println(doc)
-    //println("##########################")
+    println("##########################")
+    println(doc)
+    println("##########################")
     // val t1 = System.currentTimeMillis
     val annotation = getAnnotation(doc)
     // val t2 = System.currentTimeMillis
@@ -304,16 +304,16 @@ object TripleParser extends Serializable {
       //val srlTriples = new SemanticRoleLabelExtractor().extract(annotation)
       val openieTriples = OpenIEExtractor.extractFiltered(annotation, namedPhrases)
       
-      //println("********** OpenIE output **********")
-      //openieTriples.foreach(println)
+      println("********** OpenIE output **********")
+      openieTriples.foreach(println)
       // val t4 = System.currentTimeMillis
       // println("getAnnotation = " + (t2-t1) + " NER = " + (t3-t2) + " OpenIE = " + (t4-t3))
       val relations = purge(openieTriples.filter(_.conf > 0.98))
-      //println("********** Purged output **********")
-      //relations.foreach(println)
+      println("********** Purged output **********")
+      relations.foreach(println)
       val finalTriples = getTypeTriples(namedPhrases) ::: relations
-      //println("********** Final output **********")
-      //finalTriples.foreach(println)
+      println("********** Final output **********")
+      finalTriples.foreach(println)
       finalTriples
     }
   }
@@ -359,6 +359,30 @@ object TripleParser extends Serializable {
     import org.json4s.jackson.Serialization
     implicit val formats = Serialization.formats(NoTypeHints)
     Extraction.decompose(src)
+  }
+  def Test2015(sentences: List[String], docname: String) = {
+    val result = ListMap("doc_name" -> docname)
+    var lst = new ListBuffer[ListMap[String,_]]() 
+    for (i <- 0 until sentences.size) {
+      if (i % 2 == 1) {
+        println(f"addressing the ${i/2}%dth paper")
+        val doc = sentences(i)
+        val annotation = getAnnotation(doc)
+        val namedPhrases = NamedPhraseExtractor.extract(annotation)
+        if (namedPhrases.size > 0) {
+          lst += ListMap("paper_id" -> i / 2, "paper_title" -> sentences(i - 1), "entities" -> namedPhrases)  
+        }
+      }
+    } 
+
+    val finalresult = result + ("nlp_output" -> lst.toList)
+
+    import org.json4s.JsonDSL._
+    implicit val formats = DefaultFormats
+    val d = Extraction.decompose(finalresult)
+    val writer = new PrintWriter(new File("T2015.json"))
+    writer.write(pretty(render(d)))
+    writer.close()
   }
 
   def test(docname: String) = {
@@ -407,7 +431,8 @@ object TripleParser extends Serializable {
     //}
     //TripleParser.test(info)
     //println(info)
-    TripleParser.getDumpTriples(lines, info) //this is my function to dump out the json files!
+    //TripleParser.getDumpTriples(lines, info) //this is my function to dump out the json files!
+    TripleParser.Test2015(lines, info) //this is my function to dump out the json files!
     //for (line <- lines) {
     //  TripleParser.getTriples(line)
     //}
