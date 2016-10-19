@@ -239,7 +239,7 @@ object DataToPatternGraph {
 
       
       // Keep record of frequent pattern in this batch only
-      frequentPatternInWindowPerBatch = updateFrequentPatternInWindowPerBatch(frequentPatternsInIncrementalBatch,
+      frequentPatternInWindowPerBatch = updateFrequentInFrequentPatternsInWindowPerBatch(frequentPatternsInIncrementalBatch,
         frequentPatternInWindowPerBatch, currentBatchId)
 
       infrequentPatternInBatch = getInfrequentPatterns(allPatterns, misSupport)
@@ -254,7 +254,7 @@ object DataToPatternGraph {
        * We want to know the change in the infrequent pattern per batch.
        * So the next line of  code update a data structure 
        */
-      infrequentPatternInWinodwPerBatch = updateFrequentPatternInWindowPerBatch(infrequentPatternInBatch, infrequentPatternInWinodwPerBatch, currentBatchId)
+      infrequentPatternInWinodwPerBatch = updateFrequentInFrequentPatternsInWindowPerBatch(infrequentPatternInBatch, infrequentPatternInWinodwPerBatch, currentBatchId)
 
       /*
        * Add a sampling scheme for each pattern
@@ -309,7 +309,7 @@ object DataToPatternGraph {
          */
         infrequentPatternInBatch = getInfrequentPatterns(allPatterns, misSupport)
         infrequentPatternInWinodw = updateInfrequentPatternInWindow(infrequentPatternInBatch, infrequentPatternInWinodw)
-        infrequentPatternInWinodwPerBatch = updateFrequentPatternInWindowPerBatch(infrequentPatternInBatch, frequentPatternInWindowPerBatch, currentBatchId)
+        infrequentPatternInWinodwPerBatch = updateFrequentInFrequentPatternsInWindowPerBatch(infrequentPatternInBatch, infrequentPatternInWinodwPerBatch, currentBatchId)
 
         
 
@@ -341,11 +341,8 @@ object DataToPatternGraph {
         //windowPatternGraph = trimGraph(windowPatternGraph, sc, frequentPatternBroacdCasted)
       }
 
+      
       frequentPatternInWindow = updateFrequentPatternInWindow(frequentPatternsInIncrementalBatch, frequentPatternInWindow)
-
-      println("*****size of frquent patterns in window " + frequentPatternInWindow.count)
-      frequentPatternInWindow.foreach(f => println("fre pattern ins window ", f._1, f._2, f._2))
-      infrequentPatternInBatch.collect.foreach(f => println("infrequent pattern in batch ", f._1, f._2))
 
       /*
        * Save batch level patternGraph
@@ -371,7 +368,6 @@ object DataToPatternGraph {
           */
     }
     
-    infrequentPatternInWinodwPerBatch.collect.foreach(f=>println("infrequent pattern in window " , f._1, f._2._1, f._2._2))
   }
 
   
@@ -386,7 +382,7 @@ object DataToPatternGraph {
           
   }
   
-  def updateFrequentPatternInWindowPerBatch(frequentPatternInBatch : RDD[(PatternId, Int)],
+  def updateFrequentInFrequentPatternsInWindowPerBatch(frequentPatternInBatch : RDD[(PatternId, Int)], 
       frequentPatternInWindowPerBatch : RDD[(Int, (PatternId, Int))], batchId : Int) : RDD[(Int, (PatternId, Int))] =
   {
     val patternPerBatch = frequentPatternInBatch.map(pattern=>(batchId, pattern))
@@ -632,8 +628,6 @@ object DataToPatternGraph {
             pattern
           }).cache
 
-      println("NEW gipNodes count = " + allGIPNodes.count)
-      allGIPNodes.collect.foreach(f=>println(f._1, f._2.getPattern.toList, f._2.getInstance.toList))
       
       /*
      * Create Edges of the GIP
