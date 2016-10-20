@@ -17,6 +17,7 @@ import org.apache.spark.graphx.EdgeTriplet
 import com.google.inject.spi.Dependency
 import org.apache.spark.graphx.EdgeDirection
 import scala.util.Random
+import scala.util.control.Breaks._
 
 
 
@@ -178,11 +179,11 @@ object DataToPatternGraph {
 
       currentBatchId = currentBatchId + 1
       var t0 = System.nanoTime()
-      val incomingDataGraph: DataGraph = ReadHugeGraph.getGraphFileTypeInt(graphFile, sc, batchSizeInMilliSeconds)
+      val incomingDataGraph: DataGraph = ReadHugeGraph.getGraphFileTypeInt(graphFile, sc, batchSizeInMilliSeconds).cache
       println("incoming graph v size ", incomingDataGraph.vertices.count)
       var t1 = System.nanoTime()
       println("Time to load graph and count its size is in seconds " + (t1 - t0) * 1e-9 + "seconds")
-      val incomingPatternGraph: PatternGraph = getPatternGraph(incomingDataGraph, typePred)
+      val incomingPatternGraph: PatternGraph = getPatternGraph(incomingDataGraph, typePred).cache
 
       /*
        *  Support for Sliding Window : First thing we do is to get our new Window
@@ -218,7 +219,7 @@ object DataToPatternGraph {
       	 * windowPatternGraph is the one used in mining
       	 */
         windowPatternGraph = Graph(windowPatternGraph.vertices.union(incomingPatternGraph.vertices).distinct,
-          windowPatternGraph.edges.union(incomingPatternGraph.edges).distinct)
+          windowPatternGraph.edges.union(incomingPatternGraph.edges).distinct).cache
       }
 
       /*
@@ -283,23 +284,28 @@ object DataToPatternGraph {
        * TODO: Mine the windowPatternGraph by pattern Join
        */
       var currentIteration = 1
-      while (currentIteration <= maxIterations) 
-      {
-        println("iteration ", currentIteration, s"finding 2^$currentIteration max-size pattern")
-        currentIteration = currentIteration + 1
-        
-        //1 .join graph
-        val joinResult: (PatternGraph, DependencyGraph) = joinGraph(windowPatternGraph, dependencyGraph, currentIteration)
-        windowPatternGraph = joinResult._1
-        dependencyGraph = joinResult._2
+      breakable {
+        while (currentIteration <= maxIterations) {
+          println("iteration ", currentIteration, s"finding 2^$currentIteration max-size pattern")
+          currentIteration = currentIteration + 1
 
-        //2. get new frequent Patterns, union them with existing patterns and broadcast
-        val allPatterns = computeMinImageSupport(windowPatternGraph)
-        frequentPatternsInIncrementalBatch = getFrequentPatterns(allPatterns, misSupport).cache
-        frequentPatternBroacdCasted = sc.broadcast(frequentPatternsInIncrementalBatch)
+          //1 .join graph
+          val joinResult: (PatternGraph, DependencyGraph) = joinGraph(windowPatternGraph, dependencyGraph, currentIteration)
+          windowPatternGraph = joinResult._1
+          dependencyGraph = joinResult._2
 
-        
-        /*
+          //2. get new frequent Patterns, union them with existing patterns and broadcast
+          try{
+            val allPatterns = computeMinImageSupport(windowPatternGraph)
+          }
+          catch{
+            case e: Exception => println("*** computeMinImageSupport failed  **")
+          }
+          frequentPatternsInIncrementalBatch = getFrequentPatterns(allPatterns, misSupport).cache
+          if (frequentPatternsInIncrementalBatch == null) break
+          frequentPatternBroacdCasted = sc.broadcast(frequentPatternsInIncrementalBatch)
+          if(frequentPatternBroacdCasted == null) break
+          /*
          * It should be noted that only the infrequent patterns are used to udpate window level information.Not the
          * frequent one. It is so because infrequent pattern are not carried forward in the join process, they are lost
          * after each iteration.  
@@ -307,38 +313,34 @@ object DataToPatternGraph {
          * In the contrary, the frequent patterns are always part of the GIP graph in next iteration. So the window is
          * updated at the end of last iteration.
          */
-        infrequentPatternInBatch = getInfrequentPatterns(allPatterns, misSupport)
-        infrequentPatternInWinodw = updateInfrequentPatternInWindow(infrequentPatternInBatch, infrequentPatternInWinodw)
-        infrequentPatternInWinodwPerBatch = updateFrequentInFrequentPatternsInWindowPerBatch(infrequentPatternInBatch, infrequentPatternInWinodwPerBatch, currentBatchId)
+          infrequentPatternInBatch = getInfrequentPatterns(allPatterns, misSupport)
+          infrequentPatternInWinodw = updateInfrequentPatternInWindow(infrequentPatternInBatch, infrequentPatternInWinodw)
+          infrequentPatternInWinodwPerBatch = updateFrequentInFrequentPatternsInWindowPerBatch(infrequentPatternInBatch, infrequentPatternInWinodwPerBatch, currentBatchId)
 
-        
-
-
-        /*
+          /*
          * update status of all patterns in the depenency graph
-         */ 
-        dependencyGraph = updateGDepStatus(dependencyGraph,sc,frequentPatternBroacdCasted)
+         */
+          dependencyGraph = updateGDepStatus(dependencyGraph, sc, frequentPatternBroacdCasted)
 
-        
-        //Get redundant patterns
-        val redundantPatterns = getRedundantPatterns(dependencyGraph)
-        var redundantPatternsBroacdCasted: Broadcast[RDD[(PatternId, Int)]] = sc.broadcast(redundantPatterns)
-        
-        //Filter frequent pattern and get all non-redundant frequent patterns.
-        val nonreduncantFrequentPattern = frequentPatternsInIncrementalBatch.subtract(redundantPatterns)
-        var nonreduncantFrequentPatternBroacdCasted: Broadcast[RDD[(PatternId, Int)]] = sc.broadcast(nonreduncantFrequentPattern)
+          //Get redundant patterns
+          val redundantPatterns = getRedundantPatterns(dependencyGraph)
+          var redundantPatternsBroacdCasted: Broadcast[RDD[(PatternId, Int)]] = sc.broadcast(redundantPatterns)
 
-        //3. Get new graph
-        try {
-          windowPatternGraph =
-            getMISFrequentGraph(windowPatternGraph, sc, nonreduncantFrequentPatternBroacdCasted)
-        } catch {
-          case e: Exception => println("*** FINISHED WITHOUT FINDING BIGGER PATTERNS **")
+          //Filter frequent pattern and get all non-redundant frequent patterns.
+          val nonreduncantFrequentPattern = frequentPatternsInIncrementalBatch.subtract(redundantPatterns)
+          var nonreduncantFrequentPatternBroacdCasted: Broadcast[RDD[(PatternId, Int)]] = sc.broadcast(nonreduncantFrequentPattern)
+
+          //3. Get new graph
+          try {
+            windowPatternGraph =
+              getMISFrequentGraph(windowPatternGraph, sc, nonreduncantFrequentPatternBroacdCasted)
+          } catch {
+            case e: Exception => println("*** FINISHED WITHOUT FINDING BIGGER PATTERNS **")
+          }
+
+          //4. trim the graph to remove orphan nodes (degree = 0)
+          //windowPatternGraph = trimGraph(windowPatternGraph, sc, frequentPatternBroacdCasted)
         }
-        
-        
-        //4. trim the graph to remove orphan nodes (degree = 0)
-        //windowPatternGraph = trimGraph(windowPatternGraph, sc, frequentPatternBroacdCasted)
       }
 
       
@@ -467,8 +469,8 @@ object DataToPatternGraph {
       val new_graph = dependencyGraph.mapVertices((id, attr) => {
         attr.support = allfrequentPatternsMap.getOrElse(attr.pattern.toList, -1)
         attr
-      })
-      val frequentGDepGraph = new_graph.subgraph(vpred = (vid, attr) => attr.support != -1)
+      }).cache
+      val frequentGDepGraph = new_graph.subgraph(vpred = (vid, attr) => attr.support != -1).cache
 
       /*
        * From Pregal Doc in http://spark.apache.org/docs/latest/graphx-programming-guide.html
