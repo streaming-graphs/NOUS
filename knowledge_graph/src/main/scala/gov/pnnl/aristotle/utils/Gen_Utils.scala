@@ -24,7 +24,8 @@ object Gen_Utils{
     result
   }
   
-   def writeToFile(filename: String, data: String) ={   Files.write(Paths.get(filename), data.getBytes(StandardCharsets.UTF_8)) }
+   def writeToFile(filename: String, data: String) ={   
+     Files.write(Paths.get(filename), data.getBytes(StandardCharsets.UTF_8)) }
   
    /* Find similarity as presence of queryPhrase in the databasePhrase
     * For e.g  if 

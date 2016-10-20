@@ -18,7 +18,9 @@ object PathSearchPregel {
 
    def main(args: Array[String]): Unit = {     
     val sparkConf = new SparkConf().setAppName("get all paths")
+    sparkConf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
     val sc = new SparkContext(sparkConf)
+   
     Logger.getLogger("org").setLevel(Level.OFF)
     Logger.getLogger("akka").setLevel(Level.OFF)
     System.setProperty("hadoop.home.dir", "C:\\fake_hadoop\\")
@@ -35,9 +37,12 @@ object PathSearchPregel {
     val entityPairsFile = args(1)
     val outputDir = args(2) 
     val numIteration = args(3).toInt
-        
-    FindPathsUsingPregelBatch(graphFile, entityPairsFile , numIteration, outputDir, sc, args.drop(4))
-  }
+    val t0 = System.nanoTime()    
+    FindPathsUsingPregelBatch(graphFile, entityPairsFile , numIteration, 
+        outputDir, sc, args.drop(4))
+    val t1= System.nanoTime()
+    println("Total Execution Time(s)=", (t1-t0)/1000000000L)
+   }
  
   
   /* 1) Reads Graph, 
@@ -66,8 +71,11 @@ object PathSearchPregel {
       exit
     }
     
+    val ts_read = System.nanoTime()
     val g: Graph[String, String] = ReadHugeGraph.getGraph(graphFile, sc)
+    val te_read = System.nanoTime()
    
+    println("Graph Read Time(s)=", (te_read-ts_read)/1000000000L)
     println("Adding vertex degree to graph")
     val vertexDegreeRDD = g.degrees 
     val maxDegree = filterFuncArgs(0).toInt
@@ -81,6 +89,8 @@ object PathSearchPregel {
     val topicMatchThreshold = filterFuncArgs(1).toDouble
    */
     println("Done adding data to graph. sample vertex=", gExtended.vertices.first)
+    val te_join = System.nanoTime()
+    println("#Graph Feature join Time(s)=", (te_join- te_read)/1000000000L)
     gExtended.cache
    
     for(entityLabelPair <- listEntityLabelPairs){
@@ -89,6 +99,7 @@ object PathSearchPregel {
       if(srcLabel == destLabel) {
         println("Please provide two different entities, skipping this pair", srcLabel, destLabel)
       } else {
+        val tstart_search = System.nanoTime()
         val entities  = PathSearchUtils.getBestStringMatch(srcLabel, destLabel, gExtended)
         if(entities.length == 2) {
           val src = entities(0)
@@ -97,10 +108,17 @@ object PathSearchPregel {
           println("destId, destLabel =", dest._1, dest._2.label)
           
           //val filterObj = new TopicFilter(dest._2.extension.getOrElse(Array.empty[Double]), topicMatchThreshold)
+          val tstart_walk = System.nanoTime()
           val allPaths = runPregel(src, dest, gExtended, filterObj, maxPathSize, EdgeDirection.Either)
-          val outFile = outputDir  + "/" + srcLabel + "." + destLabel + ".paths.out"
-          PathSearchUtils.printAndWritePaths(allPaths, outFile)
+          val tend_walk = System.nanoTime()
+          println("Number of paths = " + allPaths.length)
+          println("Graph Walk Time (s)=", (tend_walk-tstart_walk)/1000000000L)
+          
+          val outFile = outputDir  + "/" + srcLabel + "." + destLabel + ".paths.out" 
+          PathSearchUtils.writePaths(allPaths, outFile)
         }
+        val tend_search = System.nanoTime()
+        println("Graph Search Total Time(Entity Disamb + Walk)(s)=", (tend_search- tstart_search)/1000000000L)
       }
     }
     
@@ -152,7 +170,8 @@ object PathSearchPregel {
            } 
          } 
           
-         //All other iterations: A triplet is active, iff source and/or destination have received a message from previous iteration
+         //All other iterations: A triplet is active, 
+         // iff source and/or destination have received a message from previous iteration
           else { 
             var sendMsgIterator: Set[(VertexId, List[List[PathEdge]])] = Set.empty
            
