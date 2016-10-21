@@ -44,5 +44,7 @@ sample run command at /NOUS/script/bin/search/run.sh
 5) Use scores generated in 4 to categrize/rank paths:
 /NOUS/script/bin/search/categorizePaths.py
 
-6) convert strings to integer for use in tensorflow model:
+6) Strings to integer convention in tensorflow model: The tensorflow assumes the line number in vertexNames.txt(2.1) to be vertexId
+6.1) To convert paths generated in step 3 to integer format use script:
+
 
