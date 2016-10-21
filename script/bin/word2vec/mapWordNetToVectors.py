@@ -22,7 +22,7 @@ modelFile="/Users/d3x771/projects/nous/Word2Vec/GoogleNews-vectors-negative300.b
 dataTopDir="/Users/d3x771/projects/nous/datasets/PathSearchBenchmark/wordnetToVector/"
 clasNotFound="wordnetWithoutVectors"
 inFile="allWordnetType.txt"
-outFile="allWordnetVectorFloat.txt"
+outFile="allWordnetVector.txt"
         
 fout = open(dataTopDir + "/" + outFile, "w+")
 fin = open(dataTopDir + "/" + inFile)
