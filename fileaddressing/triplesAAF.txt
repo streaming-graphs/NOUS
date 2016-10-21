@@ -1,0 +1,1616 @@
+<ARM>	<represents>	<atmospheric radiation measurement>
+<AAF>	<represents>	<ARM Aerial Facility>
+<AMF>	<represents>	<ARM Mobile Facility>
+<ARM>	<hasInstrument>	<CAPS-PMEX>
+<CAPS-PMEX>	<is>	<instrument>
+<CAPS-PMEX>	<represents>	<Cavity Attenuated Phase Shift Extinction Monitor>
+<CAPS-PMEX>	<hasInstruClass>	<caps-pmex>
+<ARM>	<hasSite>	<ena>
+<CAPS-PMEX>	<hasSite>	<ena>
+<ena>	<represents>	<Eastern North Atlantic>
+<ena>	<hasFacility>	<ena-C1>
+<ARM>	<hasLocation>	<Graciosa Island>
+<ena-C1>	<hasLocation>	<Graciosa Island>
+<Graciosa Island>	<locatesAt>	<Azores  Portugal>
+<ena-C1>	<hasInstru>	<CAPS-PMEX>
+<ena>	<hasLocation>	<Graciosa Island>
+<ena>	<hasType>	<P>
+<CAPS-PMEX>	<outputs>	<enaaoscapsC1.a1>
+<CAPS-PMEX>	<measures>	<Aerosol extinction>
+<ARM>	<hasInstrument>	<CAS>
+<CAS>	<is>	<instrument>
+<CAS>	<represents>	<Arkansas-Red Basin River Forecast Center>
+<CAS>	<hasInstruClass>	<abrfc>
+<ARM>	<hasSite>	<sgp>
+<CAS>	<hasSite>	<sgp>
+<sgp>	<represents>	<Southern Great Plains>
+<ARM>	<hasSite>	<twp>
+<CAS>	<hasSite>	<twp>
+<twp>	<represents>	<Tropical Western Pacific>
+<sgp>	<hasFacility>	<sgp-X1>
+<ARM>	<hasLocation>	<External Data (satellites and others)>
+<sgp-X1>	<hasLocation>	<External Data (satellites and others)>
+<sgp-X1>	<hasInstru>	<CAS>
+<sgp>	<hasLocation>	<External Data (satellites and others)>
+<sgp>	<hasType>	<P>
+<twp>	<hasFacility>	<twp-X30>
+<ARM>	<hasLocation>	<External Data (satellites and others) from Darwin>
+<twp-X30>	<hasLocation>	<External Data (satellites and others) from Darwin>
+<External Data (satellites and others) from Darwin>	<locatesAt>	<TWP>
+<twp-X30>	<hasInstru>	<CAS>
+<twp>	<hasLocation>	<External Data (satellites and others) from Darwin>
+<twp>	<hasType>	<P>
+<CAS>	<outputs>	<sgpabrfcprecipX1.c1>
+<CAS>	<outputs>	<twpecmwfsfc1lX30.c1>
+<CAS>	<measures>	<Precipitation>
+<CAS>	<measures>	<Atmospheric pressure>
+<Atmospheric pressure>	<hasCategory>	<upperair>
+<upperair>	<represents>	<upper air state>
+<Atmospheric pressure>	<hasCategory>	<sfcmet>
+<sfcmet>	<represents>	<surface meteorology>
+<CAS>	<measures>	<Shortwave broadband total net irradiance>
+<CAS>	<measures>	<Longwave broadband net irradiance>
+<CAS>	<measures>	<Latent heat flux>
+<CAS>	<measures>	<Sensible heat flux>
+<ARM>	<hasInstrument>	<CCN>
+<CCN>	<is>	<instrument>
+<CCN>	<represents>	<Cloud Condensation Nuclei Particle Counter>
+<CCN>	<hasInstruClass>	<ccn>
+<ARM>	<hasSite>	<sgp>
+<CCN>	<hasSite>	<sgp>
+<sgp>	<represents>	<Southern Great Plains>
+<ARM>	<hasSite>	<asi>
+<CCN>	<hasSite>	<asi>
+<CCN>	<is>	<Mobile Facility>
+<asi>	<represents>	<Ascension Island  South Atlantic Ocean>
+<ARM>	<hasSite>	<pvc>
+<CCN>	<hasSite>	<pvc>
+<CCN>	<is>	<Mobile Facility>
+<pvc>	<represents>	<Cape Cod  MA  USA>
+<ARM>	<hasSite>	<sbs>
+<CCN>	<hasSite>	<sbs>
+<CCN>	<is>	<Mobile Facility>
+<sbs>	<represents>	<Steamboat Springs CO  USA>
+<ARM>	<hasSite>	<pgh>
+<CCN>	<hasSite>	<pgh>
+<CCN>	<is>	<Mobile Facility>
+<pgh>	<represents>	<Ganges Valley  India>
+<ARM>	<hasSite>	<nsa>
+<CCN>	<hasSite>	<nsa>
+<nsa>	<represents>	<North Slope Alaska>
+<sgp>	<hasFacility>	<sgp-S01>
+<ARM>	<hasLocation>	<Supplemental 1>
+<sgp-S01>	<hasLocation>	<Supplemental 1>
+<Supplemental 1>	<locatesAt>	<Lamont  OK>
+<sgp-S01>	<hasInstru>	<CCN>
+<sgp>	<hasLocation>	<Supplemental 1>
+<sgp>	<hasType>	<P>
+<asi>	<hasFacility>	<asi-M1>
+<ARM>	<hasLocation>	<Ascension Island>
+<asi-M1>	<hasLocation>	<Ascension Island>
+<Ascension Island>	<locatesAt>	<South Atlantic Ocean>
+<asi-M1>	<hasInstru>	<CCN>
+<asi>	<hasLocation>	<Ascension Island>
+<asi>	<hasType>	<M>
+<pvc>	<hasFacility>	<pvc-M1>
+<ARM>	<hasLocation>	<Highland Center>
+<pvc-M1>	<hasLocation>	<Highland Center>
+<Highland Center>	<locatesAt>	<Cape Cod MA>
+<pvc-M1>	<hasInstru>	<CCN>
+<pvc>	<hasLocation>	<Highland Center>
+<pvc>	<hasType>	<M>
+<sbs>	<hasFacility>	<sbs-S2>
+<ARM>	<hasLocation>	<Steamboat Springs CO>
+<sbs-S2>	<hasLocation>	<Steamboat Springs CO>
+<Steamboat Springs CO>	<locatesAt>	<Christie Peak>
+<sbs-S2>	<hasInstru>	<CCN>
+<sbs>	<hasLocation>	<Steamboat Springs CO>
+<sbs>	<hasType>	<M>
+<sgp>	<hasFacility>	<sgp-C1>
+<ARM>	<hasLocation>	<Central Facility>
+<sgp-C1>	<hasLocation>	<Central Facility>
+<Central Facility>	<locatesAt>	<Lamont  OK>
+<sgp-C1>	<hasInstru>	<CCN>
+<sgp>	<hasLocation>	<Central Facility>
+<sgp>	<hasType>	<P>
+<pgh>	<hasFacility>	<pgh-M1>
+<ARM>	<hasLocation>	<ARIES Observatory>
+<pgh-M1>	<hasLocation>	<ARIES Observatory>
+<ARIES Observatory>	<locatesAt>	<Nainital  Uttarkhand  India>
+<pgh-M1>	<hasInstru>	<CCN>
+<pgh>	<hasLocation>	<ARIES Observatory>
+<pgh>	<hasType>	<M>
+<nsa>	<hasFacility>	<nsa-X1>
+<ARM>	<hasLocation>	<External Data (satellites and others)>
+<nsa-X1>	<hasLocation>	<External Data (satellites and others)>
+<nsa-X1>	<hasInstru>	<CCN>
+<nsa>	<hasLocation>	<External Data (satellites and others)>
+<nsa>	<hasType>	<P>
+<CCN>	<outputs>	<sgpaosccn200S01.a1>
+<CCN>	<outputs>	<asiaosccn200M1.a1>
+<CCN>	<outputs>	<pvcaosccn100M1.a1>
+<CCN>	<outputs>	<sbsaosccn100S2.a1>
+<CCN>	<outputs>	<sgprlccnprof1ghanC1.s1>
+<CCN>	<outputs>	<pghaosccn100M1.a1>
+<CCN>	<outputs>	<nsaaosccn100X1.a1>
+<CCN>	<measures>	<Cloud condensation nuclei>
+<Cloud condensation nuclei>	<hasCategory>	<aeros>
+<aeros>	<represents>	<Aerosols>
+<Cloud condensation nuclei>	<hasCategory>	<cloud>
+<cloud>	<represents>	<Cloud Properties>
+<Cloud condensation nuclei>	<hasCategory>	<microchem>
+<microchem>	<represents>	<microphysical and chemical properties>
+<Cloud condensation nuclei>	<hasCategory>	<micro>
+<micro>	<represents>	<microphysical>
+<CCN>	<measures>	<Cloud condensation nuclei>
+<ARM>	<hasInstrument>	<CEP>
+<CEP>	<is>	<instrument>
+<CEP>	<represents>	<National Centers for Environment Prediction Global Forecast System>
+<CEP>	<hasInstruClass>	<ncepgfs>
+<ARM>	<hasSite>	<twp>
+<CEP>	<hasSite>	<twp>
+<twp>	<represents>	<Tropical Western Pacific>
+<ARM>	<hasSite>	<grw>
+<CEP>	<hasSite>	<grw>
+<CEP>	<is>	<Mobile Facility>
+<grw>	<represents>	<Graciosa Island  Azores  Portugal>
+<ARM>	<hasSite>	<sgp>
+<CEP>	<hasSite>	<sgp>
+<sgp>	<represents>	<Southern Great Plains>
+<ARM>	<hasSite>	<fkb>
+<CEP>	<hasSite>	<fkb>
+<CEP>	<is>	<Mobile Facility>
+<fkb>	<represents>	<Black Forest  Germany>
+<ARM>	<hasSite>	<nim>
+<CEP>	<hasSite>	<nim>
+<CEP>	<is>	<Mobile Facility>
+<nim>	<represents>	<Niamey  Niger>
+<ARM>	<hasSite>	<pye>
+<CEP>	<hasSite>	<pye>
+<CEP>	<is>	<Mobile Facility>
+<pye>	<represents>	<Point Reyes CA  USA>
+<twp>	<hasFacility>	<twp-X1>
+<ARM>	<hasLocation>	<External Data (satellites and others)>
+<twp-X1>	<hasLocation>	<External Data (satellites and others)>
+<twp-X1>	<hasInstru>	<CEP>
+<twp>	<hasLocation>	<External Data (satellites and others)>
+<twp>	<hasType>	<P>
+<grw>	<hasFacility>	<grw-X1>
+<ARM>	<hasLocation>	<External Data (satellites and others)>
+<grw-X1>	<hasLocation>	<External Data (satellites and others)>
+<grw-X1>	<hasInstru>	<CEP>
+<grw>	<hasLocation>	<External Data (satellites and others)>
+<grw>	<hasType>	<M>
+<sgp>	<hasFacility>	<sgp-X1>
+<ARM>	<hasLocation>	<External Data (satellites and others)>
+<sgp-X1>	<hasLocation>	<External Data (satellites and others)>
+<sgp-X1>	<hasInstru>	<CEP>
+<sgp>	<hasLocation>	<External Data (satellites and others)>
+<sgp>	<hasType>	<P>
+<fkb>	<hasFacility>	<fkb-X1>
+<ARM>	<hasLocation>	<External Data (satellites and others)>
+<fkb-X1>	<hasLocation>	<External Data (satellites and others)>
+<fkb-X1>	<hasInstru>	<CEP>
+<fkb>	<hasLocation>	<External Data (satellites and others)>
+<fkb>	<hasType>	<M>
+<nim>	<hasFacility>	<nim-X1>
+<ARM>	<hasLocation>	<External Data (satellites and others)>
+<nim-X1>	<hasLocation>	<External Data (satellites and others)>
+<nim-X1>	<hasInstru>	<CEP>
+<nim>	<hasLocation>	<External Data (satellites and others)>
+<nim>	<hasType>	<M>
+<pye>	<hasFacility>	<pye-X1>
+<ARM>	<hasLocation>	<External Data (satellites and others)>
+<pye-X1>	<hasLocation>	<External Data (satellites and others)>
+<pye-X1>	<hasInstru>	<CEP>
+<pye>	<hasLocation>	<External Data (satellites and others)>
+<pye>	<hasType>	<M>
+<CEP>	<outputs>	<twpncepgfsmansfcX1.c1>
+<CEP>	<outputs>	<twpncepgfsnauzprofX1.c1>
+<CEP>	<outputs>	<grwncepgfszprofX1.c1>
+<CEP>	<outputs>	<sgpncepgfssfcX1.c1>
+<CEP>	<outputs>	<sgpncepgfszprofX1.c1>
+<CEP>	<outputs>	<fkbncepgfssfcX1.c1>
+<CEP>	<outputs>	<nimncepgfssfcX1.c1>
+<CEP>	<outputs>	<fkbncepgfszprofX1.c1>
+<CEP>	<outputs>	<pyencepgfssfcX1.c1>
+<CEP>	<measures>	<Precipitation>
+<CEP>	<measures>	<Vertical velocity>
+<CEP>	<measures>	<Cloud fraction>
+<CEP>	<measures>	<Surface condition>
+<CEP>	<measures>	<Soil surface temperature>
+<Soil surface temperature>	<hasCategory>	<sfcstate>
+<sfcstate>	<represents>	<surface/subsurface state>
+<Soil surface temperature>	<hasCategory>	<sfcflux>
+<sfcflux>	<represents>	<surface flux>
+<ARM>	<hasInstrument>	<CFDC>
+<CFDC>	<is>	<instrument>
+<CFDC>	<represents>	<Radiative Flux Analysis>
+<CFDC>	<hasInstruClass>	<radfluxanal>
+<ARM>	<hasSite>	<sgp>
+<CFDC>	<hasSite>	<sgp>
+<sgp>	<represents>	<Southern Great Plains>
+<ARM>	<hasSite>	<nsa>
+<CFDC>	<hasSite>	<nsa>
+<nsa>	<represents>	<North Slope Alaska>
+<ARM>	<hasSite>	<mao>
+<CFDC>	<hasSite>	<mao>
+<CFDC>	<is>	<Mobile Facility>
+<mao>	<represents>	<Manacapuru  Amazonas  Brazil>
+<ARM>	<hasSite>	<shb>
+<CFDC>	<hasSite>	<shb>
+<shb>	<represents>	<SHEBA (Surface HEat Budget of the Arctic)>
+<ARM>	<hasSite>	<pgh>
+<CFDC>	<hasSite>	<pgh>
+<CFDC>	<is>	<Mobile Facility>
+<pgh>	<represents>	<Ganges Valley  India>
+<ARM>	<hasSite>	<asi>
+<CFDC>	<hasSite>	<asi>
+<CFDC>	<is>	<Mobile Facility>
+<asi>	<represents>	<Ascension Island  South Atlantic Ocean>
+<ARM>	<hasSite>	<pvc>
+<CFDC>	<hasSite>	<pvc>
+<CFDC>	<is>	<Mobile Facility>
+<pvc>	<represents>	<Cape Cod  MA  USA>
+<sgp>	<hasFacility>	<sgp-E24>
+<ARM>	<hasLocation>	<Cyril>
+<sgp-E24>	<hasLocation>	<Cyril>
+<Cyril>	<locatesAt>	<OK (Extended)>
+<sgp-E24>	<hasInstru>	<CFDC>
+<sgp>	<hasLocation>	<Cyril>
+<sgp>	<hasType>	<P>
+<nsa>	<hasFacility>	<nsa-C1>
+<ARM>	<hasLocation>	<Central Facility>
+<nsa-C1>	<hasLocation>	<Central Facility>
+<Central Facility>	<locatesAt>	<Barrow AK>
+<nsa-C1>	<hasInstru>	<CFDC>
+<nsa>	<hasLocation>	<Central Facility>
+<nsa>	<hasType>	<P>
+<mao>	<hasFacility>	<mao-M1>
+<ARM>	<hasLocation>	<Manacapuru>
+<mao-M1>	<hasLocation>	<Manacapuru>
+<Manacapuru>	<locatesAt>	<Amazonas  Brazil>
+<mao-M1>	<hasInstru>	<CFDC>
+<mao>	<hasLocation>	<Manacapuru>
+<mao>	<hasType>	<M>
+<shb>	<hasFacility>	<shb-C1>
+<ARM>	<hasLocation>	<Ice Station SHEBA>
+<shb-C1>	<hasLocation>	<Ice Station SHEBA>
+<shb-C1>	<hasInstru>	<CFDC>
+<shb>	<hasLocation>	<Ice Station SHEBA>
+<shb>	<hasType>	<I>
+<pgh>	<hasFacility>	<pgh-M1>
+<ARM>	<hasLocation>	<ARIES Observatory>
+<pgh-M1>	<hasLocation>	<ARIES Observatory>
+<ARIES Observatory>	<locatesAt>	<Nainital  Uttarkhand  India>
+<pgh-M1>	<hasInstru>	<CFDC>
+<pgh>	<hasLocation>	<ARIES Observatory>
+<pgh>	<hasType>	<M>
+<asi>	<hasFacility>	<asi-M1>
+<ARM>	<hasLocation>	<Ascension Island>
+<asi-M1>	<hasLocation>	<Ascension Island>
+<Ascension Island>	<locatesAt>	<South Atlantic Ocean>
+<asi-M1>	<hasInstru>	<CFDC>
+<asi>	<hasLocation>	<Ascension Island>
+<asi>	<hasType>	<M>
+<pvc>	<hasFacility>	<pvc-M1>
+<ARM>	<hasLocation>	<Highland Center>
+<pvc-M1>	<hasLocation>	<Highland Center>
+<Highland Center>	<locatesAt>	<Cape Cod MA>
+<pvc-M1>	<hasInstru>	<CFDC>
+<pvc>	<hasLocation>	<Highland Center>
+<pvc>	<hasType>	<M>
+<CFDC>	<outputs>	<sgpradflux1longE24.c2>
+<CFDC>	<outputs>	<nsadlprofwstats4newsC1.c1>
+<CFDC>	<outputs>	<maosashemfrM1.b1>
+<CFDC>	<outputs>	<shbaerisummaryC1.a1>
+<CFDC>	<outputs>	<pghnoaaaosavgM1.b1>
+<CFDC>	<outputs>	<asiceilpblhtM1.a0>
+<CFDC>	<outputs>	<nsagvrC1.b1>
+<CFDC>	<outputs>	<pvckasacrcorhsrhiM1.c1>
+<CFDC>	<measures>	<Cloud fraction>
+<CFDC>	<measures>	<Shortwave narrowband total downwelling irradiance>
+<CFDC>	<measures>	<Longwave spectral radiance>
+<CFDC>	<measures>	<Aerosol scattering>
+<CFDC>	<measures>	<Planetary boundary layer height>
+<CFDC>	<measures>	<Microwave narrowband brightness temperature>
+<CFDC>	<measures>	<Radar reflectivity>
+<Radar reflectivity>	<hasCategory>	<macro>
+<macro>	<represents>	<macrophysical>
+<Radar reflectivity>	<hasCategory>	<micro>
+<micro>	<represents>	<microphysical>
+<ARM>	<hasInstrument>	<CO-AIR>
+<CO-AIR>	<is>	<instrument>
+<CO-AIR>	<represents>	<Aircraft Communications Addressing and Reporting System>
+<CO-AIR>	<hasInstruClass>	<acars>
+<ARM>	<hasSite>	<gec>
+<CO-AIR>	<hasSite>	<gec>
+<gec>	<represents>	<Global Earth Coverage>
+<ARM>	<hasSite>	<sgp>
+<CO-AIR>	<hasSite>	<sgp>
+<sgp>	<represents>	<Southern Great Plains>
+<ARM>	<hasSite>	<nsa>
+<CO-AIR>	<hasSite>	<nsa>
+<nsa>	<represents>	<North Slope Alaska>
+<ARM>	<hasSite>	<twp>
+<CO-AIR>	<hasSite>	<twp>
+<twp>	<represents>	<Tropical Western Pacific>
+<gec>	<hasFacility>	<gec-X1>
+<ARM>	<hasLocation>	<External Data (satellites and others)>
+<gec-X1>	<hasLocation>	<External Data (satellites and others)>
+<gec-X1>	<hasInstru>	<CO-AIR>
+<gec>	<hasLocation>	<External Data (satellites and others)>
+<gec>	<hasType>	<X>
+<sgp>	<hasFacility>	<sgp-X1>
+<ARM>	<hasLocation>	<External Data (satellites and others)>
+<sgp-X1>	<hasLocation>	<External Data (satellites and others)>
+<sgp-X1>	<hasInstru>	<CO-AIR>
+<sgp>	<hasLocation>	<External Data (satellites and others)>
+<sgp>	<hasType>	<P>
+<nsa>	<hasFacility>	<nsa-X1>
+<ARM>	<hasLocation>	<External Data (satellites and others)>
+<nsa-X1>	<hasLocation>	<External Data (satellites and others)>
+<nsa-X1>	<hasInstru>	<CO-AIR>
+<nsa>	<hasLocation>	<External Data (satellites and others)>
+<nsa>	<hasType>	<P>
+<twp>	<hasFacility>	<twp-X1>
+<ARM>	<hasLocation>	<External Data (satellites and others)>
+<twp-X1>	<hasLocation>	<External Data (satellites and others)>
+<twp-X1>	<hasInstru>	<CO-AIR>
+<twp>	<hasLocation>	<External Data (satellites and others)>
+<twp>	<hasType>	<P>
+<sgp>	<hasFacility>	<sgp-F1>
+<ARM>	<hasLocation>	<Gulfstream 159 Aircraft>
+<sgp-F1>	<hasLocation>	<Gulfstream 159 Aircraft>
+<sgp-F1>	<hasInstru>	<CO-AIR>
+<sgp>	<hasLocation>	<Gulfstream 159 Aircraft>
+<sgp>	<hasType>	<P>
+<CO-AIR>	<outputs>	<gecacarsX1.a1>
+<CO-AIR>	<outputs>	<sgpacarsX1.a1>
+<CO-AIR>	<outputs>	<nsaacarsX1.a1>
+<CO-AIR>	<outputs>	<twpacarsX1.a1>
+<CO-AIR>	<outputs>	<sgpaafmetaimsF1.a1>
+<CO-AIR>	<measures>	<Atmospheric moisture>
+<Atmospheric moisture>	<hasCategory>	<upperair>
+<upperair>	<represents>	<upper air state>
+<Atmospheric moisture>	<hasCategory>	<sfcmet>
+<sfcmet>	<represents>	<surface meteorology>
+<CO-AIR>	<measures>	<Atmospheric pressure>
+<Atmospheric pressure>	<hasCategory>	<upperair>
+<upperair>	<represents>	<upper air state>
+<Atmospheric pressure>	<hasCategory>	<sfcmet>
+<sfcmet>	<represents>	<surface meteorology>
+<ARM>	<hasInstrument>	<DMA>
+<DMA>	<is>	<instrument>
+<DMA>	<represents>	<Aerosol Properties derived from TDMA Measurements>
+<DMA>	<hasInstruClass>	<tdmadap>
+<ARM>	<hasSite>	<sgp>
+<DMA>	<hasSite>	<sgp>
+<sgp>	<represents>	<Southern Great Plains>
+<ARM>	<hasSite>	<awr>
+<DMA>	<hasSite>	<awr>
+<DMA>	<is>	<Mobile Facility>
+<awr>	<represents>	<AWARE (ARM West Antarctic Radiation Experiment)>
+<ARM>	<hasSite>	<oli>
+<DMA>	<hasSite>	<oli>
+<DMA>	<is>	<Mobile Facility>
+<oli>	<represents>	<Oliktok Point  Alaska  USA>
+<ARM>	<hasSite>	<ena>
+<DMA>	<hasSite>	<ena>
+<ena>	<represents>	<Eastern North Atlantic>
+<sgp>	<hasFacility>	<sgp-X1>
+<ARM>	<hasLocation>	<External Data (satellites and others)>
+<sgp-X1>	<hasLocation>	<External Data (satellites and others)>
+<sgp-X1>	<hasInstru>	<DMA>
+<sgp>	<hasLocation>	<External Data (satellites and others)>
+<sgp>	<hasType>	<P>
+<sgp>	<hasFacility>	<sgp-C1>
+<ARM>	<hasLocation>	<Central Facility>
+<sgp-C1>	<hasLocation>	<Central Facility>
+<Central Facility>	<locatesAt>	<Lamont  OK>
+<sgp-C1>	<hasInstru>	<DMA>
+<sgp>	<hasLocation>	<Central Facility>
+<sgp>	<hasType>	<P>
+<awr>	<hasFacility>	<awr-M1>
+<ARM>	<hasLocation>	<McMurdo Station Ross Ice Shelf>
+<awr-M1>	<hasLocation>	<McMurdo Station Ross Ice Shelf>
+<McMurdo Station Ross Ice Shelf>	<locatesAt>	<Antarctica>
+<awr-M1>	<hasInstru>	<DMA>
+<awr>	<hasLocation>	<McMurdo Station Ross Ice Shelf>
+<awr>	<hasType>	<M>
+<oli>	<hasFacility>	<oli-M1>
+<ARM>	<hasLocation>	<Olikiok Point>
+<oli-M1>	<hasLocation>	<Olikiok Point>
+<Olikiok Point>	<locatesAt>	<Alaska>
+<oli-M1>	<hasInstru>	<DMA>
+<oli>	<hasLocation>	<Olikiok Point>
+<oli>	<hasType>	<M>
+<ena>	<hasFacility>	<ena-C1>
+<ARM>	<hasLocation>	<Graciosa Island>
+<ena-C1>	<hasLocation>	<Graciosa Island>
+<Graciosa Island>	<locatesAt>	<Azores  Portugal>
+<ena-C1>	<hasInstru>	<DMA>
+<ena>	<hasLocation>	<Graciosa Island>
+<ena>	<hasType>	<P>
+<DMA>	<outputs>	<sgptdmaccncollX1.c1>
+<DMA>	<outputs>	<sgptdmaapssizeC1.c1>
+<DMA>	<outputs>	<awraoshtdmaM1.a1>
+<DMA>	<outputs>	<sgptdmasizeC1.b1>
+<DMA>	<outputs>	<oliaoshtdmaM1.a1>
+<DMA>	<outputs>	<sgptdmahygC1.b1>
+<DMA>	<outputs>	<enaaoshtdmaC1.a1>
+<DMA>	<measures>	<Cloud condensation nuclei>
+<DMA>	<measures>	<Aerosol particle size distribution>
+<DMA>	<measures>	<Aerosol concentration>
+<DMA>	<measures>	<Particle number concentration>
+<ARM>	<hasInstrument>	<FLASK>
+<FLASK>	<is>	<instrument>
+<FLASK>	<represents>	<Flask Samplers for Carbon Cycle Gases and Isotopes>
+<FLASK>	<hasInstruClass>	<flask>
+<ARM>	<hasSite>	<sgp>
+<FLASK>	<hasSite>	<sgp>
+<sgp>	<represents>	<Southern Great Plains>
+<sgp>	<hasFacility>	<sgp-C1>
+<ARM>	<hasLocation>	<Central Facility>
+<sgp-C1>	<hasLocation>	<Central Facility>
+<Central Facility>	<locatesAt>	<Lamont  OK>
+<sgp-C1>	<hasInstru>	<FLASK>
+<sgp>	<hasLocation>	<Central Facility>
+<sgp>	<hasType>	<P>
+<FLASK>	<outputs>	<sgpcarbonflasksC1.c1>
+<FLASK>	<measures>	<Carbon dioxide (CO2) concentration>
+<Carbon dioxide (CO2) concentration>	<hasCategory>	<radio>
+<radio>	<represents>	<Radiometric>
+<Carbon dioxide (CO2) concentration>	<hasCategory>	<carbon>
+<carbon>	<represents>	<Atmospheric Carbon>
+<FLASK>	<measures>	<Isotope ratio>
+<Isotope ratio>	<hasCategory>	<radio>
+<radio>	<represents>	<Radiometric>
+<Isotope ratio>	<hasCategory>	<carbon>
+<carbon>	<represents>	<Atmospheric Carbon>
+<FLASK>	<measures>	<Trace gas concentration>
+<Trace gas concentration>	<hasCategory>	<radio>
+<radio>	<represents>	<Radiometric>
+<Trace gas concentration>	<hasCategory>	<carbon>
+<carbon>	<represents>	<Atmospheric Carbon>
+<ARM>	<hasInstrument>	<FSSP>
+<FSSP>	<is>	<instrument>
+<FSSP>	<represents>	<National Centers for Environment Prediction Global Forecast System>
+<FSSP>	<hasInstruClass>	<ncepgfs>
+<ARM>	<hasSite>	<sgp>
+<FSSP>	<hasSite>	<sgp>
+<sgp>	<represents>	<Southern Great Plains>
+<ARM>	<hasSite>	<hfe>
+<FSSP>	<hasSite>	<hfe>
+<FSSP>	<is>	<Mobile Facility>
+<hfe>	<represents>	<Shouxian  Anhui  China>
+<ARM>	<hasSite>	<nim>
+<FSSP>	<hasSite>	<nim>
+<FSSP>	<is>	<Mobile Facility>
+<nim>	<represents>	<Niamey  Niger>
+<ARM>	<hasSite>	<grw>
+<FSSP>	<hasSite>	<grw>
+<FSSP>	<is>	<Mobile Facility>
+<grw>	<represents>	<Graciosa Island  Azores  Portugal>
+<ARM>	<hasSite>	<fkb>
+<FSSP>	<hasSite>	<fkb>
+<FSSP>	<is>	<Mobile Facility>
+<fkb>	<represents>	<Black Forest  Germany>
+<ARM>	<hasSite>	<pye>
+<FSSP>	<hasSite>	<pye>
+<FSSP>	<is>	<Mobile Facility>
+<pye>	<represents>	<Point Reyes CA  USA>
+<sgp>	<hasFacility>	<sgp-X1>
+<ARM>	<hasLocation>	<External Data (satellites and others)>
+<sgp-X1>	<hasLocation>	<External Data (satellites and others)>
+<sgp-X1>	<hasInstru>	<FSSP>
+<sgp>	<hasLocation>	<External Data (satellites and others)>
+<sgp>	<hasType>	<P>
+<hfe>	<hasFacility>	<hfe-X1>
+<ARM>	<hasLocation>	<External Data (satellites and others)>
+<hfe-X1>	<hasLocation>	<External Data (satellites and others)>
+<hfe-X1>	<hasInstru>	<FSSP>
+<hfe>	<hasLocation>	<External Data (satellites and others)>
+<hfe>	<hasType>	<M>
+<nim>	<hasFacility>	<nim-X1>
+<ARM>	<hasLocation>	<External Data (satellites and others)>
+<nim-X1>	<hasLocation>	<External Data (satellites and others)>
+<nim-X1>	<hasInstru>	<FSSP>
+<nim>	<hasLocation>	<External Data (satellites and others)>
+<nim>	<hasType>	<M>
+<grw>	<hasFacility>	<grw-X1>
+<ARM>	<hasLocation>	<External Data (satellites and others)>
+<grw-X1>	<hasLocation>	<External Data (satellites and others)>
+<grw-X1>	<hasInstru>	<FSSP>
+<grw>	<hasLocation>	<External Data (satellites and others)>
+<grw>	<hasType>	<M>
+<fkb>	<hasFacility>	<fkb-X1>
+<ARM>	<hasLocation>	<External Data (satellites and others)>
+<fkb-X1>	<hasLocation>	<External Data (satellites and others)>
+<fkb-X1>	<hasInstru>	<FSSP>
+<fkb>	<hasLocation>	<External Data (satellites and others)>
+<fkb>	<hasType>	<M>
+<pye>	<hasFacility>	<pye-X1>
+<ARM>	<hasLocation>	<External Data (satellites and others)>
+<pye-X1>	<hasLocation>	<External Data (satellites and others)>
+<pye-X1>	<hasInstru>	<FSSP>
+<pye>	<hasLocation>	<External Data (satellites and others)>
+<pye>	<hasType>	<M>
+<FSSP>	<outputs>	<sgpncepgfssprofX1.c1>
+<FSSP>	<outputs>	<hfencepgfssprofX1.c1>
+<FSSP>	<outputs>	<nimncepgfssprofX1.c1>
+<FSSP>	<outputs>	<grwncepgfssprofX1.c1>
+<FSSP>	<outputs>	<fkbncepgfssprofX1.c1>
+<FSSP>	<outputs>	<pyencepgfssprofX1.c1>
+<FSSP>	<measures>	<Vertical velocity>
+<FSSP>	<measures>	<Cloud fraction>
+<ARM>	<hasInstrument>	<HSRL-AIR>
+<HSRL-AIR>	<is>	<instrument>
+<HSRL-AIR>	<represents>	<High Spectral Resolution Lidar>
+<HSRL-AIR>	<hasInstruClass>	<hsrl>
+<ARM>	<hasSite>	<gan>
+<HSRL-AIR>	<hasSite>	<gan>
+<HSRL-AIR>	<is>	<Mobile Facility>
+<gan>	<represents>	<Gan Island  Maldives>
+<gan>	<hasFacility>	<gan-M1>
+<ARM>	<hasLocation>	<Gan Airport>
+<gan-M1>	<hasLocation>	<Gan Airport>
+<Gan Airport>	<locatesAt>	<Gan Island  Maldives>
+<gan-M1>	<hasInstru>	<HSRL-AIR>
+<gan>	<hasLocation>	<Gan Airport>
+<gan>	<hasType>	<M>
+<HSRL-AIR>	<outputs>	<ganhsrlM1.a1>
+<HSRL-AIR>	<outputs>	<ganhsrlM1.00>
+<HSRL-AIR>	<measures>	<Backscatter depolarization ratio>
+<HSRL-AIR>	<measures>	<Backscattered radiation>
+<Backscattered radiation>	<hasCategory>	<aeros>
+<aeros>	<represents>	<Aerosols>
+<Backscattered radiation>	<hasCategory>	<cloud>
+<cloud>	<represents>	<Cloud Properties>
+<Backscattered radiation>	<hasCategory>	<micro>
+<micro>	<represents>	<microphysical>
+<Backscattered radiation>	<hasCategory>	<optrad>
+<optrad>	<represents>	<optical and radiative properties>
+<HSRL-AIR>	<measures>	<Aerosol extinction>
+<ARM>	<hasInstrument>	<IAP>
+<IAP>	<is>	<instrument>
+<IAP>	<represents>	<In-situ Aerosol Profiles (Cessna Aerosol Flights)>
+<IAP>	<hasInstruClass>	<iap>
+<ARM>	<hasSite>	<sgp>
+<IAP>	<hasSite>	<sgp>
+<sgp>	<represents>	<Southern Great Plains>
+<sgp>	<hasFacility>	<sgp-C1>
+<ARM>	<hasLocation>	<Central Facility>
+<sgp-C1>	<hasLocation>	<Central Facility>
+<Central Facility>	<locatesAt>	<Lamont  OK>
+<sgp-C1>	<hasInstru>	<IAP>
+<sgp>	<hasLocation>	<Central Facility>
+<sgp>	<hasType>	<P>
+<IAP>	<outputs>	<sgpiapmfrC1.b1>
+<IAP>	<outputs>	<sgpiapmfrC1.a0>
+<IAP>	<measures>	<Longwave narrowband upwelling irradiance>
+<IAP>	<measures>	<Longwave broadband upwelling irradiance>
+<IAP>	<measures>	<Shortwave narrowband diffuse upwelling irradiance>
+<IAP>	<measures>	<Shortwave broadband total upwelling irradiance>
+<ARM>	<hasInstrument>	<LASE>
+<LASE>	<is>	<instrument>
+<LASE>	<represents>	<Laser Disdrometer>
+<LASE>	<hasInstruClass>	<ldis>
+<ARM>	<hasSite>	<asi>
+<LASE>	<hasSite>	<asi>
+<LASE>	<is>	<Mobile Facility>
+<asi>	<represents>	<Ascension Island  South Atlantic Ocean>
+<asi>	<hasFacility>	<asi-M1>
+<ARM>	<hasLocation>	<Ascension Island>
+<asi-M1>	<hasLocation>	<Ascension Island>
+<Ascension Island>	<locatesAt>	<South Atlantic Ocean>
+<asi-M1>	<hasInstru>	<LASE>
+<asi>	<hasLocation>	<Ascension Island>
+<asi>	<hasType>	<M>
+<asi>	<hasFacility>	<asi-S2>
+<ARM>	<hasLocation>	<Ascension Island>
+<asi-S2>	<hasLocation>	<Ascension Island>
+<Ascension Island>	<locatesAt>	<South Atlantic Ocean>
+<asi-S2>	<hasInstru>	<LASE>
+<asi>	<hasLocation>	<Ascension Island>
+<asi>	<hasType>	<M>
+<LASE>	<outputs>	<asipars2M1.b1>
+<LASE>	<outputs>	<asipars2S2.b1>
+<LASE>	<measures>	<Hydrometeor fall velocity>
+<LASE>	<measures>	<Liquid water content>
+<LASE>	<measures>	<Hydrometeor size>
+<LASE>	<measures>	<Hydrometeor Size Distribution>
+<Hydrometeor Size Distribution>	<hasCategory>	<cloud>
+<cloud>	<represents>	<Cloud Properties>
+<Hydrometeor Size Distribution>	<hasCategory>	<atmstate>
+<atmstate>	<represents>	<Atmospheric State>
+<Hydrometeor Size Distribution>	<hasCategory>	<micro>
+<micro>	<represents>	<microphysical>
+<Hydrometeor Size Distribution>	<hasCategory>	<sfcmet>
+<sfcmet>	<represents>	<surface meteorology>
+<LASE>	<measures>	<Precipitation>
+<LASE>	<measures>	<Visibility>
+<ARM>	<hasInstrument>	<MPL-AIR>
+<MPL-AIR>	<is>	<instrument>
+<MPL-AIR>	<represents>	<Micropulse Lidar>
+<MPL-AIR>	<hasInstruClass>	<mpl>
+<ARM>	<hasSite>	<gan>
+<MPL-AIR>	<hasSite>	<gan>
+<MPL-AIR>	<is>	<Mobile Facility>
+<gan>	<represents>	<Gan Island  Maldives>
+<ARM>	<hasSite>	<sgp>
+<MPL-AIR>	<hasSite>	<sgp>
+<sgp>	<represents>	<Southern Great Plains>
+<ARM>	<hasSite>	<grw>
+<MPL-AIR>	<hasSite>	<grw>
+<MPL-AIR>	<is>	<Mobile Facility>
+<grw>	<represents>	<Graciosa Island  Azores  Portugal>
+<gan>	<hasFacility>	<gan-M1>
+<ARM>	<hasLocation>	<Gan Airport>
+<gan-M1>	<hasLocation>	<Gan Airport>
+<Gan Airport>	<locatesAt>	<Gan Island  Maldives>
+<gan-M1>	<hasInstru>	<MPL-AIR>
+<gan>	<hasLocation>	<Gan Airport>
+<gan>	<hasType>	<M>
+<sgp>	<hasFacility>	<sgp-C1>
+<ARM>	<hasLocation>	<Central Facility>
+<sgp-C1>	<hasLocation>	<Central Facility>
+<Central Facility>	<locatesAt>	<Lamont  OK>
+<sgp-C1>	<hasInstru>	<MPL-AIR>
+<sgp>	<hasLocation>	<Central Facility>
+<sgp>	<hasType>	<P>
+<grw>	<hasFacility>	<grw-M1>
+<ARM>	<hasLocation>	<Graciosa Island>
+<grw-M1>	<hasLocation>	<Graciosa Island>
+<Graciosa Island>	<locatesAt>	<Azores  Portugal>
+<grw-M1>	<hasInstru>	<MPL-AIR>
+<grw>	<hasLocation>	<Graciosa Island>
+<grw>	<hasType>	<M>
+<MPL-AIR>	<outputs>	<ganmplpolfsM1.b1>
+<MPL-AIR>	<outputs>	<gan30smplcmask1zwangM1.c1>
+<MPL-AIR>	<outputs>	<sgp30co2flx4mmetC1.b1>
+<MPL-AIR>	<outputs>	<grwmwrpM1.b1>
+<MPL-AIR>	<measures>	<Radar polarization>
+<Radar polarization>	<hasCategory>	<macro>
+<macro>	<represents>	<macrophysical>
+<Radar polarization>	<hasCategory>	<micro>
+<micro>	<represents>	<microphysical>
+<MPL-AIR>	<measures>	<Cloud base height>
+<MPL-AIR>	<measures>	<Cloud top height>
+<MPL-AIR>	<measures>	<Cloud location>
+<MPL-AIR>	<measures>	<Backscattered radiation>
+<MPL-AIR>	<measures>	<Atmospheric temperature>
+<Atmospheric temperature>	<hasCategory>	<upperair>
+<upperair>	<represents>	<upper air state>
+<Atmospheric temperature>	<hasCategory>	<sfcmet>
+<sfcmet>	<represents>	<surface meteorology>
+<ARM>	<hasInstrument>	<NOAA-AIR>
+<NOAA-AIR>	<is>	<instrument>
+<NOAA-AIR>	<represents>	<NOAA Climate Reference Network>
+<NOAA-AIR>	<hasInstruClass>	<noaacrn>
+<ARM>	<hasSite>	<nsa>
+<NOAA-AIR>	<hasSite>	<nsa>
+<nsa>	<represents>	<North Slope Alaska>
+<ARM>	<hasSite>	<sgp>
+<NOAA-AIR>	<hasSite>	<sgp>
+<sgp>	<represents>	<Southern Great Plains>
+<ARM>	<hasSite>	<acx>
+<NOAA-AIR>	<hasSite>	<acx>
+<NOAA-AIR>	<is>	<Mobile Facility>
+<acx>	<represents>	<ACAPEX (ARM Cloud Aerosol Precip Experiment)>
+<nsa>	<hasFacility>	<nsa-X1>
+<ARM>	<hasLocation>	<External Data (satellites and others)>
+<nsa-X1>	<hasLocation>	<External Data (satellites and others)>
+<nsa-X1>	<hasInstru>	<NOAA-AIR>
+<nsa>	<hasLocation>	<External Data (satellites and others)>
+<nsa>	<hasType>	<P>
+<sgp>	<hasFacility>	<sgp-X1>
+<ARM>	<hasLocation>	<External Data (satellites and others)>
+<sgp-X1>	<hasLocation>	<External Data (satellites and others)>
+<sgp-X1>	<hasInstru>	<NOAA-AIR>
+<sgp>	<hasLocation>	<External Data (satellites and others)>
+<sgp>	<hasType>	<P>
+<acx>	<hasFacility>	<acx-M1>
+<ARM>	<hasLocation>	<Off the Coast of California - NOAA Ship Ronald H. Brown>
+<acx-M1>	<hasLocation>	<Off the Coast of California - NOAA Ship Ronald H. Brown>
+<acx-M1>	<hasInstru>	<NOAA-AIR>
+<acx>	<hasLocation>	<Off the Coast of California - NOAA Ship Ronald H. Brown>
+<acx>	<hasType>	<M>
+<NOAA-AIR>	<outputs>	<nsa60noaacrnX1.b1>
+<NOAA-AIR>	<outputs>	<sgp60noaacrnX1.b1>
+<NOAA-AIR>	<outputs>	<sgp60nwssurfX1.a1>
+<NOAA-AIR>	<outputs>	<acxsondewnpnM1.b1>
+<NOAA-AIR>	<measures>	<Atmospheric temperature>
+<Atmospheric temperature>	<hasCategory>	<upperair>
+<upperair>	<represents>	<upper air state>
+<Atmospheric temperature>	<hasCategory>	<sfcmet>
+<sfcmet>	<represents>	<surface meteorology>
+<NOAA-AIR>	<measures>	<Atmospheric moisture>
+<Atmospheric moisture>	<hasCategory>	<upperair>
+<upperair>	<represents>	<upper air state>
+<Atmospheric moisture>	<hasCategory>	<sfcmet>
+<sfcmet>	<represents>	<surface meteorology>
+<NOAA-AIR>	<measures>	<Atmospheric pressure>
+<Atmospheric pressure>	<hasCategory>	<upperair>
+<upperair>	<represents>	<upper air state>
+<Atmospheric pressure>	<hasCategory>	<sfcmet>
+<sfcmet>	<represents>	<surface meteorology>
+<NOAA-AIR>	<measures>	<Horizontal wind>
+<Horizontal wind>	<hasCategory>	<upperair>
+<upperair>	<represents>	<upper air state>
+<Horizontal wind>	<hasCategory>	<sfcmet>
+<sfcmet>	<represents>	<surface meteorology>
+<ARM>	<hasInstrument>	<NOAA-P3>
+<NOAA-P3>	<is>	<instrument>
+<NOAA-P3>	<represents>	<Particle Soot Absorption Photometer>
+<NOAA-P3>	<hasInstruClass>	<psap>
+<ARM>	<hasSite>	<acx>
+<NOAA-P3>	<hasSite>	<acx>
+<NOAA-P3>	<is>	<Mobile Facility>
+<acx>	<represents>	<ACAPEX (ARM Cloud Aerosol Precip Experiment)>
+<ARM>	<hasSite>	<pvc>
+<NOAA-P3>	<hasSite>	<pvc>
+<NOAA-P3>	<is>	<Mobile Facility>
+<pvc>	<represents>	<Cape Cod  MA  USA>
+<ARM>	<hasSite>	<nsa>
+<NOAA-P3>	<hasSite>	<nsa>
+<nsa>	<represents>	<North Slope Alaska>
+<ARM>	<hasSite>	<pgh>
+<NOAA-P3>	<hasSite>	<pgh>
+<NOAA-P3>	<is>	<Mobile Facility>
+<pgh>	<represents>	<Ganges Valley  India>
+<ARM>	<hasSite>	<hfe>
+<NOAA-P3>	<hasSite>	<hfe>
+<NOAA-P3>	<is>	<Mobile Facility>
+<hfe>	<represents>	<Shouxian  Anhui  China>
+<ARM>	<hasSite>	<pye>
+<NOAA-P3>	<hasSite>	<pye>
+<NOAA-P3>	<is>	<Mobile Facility>
+<pye>	<represents>	<Point Reyes CA  USA>
+<ARM>	<hasSite>	<fkb>
+<NOAA-P3>	<hasSite>	<fkb>
+<NOAA-P3>	<is>	<Mobile Facility>
+<fkb>	<represents>	<Black Forest  Germany>
+<acx>	<hasFacility>	<acx-M1>
+<ARM>	<hasLocation>	<Off the Coast of California - NOAA Ship Ronald H. Brown>
+<acx-M1>	<hasLocation>	<Off the Coast of California - NOAA Ship Ronald H. Brown>
+<acx-M1>	<hasInstru>	<NOAA-P3>
+<acx>	<hasLocation>	<Off the Coast of California - NOAA Ship Ronald H. Brown>
+<acx>	<hasType>	<M>
+<pvc>	<hasFacility>	<pvc-M1>
+<ARM>	<hasLocation>	<Highland Center>
+<pvc-M1>	<hasLocation>	<Highland Center>
+<Highland Center>	<locatesAt>	<Cape Cod MA>
+<pvc-M1>	<hasInstru>	<NOAA-P3>
+<pvc>	<hasLocation>	<Highland Center>
+<pvc>	<hasType>	<M>
+<nsa>	<hasFacility>	<nsa-X1>
+<ARM>	<hasLocation>	<External Data (satellites and others)>
+<nsa-X1>	<hasLocation>	<External Data (satellites and others)>
+<nsa-X1>	<hasInstru>	<NOAA-P3>
+<nsa>	<hasLocation>	<External Data (satellites and others)>
+<nsa>	<hasType>	<P>
+<pgh>	<hasFacility>	<pgh-M1>
+<ARM>	<hasLocation>	<ARIES Observatory>
+<pgh-M1>	<hasLocation>	<ARIES Observatory>
+<ARIES Observatory>	<locatesAt>	<Nainital  Uttarkhand  India>
+<pgh-M1>	<hasInstru>	<NOAA-P3>
+<pgh>	<hasLocation>	<ARIES Observatory>
+<pgh>	<hasType>	<M>
+<hfe>	<hasFacility>	<hfe-M1>
+<ARM>	<hasLocation>	<Shouxian>
+<hfe-M1>	<hasLocation>	<Shouxian>
+<Shouxian>	<locatesAt>	<Anhui  China>
+<hfe-M1>	<hasInstru>	<NOAA-P3>
+<hfe>	<hasLocation>	<Shouxian>
+<hfe>	<hasType>	<M>
+<pye>	<hasFacility>	<pye-M1>
+<ARM>	<hasLocation>	<Point Reyes>
+<pye-M1>	<hasLocation>	<Point Reyes>
+<Point Reyes>	<locatesAt>	<CA>
+<pye-M1>	<hasInstru>	<NOAA-P3>
+<pye>	<hasLocation>	<Point Reyes>
+<pye>	<hasType>	<M>
+<fkb>	<hasFacility>	<fkb-M1>
+<ARM>	<hasLocation>	<Black Forest>
+<fkb-M1>	<hasLocation>	<Black Forest>
+<Black Forest>	<locatesAt>	<Germany>
+<fkb-M1>	<hasInstru>	<NOAA-P3>
+<fkb>	<hasLocation>	<Black Forest>
+<fkb>	<hasType>	<M>
+<NOAA-P3>	<outputs>	<acxaospsap3wM1.a1>
+<NOAA-P3>	<outputs>	<pvcnoaaaosM1.b1>
+<NOAA-P3>	<outputs>	<nsanoaaaosX1.b1>
+<NOAA-P3>	<outputs>	<pghnoaaaosM1.b1>
+<NOAA-P3>	<outputs>	<hfenoaaaosM1.b1>
+<NOAA-P3>	<outputs>	<pyenoaaaosM1.b1>
+<NOAA-P3>	<outputs>	<fkbnoaaaosM1.b1>
+<NOAA-P3>	<measures>	<Aerosol absorption>
+<ARM>	<hasInstrument>	<PASS-AIR>
+<PASS-AIR>	<is>	<instrument>
+<PASS-AIR>	<represents>	<Aircraft Communications Addressing and Reporting System>
+<PASS-AIR>	<hasInstruClass>	<acars>
+<ARM>	<hasSite>	<sgp>
+<PASS-AIR>	<hasSite>	<sgp>
+<sgp>	<represents>	<Southern Great Plains>
+<ARM>	<hasSite>	<nsa>
+<PASS-AIR>	<hasSite>	<nsa>
+<nsa>	<represents>	<North Slope Alaska>
+<ARM>	<hasSite>	<twp>
+<PASS-AIR>	<hasSite>	<twp>
+<twp>	<represents>	<Tropical Western Pacific>
+<ARM>	<hasSite>	<gec>
+<PASS-AIR>	<hasSite>	<gec>
+<gec>	<represents>	<Global Earth Coverage>
+<sgp>	<hasFacility>	<sgp-X1>
+<ARM>	<hasLocation>	<External Data (satellites and others)>
+<sgp-X1>	<hasLocation>	<External Data (satellites and others)>
+<sgp-X1>	<hasInstru>	<PASS-AIR>
+<sgp>	<hasLocation>	<External Data (satellites and others)>
+<sgp>	<hasType>	<P>
+<nsa>	<hasFacility>	<nsa-X1>
+<ARM>	<hasLocation>	<External Data (satellites and others)>
+<nsa-X1>	<hasLocation>	<External Data (satellites and others)>
+<nsa-X1>	<hasInstru>	<PASS-AIR>
+<nsa>	<hasLocation>	<External Data (satellites and others)>
+<nsa>	<hasType>	<P>
+<twp>	<hasFacility>	<twp-X1>
+<ARM>	<hasLocation>	<External Data (satellites and others)>
+<twp-X1>	<hasLocation>	<External Data (satellites and others)>
+<twp-X1>	<hasInstru>	<PASS-AIR>
+<twp>	<hasLocation>	<External Data (satellites and others)>
+<twp>	<hasType>	<P>
+<gec>	<hasFacility>	<gec-X1>
+<ARM>	<hasLocation>	<External Data (satellites and others)>
+<gec-X1>	<hasLocation>	<External Data (satellites and others)>
+<gec-X1>	<hasInstru>	<PASS-AIR>
+<gec>	<hasLocation>	<External Data (satellites and others)>
+<gec>	<hasType>	<X>
+<sgp>	<hasFacility>	<sgp-F2>
+<ARM>	<hasLocation>	<Cessna 206 Aircraft>
+<sgp-F2>	<hasLocation>	<Cessna 206 Aircraft>
+<sgp-F2>	<hasInstru>	<PASS-AIR>
+<sgp>	<hasLocation>	<Cessna 206 Aircraft>
+<sgp>	<hasType>	<P>
+<PASS-AIR>	<outputs>	<sgpacarsX1.a1>
+<PASS-AIR>	<outputs>	<nsaacarsX1.a1>
+<PASS-AIR>	<outputs>	<twpacarsX1.a1>
+<PASS-AIR>	<outputs>	<gecacarsX1.a1>
+<PASS-AIR>	<outputs>	<sgpmfraafF2.b1>
+<PASS-AIR>	<measures>	<Atmospheric turbulence>
+<Atmospheric turbulence>	<hasCategory>	<upperair>
+<upperair>	<represents>	<upper air state>
+<Atmospheric turbulence>	<hasCategory>	<sfcmet>
+<sfcmet>	<represents>	<surface meteorology>
+<PASS-AIR>	<measures>	<Shortwave narrowband total upwelling irradiance>
+<ARM>	<hasInstrument>	<PCASP>
+<PCASP>	<is>	<instrument>
+<PCASP>	<represents>	<Aerosol Observing System>
+<PCASP>	<hasInstruClass>	<aos>
+<ARM>	<hasSite>	<sgp>
+<PCASP>	<hasSite>	<sgp>
+<sgp>	<represents>	<Southern Great Plains>
+<sgp>	<hasFacility>	<sgp-C1>
+<ARM>	<hasLocation>	<Central Facility>
+<sgp-C1>	<hasLocation>	<Central Facility>
+<Central Facility>	<locatesAt>	<Lamont  OK>
+<sgp-C1>	<hasInstru>	<PCASP>
+<sgp>	<hasLocation>	<Central Facility>
+<sgp>	<hasType>	<P>
+<PCASP>	<outputs>	<sgpaosC1.a0>
+<PCASP>	<measures>	<Particle number concentration>
+<ARM>	<hasInstrument>	<PDI>
+<PDI>	<is>	<instrument>
+<PDI>	<represents>	<Shortwave Array Spectroradiometer-Zenith>
+<PDI>	<hasInstruClass>	<sasze>
+<ARM>	<hasSite>	<pgh>
+<PDI>	<hasSite>	<pgh>
+<PDI>	<is>	<Mobile Facility>
+<pgh>	<represents>	<Ganges Valley  India>
+<ARM>	<hasSite>	<sgp>
+<PDI>	<hasSite>	<sgp>
+<sgp>	<represents>	<Southern Great Plains>
+<ARM>	<hasSite>	<pvc>
+<PDI>	<hasSite>	<pvc>
+<PDI>	<is>	<Mobile Facility>
+<pvc>	<represents>	<Cape Cod  MA  USA>
+<pgh>	<hasFacility>	<pgh-M1>
+<ARM>	<hasLocation>	<ARIES Observatory>
+<pgh-M1>	<hasLocation>	<ARIES Observatory>
+<ARIES Observatory>	<locatesAt>	<Nainital  Uttarkhand  India>
+<pgh-M1>	<hasInstru>	<PDI>
+<pgh>	<hasLocation>	<ARIES Observatory>
+<pgh>	<hasType>	<M>
+<sgp>	<hasFacility>	<sgp-C1>
+<ARM>	<hasLocation>	<Central Facility>
+<sgp-C1>	<hasLocation>	<Central Facility>
+<Central Facility>	<locatesAt>	<Lamont  OK>
+<sgp-C1>	<hasInstru>	<PDI>
+<sgp>	<hasLocation>	<Central Facility>
+<sgp>	<hasType>	<P>
+<pvc>	<hasFacility>	<pvc-M1>
+<ARM>	<hasLocation>	<Highland Center>
+<pvc-M1>	<hasLocation>	<Highland Center>
+<Highland Center>	<locatesAt>	<Cape Cod MA>
+<pvc-M1>	<hasInstru>	<PDI>
+<pvc>	<hasLocation>	<Highland Center>
+<pvc>	<hasType>	<M>
+<PDI>	<outputs>	<pghsaszenirM1.a0>
+<PDI>	<outputs>	<sgpsaszevisC1.a0>
+<PDI>	<outputs>	<sgpsasheniraodC1.c1>
+<PDI>	<outputs>	<pghsashenirhisunM1.a0>
+<PDI>	<outputs>	<pghsashevishisunM1.a0>
+<PDI>	<outputs>	<pghsashenirlowsunM1.a0>
+<PDI>	<outputs>	<sgpsashenirC1.b1>
+<PDI>	<outputs>	<pvcsasheniraodM1.c1>
+<PDI>	<outputs>	<sgpsashevisaodC1.c1>
+<PDI>	<outputs>	<pvcsashevishisunM1.a0>
+<PDI>	<measures>	<Shortwave spectral direct normal irradiance>
+<PDI>	<measures>	<Shortwave spectral diffuse downwelling irradiance>
+<Shortwave spectral diffuse downwelling irradiance>	<hasCategory>	<radio>
+<radio>	<represents>	<Radiometric>
+<Shortwave spectral diffuse downwelling irradiance>	<hasCategory>	<aeros>
+<aeros>	<represents>	<Aerosols>
+<Shortwave spectral diffuse downwelling irradiance>	<hasCategory>	<swspect>
+<swspect>	<represents>	<shortwave spectral>
+<Shortwave spectral diffuse downwelling irradiance>	<hasCategory>	<optrad>
+<optrad>	<represents>	<optical and radiative properties>
+<PDI>	<measures>	<Shortwave spectral diffuse downwelling irradiance>
+<PDI>	<measures>	<Shortwave spectral direct normal irradiance>
+<Shortwave spectral direct normal irradiance>	<hasCategory>	<swnarrow>
+<swnarrow>	<represents>	<shortwave narrowband>
+<Shortwave spectral direct normal irradiance>	<hasCategory>	<swspect>
+<swspect>	<represents>	<shortwave spectral>
+<PDI>	<measures>	<Shortwave spectral direct normal irradiance>
+<Shortwave spectral direct normal irradiance>	<hasCategory>	<radio>
+<radio>	<represents>	<Radiometric>
+<Shortwave spectral direct normal irradiance>	<hasCategory>	<aeros>
+<aeros>	<represents>	<Aerosols>
+<Shortwave spectral direct normal irradiance>	<hasCategory>	<swspect>
+<swspect>	<represents>	<shortwave spectral>
+<Shortwave spectral direct normal irradiance>	<hasCategory>	<optrad>
+<optrad>	<represents>	<optical and radiative properties>
+<ARM>	<hasInstrument>	<RAD-AIR>
+<RAD-AIR>	<is>	<instrument>
+<RAD-AIR>	<represents>	<US Department of Agriculture (USDA) Radiation Monitoring Data>
+<RAD-AIR>	<hasInstruClass>	<usdarad>
+<ARM>	<hasSite>	<sgp>
+<RAD-AIR>	<hasSite>	<sgp>
+<sgp>	<represents>	<Southern Great Plains>
+<ARM>	<hasSite>	<pye>
+<RAD-AIR>	<hasSite>	<pye>
+<RAD-AIR>	<is>	<Mobile Facility>
+<pye>	<represents>	<Point Reyes CA  USA>
+<ARM>	<hasSite>	<rld>
+<RAD-AIR>	<hasSite>	<rld>
+<RAD-AIR>	<is>	<Mobile Facility>
+<rld>	<represents>	<Richland WA  USA>
+<ARM>	<hasSite>	<awr>
+<RAD-AIR>	<hasSite>	<awr>
+<RAD-AIR>	<is>	<Mobile Facility>
+<awr>	<represents>	<AWARE (ARM West Antarctic Radiation Experiment)>
+<sgp>	<hasFacility>	<sgp-X1>
+<ARM>	<hasLocation>	<External Data (satellites and others)>
+<sgp-X1>	<hasLocation>	<External Data (satellites and others)>
+<sgp-X1>	<hasInstru>	<RAD-AIR>
+<sgp>	<hasLocation>	<External Data (satellites and others)>
+<sgp>	<hasType>	<P>
+<pye>	<hasFacility>	<pye-M1>
+<ARM>	<hasLocation>	<Point Reyes>
+<pye-M1>	<hasLocation>	<Point Reyes>
+<Point Reyes>	<locatesAt>	<CA>
+<pye-M1>	<hasInstru>	<RAD-AIR>
+<pye>	<hasLocation>	<Point Reyes>
+<pye>	<hasType>	<M>
+<rld>	<hasFacility>	<rld-M1>
+<ARM>	<hasLocation>	<Richland>
+<rld-M1>	<hasLocation>	<Richland>
+<Richland>	<locatesAt>	<WA>
+<rld-M1>	<hasInstru>	<RAD-AIR>
+<rld>	<hasLocation>	<Richland>
+<rld>	<hasType>	<T>
+<awr>	<hasFacility>	<awr-X11>
+<ARM>	<hasLocation>	<External Data for West Antarctic Ice Sheet>
+<awr-X11>	<hasLocation>	<External Data for West Antarctic Ice Sheet>
+<External Data for West Antarctic Ice Sheet>	<locatesAt>	<Antarctica>
+<awr-X11>	<hasInstru>	<RAD-AIR>
+<awr>	<hasLocation>	<External Data for West Antarctic Ice Sheet>
+<awr>	<hasType>	<M>
+<awr>	<hasFacility>	<awr-X10>
+<ARM>	<hasLocation>	<External Data for McMurdo Station>
+<awr-X10>	<hasLocation>	<External Data for McMurdo Station>
+<External Data for McMurdo Station>	<locatesAt>	<Antarctica>
+<awr-X10>	<hasInstru>	<RAD-AIR>
+<awr>	<hasLocation>	<External Data for McMurdo Station>
+<awr>	<hasType>	<M>
+<sgp>	<hasFacility>	<sgp-F1>
+<ARM>	<hasLocation>	<Gulfstream 159 Aircraft>
+<sgp-F1>	<hasLocation>	<Gulfstream 159 Aircraft>
+<sgp-F1>	<hasInstru>	<RAD-AIR>
+<sgp>	<hasLocation>	<Gulfstream 159 Aircraft>
+<sgp>	<hasType>	<P>
+<RAD-AIR>	<outputs>	<sgpusdaradauxX1.00>
+<RAD-AIR>	<outputs>	<pyemwrpM1.b1>
+<RAD-AIR>	<outputs>	<sgparmbestnsX1.c1>
+<RAD-AIR>	<outputs>	<rldmwrpM1.b1>
+<RAD-AIR>	<outputs>	<awrecmwfsfceX11.c1>
+<RAD-AIR>	<outputs>	<awrecmwfsfceX10.c1>
+<RAD-AIR>	<outputs>	<sgpaafmetaimsF1.a1>
+<RAD-AIR>	<outputs>	<sgparmbe2dgridX1.c1>
+<RAD-AIR>	<measures>	<Atmospheric temperature>
+<Atmospheric temperature>	<hasCategory>	<upperair>
+<upperair>	<represents>	<upper air state>
+<Atmospheric temperature>	<hasCategory>	<sfcmet>
+<sfcmet>	<represents>	<surface meteorology>
+<RAD-AIR>	<measures>	<Atmospheric temperature>
+<Atmospheric temperature>	<hasCategory>	<radio>
+<radio>	<represents>	<Radiometric>
+<Atmospheric temperature>	<hasCategory>	<cloud>
+<cloud>	<represents>	<Cloud Properties>
+<Atmospheric temperature>	<hasCategory>	<atmstate>
+<atmstate>	<represents>	<Atmospheric State>
+<Atmospheric temperature>	<hasCategory>	<sfcprop>
+<sfcprop>	<represents>	<Surface Properties>
+<Atmospheric temperature>	<hasCategory>	<lwbroad>
+<lwbroad>	<represents>	<longwave broadband>
+<Atmospheric temperature>	<hasCategory>	<sfcstate>
+<sfcstate>	<represents>	<surface/subsurface state>
+<Atmospheric temperature>	<hasCategory>	<micro>
+<micro>	<represents>	<microphysical>
+<Atmospheric temperature>	<hasCategory>	<upperair>
+<upperair>	<represents>	<upper air state>
+<Atmospheric temperature>	<hasCategory>	<swbroad>
+<swbroad>	<represents>	<shortwave broadband>
+<Atmospheric temperature>	<hasCategory>	<sfcflux>
+<sfcflux>	<represents>	<surface flux>
+<Atmospheric temperature>	<hasCategory>	<sfcmet>
+<sfcmet>	<represents>	<surface meteorology>
+<RAD-AIR>	<measures>	<Atmospheric temperature>
+<Atmospheric temperature>	<hasCategory>	<radio>
+<radio>	<represents>	<Radiometric>
+<Atmospheric temperature>	<hasCategory>	<atmstate>
+<atmstate>	<represents>	<Atmospheric State>
+<Atmospheric temperature>	<hasCategory>	<sfcprop>
+<sfcprop>	<represents>	<Surface Properties>
+<Atmospheric temperature>	<hasCategory>	<lwnarrow>
+<lwnarrow>	<represents>	<longwave narrowband>
+<Atmospheric temperature>	<hasCategory>	<lwbroad>
+<lwbroad>	<represents>	<longwave broadband>
+<Atmospheric temperature>	<hasCategory>	<sfcstate>
+<sfcstate>	<represents>	<surface/subsurface state>
+<Atmospheric temperature>	<hasCategory>	<upperair>
+<upperair>	<represents>	<upper air state>
+<Atmospheric temperature>	<hasCategory>	<swbroad>
+<swbroad>	<represents>	<shortwave broadband>
+<Atmospheric temperature>	<hasCategory>	<sfcmet>
+<sfcmet>	<represents>	<surface meteorology>
+<RAD-AIR>	<measures>	<Atmospheric temperature>
+<Atmospheric temperature>	<hasCategory>	<radio>
+<radio>	<represents>	<Radiometric>
+<Atmospheric temperature>	<hasCategory>	<atmstate>
+<atmstate>	<represents>	<Atmospheric State>
+<Atmospheric temperature>	<hasCategory>	<sfcprop>
+<sfcprop>	<represents>	<Surface Properties>
+<Atmospheric temperature>	<hasCategory>	<lwnarrow>
+<lwnarrow>	<represents>	<longwave narrowband>
+<Atmospheric temperature>	<hasCategory>	<lwbroad>
+<lwbroad>	<represents>	<longwave broadband>
+<Atmospheric temperature>	<hasCategory>	<sfcstate>
+<sfcstate>	<represents>	<surface/subsurface state>
+<Atmospheric temperature>	<hasCategory>	<swbroad>
+<swbroad>	<represents>	<shortwave broadband>
+<Atmospheric temperature>	<hasCategory>	<upperair>
+<upperair>	<represents>	<upper air state>
+<Atmospheric temperature>	<hasCategory>	<sfcmet>
+<sfcmet>	<represents>	<surface meteorology>
+<RAD-AIR>	<measures>	<Atmospheric temperature>
+<Atmospheric temperature>	<hasCategory>	<radio>
+<radio>	<represents>	<Radiometric>
+<Atmospheric temperature>	<hasCategory>	<cloud>
+<cloud>	<represents>	<Cloud Properties>
+<Atmospheric temperature>	<hasCategory>	<atmstate>
+<atmstate>	<represents>	<Atmospheric State>
+<Atmospheric temperature>	<hasCategory>	<sfcprop>
+<sfcprop>	<represents>	<Surface Properties>
+<Atmospheric temperature>	<hasCategory>	<macro>
+<macro>	<represents>	<macrophysical>
+<Atmospheric temperature>	<hasCategory>	<lwbroad>
+<lwbroad>	<represents>	<longwave broadband>
+<Atmospheric temperature>	<hasCategory>	<sfcstate>
+<sfcstate>	<represents>	<surface/subsurface state>
+<Atmospheric temperature>	<hasCategory>	<micro>
+<micro>	<represents>	<microphysical>
+<Atmospheric temperature>	<hasCategory>	<upperair>
+<upperair>	<represents>	<upper air state>
+<Atmospheric temperature>	<hasCategory>	<swbroad>
+<swbroad>	<represents>	<shortwave broadband>
+<Atmospheric temperature>	<hasCategory>	<sfcflux>
+<sfcflux>	<represents>	<surface flux>
+<Atmospheric temperature>	<hasCategory>	<sfcmet>
+<sfcmet>	<represents>	<surface meteorology>
+<RAD-AIR>	<measures>	<Atmospheric temperature>
+<Atmospheric temperature>	<hasCategory>	<radio>
+<radio>	<represents>	<Radiometric>
+<Atmospheric temperature>	<hasCategory>	<cloud>
+<cloud>	<represents>	<Cloud Properties>
+<Atmospheric temperature>	<hasCategory>	<atmstate>
+<atmstate>	<represents>	<Atmospheric State>
+<Atmospheric temperature>	<hasCategory>	<sfcprop>
+<sfcprop>	<represents>	<Surface Properties>
+<Atmospheric temperature>	<hasCategory>	<lwbroad>
+<lwbroad>	<represents>	<longwave broadband>
+<Atmospheric temperature>	<hasCategory>	<sfcstate>
+<sfcstate>	<represents>	<surface/subsurface state>
+<Atmospheric temperature>	<hasCategory>	<micro>
+<micro>	<represents>	<microphysical>
+<Atmospheric temperature>	<hasCategory>	<swbroad>
+<swbroad>	<represents>	<shortwave broadband>
+<Atmospheric temperature>	<hasCategory>	<upperair>
+<upperair>	<represents>	<upper air state>
+<Atmospheric temperature>	<hasCategory>	<sfcflux>
+<sfcflux>	<represents>	<surface flux>
+<Atmospheric temperature>	<hasCategory>	<sfcmet>
+<sfcmet>	<represents>	<surface meteorology>
+<ARM>	<hasInstrument>	<RSP>
+<RSP>	<is>	<instrument>
+<RSP>	<represents>	<W-band Scanning ARM Cloud Radar>
+<RSP>	<hasInstruClass>	<wsacr>
+<ARM>	<hasSite>	<nsa>
+<RSP>	<hasSite>	<nsa>
+<nsa>	<represents>	<North Slope Alaska>
+<ARM>	<hasSite>	<twp>
+<RSP>	<hasSite>	<twp>
+<twp>	<represents>	<Tropical Western Pacific>
+<ARM>	<hasSite>	<fkb>
+<RSP>	<hasSite>	<fkb>
+<RSP>	<is>	<Mobile Facility>
+<fkb>	<represents>	<Black Forest  Germany>
+<nsa>	<hasFacility>	<nsa-C1>
+<ARM>	<hasLocation>	<Central Facility>
+<nsa-C1>	<hasLocation>	<Central Facility>
+<Central Facility>	<locatesAt>	<Barrow AK>
+<nsa-C1>	<hasInstru>	<RSP>
+<nsa>	<hasLocation>	<Central Facility>
+<nsa>	<hasType>	<P>
+<twp>	<hasFacility>	<twp-C3>
+<ARM>	<hasLocation>	<Central Facility>
+<twp-C3>	<hasLocation>	<Central Facility>
+<Central Facility>	<locatesAt>	<Darwin  Australia>
+<twp-C3>	<hasInstru>	<RSP>
+<twp>	<hasLocation>	<Central Facility>
+<twp>	<hasType>	<P>
+<fkb>	<hasFacility>	<fkb-M1>
+<ARM>	<hasLocation>	<Black Forest>
+<fkb-M1>	<hasLocation>	<Black Forest>
+<Black Forest>	<locatesAt>	<Germany>
+<fkb-M1>	<hasInstru>	<RSP>
+<fkb>	<hasLocation>	<Black Forest>
+<fkb>	<hasType>	<M>
+<RSP>	<outputs>	<nsawsacrspeccmaskcopolC1.a0>
+<RSP>	<outputs>	<twpkasacrspeccmaskcopolC3.a0>
+<RSP>	<outputs>	<nsawsacrspeccmaskxpolC1.a0>
+<RSP>	<outputs>	<fkbwacrspeccmaskcopolM1.a0>
+<RSP>	<measures>	<Radar reflectivity>
+<Radar reflectivity>	<hasCategory>	<macro>
+<macro>	<represents>	<macrophysical>
+<Radar reflectivity>	<hasCategory>	<micro>
+<micro>	<represents>	<microphysical>
+<RSP>	<measures>	<Hydrometeor fall velocity>
+<RSP>	<measures>	<Cloud particle size distribution>
+<Cloud particle size distribution>	<hasCategory>	<macro>
+<macro>	<represents>	<macrophysical>
+<Cloud particle size distribution>	<hasCategory>	<micro>
+<micro>	<represents>	<microphysical>
+<ARM>	<hasInstrument>	<SP2-AIR>
+<SP2-AIR>	<is>	<instrument>
+<SP2-AIR>	<represents>	<Sky Radiometers on Stand for Downwelling Radiation>
+<SP2-AIR>	<hasInstruClass>	<skyrad>
+<ARM>	<hasSite>	<gan>
+<SP2-AIR>	<hasSite>	<gan>
+<SP2-AIR>	<is>	<Mobile Facility>
+<gan>	<represents>	<Gan Island  Maldives>
+<gan>	<hasFacility>	<gan-M1>
+<ARM>	<hasLocation>	<Gan Airport>
+<gan-M1>	<hasLocation>	<Gan Airport>
+<Gan Airport>	<locatesAt>	<Gan Island  Maldives>
+<gan-M1>	<hasInstru>	<SP2-AIR>
+<gan>	<hasLocation>	<Gan Airport>
+<gan>	<hasType>	<M>
+<SP2-AIR>	<outputs>	<ganskyrad60sM1.b1>
+<SP2-AIR>	<measures>	<Longwave broadband downwelling irradiance>
+<ARM>	<hasInstrument>	<TDMA-AIR>
+<TDMA-AIR>	<is>	<instrument>
+<TDMA-AIR>	<represents>	<Humidified Tandem Differential Mobility Analyzer>
+<TDMA-AIR>	<hasInstruClass>	<htdma>
+<ARM>	<hasSite>	<awr>
+<TDMA-AIR>	<hasSite>	<awr>
+<TDMA-AIR>	<is>	<Mobile Facility>
+<awr>	<represents>	<AWARE (ARM West Antarctic Radiation Experiment)>
+<ARM>	<hasSite>	<sgp>
+<TDMA-AIR>	<hasSite>	<sgp>
+<sgp>	<represents>	<Southern Great Plains>
+<ARM>	<hasSite>	<oli>
+<TDMA-AIR>	<hasSite>	<oli>
+<TDMA-AIR>	<is>	<Mobile Facility>
+<oli>	<represents>	<Oliktok Point  Alaska  USA>
+<ARM>	<hasSite>	<ena>
+<TDMA-AIR>	<hasSite>	<ena>
+<ena>	<represents>	<Eastern North Atlantic>
+<ARM>	<hasSite>	<tmp>
+<TDMA-AIR>	<hasSite>	<tmp>
+<TDMA-AIR>	<is>	<Mobile Facility>
+<tmp>	<represents>	<Hyytiala  Finland>
+<ARM>	<hasSite>	<acx>
+<TDMA-AIR>	<hasSite>	<acx>
+<TDMA-AIR>	<is>	<Mobile Facility>
+<acx>	<represents>	<ACAPEX (ARM Cloud Aerosol Precip Experiment)>
+<awr>	<hasFacility>	<awr-M1>
+<ARM>	<hasLocation>	<McMurdo Station Ross Ice Shelf>
+<awr-M1>	<hasLocation>	<McMurdo Station Ross Ice Shelf>
+<McMurdo Station Ross Ice Shelf>	<locatesAt>	<Antarctica>
+<awr-M1>	<hasInstru>	<TDMA-AIR>
+<awr>	<hasLocation>	<McMurdo Station Ross Ice Shelf>
+<awr>	<hasType>	<M>
+<sgp>	<hasFacility>	<sgp-C1>
+<ARM>	<hasLocation>	<Central Facility>
+<sgp-C1>	<hasLocation>	<Central Facility>
+<Central Facility>	<locatesAt>	<Lamont  OK>
+<sgp-C1>	<hasInstru>	<TDMA-AIR>
+<sgp>	<hasLocation>	<Central Facility>
+<sgp>	<hasType>	<P>
+<oli>	<hasFacility>	<oli-M1>
+<ARM>	<hasLocation>	<Olikiok Point>
+<oli-M1>	<hasLocation>	<Olikiok Point>
+<Olikiok Point>	<locatesAt>	<Alaska>
+<oli-M1>	<hasInstru>	<TDMA-AIR>
+<oli>	<hasLocation>	<Olikiok Point>
+<oli>	<hasType>	<M>
+<ena>	<hasFacility>	<ena-C1>
+<ARM>	<hasLocation>	<Graciosa Island>
+<ena-C1>	<hasLocation>	<Graciosa Island>
+<Graciosa Island>	<locatesAt>	<Azores  Portugal>
+<ena-C1>	<hasInstru>	<TDMA-AIR>
+<ena>	<hasLocation>	<Graciosa Island>
+<ena>	<hasType>	<P>
+<tmp>	<hasFacility>	<tmp-S1>
+<ARM>	<hasLocation>	<U. of Helsinki Research Station (SMEAR II)>
+<tmp-S1>	<hasLocation>	<U. of Helsinki Research Station (SMEAR II)>
+<U. of Helsinki Research Station (SMEAR II)>	<locatesAt>	<Hyytiala  Finland>
+<tmp-S1>	<hasInstru>	<TDMA-AIR>
+<tmp>	<hasLocation>	<U. of Helsinki Research Station (SMEAR II)>
+<tmp>	<hasType>	<M>
+<acx>	<hasFacility>	<acx-M1>
+<ARM>	<hasLocation>	<Off the Coast of California - NOAA Ship Ronald H. Brown>
+<acx-M1>	<hasLocation>	<Off the Coast of California - NOAA Ship Ronald H. Brown>
+<acx-M1>	<hasInstru>	<TDMA-AIR>
+<acx>	<hasLocation>	<Off the Coast of California - NOAA Ship Ronald H. Brown>
+<acx>	<hasType>	<M>
+<TDMA-AIR>	<outputs>	<awraoshtdmaM1.a1>
+<TDMA-AIR>	<outputs>	<sgptdmasizeC1.b1>
+<TDMA-AIR>	<outputs>	<oliaoshtdmaM1.a1>
+<TDMA-AIR>	<outputs>	<sgptdmahygC1.b1>
+<TDMA-AIR>	<outputs>	<enaaoshtdmaC1.a1>
+<TDMA-AIR>	<outputs>	<tmpaoshtdmaS1.a1>
+<TDMA-AIR>	<outputs>	<acxaoshtdmaM1.a1>
+<TDMA-AIR>	<measures>	<Aerosol concentration>
+<TDMA-AIR>	<measures>	<Particle number concentration>
+<TDMA-AIR>	<measures>	<Aerosol particle size distribution>
+<TDMA-AIR>	<measures>	<Particle size distribution>
+<ARM>	<hasInstrument>	<TEM>
+<TEM>	<is>	<instrument>
+<TEM>	<represents>	<Soil Water and Temperature System>
+<TEM>	<hasInstruClass>	<swats>
+<ARM>	<hasSite>	<sgp>
+<TEM>	<hasSite>	<sgp>
+<sgp>	<represents>	<Southern Great Plains>
+<sgp>	<hasFacility>	<sgp-E3>
+<ARM>	<hasLocation>	<LeRoy>
+<sgp-E3>	<hasLocation>	<LeRoy>
+<LeRoy>	<locatesAt>	<KS (Extended)>
+<sgp-E3>	<hasInstru>	<TEM>
+<sgp>	<hasLocation>	<LeRoy>
+<sgp>	<hasType>	<P>
+<sgp>	<hasFacility>	<sgp-C1>
+<ARM>	<hasLocation>	<Central Facility>
+<sgp-C1>	<hasLocation>	<Central Facility>
+<Central Facility>	<locatesAt>	<Lamont  OK>
+<sgp-C1>	<hasInstru>	<TEM>
+<sgp>	<hasLocation>	<Central Facility>
+<sgp>	<hasType>	<P>
+<sgp>	<hasFacility>	<sgp-E27>
+<ARM>	<hasLocation>	<Earlsboro>
+<sgp-E27>	<hasLocation>	<Earlsboro>
+<Earlsboro>	<locatesAt>	<OK (Extended)>
+<sgp-E27>	<hasInstru>	<TEM>
+<sgp>	<hasLocation>	<Earlsboro>
+<sgp>	<hasType>	<P>
+<sgp>	<hasFacility>	<sgp-E33>
+<ARM>	<hasLocation>	<Newkirk>
+<sgp-E33>	<hasLocation>	<Newkirk>
+<Newkirk>	<locatesAt>	<OK (Extended)>
+<sgp-E33>	<hasInstru>	<TEM>
+<sgp>	<hasLocation>	<Newkirk>
+<sgp>	<hasType>	<P>
+<sgp>	<hasFacility>	<sgp-E16>
+<ARM>	<hasLocation>	<Vici>
+<sgp-E16>	<hasLocation>	<Vici>
+<Vici>	<locatesAt>	<OK (Extended)>
+<sgp-E16>	<hasInstru>	<TEM>
+<sgp>	<hasLocation>	<Vici>
+<sgp>	<hasType>	<P>
+<sgp>	<hasFacility>	<sgp-E18>
+<ARM>	<hasLocation>	<Morris>
+<sgp-E18>	<hasLocation>	<Morris>
+<Morris>	<locatesAt>	<OK (Extended)>
+<sgp-E18>	<hasInstru>	<TEM>
+<sgp>	<hasLocation>	<Morris>
+<sgp>	<hasType>	<P>
+<sgp>	<hasFacility>	<sgp-E15>
+<ARM>	<hasLocation>	<Ringwood>
+<sgp-E15>	<hasLocation>	<Ringwood>
+<Ringwood>	<locatesAt>	<OK (Extended)>
+<sgp-E15>	<hasInstru>	<TEM>
+<sgp>	<hasLocation>	<Ringwood>
+<sgp>	<hasType>	<P>
+<TEM>	<outputs>	<sgpswatsE3.a1>
+<TEM>	<outputs>	<sgprwptempC1.c1>
+<TEM>	<outputs>	<sgpswatsE27.b1>
+<TEM>	<outputs>	<sgpswatsE33.b1>
+<TEM>	<outputs>	<sgpswatsE16.b1>
+<TEM>	<outputs>	<sgpswatsE18.b1>
+<TEM>	<outputs>	<sgpswatsE15.b1>
+<TEM>	<measures>	<Soil surface temperature>
+<Soil surface temperature>	<hasCategory>	<sfcstate>
+<sfcstate>	<represents>	<surface/subsurface state>
+<Soil surface temperature>	<hasCategory>	<sfcflux>
+<sfcflux>	<represents>	<surface flux>
+<TEM>	<measures>	<Virtual temperature>
+<ARM>	<hasInstrument>	<TRACEGAS>
+<TRACEGAS>	<is>	<instrument>
+<TRACEGAS>	<represents>	<Aerosol Observing System>
+<TRACEGAS>	<hasInstruClass>	<aos>
+<ARM>	<hasSite>	<pvc>
+<TRACEGAS>	<hasSite>	<pvc>
+<TRACEGAS>	<is>	<Mobile Facility>
+<pvc>	<represents>	<Cape Cod  MA  USA>
+<ARM>	<hasSite>	<ena>
+<TRACEGAS>	<hasSite>	<ena>
+<ena>	<represents>	<Eastern North Atlantic>
+<ARM>	<hasSite>	<mao>
+<TRACEGAS>	<hasSite>	<mao>
+<TRACEGAS>	<is>	<Mobile Facility>
+<mao>	<represents>	<Manacapuru  Amazonas  Brazil>
+<pvc>	<hasFacility>	<pvc-S1>
+<ARM>	<hasLocation>	<Highland Center>
+<pvc-S1>	<hasLocation>	<Highland Center>
+<Highland Center>	<locatesAt>	<Cape Cod MA>
+<pvc-S1>	<hasInstru>	<TRACEGAS>
+<pvc>	<hasLocation>	<Highland Center>
+<pvc>	<hasType>	<M>
+<ena>	<hasFacility>	<ena-C1>
+<ARM>	<hasLocation>	<Graciosa Island>
+<ena-C1>	<hasLocation>	<Graciosa Island>
+<Graciosa Island>	<locatesAt>	<Azores  Portugal>
+<ena-C1>	<hasInstru>	<TRACEGAS>
+<ena>	<hasLocation>	<Graciosa Island>
+<ena>	<hasType>	<P>
+<mao>	<hasFacility>	<mao-S1>
+<ARM>	<hasLocation>	<Manacapuru>
+<mao-S1>	<hasLocation>	<Manacapuru>
+<Manacapuru>	<locatesAt>	<Amazonas  Brazil>
+<mao-S1>	<hasInstru>	<TRACEGAS>
+<mao>	<hasLocation>	<Manacapuru>
+<mao>	<hasType>	<M>
+<TRACEGAS>	<outputs>	<pvcaoscoS1.a1>
+<TRACEGAS>	<outputs>	<enaaoscoC1.a1>
+<TRACEGAS>	<outputs>	<maoaosso2S1.01>
+<TRACEGAS>	<outputs>	<maoaoscoS1.01>
+<TRACEGAS>	<outputs>	<pvcaosso2S1.a1>
+<TRACEGAS>	<outputs>	<maoaosnoxS1.01>
+<TRACEGAS>	<outputs>	<pvcaosnoxS1.a1>
+<TRACEGAS>	<measures>	<Trace gas concentration>
+<Trace gas concentration>	<hasCategory>	<carbon>
+<carbon>	<represents>	<Atmospheric Carbon>
+<Trace gas concentration>	<hasCategory>	<atmstate>
+<atmstate>	<represents>	<Atmospheric State>
+<Trace gas concentration>	<hasCategory>	<tracegas>
+<tracegas>	<represents>	<other trace gases>
+<Trace gas concentration>	<hasCategory>	<gaseous>
+<gaseous>	<represents>	<gaseous>
+<TRACEGAS>	<measures>	<Trace gas concentration>
+<ARM>	<hasInstrument>	<UHSAS>
+<UHSAS>	<is>	<instrument>
+<UHSAS>	<represents>	<Ultra-High Sensitivity Aerosol Spectrometer>
+<UHSAS>	<hasInstruClass>	<uhsas>
+<ARM>	<hasSite>	<asi>
+<UHSAS>	<hasSite>	<asi>
+<UHSAS>	<is>	<Mobile Facility>
+<asi>	<represents>	<Ascension Island  South Atlantic Ocean>
+<ARM>	<hasSite>	<mao>
+<UHSAS>	<hasSite>	<mao>
+<UHSAS>	<is>	<Mobile Facility>
+<mao>	<represents>	<Manacapuru  Amazonas  Brazil>
+<ARM>	<hasSite>	<oli>
+<UHSAS>	<hasSite>	<oli>
+<UHSAS>	<is>	<Mobile Facility>
+<oli>	<represents>	<Oliktok Point  Alaska  USA>
+<ARM>	<hasSite>	<pvc>
+<UHSAS>	<hasSite>	<pvc>
+<UHSAS>	<is>	<Mobile Facility>
+<pvc>	<represents>	<Cape Cod  MA  USA>
+<ARM>	<hasSite>	<ena>
+<UHSAS>	<hasSite>	<ena>
+<ena>	<represents>	<Eastern North Atlantic>
+<ARM>	<hasSite>	<mag>
+<UHSAS>	<hasSite>	<mag>
+<UHSAS>	<is>	<Mobile Facility>
+<mag>	<represents>	<MAGIC (Marine ARM GPCI Investigation of Clouds)>
+<asi>	<hasFacility>	<asi-M1>
+<ARM>	<hasLocation>	<Ascension Island>
+<asi-M1>	<hasLocation>	<Ascension Island>
+<Ascension Island>	<locatesAt>	<South Atlantic Ocean>
+<asi-M1>	<hasInstru>	<UHSAS>
+<asi>	<hasLocation>	<Ascension Island>
+<asi>	<hasType>	<M>
+<mao>	<hasFacility>	<mao-S1>
+<ARM>	<hasLocation>	<Manacapuru>
+<mao-S1>	<hasLocation>	<Manacapuru>
+<Manacapuru>	<locatesAt>	<Amazonas  Brazil>
+<mao-S1>	<hasInstru>	<UHSAS>
+<mao>	<hasLocation>	<Manacapuru>
+<mao>	<hasType>	<M>
+<oli>	<hasFacility>	<oli-M1>
+<ARM>	<hasLocation>	<Olikiok Point>
+<oli-M1>	<hasLocation>	<Olikiok Point>
+<Olikiok Point>	<locatesAt>	<Alaska>
+<oli-M1>	<hasInstru>	<UHSAS>
+<oli>	<hasLocation>	<Olikiok Point>
+<oli>	<hasType>	<M>
+<pvc>	<hasFacility>	<pvc-S1>
+<ARM>	<hasLocation>	<Highland Center>
+<pvc-S1>	<hasLocation>	<Highland Center>
+<Highland Center>	<locatesAt>	<Cape Cod MA>
+<pvc-S1>	<hasInstru>	<UHSAS>
+<pvc>	<hasLocation>	<Highland Center>
+<pvc>	<hasType>	<M>
+<ena>	<hasFacility>	<ena-C1>
+<ARM>	<hasLocation>	<Graciosa Island>
+<ena-C1>	<hasLocation>	<Graciosa Island>
+<Graciosa Island>	<locatesAt>	<Azores  Portugal>
+<ena-C1>	<hasInstru>	<UHSAS>
+<ena>	<hasLocation>	<Graciosa Island>
+<ena>	<hasType>	<P>
+<mag>	<hasFacility>	<mag-M1>
+<ARM>	<hasLocation>	<Los Angeles>
+<mag-M1>	<hasLocation>	<Los Angeles>
+<Los Angeles>	<locatesAt>	<CA to Honolulu  HI - container ship Horizon Spirit>
+<mag-M1>	<hasInstru>	<UHSAS>
+<mag>	<hasLocation>	<Los Angeles>
+<mag>	<hasType>	<M>
+<UHSAS>	<outputs>	<asiaosuhsasM1.a1>
+<UHSAS>	<outputs>	<maoaosuhsasS1.01>
+<UHSAS>	<outputs>	<oliaosuhsasM1.a1>
+<UHSAS>	<outputs>	<pvcaosuhsasS1.a1>
+<UHSAS>	<outputs>	<enaaosuhsasC1.a1>
+<UHSAS>	<outputs>	<magaosuhsasM1.a1>
+<UHSAS>	<measures>	<Aerosol particle size distribution>
+<ARM>	<hasInstrument>	<UW-AIR>
+<UW-AIR>	<is>	<instrument>
+<UW-AIR>	<represents>	<Eddy Correlation Flux Measurement System>
+<UW-AIR>	<hasInstruClass>	<ecor>
+<ARM>	<hasSite>	<pvc>
+<UW-AIR>	<hasSite>	<pvc>
+<UW-AIR>	<is>	<Mobile Facility>
+<pvc>	<represents>	<Cape Cod  MA  USA>
+<ARM>	<hasSite>	<nim>
+<UW-AIR>	<hasSite>	<nim>
+<UW-AIR>	<is>	<Mobile Facility>
+<nim>	<represents>	<Niamey  Niger>
+<ARM>	<hasSite>	<twp>
+<UW-AIR>	<hasSite>	<twp>
+<twp>	<represents>	<Tropical Western Pacific>
+<ARM>	<hasSite>	<awr>
+<UW-AIR>	<hasSite>	<awr>
+<UW-AIR>	<is>	<Mobile Facility>
+<awr>	<represents>	<AWARE (ARM West Antarctic Radiation Experiment)>
+<ARM>	<hasSite>	<nsa>
+<UW-AIR>	<hasSite>	<nsa>
+<nsa>	<represents>	<North Slope Alaska>
+<ARM>	<hasSite>	<sbs>
+<UW-AIR>	<hasSite>	<sbs>
+<UW-AIR>	<is>	<Mobile Facility>
+<sbs>	<represents>	<Steamboat Springs CO  USA>
+<ARM>	<hasSite>	<sgp>
+<UW-AIR>	<hasSite>	<sgp>
+<sgp>	<represents>	<Southern Great Plains>
+<ARM>	<hasSite>	<grw>
+<UW-AIR>	<hasSite>	<grw>
+<UW-AIR>	<is>	<Mobile Facility>
+<grw>	<represents>	<Graciosa Island  Azores  Portugal>
+<ARM>	<hasSite>	<pye>
+<UW-AIR>	<hasSite>	<pye>
+<UW-AIR>	<is>	<Mobile Facility>
+<pye>	<represents>	<Point Reyes CA  USA>
+<pvc>	<hasFacility>	<pvc-M1>
+<ARM>	<hasLocation>	<Highland Center>
+<pvc-M1>	<hasLocation>	<Highland Center>
+<Highland Center>	<locatesAt>	<Cape Cod MA>
+<pvc-M1>	<hasInstru>	<UW-AIR>
+<pvc>	<hasLocation>	<Highland Center>
+<pvc>	<hasType>	<M>
+<nim>	<hasFacility>	<nim-M1>
+<ARM>	<hasLocation>	<Niamey>
+<nim-M1>	<hasLocation>	<Niamey>
+<Niamey>	<locatesAt>	<Niger>
+<nim-M1>	<hasInstru>	<UW-AIR>
+<nim>	<hasLocation>	<Niamey>
+<nim>	<hasType>	<M>
+<twp>	<hasFacility>	<twp-E30>
+<ARM>	<hasLocation>	<East Arm>
+<twp-E30>	<hasLocation>	<East Arm>
+<East Arm>	<locatesAt>	<Darwin  Australia>
+<twp-E30>	<hasInstru>	<UW-AIR>
+<twp>	<hasLocation>	<East Arm>
+<twp>	<hasType>	<P>
+<awr>	<hasFacility>	<awr-M1>
+<ARM>	<hasLocation>	<McMurdo Station Ross Ice Shelf>
+<awr-M1>	<hasLocation>	<McMurdo Station Ross Ice Shelf>
+<McMurdo Station Ross Ice Shelf>	<locatesAt>	<Antarctica>
+<awr-M1>	<hasInstru>	<UW-AIR>
+<awr>	<hasLocation>	<McMurdo Station Ross Ice Shelf>
+<awr>	<hasType>	<M>
+<nsa>	<hasFacility>	<nsa-E10>
+<ARM>	<hasLocation>	<Barrow>
+<nsa-E10>	<hasLocation>	<Barrow>
+<Barrow>	<locatesAt>	<Alaska (71.325  -156.608  5)>
+<nsa-E10>	<hasInstru>	<UW-AIR>
+<nsa>	<hasLocation>	<Barrow>
+<nsa>	<hasType>	<P>
+<sbs>	<hasFacility>	<sbs-M1>
+<ARM>	<hasLocation>	<Steamboat Springs CO>
+<sbs-M1>	<hasLocation>	<Steamboat Springs CO>
+<Steamboat Springs CO>	<locatesAt>	<Valley Site>
+<sbs-M1>	<hasInstru>	<UW-AIR>
+<sbs>	<hasLocation>	<Steamboat Springs CO>
+<sbs>	<hasType>	<M>
+<sgp>	<hasFacility>	<sgp-E41>
+<ARM>	<hasLocation>	<Peckham>
+<sgp-E41>	<hasLocation>	<Peckham>
+<Peckham>	<locatesAt>	<OK (Extended)>
+<sgp-E41>	<hasInstru>	<UW-AIR>
+<sgp>	<hasLocation>	<Peckham>
+<sgp>	<hasType>	<P>
+<grw>	<hasFacility>	<grw-M1>
+<ARM>	<hasLocation>	<Graciosa Island>
+<grw-M1>	<hasLocation>	<Graciosa Island>
+<Graciosa Island>	<locatesAt>	<Azores  Portugal>
+<grw-M1>	<hasInstru>	<UW-AIR>
+<grw>	<hasLocation>	<Graciosa Island>
+<grw>	<hasType>	<M>
+<pye>	<hasFacility>	<pye-M1>
+<ARM>	<hasLocation>	<Point Reyes>
+<pye-M1>	<hasLocation>	<Point Reyes>
+<Point Reyes>	<locatesAt>	<CA>
+<pye-M1>	<hasInstru>	<UW-AIR>
+<pye>	<hasLocation>	<Point Reyes>
+<pye>	<hasType>	<M>
+<UW-AIR>	<outputs>	<pvc30ecorM1.b1>
+<UW-AIR>	<outputs>	<nim30ecorM1.b1>
+<UW-AIR>	<outputs>	<twp30ecorE30.b1>
+<UW-AIR>	<outputs>	<awr30ecorM1.b1>
+<UW-AIR>	<outputs>	<nsa30ecorE10.b1>
+<UW-AIR>	<outputs>	<sbs30ecorM1.b1>
+<UW-AIR>	<outputs>	<sgp30ecorE41.b1>
+<UW-AIR>	<outputs>	<grw30ecorM1.b1>
+<UW-AIR>	<outputs>	<pye30ecorM1.b1>
+<UW-AIR>	<measures>	<Atmospheric turbulence>
+<Atmospheric turbulence>	<hasCategory>	<atmstate>
+<atmstate>	<represents>	<Atmospheric State>
+<Atmospheric turbulence>	<hasCategory>	<sfcprop>
+<sfcprop>	<represents>	<Surface Properties>
+<Atmospheric turbulence>	<hasCategory>	<upperair>
+<upperair>	<represents>	<upper air state>
+<Atmospheric turbulence>	<hasCategory>	<sfcflux>
+<sfcflux>	<represents>	<surface flux>
+<Atmospheric turbulence>	<hasCategory>	<sfcmet>
+<sfcmet>	<represents>	<surface meteorology>

@@ -81,6 +81,22 @@ object PathSearchUtils {
           Gen_Utils.writeToFile(outFile, header + allPathString + "\n")
         }
    }
+   
+   
+   /* Print Paths as following:
+    * Each edge on separate line
+    * Each path separated by multiple(2) lines
+    */
+   def writePaths(allPaths : List[List[PathEdge]], outFile: String): Unit = {
+     if(allPaths.length > 0) {
+          val header = "Number of paths = " + allPaths.length + "\n"
+          val allPathString: String = allPaths.map(path => 
+            path.map(edge => edge.edgeToString).
+            reduce((edge1String, edge2String) => edge1String + "\n" + edge2String)).
+            reduce((path1String, path2String) => path1String + "\n\n" + path2String)
+          Gen_Utils.writeToFile(outFile, header + allPathString + "\n")
+        }
+   }
   
    def isValidLine(ln : String) : Boolean ={
     val isvalid = ( (ln.startsWith("@") ==false) && (ln.startsWith("#")==false) && (ln.isEmpty()==false))
@@ -126,7 +142,7 @@ object PathSearchUtils {
   
    def GetEntityPairs(filename: String, sc: SparkContext): List[(String, String)] = {
      val entityPairs = sc.textFile(filename).filter(isValidLine(_)).map(v=> v.split("\t")).filter(_.size == 2).map(v => (v(0), v(1)))
-     entityPairs.foreach(println(_))
+     //entityPairs.foreach(println(_))
      entityPairs.collect.toList
    }
    

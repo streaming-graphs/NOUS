@@ -1,0 +1,3 @@
+awk 'length($0)>40' sentenceBag.txt  # filter out the sentences less than length of 40
+grep -w 'use\|used' sentenceBag.txt > useRelation.txt # get the extract pattern use or used
+

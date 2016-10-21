@@ -1,0 +1,15 @@
+<ACSM>	<is>	<instrument>
+<ACSM>	<represents>	<Aerosol Chemical Speciation Monitor>
+<ACSM>	<hasSite>	<asi>
+<ACSM>	<hasSite>	<pvc>
+<ACSM>	<hasSite>	<ena>
+<ena>	<represents>	<Eastern North Atlantic>
+<ACSM>	<hasSite>	<mao>
+<ena>	<hasLocation>	<Graciosa Island  Azores>
+<ena>	<hasType>	<P>
+<ACSM>	<outputs>	<asiaosacsmM1.a1>
+<ACSM>	<outputs>	<pvcaosacsmS1.a1>
+<ACSM>	<outputs>	<enaaosacsmC1.b1>
+<ACSM>	<outputs>	<maoaosacsmS1.b1>
+<ACSM>	<measures>	<Inorganic chemical composition>
+<ACSM>	<measures>	<Organic Carbon Concentration>

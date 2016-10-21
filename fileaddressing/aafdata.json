@@ -1,0 +1,1440 @@
+{
+    "AATS":{},
+    "AIRCRAFTCABIN":{},
+    "ARA-DIMONA":{},
+    "CAPS-PMEX":{
+        "site_info":[
+            "ena||Eastern North Atlantic||P"
+        ],
+        "sites":[
+            "ena||C1||Graciosa Island, Azores, Portugal||P"
+        ],
+        "instrument_class":[
+            "caps-pmex"
+        ],
+        "instrument_class_name":[
+            "Cavity Attenuated Phase Shift Extinction Monitor"
+        ],
+        "outputs":[
+            "enaaoscapsC1.a1"
+        ],
+        "primary_meas":[
+            [
+                "Aerosol extinction",
+                "aeros||Aerosols",
+                "optrad||optical and radiative properties||aeros"
+            ]
+        ]
+    },
+    "CAS":{
+        "site_info":[
+            "sgp||Southern Great Plains||P",
+            "twp||Tropical Western Pacific||P"
+        ],
+        "sites":[
+            "sgp||X1||External Data (satellites and others)||P",
+            "twp||X30||External Data (satellites and others) from Darwin, TWP||P"
+        ],
+        "instrument_class":[
+            "abrfc",
+            "ecmwfdiag"
+        ],
+        "instrument_class_name":[
+            "Arkansas-Red Basin River Forecast Center",
+            "European Centre for Medium Range Weather Forecasts Diagnostic Analyses"
+        ],
+        "outputs":[
+            "sgpabrfcprecipX1.c1",
+            "twpecmwfsfc1lX30.c1"
+        ],
+        "primary_meas":[
+            [
+                "Precipitation",
+                "atmstate||Atmospheric State",
+                "sfcmet||surface meteorology||atmstate"
+            ],
+            [
+                "Atmospheric pressure",
+                "atmstate||Atmospheric State",
+                [
+                    "upperair||upper air state||atmstate",
+                    "sfcmet||surface meteorology||atmstate"
+                ]
+            ],
+            [
+                "Shortwave broadband total net irradiance",
+                "radio||Radiometric",
+                "swbroad||shortwave broadband||radio"
+            ],
+            [
+                "Longwave broadband net irradiance",
+                "radio||Radiometric",
+                "lwbroad||longwave broadband||radio"
+            ],
+            [
+                "Latent heat flux",
+                "sfcprop||Surface Properties",
+                "sfcflux||surface flux||sfcprop"
+            ],
+            [
+                "Sensible heat flux",
+                "sfcprop||Surface Properties",
+                "sfcflux||surface flux||sfcprop"
+            ]
+        ]
+    },
+    "CCN":{
+        "site_info":[
+            "sgp||Southern Great Plains||P",
+            "asi||Ascension Island, South Atlantic Ocean; Mobile Facility (LASIC)||M",
+            "pvc||Cape Cod, MA, USA; Mobile Facility (TCAP)||M",
+            "sbs||Steamboat Springs CO, USA; Mobile Facility (STORMVEX)||M",
+            "pgh||Ganges Valley, India; Mobile Facility (GVAX)||M",
+            "nsa||North Slope Alaska||P"
+        ],
+        "sites":[
+            "sgp||S01||Supplemental 1, Lamont, OK||P",
+            "asi||M1||Ascension Island, South Atlantic Ocean; AMF1||M",
+            "pvc||M1||Highland Center, Cape Cod MA; AMF1||M",
+            "sbs||S2||Steamboat Springs CO, Christie Peak||M",
+            "sgp||C1||Central Facility, Lamont, OK||P",
+            "pgh||M1||ARIES Observatory, Nainital, Uttarkhand, India; AMF1||M",
+            "nsa||X1||External Data (satellites and others)||P"
+        ],
+        "instrument_class":[
+            "ccn",
+            "ccnprof"
+        ],
+        "instrument_class_name":[
+            "Cloud Condensation Nuclei Particle Counter",
+            "Cloud Condensation Nuclei Profile"
+        ],
+        "outputs":[
+            "sgpaosccn200S01.a1",
+            "asiaosccn200M1.a1",
+            "pvcaosccn100M1.a1",
+            "sbsaosccn100S2.a1",
+            "sgprlccnprof1ghanC1.s1",
+            "pghaosccn100M1.a1",
+            "nsaaosccn100X1.a1"
+        ],
+        "primary_meas":[
+            [
+                "Cloud condensation nuclei",
+                [
+                    "aeros||Aerosols",
+                    "cloud||Cloud Properties"
+                ],
+                [
+                    "microchem||microphysical and chemical properties||aeros",
+                    "micro||microphysical||cloud"
+                ]
+            ],
+            [
+                "Cloud condensation nuclei",
+                "aeros||Aerosols",
+                "microchem||microphysical and chemical properties||aeros"
+            ]
+        ]
+    },
+    "CEP":{
+        "site_info":[
+            "twp||Tropical Western Pacific||P",
+            "grw||Graciosa Island, Azores, Portugal; Mobile Facility (CAP-MPL)||M",
+            "sgp||Southern Great Plains||P",
+            "fkb||Black Forest, Germany; Mobile Facility (COPS)||M",
+            "nim||Niamey, Niger; Mobile Facility (RADAGAST)||M",
+            "pye||Point Reyes CA, USA; Mobile Facility (MASRAD)||M"
+        ],
+        "sites":[
+            "twp||X1||External Data (satellites and others)||P",
+            "grw||X1||External Data (satellites and others)||M",
+            "sgp||X1||External Data (satellites and others)||P",
+            "fkb||X1||External Data (satellites and others)||M",
+            "nim||X1||External Data (satellites and others)||M",
+            "pye||X1||External Data (satellites and others)||M"
+        ],
+        "instrument_class":[
+            "ncepgfs"
+        ],
+        "instrument_class_name":[
+            "National Centers for Environment Prediction Global Forecast System"
+        ],
+        "outputs":[
+            "twpncepgfsmansfcX1.c1",
+            "twpncepgfsnauzprofX1.c1",
+            "grwncepgfszprofX1.c1",
+            "sgpncepgfssfcX1.c1",
+            "sgpncepgfszprofX1.c1",
+            "fkbncepgfssfcX1.c1",
+            "nimncepgfssfcX1.c1",
+            "fkbncepgfszprofX1.c1",
+            "pyencepgfssfcX1.c1"
+        ],
+        "primary_meas":[
+            [
+                "Precipitation",
+                "atmstate||Atmospheric State",
+                "sfcmet||surface meteorology||atmstate"
+            ],
+            [
+                "Vertical velocity",
+                "atmstate||Atmospheric State",
+                "upperair||upper air state||atmstate"
+            ],
+            [
+                "Cloud fraction",
+                "cloud||Cloud Properties",
+                "macro||macrophysical||cloud"
+            ],
+            [
+                "Surface condition",
+                "sfcprop||Surface Properties",
+                "sfcstate||surface/subsurface state||sfcprop"
+            ],
+            [
+                "Soil surface temperature",
+                "sfcprop||Surface Properties",
+                [
+                    "sfcstate||surface/subsurface state||sfcprop",
+                    "sfcflux||surface flux||sfcprop"
+                ]
+            ]
+        ]
+    },
+    "CESSNA-404-ARA":{},
+    "CFDC":{
+        "site_info":[
+            "sgp||Southern Great Plains||P",
+            "nsa||North Slope Alaska||P",
+            "mao||Manacapuru, Amazonas, Brazil; Mobile Facility (GOAMAZON)||M",
+            "shb||SHEBA (Surface HEat Budget of the Arctic)||I",
+            "pgh||Ganges Valley, India; Mobile Facility (GVAX)||M",
+            "asi||Ascension Island, South Atlantic Ocean; Mobile Facility (LASIC)||M",
+            "pvc||Cape Cod, MA, USA; Mobile Facility (TCAP)||M"
+        ],
+        "sites":[
+            "sgp||E24||Cyril, OK (Extended)||P",
+            "nsa||C1||Central Facility, Barrow AK||P",
+            "mao||M1||Manacapuru, Amazonas, Brazil; AMF1||M",
+            "shb||C1||Ice Station SHEBA||I",
+            "pgh||M1||ARIES Observatory, Nainital, Uttarkhand, India; AMF1||M",
+            "asi||M1||Ascension Island, South Atlantic Ocean; AMF1||M",
+            "pvc||M1||Highland Center, Cape Cod MA; AMF1||M"
+        ],
+        "instrument_class":[
+            "radfluxanal",
+            "dlprof",
+            "sashe",
+            "aeri",
+            "aos",
+            "ceil",
+            "gvr",
+            "sacrcor"
+        ],
+        "instrument_class_name":[
+            "Radiative Flux Analysis",
+            "Doppler Lidar Profiles",
+            "Shortwave Array Spectroradiometer-Hemispheric",
+            "Atmospheric Emitted Radiance Interferometer",
+            "Aerosol Observing System",
+            "Ceilometer",
+            "G-band (183 GHz) Vapor Radiometer",
+            "Scanning ARM Cloud Radar Corrections"
+        ],
+        "outputs":[
+            "sgpradflux1longE24.c2",
+            "nsadlprofwstats4newsC1.c1",
+            "maosashemfrM1.b1",
+            "shbaerisummaryC1.a1",
+            "pghnoaaaosavgM1.b1",
+            "asiceilpblhtM1.a0",
+            "nsagvrC1.b1",
+            "pvckasacrcorhsrhiM1.c1"
+        ],
+        "primary_meas":[
+            [
+                "Cloud fraction",
+                "cloud||Cloud Properties",
+                "macro||macrophysical||cloud"
+            ],
+            [
+                "Shortwave narrowband total downwelling irradiance",
+                "radio||Radiometric",
+                "swnarrow||shortwave narrowband||radio"
+            ],
+            [
+                "Longwave spectral radiance",
+                "radio||Radiometric",
+                "lwspect||longwave spectral||radio"
+            ],
+            [
+                "Aerosol scattering",
+                "aeros||Aerosols",
+                "optrad||optical and radiative properties||aeros"
+            ],
+            [
+                "Planetary boundary layer height",
+                "atmstate||Atmospheric State",
+                "upperair||upper air state||atmstate"
+            ],
+            [
+                "Microwave narrowband brightness temperature",
+                "radio||Radiometric",
+                "microwave||microwave||radio"
+            ],
+            [
+                "Radar reflectivity",
+                "cloud||Cloud Properties",
+                [
+                    "macro||macrophysical||cloud",
+                    "micro||microphysical||cloud"
+                ]
+            ]
+        ]
+    },
+    "CIRPAS":{},
+    "CITATION":{},
+    "CLDAEROSMICRO":{},
+    "CM-CRYO":{},
+    "CO-AIR":{
+        "site_info":[
+            "gec||Global Earth Coverage||X",
+            "sgp||Southern Great Plains||P",
+            "nsa||North Slope Alaska||P",
+            "twp||Tropical Western Pacific||P"
+        ],
+        "sites":[
+            "gec||X1||External Data (satellites and others)||X",
+            "sgp||X1||External Data (satellites and others)||P",
+            "nsa||X1||External Data (satellites and others)||P",
+            "twp||X1||External Data (satellites and others)||P",
+            "sgp||F1||Gulfstream 159 Aircraft||P"
+        ],
+        "instrument_class":[
+            "acars",
+            "met-air"
+        ],
+        "instrument_class_name":[
+            "Aircraft Communications Addressing and Reporting System",
+            "Meteorological Instrumentation aboard Aircraft"
+        ],
+        "outputs":[
+            "gecacarsX1.a1",
+            "sgpacarsX1.a1",
+            "nsaacarsX1.a1",
+            "twpacarsX1.a1",
+            "sgpaafmetaimsF1.a1"
+        ],
+        "primary_meas":[
+            [
+                "Atmospheric moisture",
+                "atmstate||Atmospheric State",
+                [
+                    "upperair||upper air state||atmstate",
+                    "sfcmet||surface meteorology||atmstate"
+                ]
+            ],
+            [
+                "Atmospheric pressure",
+                "atmstate||Atmospheric State",
+                [
+                    "upperair||upper air state||atmstate",
+                    "sfcmet||surface meteorology||atmstate"
+                ]
+            ]
+        ]
+    },
+    "DC8-NASA":{},
+    "DLH":{},
+    "DMA":{
+        "site_info":[
+            "sgp||Southern Great Plains||P",
+            "awr||AWARE (ARM West Antarctic Radiation Experiment)||M",
+            "oli||Oliktok Point, Alaska, USA; Mobile Facility||M",
+            "ena||Eastern North Atlantic||P"
+        ],
+        "sites":[
+            "sgp||X1||External Data (satellites and others)||P",
+            "sgp||C1||Central Facility, Lamont, OK||P",
+            "awr||M1||McMurdo Station Ross Ice Shelf, Antarctica; AMF2||M",
+            "oli||M1||Olikiok Point, Alaska; AMF3||M",
+            "ena||C1||Graciosa Island, Azores, Portugal||P"
+        ],
+        "instrument_class":[
+            "tdmadap",
+            "tdma",
+            "htdma"
+        ],
+        "instrument_class_name":[
+            "Aerosol Properties derived from TDMA Measurements",
+            "Tandem Differential Mobility Analyzer",
+            "Humidified Tandem Differential Mobility Analyzer"
+        ],
+        "outputs":[
+            "sgptdmaccncollX1.c1",
+            "sgptdmaapssizeC1.c1",
+            "awraoshtdmaM1.a1",
+            "sgptdmasizeC1.b1",
+            "oliaoshtdmaM1.a1",
+            "sgptdmahygC1.b1",
+            "enaaoshtdmaC1.a1"
+        ],
+        "primary_meas":[
+            [
+                "Cloud condensation nuclei",
+                "aeros||Aerosols",
+                "microchem||microphysical and chemical properties||aeros"
+            ],
+            [
+                "Aerosol particle size distribution",
+                "aeros||Aerosols",
+                "microchem||microphysical and chemical properties||aeros"
+            ],
+            [
+                "Aerosol concentration",
+                "aeros||Aerosols",
+                "microchem||microphysical and chemical properties||aeros"
+            ],
+            [
+                "Particle number concentration",
+                "aeros||Aerosols",
+                "microchem||microphysical and chemical properties||aeros"
+            ]
+        ]
+    },
+    "DRI-AIR":{},
+    "EC-CONVAIR580-BULK":{},
+    "FCDP":{},
+    "FLASK":{
+        "site_info":[
+            "sgp||Southern Great Plains||P"
+        ],
+        "sites":[
+            "sgp||C1||Central Facility, Lamont, OK||P"
+        ],
+        "instrument_class":[
+            "flask"
+        ],
+        "instrument_class_name":[
+            "Flask Samplers for Carbon Cycle Gases and Isotopes"
+        ],
+        "outputs":[
+            "sgpcarbonflasksC1.c1"
+        ],
+        "primary_meas":[
+            [
+                "Carbon dioxide (CO2) concentration",
+                [
+                    "radio||Radiometric",
+                    "carbon||Atmospheric Carbon"
+                ],
+                "gaseous||gaseous||carbon"
+            ],
+            [
+                "Isotope ratio",
+                [
+                    "radio||Radiometric",
+                    "carbon||Atmospheric Carbon"
+                ],
+                "gaseous||gaseous||carbon"
+            ],
+            [
+                "Trace gas concentration",
+                [
+                    "radio||Radiometric",
+                    "carbon||Atmospheric Carbon"
+                ],
+                "gaseous||gaseous||carbon"
+            ]
+        ]
+    },
+    "FSSP":{
+        "site_info":[
+            "sgp||Southern Great Plains||P",
+            "hfe||Shouxian, Anhui, China; Mobile Facility||M",
+            "nim||Niamey, Niger; Mobile Facility (RADAGAST)||M",
+            "grw||Graciosa Island, Azores, Portugal; Mobile Facility (CAP-MPL)||M",
+            "fkb||Black Forest, Germany; Mobile Facility (COPS)||M",
+            "pye||Point Reyes CA, USA; Mobile Facility (MASRAD)||M"
+        ],
+        "sites":[
+            "sgp||X1||External Data (satellites and others)||P",
+            "hfe||X1||External Data (satellites and others)||M",
+            "nim||X1||External Data (satellites and others)||M",
+            "grw||X1||External Data (satellites and others)||M",
+            "fkb||X1||External Data (satellites and others)||M",
+            "pye||X1||External Data (satellites and others)||M"
+        ],
+        "instrument_class":[
+            "ncepgfs"
+        ],
+        "instrument_class_name":[
+            "National Centers for Environment Prediction Global Forecast System"
+        ],
+        "outputs":[
+            "sgpncepgfssprofX1.c1",
+            "hfencepgfssprofX1.c1",
+            "nimncepgfssprofX1.c1",
+            "grwncepgfssprofX1.c1",
+            "fkbncepgfssprofX1.c1",
+            "pyencepgfssprofX1.c1"
+        ],
+        "primary_meas":[
+            [
+                "Vertical velocity",
+                "atmstate||Atmospheric State",
+                "upperair||upper air state||atmstate"
+            ],
+            [
+                "Cloud fraction",
+                "cloud||Cloud Properties",
+                "macro||macrophysical||cloud"
+            ]
+        ]
+    },
+    "G-1":{},
+    "GERBPROBE":{},
+    "GLIDERSONDE":{},
+    "GUSTPROBE-AIR":{},
+    "HOP":{},
+    "HSRL-AIR":{
+        "site_info":[
+            "gan||Gan Island, Maldives; Mobile Facility (AMIE-GAN)||M"
+        ],
+        "sites":[
+            "gan||M1||Gan Airport, Gan Island, Maldives; AMF2||M"
+        ],
+        "instrument_class":[
+            "hsrl"
+        ],
+        "instrument_class_name":[
+            "High Spectral Resolution Lidar"
+        ],
+        "outputs":[
+            "ganhsrlM1.a1",
+            "ganhsrlM1.00"
+        ],
+        "primary_meas":[
+            [
+                "Backscatter depolarization ratio",
+                "aeros||Aerosols",
+                "optrad||optical and radiative properties||aeros"
+            ],
+            [
+                "Backscattered radiation",
+                [
+                    "aeros||Aerosols",
+                    "cloud||Cloud Properties"
+                ],
+                [
+                    "micro||microphysical||cloud",
+                    "optrad||optical and radiative properties||aeros"
+                ]
+            ],
+            [
+                "Aerosol extinction",
+                "aeros||Aerosols",
+                "optrad||optical and radiative properties||aeros"
+            ]
+        ]
+    },
+    "HVPS":{},
+    "IAP":{
+        "site_info":[
+            "sgp||Southern Great Plains||P"
+        ],
+        "sites":[
+            "sgp||C1||Central Facility, Lamont, OK||P"
+        ],
+        "instrument_class":[
+            "iap"
+        ],
+        "instrument_class_name":[
+            "In-situ Aerosol Profiles (Cessna Aerosol Flights)"
+        ],
+        "outputs":[
+            "sgpiapmfrC1.b1",
+            "sgpiapmfrC1.a0"
+        ],
+        "primary_meas":[
+            [
+                "Longwave narrowband upwelling irradiance",
+                "radio||Radiometric",
+                "lwnarrow||longwave narrowband||radio"
+            ],
+            [
+                "Longwave broadband upwelling irradiance",
+                "radio||Radiometric",
+                "lwbroad||longwave broadband||radio"
+            ],
+            [
+                "Shortwave narrowband diffuse upwelling irradiance",
+                "radio||Radiometric",
+                "swnarrow||shortwave narrowband||radio"
+            ],
+            [
+                "Shortwave broadband total upwelling irradiance",
+                "radio||Radiometric",
+                "swbroad||shortwave broadband||radio"
+            ]
+        ]
+    },
+    "KITE-NOAA":{},
+    "LASE":{
+        "site_info":[
+            "asi||Ascension Island, South Atlantic Ocean; Mobile Facility (LASIC)||M"
+        ],
+        "sites":[
+            "asi||M1||Ascension Island, South Atlantic Ocean; AMF1||M",
+            "asi||S2||Ascension Island, South Atlantic Ocean; Collocated Instruments||M"
+        ],
+        "instrument_class":[
+            "ldis"
+        ],
+        "instrument_class_name":[
+            "Laser Disdrometer"
+        ],
+        "outputs":[
+            "asipars2M1.b1",
+            "asipars2S2.b1"
+        ],
+        "primary_meas":[
+            [
+                "Hydrometeor fall velocity",
+                "cloud||Cloud Properties",
+                "micro||microphysical||cloud"
+            ],
+            [
+                "Liquid water content",
+                "cloud||Cloud Properties",
+                "micro||microphysical||cloud"
+            ],
+            [
+                "Hydrometeor size",
+                "cloud||Cloud Properties",
+                "micro||microphysical||cloud"
+            ],
+            [
+                "Hydrometeor Size Distribution",
+                [
+                    "cloud||Cloud Properties",
+                    "atmstate||Atmospheric State"
+                ],
+                [
+                    "micro||microphysical||cloud",
+                    "sfcmet||surface meteorology||atmstate"
+                ]
+            ],
+            [
+                "Precipitation",
+                "atmstate||Atmospheric State",
+                "sfcmet||surface meteorology||atmstate"
+            ],
+            [
+                "Visibility",
+                "atmstate||Atmospheric State",
+                "sfcmet||surface meteorology||atmstate"
+            ]
+        ]
+    },
+    "LEARJET":{},
+    "LMWRR-AIR":{},
+    "MMCR94-AIR":{},
+    "MPL-AIR":{
+        "site_info":[
+            "gan||Gan Island, Maldives; Mobile Facility (AMIE-GAN)||M",
+            "sgp||Southern Great Plains||P",
+            "grw||Graciosa Island, Azores, Portugal; Mobile Facility (CAP-MPL)||M"
+        ],
+        "sites":[
+            "gan||M1||Gan Airport, Gan Island, Maldives; AMF2||M",
+            "sgp||C1||Central Facility, Lamont, OK||P",
+            "grw||M1||Graciosa Island, Azores, Portugal; AMF1||M"
+        ],
+        "instrument_class":[
+            "mpl",
+            "mplcmask",
+            "co2flx",
+            "mwrp"
+        ],
+        "instrument_class_name":[
+            "Micropulse Lidar",
+            "Cloud mask from Micropulse Lidar",
+            "Carbon Dioxide Flux Measurement Systems",
+            "Microwave Radiometer Profiler"
+        ],
+        "outputs":[
+            "ganmplpolfsM1.b1",
+            "gan30smplcmask1zwangM1.c1",
+            "sgp30co2flx4mmetC1.b1",
+            "grwmwrpM1.b1"
+        ],
+        "primary_meas":[
+            [
+                "Radar polarization",
+                "cloud||Cloud Properties",
+                [
+                    "macro||macrophysical||cloud",
+                    "micro||microphysical||cloud"
+                ]
+            ],
+            [
+                "Cloud base height",
+                "cloud||Cloud Properties",
+                "macro||macrophysical||cloud"
+            ],
+            [
+                "Cloud top height",
+                "cloud||Cloud Properties",
+                "macro||macrophysical||cloud"
+            ],
+            [
+                "Cloud location",
+                "cloud||Cloud Properties",
+                "macro||macrophysical||cloud"
+            ],
+            [
+                "Backscattered radiation",
+                "aeros||Aerosols",
+                "optrad||optical and radiative properties||aeros"
+            ],
+            [
+                "Atmospheric temperature",
+                "atmstate||Atmospheric State",
+                [
+                    "upperair||upper air state||atmstate",
+                    "sfcmet||surface meteorology||atmstate"
+                ]
+            ]
+        ]
+    },
+    "MSR":{},
+    "NAWX":{},
+    "NOAA-AIR":{
+        "site_info":[
+            "nsa||North Slope Alaska||P",
+            "sgp||Southern Great Plains||P",
+            "acx||ACAPEX (ARM Cloud Aerosol Precip Experiment); Mobile Facility||M"
+        ],
+        "sites":[
+            "nsa||X1||External Data (satellites and others)||P",
+            "sgp||X1||External Data (satellites and others)||P",
+            "acx||M1||Off the Coast of California - NOAA Ship Ronald H. Brown; AMF2||M"
+        ],
+        "instrument_class":[
+            "noaacrn",
+            "noaasurf",
+            "sonde"
+        ],
+        "instrument_class_name":[
+            "NOAA Climate Reference Network",
+            "NOAA Surface Meteorology Data, collected by NWS and NCDC",
+            "Balloon-Borne Sounding System"
+        ],
+        "outputs":[
+            "nsa60noaacrnX1.b1",
+            "sgp60noaacrnX1.b1",
+            "sgp60nwssurfX1.a1",
+            "acxsondewnpnM1.b1"
+        ],
+        "primary_meas":[
+            [
+                "Atmospheric temperature",
+                "atmstate||Atmospheric State",
+                [
+                    "upperair||upper air state||atmstate",
+                    "sfcmet||surface meteorology||atmstate"
+                ]
+            ],
+            [
+                "Atmospheric moisture",
+                "atmstate||Atmospheric State",
+                [
+                    "upperair||upper air state||atmstate",
+                    "sfcmet||surface meteorology||atmstate"
+                ]
+            ],
+            [
+                "Atmospheric pressure",
+                "atmstate||Atmospheric State",
+                [
+                    "upperair||upper air state||atmstate",
+                    "sfcmet||surface meteorology||atmstate"
+                ]
+            ],
+            [
+                "Horizontal wind",
+                "atmstate||Atmospheric State",
+                [
+                    "upperair||upper air state||atmstate",
+                    "sfcmet||surface meteorology||atmstate"
+                ]
+            ]
+        ]
+    },
+    "NOAA-P3":{
+        "site_info":[
+            "acx||ACAPEX (ARM Cloud Aerosol Precip Experiment); Mobile Facility||M",
+            "pvc||Cape Cod, MA, USA; Mobile Facility (TCAP)||M",
+            "nsa||North Slope Alaska||P",
+            "pgh||Ganges Valley, India; Mobile Facility (GVAX)||M",
+            "hfe||Shouxian, Anhui, China; Mobile Facility||M",
+            "pye||Point Reyes CA, USA; Mobile Facility (MASRAD)||M",
+            "fkb||Black Forest, Germany; Mobile Facility (COPS)||M"
+        ],
+        "sites":[
+            "acx||M1||Off the Coast of California - NOAA Ship Ronald H. Brown; AMF2||M",
+            "pvc||M1||Highland Center, Cape Cod MA; AMF1||M",
+            "nsa||X1||External Data (satellites and others)||P",
+            "pgh||M1||ARIES Observatory, Nainital, Uttarkhand, India; AMF1||M",
+            "hfe||M1||Shouxian, Anhui, China||M",
+            "pye||M1||Point Reyes, CA||M",
+            "fkb||M1||Black Forest, Germany||M"
+        ],
+        "instrument_class":[
+            "psap",
+            "aos"
+        ],
+        "instrument_class_name":[
+            "Particle Soot Absorption Photometer",
+            "Aerosol Observing System"
+        ],
+        "outputs":[
+            "acxaospsap3wM1.a1",
+            "pvcnoaaaosM1.b1",
+            "nsanoaaaosX1.b1",
+            "pghnoaaaosM1.b1",
+            "hfenoaaaosM1.b1",
+            "pyenoaaaosM1.b1",
+            "fkbnoaaaosM1.b1"
+        ],
+        "primary_meas":[
+            [
+                "Aerosol absorption",
+                "aeros||Aerosols",
+                "optrad||optical and radiative properties||aeros"
+            ]
+        ]
+    },
+    "NRC-CONVAIR580":{},
+    "OTTER":{},
+    "PARTIMG":{},
+    "PASS-AIR":{
+        "site_info":[
+            "sgp||Southern Great Plains||P",
+            "nsa||North Slope Alaska||P",
+            "twp||Tropical Western Pacific||P",
+            "gec||Global Earth Coverage||X"
+        ],
+        "sites":[
+            "sgp||X1||External Data (satellites and others)||P",
+            "nsa||X1||External Data (satellites and others)||P",
+            "twp||X1||External Data (satellites and others)||P",
+            "gec||X1||External Data (satellites and others)||X",
+            "sgp||F2||Cessna 206 Aircraft||P"
+        ],
+        "instrument_class":[
+            "acars",
+            "mfr"
+        ],
+        "instrument_class_name":[
+            "Aircraft Communications Addressing and Reporting System",
+            "Multifilter Radiometer"
+        ],
+        "outputs":[
+            "sgpacarsX1.a1",
+            "nsaacarsX1.a1",
+            "twpacarsX1.a1",
+            "gecacarsX1.a1",
+            "sgpmfraafF2.b1"
+        ],
+        "primary_meas":[
+            [
+                "Atmospheric turbulence",
+                "atmstate||Atmospheric State",
+                [
+                    "upperair||upper air state||atmstate",
+                    "sfcmet||surface meteorology||atmstate"
+                ]
+            ],
+            [
+                "Shortwave narrowband total upwelling irradiance",
+                "radio||Radiometric",
+                "swnarrow||shortwave narrowband||radio"
+            ]
+        ]
+    },
+    "PCASP":{
+        "site_info":[
+            "sgp||Southern Great Plains||P"
+        ],
+        "sites":[
+            "sgp||C1||Central Facility, Lamont, OK||P"
+        ],
+        "instrument_class":[
+            "aos"
+        ],
+        "instrument_class_name":[
+            "Aerosol Observing System"
+        ],
+        "outputs":[
+            "sgpaosC1.a0"
+        ],
+        "primary_meas":[
+            [
+                "Particle number concentration",
+                "aeros||Aerosols",
+                "microchem||microphysical and chemical properties||aeros"
+            ]
+        ]
+    },
+    "PDI":{
+        "site_info":[
+            "pgh||Ganges Valley, India; Mobile Facility (GVAX)||M",
+            "sgp||Southern Great Plains||P",
+            "pvc||Cape Cod, MA, USA; Mobile Facility (TCAP)||M"
+        ],
+        "sites":[
+            "pgh||M1||ARIES Observatory, Nainital, Uttarkhand, India; AMF1||M",
+            "sgp||C1||Central Facility, Lamont, OK||P",
+            "pvc||M1||Highland Center, Cape Cod MA; AMF1||M"
+        ],
+        "instrument_class":[
+            "sasze",
+            "aod",
+            "sashe"
+        ],
+        "instrument_class_name":[
+            "Shortwave Array Spectroradiometer-Zenith",
+            "Aerosol Optical Depth, derived from atmospheric extinction of solar irradiance",
+            "Shortwave Array Spectroradiometer-Hemispheric"
+        ],
+        "outputs":[
+            "pghsaszenirM1.a0",
+            "sgpsaszevisC1.a0",
+            "sgpsasheniraodC1.c1",
+            "pghsashenirhisunM1.a0",
+            "pghsashevishisunM1.a0",
+            "pghsashenirlowsunM1.a0",
+            "sgpsashenirC1.b1",
+            "pvcsasheniraodM1.c1",
+            "sgpsashevisaodC1.c1",
+            "pvcsashevishisunM1.a0"
+        ],
+        "primary_meas":[
+            [
+                "Shortwave spectral direct normal irradiance",
+                "radio||Radiometric",
+                "swspect||shortwave spectral||radio"
+            ],
+            [
+                "Shortwave spectral diffuse downwelling irradiance",
+                [
+                    "radio||Radiometric",
+                    "aeros||Aerosols"
+                ],
+                [
+                    "swspect||shortwave spectral||radio",
+                    "optrad||optical and radiative properties||aeros"
+                ]
+            ],
+            [
+                "Shortwave spectral diffuse downwelling irradiance",
+                "radio||Radiometric",
+                "swspect||shortwave spectral||radio"
+            ],
+            [
+                "Shortwave spectral direct normal irradiance",
+                "radio||Radiometric",
+                [
+                    "swnarrow||shortwave narrowband||radio",
+                    "swspect||shortwave spectral||radio"
+                ]
+            ],
+            [
+                "Shortwave spectral direct normal irradiance",
+                [
+                    "radio||Radiometric",
+                    "aeros||Aerosols"
+                ],
+                [
+                    "swspect||shortwave spectral||radio",
+                    "optrad||optical and radiative properties||aeros"
+                ]
+            ]
+        ]
+    },
+    "RAD-AIR":{
+        "site_info":[
+            "sgp||Southern Great Plains||P",
+            "pye||Point Reyes CA, USA; Mobile Facility (MASRAD)||M",
+            "rld||Richland WA, USA; Mobile Facility test||T",
+            "awr||AWARE (ARM West Antarctic Radiation Experiment)||M"
+        ],
+        "sites":[
+            "sgp||X1||External Data (satellites and others)||P",
+            "pye||M1||Point Reyes, CA||M",
+            "rld||M1||Richland, WA||T",
+            "awr||X11||External Data for West Antarctic Ice Sheet, Antarctica||M",
+            "awr||X10||External Data for McMurdo Station, Antarctica||M",
+            "sgp||F1||Gulfstream 159 Aircraft||P"
+        ],
+        "instrument_class":[
+            "usdarad",
+            "mwrp",
+            "armbestns",
+            "ecmwfdiag",
+            "met-air",
+            "armbe2dgrid"
+        ],
+        "instrument_class_name":[
+            "US Department of Agriculture (USDA) Radiation Monitoring Data",
+            "Microwave Radiometer Profiler",
+            "Station-based Surface Products",
+            "European Centre for Medium Range Weather Forecasts Diagnostic Analyses",
+            "Meteorological Instrumentation aboard Aircraft",
+            "2D Gridded Surface Data Set"
+        ],
+        "outputs":[
+            "sgpusdaradauxX1.00",
+            "pyemwrpM1.b1",
+            "sgparmbestnsX1.c1",
+            "rldmwrpM1.b1",
+            "awrecmwfsfceX11.c1",
+            "awrecmwfsfceX10.c1",
+            "sgpaafmetaimsF1.a1",
+            "sgparmbe2dgridX1.c1"
+        ],
+        "primary_meas":[
+            [
+                "Atmospheric temperature",
+                "atmstate||Atmospheric State",
+                [
+                    "upperair||upper air state||atmstate",
+                    "sfcmet||surface meteorology||atmstate"
+                ]
+            ],
+            [
+                "Atmospheric temperature",
+                [
+                    "radio||Radiometric",
+                    "cloud||Cloud Properties",
+                    "atmstate||Atmospheric State",
+                    "sfcprop||Surface Properties"
+                ],
+                [
+                    "lwbroad||longwave broadband||radio",
+                    "sfcstate||surface/subsurface state||sfcprop",
+                    "micro||microphysical||cloud",
+                    "upperair||upper air state||atmstate",
+                    "swbroad||shortwave broadband||radio",
+                    "sfcflux||surface flux||sfcprop",
+                    "sfcmet||surface meteorology||atmstate"
+                ]
+            ],
+            [
+                "Atmospheric temperature",
+                [
+                    "radio||Radiometric",
+                    "atmstate||Atmospheric State",
+                    "sfcprop||Surface Properties"
+                ],
+                [
+                    "lwnarrow||longwave narrowband||radio",
+                    "lwbroad||longwave broadband||radio",
+                    "sfcstate||surface/subsurface state||sfcprop",
+                    "upperair||upper air state||atmstate",
+                    "swbroad||shortwave broadband||radio",
+                    "sfcmet||surface meteorology||atmstate"
+                ]
+            ],
+            [
+                "Atmospheric temperature",
+                [
+                    "radio||Radiometric",
+                    "atmstate||Atmospheric State",
+                    "sfcprop||Surface Properties"
+                ],
+                [
+                    "lwnarrow||longwave narrowband||radio",
+                    "lwbroad||longwave broadband||radio",
+                    "sfcstate||surface/subsurface state||sfcprop",
+                    "swbroad||shortwave broadband||radio",
+                    "upperair||upper air state||atmstate",
+                    "sfcmet||surface meteorology||atmstate"
+                ]
+            ],
+            [
+                "Atmospheric temperature",
+                [
+                    "radio||Radiometric",
+                    "cloud||Cloud Properties",
+                    "atmstate||Atmospheric State",
+                    "sfcprop||Surface Properties"
+                ],
+                [
+                    "macro||macrophysical||cloud",
+                    "lwbroad||longwave broadband||radio",
+                    "sfcstate||surface/subsurface state||sfcprop",
+                    "micro||microphysical||cloud",
+                    "upperair||upper air state||atmstate",
+                    "swbroad||shortwave broadband||radio",
+                    "sfcflux||surface flux||sfcprop",
+                    "sfcmet||surface meteorology||atmstate"
+                ]
+            ],
+            [
+                "Atmospheric temperature",
+                [
+                    "radio||Radiometric",
+                    "cloud||Cloud Properties",
+                    "atmstate||Atmospheric State",
+                    "sfcprop||Surface Properties"
+                ],
+                [
+                    "lwbroad||longwave broadband||radio",
+                    "sfcstate||surface/subsurface state||sfcprop",
+                    "micro||microphysical||cloud",
+                    "swbroad||shortwave broadband||radio",
+                    "upperair||upper air state||atmstate",
+                    "sfcflux||surface flux||sfcprop",
+                    "sfcmet||surface meteorology||atmstate"
+                ]
+            ]
+        ]
+    },
+    "RSP":{
+        "site_info":[
+            "nsa||North Slope Alaska||P",
+            "twp||Tropical Western Pacific||P",
+            "fkb||Black Forest, Germany; Mobile Facility (COPS)||M"
+        ],
+        "sites":[
+            "nsa||C1||Central Facility, Barrow AK||P",
+            "twp||C3||Central Facility, Darwin, Australia||P",
+            "fkb||M1||Black Forest, Germany||M"
+        ],
+        "instrument_class":[
+            "wsacr",
+            "kasacr",
+            "wacr"
+        ],
+        "instrument_class_name":[
+            "W-band Scanning ARM Cloud Radar",
+            "Ka-Band Scanning ARM Cloud Radar",
+            "W-Band (95 GHz) ARM Cloud Radar"
+        ],
+        "outputs":[
+            "nsawsacrspeccmaskcopolC1.a0",
+            "twpkasacrspeccmaskcopolC3.a0",
+            "nsawsacrspeccmaskxpolC1.a0",
+            "fkbwacrspeccmaskcopolM1.a0"
+        ],
+        "primary_meas":[
+            [
+                "Radar reflectivity",
+                "cloud||Cloud Properties",
+                [
+                    "macro||macrophysical||cloud",
+                    "micro||microphysical||cloud"
+                ]
+            ],
+            [
+                "Hydrometeor fall velocity",
+                "cloud||Cloud Properties",
+                "micro||microphysical||cloud"
+            ],
+            [
+                "Cloud particle size distribution",
+                "cloud||Cloud Properties",
+                [
+                    "macro||macrophysical||cloud",
+                    "micro||microphysical||cloud"
+                ]
+            ]
+        ]
+    },
+    "SOLARIRRADS":{},
+    "SP2-AIR":{
+        "site_info":[
+            "gan||Gan Island, Maldives; Mobile Facility (AMIE-GAN)||M"
+        ],
+        "sites":[
+            "gan||M1||Gan Airport, Gan Island, Maldives; AMF2||M"
+        ],
+        "instrument_class":[
+            "skyrad"
+        ],
+        "instrument_class_name":[
+            "Sky Radiometers on Stand for Downwelling Radiation"
+        ],
+        "outputs":[
+            "ganskyrad60sM1.b1"
+        ],
+        "primary_meas":[
+            [
+                "Longwave broadband downwelling irradiance",
+                "radio||Radiometric",
+                "lwbroad||longwave broadband||radio"
+            ]
+        ]
+    },
+    "SPEC-CPI":{},
+    "SPEC-LEARJET":{},
+    "SSFR":{},
+    "4STAR-AIR":{},
+    "TDLAS":{},
+    "TDMA-AIR":{
+        "site_info":[
+            "awr||AWARE (ARM West Antarctic Radiation Experiment)||M",
+            "sgp||Southern Great Plains||P",
+            "oli||Oliktok Point, Alaska, USA; Mobile Facility||M",
+            "ena||Eastern North Atlantic||P",
+            "tmp||Hyytiala, Finland; Mobile Facility (BAECC)||M",
+            "acx||ACAPEX (ARM Cloud Aerosol Precip Experiment); Mobile Facility||M"
+        ],
+        "sites":[
+            "awr||M1||McMurdo Station Ross Ice Shelf, Antarctica; AMF2||M",
+            "sgp||C1||Central Facility, Lamont, OK||P",
+            "oli||M1||Olikiok Point, Alaska; AMF3||M",
+            "ena||C1||Graciosa Island, Azores, Portugal||P",
+            "tmp||S1||U. of Helsinki Research Station (SMEAR II), Hyytiala, Finland; AOS||M",
+            "acx||M1||Off the Coast of California - NOAA Ship Ronald H. Brown; AMF2||M"
+        ],
+        "instrument_class":[
+            "htdma",
+            "tdma"
+        ],
+        "instrument_class_name":[
+            "Humidified Tandem Differential Mobility Analyzer",
+            "Tandem Differential Mobility Analyzer"
+        ],
+        "outputs":[
+            "awraoshtdmaM1.a1",
+            "sgptdmasizeC1.b1",
+            "oliaoshtdmaM1.a1",
+            "sgptdmahygC1.b1",
+            "enaaoshtdmaC1.a1",
+            "tmpaoshtdmaS1.a1",
+            "acxaoshtdmaM1.a1"
+        ],
+        "primary_meas":[
+            [
+                "Aerosol concentration",
+                "aeros||Aerosols",
+                "microchem||microphysical and chemical properties||aeros"
+            ],
+            [
+                "Particle number concentration",
+                "aeros||Aerosols",
+                "microchem||microphysical and chemical properties||aeros"
+            ],
+            [
+                "Aerosol particle size distribution",
+                "aeros||Aerosols",
+                "microchem||microphysical and chemical properties||aeros"
+            ],
+            [
+                "Particle size distribution",
+                "aeros||Aerosols",
+                "microchem||microphysical and chemical properties||aeros"
+            ]
+        ]
+    },
+    "TEM":{
+        "site_info":[
+            "sgp||Southern Great Plains||P"
+        ],
+        "sites":[
+            "sgp||E3||LeRoy, KS (Extended)||P",
+            "sgp||C1||Central Facility, Lamont, OK||P",
+            "sgp||E27||Earlsboro, OK (Extended)||P",
+            "sgp||E33||Newkirk, OK (Extended)||P",
+            "sgp||E16||Vici, OK (Extended)||P",
+            "sgp||E18||Morris, OK (Extended)||P",
+            "sgp||E15||Ringwood, OK (Extended)||P"
+        ],
+        "instrument_class":[
+            "swats",
+            "rwptemp"
+        ],
+        "instrument_class_name":[
+            "Soil Water and Temperature System",
+            "RWP-Based Virtual Temperature Profile"
+        ],
+        "outputs":[
+            "sgpswatsE3.a1",
+            "sgprwptempC1.c1",
+            "sgpswatsE27.b1",
+            "sgpswatsE33.b1",
+            "sgpswatsE16.b1",
+            "sgpswatsE18.b1",
+            "sgpswatsE15.b1"
+        ],
+        "primary_meas":[
+            [
+                "Soil surface temperature",
+                "sfcprop||Surface Properties",
+                [
+                    "sfcstate||surface/subsurface state||sfcprop",
+                    "sfcflux||surface flux||sfcprop"
+                ]
+            ],
+            [
+                "Virtual temperature",
+                "atmstate||Atmospheric State",
+                "upperair||upper air state||atmstate"
+            ]
+        ]
+    },
+    "TETHERSONDE-CM":{},
+    "TRACEGAS":{
+        "site_info":[
+            "pvc||Cape Cod, MA, USA; Mobile Facility (TCAP)||M",
+            "ena||Eastern North Atlantic||P",
+            "mao||Manacapuru, Amazonas, Brazil; Mobile Facility (GOAMAZON)||M"
+        ],
+        "sites":[
+            "pvc||S1||Highland Center, Cape Cod MA; MAOS||M",
+            "ena||C1||Graciosa Island, Azores, Portugal||P",
+            "mao||S1||Manacapuru, Amazonas, Brazil; MAOS||M"
+        ],
+        "instrument_class":[
+            "aos"
+        ],
+        "instrument_class_name":[
+            "Aerosol Observing System"
+        ],
+        "outputs":[
+            "pvcaoscoS1.a1",
+            "enaaoscoC1.a1",
+            "maoaosso2S1.01",
+            "maoaoscoS1.01",
+            "pvcaosso2S1.a1",
+            "maoaosnoxS1.01",
+            "pvcaosnoxS1.a1"
+        ],
+        "primary_meas":[
+            [
+                "Trace gas concentration",
+                [
+                    "carbon||Atmospheric Carbon",
+                    "atmstate||Atmospheric State"
+                ],
+                [
+                    "tracegas||other trace gases||atmstate",
+                    "gaseous||gaseous||carbon"
+                ]
+            ],
+            [
+                "Trace gas concentration",
+                "atmstate||Atmospheric State",
+                "tracegas||other trace gases||atmstate"
+            ]
+        ]
+    },
+    "UAV-ALTUS":{},
+    "UAV-ALTUS-MET":{},
+    "UAV-EGRETT":{},
+    "UAV-GNAT":{},
+    "UAV-MET-OTTER":{},
+    "UAV-PROTEUS":{},
+    "UAV-PROTEUS-MICRO":{},
+    "UHSAS":{
+        "site_info":[
+            "asi||Ascension Island, South Atlantic Ocean; Mobile Facility (LASIC)||M",
+            "mao||Manacapuru, Amazonas, Brazil; Mobile Facility (GOAMAZON)||M",
+            "oli||Oliktok Point, Alaska, USA; Mobile Facility||M",
+            "pvc||Cape Cod, MA, USA; Mobile Facility (TCAP)||M",
+            "ena||Eastern North Atlantic||P",
+            "mag||MAGIC (Marine ARM GPCI Investigation of Clouds); Mobile Facility||M"
+        ],
+        "sites":[
+            "asi||M1||Ascension Island, South Atlantic Ocean; AMF1||M",
+            "mao||S1||Manacapuru, Amazonas, Brazil; MAOS||M",
+            "oli||M1||Olikiok Point, Alaska; AMF3||M",
+            "pvc||S1||Highland Center, Cape Cod MA; MAOS||M",
+            "ena||C1||Graciosa Island, Azores, Portugal||P",
+            "mag||M1||Los Angeles, CA to Honolulu, HI - container ship Horizon Spirit; AMF2||M"
+        ],
+        "instrument_class":[
+            "uhsas"
+        ],
+        "instrument_class_name":[
+            "Ultra-High Sensitivity Aerosol Spectrometer"
+        ],
+        "outputs":[
+            "asiaosuhsasM1.a1",
+            "maoaosuhsasS1.01",
+            "oliaosuhsasM1.a1",
+            "pvcaosuhsasS1.a1",
+            "enaaosuhsasC1.a1",
+            "magaosuhsasM1.a1"
+        ],
+        "primary_meas":[
+            [
+                "Aerosol particle size distribution",
+                "aeros||Aerosols",
+                "microchem||microphysical and chemical properties||aeros"
+            ]
+        ]
+    },
+    "UW-AIR":{
+        "site_info":[
+            "pvc||Cape Cod, MA, USA; Mobile Facility (TCAP)||M",
+            "nim||Niamey, Niger; Mobile Facility (RADAGAST)||M",
+            "twp||Tropical Western Pacific||P",
+            "awr||AWARE (ARM West Antarctic Radiation Experiment)||M",
+            "nsa||North Slope Alaska||P",
+            "sbs||Steamboat Springs CO, USA; Mobile Facility (STORMVEX)||M",
+            "sgp||Southern Great Plains||P",
+            "grw||Graciosa Island, Azores, Portugal; Mobile Facility (CAP-MPL)||M",
+            "pye||Point Reyes CA, USA; Mobile Facility (MASRAD)||M"
+        ],
+        "sites":[
+            "pvc||M1||Highland Center, Cape Cod MA; AMF1||M",
+            "nim||M1||Niamey, Niger||M",
+            "twp||E30||East Arm, Darwin, Australia||P",
+            "awr||M1||McMurdo Station Ross Ice Shelf, Antarctica; AMF2||M",
+            "nsa||E10||Barrow, Alaska (71.325, -156.608, 5)||P",
+            "sbs||M1||Steamboat Springs CO, Valley Site; AMF2||M",
+            "sgp||E41||Peckham, OK (Extended)||P",
+            "grw||M1||Graciosa Island, Azores, Portugal; AMF1||M",
+            "pye||M1||Point Reyes, CA||M"
+        ],
+        "instrument_class":[
+            "ecor"
+        ],
+        "instrument_class_name":[
+            "Eddy Correlation Flux Measurement System"
+        ],
+        "outputs":[
+            "pvc30ecorM1.b1",
+            "nim30ecorM1.b1",
+            "twp30ecorE30.b1",
+            "awr30ecorM1.b1",
+            "nsa30ecorE10.b1",
+            "sbs30ecorM1.b1",
+            "sgp30ecorE41.b1",
+            "grw30ecorM1.b1",
+            "pye30ecorM1.b1"
+        ],
+        "primary_meas":[
+            [
+                "Atmospheric turbulence",
+                [
+                    "atmstate||Atmospheric State",
+                    "sfcprop||Surface Properties"
+                ],
+                [
+                    "upperair||upper air state||atmstate",
+                    "sfcflux||surface flux||sfcprop",
+                    "sfcmet||surface meteorology||atmstate"
+                ]
+            ]
+        ]
+    },
+    "UW-CONVAIR580":{},
+    "WCM":{}
+}

@@ -199,6 +199,7 @@
   		<artifactId>wordsim</artifactId>
   		<version>1.0.0</version>
   	</dependency>
+<<<<<<< HEAD
     <dependency>
       <groupId>org.json4s</groupId>
       <artifactId>json4s-native_2.10</artifactId>
@@ -210,6 +211,13 @@
       <version>3.3.0</version>
     </dependency>
 
+=======
+  	<dependency>
+	    <groupId>org.ini4j</groupId>
+	    <artifactId>ini4j</artifactId>
+	    <version>0.5.1</version>
+	</dependency>
+>>>>>>> 162c26c98f10a56d1a4dae7941dfaa162bee83ae
   </dependencies>
 
   <build>
@@ -217,6 +225,11 @@
     <testSourceDirectory>src/test/scala</testSourceDirectory>
     <pluginManagement>
     <plugins>
+      <plugin>
+          <groupId>net.alchim31.maven</groupId>
+          <artifactId>scala-maven-plugin</artifactId>
+          <version>3.1.6</version>
+      </plugin>
       <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>

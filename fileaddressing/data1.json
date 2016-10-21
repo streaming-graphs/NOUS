@@ -1,0 +1,34 @@
+{
+    "ACSM":{
+        "sites":[
+            "asi||M1||Ascension Island, South Atlantic Ocean; AMF1||M",
+            "pvc||S1||Highland Center, Cape Cod MA; MAOS||M",
+            "ena||C1||Graciosa Island, Azores, Portugal||P",
+            "mao||S1||Manacapuru, Amazonas, Brazil; MAOS||M"
+        ],
+        "instrument_class":[
+            "acsm"
+        ],
+        "instrument_class_name":[
+            "Aerosol Chemical Speciation Monitor"
+        ],
+        "outputs":[
+            "asiaosacsmM1.a1",
+            "pvcaosacsmS1.a1",
+            "enaaosacsmC1.b1",
+            "maoaosacsmS1.b1"
+        ],
+        "primary_meas":[
+            [
+                "Inorganic chemical composition",
+                "aeros||Aerosols",
+                "microchem||microphysical and chemical properties||aeros"
+            ],
+            [
+                "Organic Carbon Concentration",
+                "aeros||Aerosols",
+                "microchem||microphysical and chemical properties||aeros"
+            ]
+        ]
+    }
+}

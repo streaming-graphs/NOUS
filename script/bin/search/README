@@ -1,0 +1,50 @@
+#This file lists the steps needed to generate data for training neural network model for path search
+#ANN Model needs following:
+#A) Sample Paths as sequence of nodes (each node mapped to an integer Id (referred to as nodeId here))
+#B) Separate Files that map      (nodeId  -> nodeLabel, 
+#				nodeId -> nodeDegree, 
+#				nodeId -> nodeWord2vec)
+#C) For each node its list of neighbours
+#				(nodeId -> List of neighbouring nodeId(s))
+#
+
+To generate the data required by ANN model from yago/data graph:
+
+1) Feature Generation(degree, wordnet, wikicategory, edge rank, vertex page rank etc): 
+NOUS/knowledge_graph/src/main/scala/gov/pnnl/aristotle/algorithms/PathSearch/NodeFeatureGenerator.scala
+
+Current ANN model is using, generated from NodeFeatureGenerator.scala:
+		: (nodeId, nodeLabel, nodeDegree, nodeWordnet_category_list, nbrlist)
+		: A file containign list of all wordnet categories in Yago (wordnet_Categories.txt)
+
+2) Use data generated in step1, 
+split features ((nodeId, nodeLabel, nodeDegree, nodeWordnet_category_list etc)  using 
+NOUS/script/bin/search/splitFeatures.py in separte files,
+For use in word2vec model, clean vertexType.txt by removing "wordnet"  and "integer numbers" from wordnet labels or 
+use previosly generated data in repository @bigdatann:/pic/projects/nous/PathSearch/datasets/:
+	2.1) vertexNames.txt -> nodeLabel of  330K vertices, one at each line
+	2.2) vertexTypeCleaned.txt ->  nodeWordnet_category_list, corresponding to each vertex in vertexNames.txt
+	2.3) vertexDegree.txt ->nodeDegree, corresponding to each vertex in vertexNames.txt
+	2.4) vertex.nbrs -> node_nbr_list, corresponding to each vertex in vertexNames.txt (Note this needs to be regenerated
+ by for only 330K vertices ( remove all nodes startign with "https://" in data graph, they have no wordnet category)
+	2.5) allWordnetType.txt -> list of all wordnet types in yago graph
+
+3) Use 	nodeId->list[wordnet_class_labels], to generate
+	nodeId -> average_word2vec, using follwing 2 scripts
+	3.1) NOUS/script/bin/search/word2vec/mapWordNetToVectors.py (generates word2vec[wordnet_class]) 
+	3.2) NOUS/script/bin/search/word2vec/avgWordnetVector.py (uses file in 2.2 and outout of 3.1 to generate nodeId -> average_word2vec)
+
+3) Generate Paths between ENtity Pairs ->
+NOUS/knowledge_graph/src/main/scala/gov/pnnl/aristotle/algorithms/PathSearch/PathSearchPregel.scala
+sample run command at /NOUS/script/bin/search/run.sh
+ 
+4) Find path scores (average topic variance, pair wise topic variance, average node degree, variance node degree)
+/NOUS/script/bin/search/getCoherence.py	
+
+5) Use scores generated in 4 to categrize/rank paths:
+/NOUS/script/bin/search/categorizePaths.py
+
+6) Strings to integer convention in tensorflow model: The tensorflow assumes the line number in vertexNames.txt(2.1) to be vertexId
+6.1) To convert paths generated in step 3 to integer format use script:
+
+
