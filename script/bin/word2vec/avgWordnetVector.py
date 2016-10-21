@@ -39,7 +39,7 @@ def normalize(v):
 #@outFile containing average_wordnet_class. Each line in input file corresponds to line in output file 
 
 dataTopDir = "/Users/d3x771/projects/nous/datasets/PathSearchBenchmark/wordnetToVector/"
-mapFile = "allWordnetVector.txt.save"
+mapFile = "allWordnetVector.txt"
 inFile = "vertexTypeCleaned.txt"
 outFile = "vertexWord2VecNormalized.txt"
 
