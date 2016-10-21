@@ -348,7 +348,7 @@ object TripleParser extends Serializable {
     import org.json4s.JsonDSL._
     implicit val formats = DefaultFormats
     val d = Extraction.decompose(finalresult)
-    val writer = new PrintWriter(new File("outputNew20.json"))
+    val writer = new PrintWriter(new File("useRelation.json"))
     writer.write(pretty(render(d)))
     writer.close()
   }
@@ -431,8 +431,8 @@ object TripleParser extends Serializable {
     //}
     //TripleParser.test(info)
     //println(info)
-    //TripleParser.getDumpTriples(lines, info) //this is my function to dump out the json files!
-    TripleParser.Test2015(lines, info) //this is my function to dump out the json files!
+    TripleParser.getDumpTriples(lines, info) //this is my function to dump out the json files!
+    //TripleParser.Test2015(lines, info) //this is my function to dump out the 2015 json files!
     //for (line <- lines) {
     //  TripleParser.getTriples(line)
     //}

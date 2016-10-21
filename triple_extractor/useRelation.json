@@ -1,0 +1,880 @@
+{
+  "doc_name" : "useRelation.txt",
+  "nlp_output" : [ {
+    "sentence_id" : 0,
+    "entities" : [ "O:ECMWF model" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 1,
+    "entities" : [ "O:Atmospheric Radiation Measurement", "LOCATION:Southern Great Plains" ],
+    "triples" : [ "<Program 's Southern Great Plains site>  <examine>  <entrainment processes>", "<Program 's Southern Great Plains site>  <are>  <used>", "<Program 's Southern Great Plains site>  <examine>  <cloud-top entrainment processes>" ]
+  }, {
+    "sentence_id" : 2,
+    "entities" : [ "O:entrainment zone" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 3,
+    "entities" : [ "O:Cooperative Air Sampling Network", "ORGANIZATION:National Oceanic", "ORGANIZATION:Atmospheric Administration Earth System Research Laboratory", "O:NOAA ESRL" ],
+    "triples" : [ "<Cooperative Air Sampling Network of the National Oceanic and Atmospheric Administration Earth System Research Laboratory>  <of Network is>  <NOAA ESRL>" ]
+  }, {
+    "sentence_id" : 4,
+    "entities" : [ "O:Netherlands Institute", "ORGANIZATION:Space Research", "ORGANIZATION:Karlsruhe Institute" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 5,
+    "entities" : [ "O:Atmospheric Radiation Measurement program", "O:Environment Canada", "O:Regional Global Environmental Multiscale" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 6,
+    "entities" : [ "O:noise characteristics" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 7,
+    "entities" : [ "O:MC models" ],
+    "triples" : [ "<MC models>  <can utilize>  <detailed descriptions>", "<MC models>  <can utilize>  <descriptions>", "<MC models>  <detailed descriptions of>  <cloud particle>", "<MC models>  <descriptions of>  <cloud particle>", "<MC models>  <can utilize>  <descriptions of cloud particle>", "<MC models>  <can utilize>  <detailed descriptions of cloud particle>" ]
+  }, {
+    "sentence_id" : 8,
+    "entities" : [ "O:chemical mass balance" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 10,
+    "entities" : [ "O:Land surface models" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 12,
+    "entities" : [ "O:surface evaporation estimation", "O:surface control" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 15,
+    "entities" : [ "O:Two-Column Aerosol Project" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 16,
+    "entities" : [ "O:Kain-Fritsch cumulus parameterization", "O:trigger function" ],
+    "triples" : [ "<ad hoc trigger function>  <used with>  <trigger function boundary layer>", "<ad hoc trigger function>  <used with>  <trigger function related distribution boundary layer>", "<ad hoc trigger function>  <used with>  <trigger function related convective boundary layer>", "<ad hoc trigger function>  <used with>  <trigger function related distribution temperature>", "<ad hoc trigger function>  <used with>  <trigger function>", "<trigger function related>  <is in>  <convective boundary layer>", "<ad hoc trigger function>  <used with>  <trigger function related>", "<ad hoc trigger function>  <used with>  <trigger function related distribution convective boundary layer>", "<ad hoc trigger function>  <used with>  <trigger function related distribution temperature convective boundary layer>", "<ad hoc trigger function>  <used with>  <trigger function convective boundary layer>", "<ad hoc trigger function>  <used with>  <trigger function related distribution>", "<ad hoc trigger function>  <used in>  <Kain-Fritsch cumulus parameterization>", "<ad hoc trigger function>  <used with>  <trigger function related boundary layer>", "<ad hoc trigger function>  <used with>  <trigger function related distribution temperature boundary layer>" ]
+  }, {
+    "sentence_id" : 18,
+    "entities" : [ "O:Kain-Fritsch cumulus parameterization", "O:trigger function" ],
+    "triples" : [ "<ad hoc trigger function>  <used with>  <trigger function boundary layer>", "<ad hoc trigger function>  <used with>  <trigger function related distribution boundary layer>", "<ad hoc trigger function>  <used with>  <trigger function related convective boundary layer>", "<ad hoc trigger function>  <used with>  <trigger function related distribution temperature>", "<ad hoc trigger function>  <used with>  <trigger function>", "<trigger function related>  <is in>  <convective boundary layer>", "<ad hoc trigger function>  <used with>  <trigger function related>", "<ad hoc trigger function>  <used with>  <trigger function related distribution convective boundary layer>", "<ad hoc trigger function>  <used with>  <trigger function related distribution temperature convective boundary layer>", "<ad hoc trigger function>  <used with>  <trigger function convective boundary layer>", "<ad hoc trigger function>  <used with>  <trigger function related distribution>", "<ad hoc trigger function>  <used in>  <Kain-Fritsch cumulus parameterization>", "<ad hoc trigger function>  <used with>  <trigger function related boundary layer>", "<ad hoc trigger function>  <used with>  <trigger function related distribution temperature boundary layer>" ]
+  }, {
+    "sentence_id" : 20,
+    "entities" : [ "O:Energy Reanalysis", "O:Reanalysis Project", "O:Regional Reanalysis", "LOCATION:Great Plains" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 21,
+    "entities" : [ "O:Energy Reanalysis", "O:Reanalysis Project", "O:Regional Reanalysis", "LOCATION:Great Plains" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 24,
+    "entities" : [ "O:TCCON network", "O:delta D" ],
+    "triples" : [ "<delta D>  <be product>  <can used>", "<delta D>  <be useful product>  <can used>" ]
+  }, {
+    "sentence_id" : 25,
+    "entities" : [ "O:Atmospheric Radiation Measurement-Unmanned Aerospace Vehicle" ],
+    "triples" : [ "<Atmospheric Radiation Measurement-Unmanned Aerospace Vehicle>  <foster>  <development of instruments suitable>", "<Atmospheric Radiation Measurement-Unmanned Aerospace Vehicle Program>  <acquire>  <valuable data>", "<Atmospheric Radiation Measurement-Unmanned Aerospace Vehicle Program>  <acquire>  <valuable atmospheric data>", "<Atmospheric Radiation Measurement-Unmanned Aerospace Vehicle Program>  <acquire>  <atmospheric data>", "<Atmospheric Radiation Measurement-Unmanned Aerospace Vehicle>  <foster>  <development>", "<Atmospheric Radiation Measurement-Unmanned Aerospace Vehicle>  <foster>  <development of instruments suitable for use on UAVs>", "<Atmospheric Radiation Measurement-Unmanned Aerospace Vehicle Program>  <acquire>  <data>", "<Atmospheric Radiation Measurement-Unmanned Aerospace Vehicle>  <foster>  <development of instruments>", "<Atmospheric Radiation Measurement-Unmanned Aerospace Vehicle>  <foster>  <development of instruments suitable for use>" ]
+  }, {
+    "sentence_id" : 26,
+    "entities" : [ "O:field deployment", "O:DOE Southern Great Plains site" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 28,
+    "entities" : [ "O:ARM SGP network", "O:cloud field" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 29,
+    "entities" : [ "PERSON:Cloud-Aerosol Lidar", "O:Pathfinder Satellite Observations", "O:Niamey region", "O:monsoon season" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 31,
+    "entities" : [ "O:Climate Research Data Package" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 32,
+    "entities" : [ "O:surface energy budget" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 33,
+    "entities" : [ "O:Advanced Along-Track Scanning Radiometer", "O:Medium Resolution Imaging Spectrometer", "O:Environmental Satellite" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 34,
+    "entities" : [ "O:MERIS oxygen-A absorption channel" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 37,
+    "entities" : [ "O:DY-NAMO/AMIE field campaign", "O:Gan Island" ],
+    "triples" : [ "<Gan Island>  <is of>  <Indian Ocean>" ]
+  }, {
+    "sentence_id" : 40,
+    "entities" : [ "O:dependence structure", "O:modeling tool", "O:space-time setting" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 42,
+    "entities" : [ "LOCATION:Northern Territory", "O:dual-frequency radar profiler system" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 43,
+    "entities" : [ "ORGANIZATION:Atmospheric Radiation Measurement Program", "ORGANIZATION:Western Pacific site" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 58,
+    "entities" : [ "O:US Department", "ORGANIZATION:Atmospheric Radiation Measurement", "O:NASA GISS ModelE" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 59,
+    "entities" : [ "O:activation parameterizations" ],
+    "triples" : [ "<activation parameterizations>  <be>  <too aggressive>", "<activation parameterizations>  <be>  <aggressive>" ]
+  }, {
+    "sentence_id" : 63,
+    "entities" : [ "O:Atmospheric Radiation Measurement", "LOCATION:Manus Island" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 64,
+    "entities" : [ "O:NCAR S-band/Ka-band", "O:Wavelength Doppler Radar", "ORGANIZATION:Texas AM University Shared Mobile Atmospheric Research", "ORGANIZATION:Teaching Radar" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 65,
+    "entities" : [ "PERSON:Kelvin waves", "MISC:Madden-Julian Oscillation Investigation Experiment", "MISC:Madden-Julian Oscillation", "O:Cooperative Indian Ocean Experiment", "O:Intraseasonal Variability", "O:Atmospheric Radiation Measurement" ],
+    "triples" : [ "<Cooperative Indian Ocean Experiment>  <is in>  <the Year 2011>" ]
+  }, {
+    "sentence_id" : 67,
+    "entities" : [ "O:MIT radar location" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 68,
+    "entities" : [ "O:MIT radar location" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 69,
+    "entities" : [ "O:cloud base" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 70,
+    "entities" : [ "O:Community Atmospheric Model Version" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 72,
+    "entities" : [ "O:US Department", "ORGANIZATION:Energy Atmospheric Radiation Measurements program Southern Great Plains site" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 73,
+    "entities" : [ "O:study the cloud-base" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 74,
+    "entities" : [ "O:turbulence characteristics", "O:time evolution" ],
+    "triples" : [ "<turbulence characteristics>  <evaluate time evolution in>  <simulation>", "<turbulence characteristics>  <evaluate time evolution in>  <eddy simulation>", "<turbulence characteristics>  <evaluate time evolution in>  <large simulation forced by surface>", "<turbulence characteristics>  <evaluate time evolution in>  <large eddy simulation forced by surface>", "<turbulence characteristics>  <can>  <can used>", "<turbulence characteristics>  <evaluate time evolution in>  <large simulation forced>", "<turbulence characteristics>  <evaluate time evolution in>  <large eddy simulation>", "<turbulence characteristics>  <evaluate time evolution in>  <large eddy simulation forced>", "<turbulence characteristics>  <evaluate time evolution in>  <eddy simulation forced>", "<turbulence characteristics>  <evaluate time evolution in>  <simulation forced>", "<turbulence characteristics>  <evaluate>  <variability>", "<turbulence characteristics>  <evaluate time evolution in>  <large simulation>", "<turbulence characteristics>  <evaluate time evolution in>  <eddy simulation forced by surface>", "<turbulence characteristics>  <evaluate>  <time evolution of turbulence structures>", "<turbulence characteristics>  <evaluate time evolution in>  <simulation forced by surface>", "<turbulence characteristics>  <evaluate>  <time evolution>" ]
+  }, {
+    "sentence_id" : 76,
+    "entities" : [ "O:CARES data sets" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 77,
+    "entities" : [ "O:Community Atmospheric Model version" ],
+    "triples" : [ "<Community Atmospheric Model version 5>  <of model is>  <SCM>" ]
+  }, {
+    "sentence_id" : 79,
+    "entities" : [ "O:dataset the" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 81,
+    "entities" : [ "O:precipitation process" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 82,
+    "entities" : [ "O:ensemble Kalman filter" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 85,
+    "entities" : [ "O:Atmospheric Radiation Measurement site", "O:CloudSat/Cloud-Aerosol Lidar", "O:Pathfinder Satellite Observations", "O:model parameterizations" ],
+    "triples" : [ "<Atmospheric Radiation Measurement site>  <is in>  <Alaska>" ]
+  }, {
+    "sentence_id" : 86,
+    "entities" : [ "O:United States Department", "O:Atmospheric Radiation MeasurementSouthern Great Plains network" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 88,
+    "entities" : [ "O:UK Met Office Unified Model", "O:Australian Community Climate Earth System Simulator" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 89,
+    "entities" : [ "O:Atmospheric Radiation Measurement", "O:Data Integrator" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 91,
+    "entities" : [ "O:data assimilation scheme/reanalysis" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 93,
+    "entities" : [ "O:Radiation Measurements", "O:Mobile Facility" ],
+    "triples" : [ "<ARM 's Mobile Facility>  <is in>  <Azores>" ]
+  }, {
+    "sentence_id" : 94,
+    "entities" : [ "O:surface fluxes", "O:Medium-Range Weather Forecasting" ],
+    "triples" : [ "<surface fluxes>  <reported by>  <European Centre>", "<surface fluxes>  <characterize>  <dynamic structure>", "<surface fluxes>  <were>  <used>", "<surface fluxes>  <characterize>  <structure>", "<surface fluxes>  <reported by>  <Centre>", "<surface fluxes>  <characterize>  <structure of BL>", "<surface fluxes>  <reported by>  <Centre Medium-Range Weather Forecasting>", "<surface fluxes>  <characterize>  <dynamic structure of BL>", "<surface fluxes>  <reported by>  <European Centre Medium-Range Weather Forecasting>" ]
+  }, {
+    "sentence_id" : 95,
+    "entities" : [ "O:Atmospheric Radiation Measurement", "LOCATION:Manus Island", "LOCATION:Papua New Guinea", "O:ARM Mobile Facility" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 97,
+    "entities" : [ "O:simulation window" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 98,
+    "entities" : [ "ORGANIZATION:Carbon Column" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 99,
+    "entities" : [ "O:Aerosol Cloud Interaction" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 100,
+    "entities" : [ "O:optimization procedure", "O:SGP site" ],
+    "triples" : [ "<optimization procedure>  <generate>  <day-ahead fly/no-fly decisions for research flights>", "<optimization procedure>  <generate>  <day-ahead fly/no-fly decisions>", "<optimization procedure>  <generate>  <day-ahead decisions for research flights over SGP site>", "<optimization procedure>  <generate>  <day-ahead decisions for research flights>", "<optimization procedure>  <generate>  <day-ahead decisions>", "<optimization procedure>  <generate>  <day-ahead fly/no-fly decisions for research flights over SGP site>", "<optimization procedure>  <based on>  <dynamic programming>", "<optimization procedure>  <based on>  <programming>" ]
+  }, {
+    "sentence_id" : 101,
+    "entities" : [ "O:capacitance model" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 102,
+    "entities" : [ "O:aspect ratio" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 103,
+    "entities" : [ "O:ice mass" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 105,
+    "entities" : [ "O:capacitance model" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 106,
+    "entities" : [ "O:collinearity equation" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 111,
+    "entities" : [ "O:ice particle shapes" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 115,
+    "entities" : [ "O:ice particle shapes" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 118,
+    "entities" : [ "LOCATION:West Pacific", "O:North Slope", "ORGANIZATION:Atmospheric Radiation Measurement program", "LOCATION:Alaska sites", "LOCATION:Southern Great Plains" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 119,
+    "entities" : [ "PERSON:Weibull distributions" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 120,
+    "entities" : [ "O:probability density functions" ],
+    "triples" : [ "<probability density functions>  <are used to>  <processes>", "<probability density functions>  <are used to>  <upscale relevant processes>", "<probability density functions>  <are>  <then used to relevant physical processes>", "<probability density functions>  <are>  <used>", "<probability density functions>  <are>  <then used to processes>", "<probability density functions>  <are>  <then used to physical processes>", "<probability density functions>  <are used to>  <upscale physical processes>", "<probability density functions>  <are used to>  <relevant physical processes>", "<probability density functions>  <are used to>  <upscale relevant physical processes>", "<probability density functions>  <are>  <then used to upscale relevant physical processes>", "<probability density functions>  <are>  <then used to upscale physical processes>", "<probability density functions>  <are used to>  <relevant processes>", "<probability density functions>  <are used to>  <physical processes>", "<probability density functions>  <are>  <then used to upscale relevant processes>", "<probability density functions>  <are>  <then used>", "<probability density functions>  <are>  <then used to upscale processes>", "<probability density functions>  <are used to>  <upscale processes>", "<probability density functions>  <are>  <then used to relevant processes>" ]
+  }, {
+    "sentence_id" : 127,
+    "entities" : [ "O:data processing activities" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 128,
+    "entities" : [ "O:humidity corrections" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 129,
+    "entities" : [ "O:CERES net radiation" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 130,
+    "entities" : [ "O:CERES Rn product" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 131,
+    "entities" : [ "LOCATION:Great Plains", "O:Rn variation" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 132,
+    "entities" : [ "O:life cycles" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 133,
+    "entities" : [ "O:AOD data" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 134,
+    "entities" : [ "O:MFRSR data" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 135,
+    "entities" : [ "O:Doppler velocity measurements" ],
+    "triples" : [ "<Doppler velocity measurements>  <are>  <used>" ]
+  }, {
+    "sentence_id" : 136,
+    "entities" : [ "O:Doppler cloud radar observations", "O:power law relation", "MISC:Doppler velocity V-d" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 139,
+    "entities" : [ "O:height evolution", "O:radar Doppler spectra", "O:SLW layers" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 140,
+    "entities" : [ "O:Doppler spectra", "O:radar profiles", "O:ice peak", "O:air motion tracer", "O:SLW layer" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 141,
+    "entities" : [ "O:Pathfinder Satellite Observations", "LOCATION:Pacific Cross-Section Intercomparison", "O:Cloud-Aerosol Lidar", "MISC:Water Cycle Experiment Cloud System Study/Working Group", "ORGANIZATION:Global Energy", "O:Numerical Experimentation", "ORGANIZATION:Marine Atmospheric Radiation Measurement Program" ],
+    "triples" : [ "<Numerical Experimentation>  <on Energy is>  <ARM>", "<Global Energy>  <is>  <Marine Atmospheric Radiation Measurement Program>" ]
+  }, {
+    "sentence_id" : 142,
+    "entities" : [ "O:Marine ARM GPCI Investigation", "O:northeast Pacific", "O:Medium-Range Weather Forecasts" ],
+    "triples" : [ "<Medium-Range Weather Forecasts>  <for Sounder is>  <AIRS>" ]
+  }, {
+    "sentence_id" : 143,
+    "entities" : [ "O:case study", "O:surface flux station" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 144,
+    "entities" : [ "O:CBL height" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 145,
+    "entities" : [ "O:case studies" ],
+    "triples" : [ "<case studies>  <demonstrated>  <that>" ]
+  }, {
+    "sentence_id" : 146,
+    "entities" : [ "O:Multi-Filter Rotating Shadowband Radiometer" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 148,
+    "entities" : [ "O:Optical Particle Counter" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 149,
+    "entities" : [ "LOCATION:Cape Cod", "O:East Coast", "O:United States" ],
+    "triples" : [ "<East Coast>  <is of>  <United States>" ]
+  }, {
+    "sentence_id" : 152,
+    "entities" : [ "O:Millimeter Cloud Radar", "PERSON:Micropulse Lidar", "O:Belfort/Vaisala Ceilometers", "O:Cloud Fraction" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 154,
+    "entities" : [ "O:instrument record" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 156,
+    "entities" : [ "O:Millimeter Cloud Radar", "PERSON:Micropulse Lidar", "O:Belfort/Vaisala Ceilometers", "O:Cloud Fraction" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 158,
+    "entities" : [ "O:Parcel model simulations" ],
+    "triples" : [ "<Parcel model simulations>  <illustrate>  <behavior of nucleation properties under various conditions>", "<Parcel model simulations>  <illustrate>  <behavior of various nucleation properties under various conditions>", "<Parcel model simulations>  <illustrate>  <behavior of various nucleation properties under conditions>", "<Parcel model simulations>  <illustrate>  <general behavior of nucleation properties>", "<Parcel model simulations>  <are used for>  <justifications of analytical sim-plifications>", "<Parcel model simulations>  <illustrate>  <general behavior of nucleation properties under conditions>", "<Parcel model simulations>  <are used for>  <justifications of further sim-plifications>", "<Parcel model simulations>  <illustrate>  <behavior of nucleation properties>", "<Parcel model simulations>  <illustrate>  <behavior of various nucleation properties>", "<Parcel model simulations>  <are used for>  <justifications of key sim-plifications>", "<Parcel model simulations>  <illustrate>  <general behavior of various nucleation properties>", "<Parcel model simulations>  <are used for>  <justifications of further key analytical sim-plifications>", "<Parcel model simulations>  <illustrate>  <general behavior under conditions>", "<Parcel model simulations>  <are>  <used>", "<Parcel model simulations>  <are used for>  <justifications of further analytical sim-plifications>", "<Parcel model simulations>  <illustrate>  <general behavior under various conditions>", "<Parcel model simulations>  <are used for>  <justifications of key analytical sim-plifications>", "<Parcel model simulations>  <illustrate>  <behavior under various conditions>", "<Parcel model simulations>  <are used for>  <justifications of sim-plifications>", "<Parcel model simulations>  <illustrate>  <general behavior of nucleation properties under various conditions>", "<Parcel model simulations>  <illustrate>  <general behavior of various nucleation properties under various conditions>", "<Parcel model simulations>  <illustrate>  <general behavior of various nucleation properties under conditions>", "<Parcel model simulations>  <illustrate>  <general behavior>", "<Parcel model simulations>  <illustrate>  <behavior>", "<Parcel model simulations>  <illustrate>  <behavior under conditions>", "<Parcel model simulations>  <are used for>  <justifications of further key sim-plifications>", "<Parcel model simulations>  <illustrate>  <behavior of nucleation properties under conditions>", "<Parcel model simulations>  <are used for>  <justifications>" ]
+  }, {
+    "sentence_id" : 159,
+    "entities" : [ "O:crystal concentration" ],
+    "triples" : [ "<crystal concentration>  <be>  <used for parameterization of ice nucleation in models with small time steps>", "<crystal concentration>  <is expressed as>  <function>", "<crystal concentration>  <is analytically expressed as>  <function of time>", "<crystal concentration>  <is analytically expressed as>  <function>", "<crystal concentration>  <be used in>  <models>", "<crystal concentration>  <be>  <used for parameterization of homogeneous ice nucleation in models with time steps>", "<crystal concentration>  <be used for>  <parameterization of ice nucleation>", "<crystal concentration>  <be>  <used for parameterization of homogeneous ice nucleation in models with small time steps>", "<crystal concentration>  <be>  <used for parameterization of ice nucleation in models>", "<crystal concentration>  <be used for>  <parameterization of homogeneous ice nucleation>", "<crystal concentration>  <be>  <used for parameterization in models with time steps>", "<crystal concentration>  <be>  <used for parameterization in models>", "<crystal concentration>  <be>  <used for parameterization of ice nucleation in models with time steps>", "<crystal concentration>  <be used in>  <models with small time steps>", "<crystal concentration>  <be used for>  <parameterization>", "<crystal concentration>  <be>  <used for parameterization of homogeneous ice nucleation in models>", "<crystal concentration>  <is expressed as>  <function of time>", "<crystal concentration>  <be used in>  <models with time steps>", "<crystal concentration>  <be>  <used for parameterization in models with small time steps>", "<crystal concentration>  <be>  <used>" ]
+  }, {
+    "sentence_id" : 160,
+    "entities" : [ "O:Microwave radiometers", "O:SLW retrievals" ],
+    "triples" : [ "<Microwave radiometers>  <quantify>  <amount of water>", "<Microwave radiometers>  <quantify>  <amount of supercooled water in clouds>", "<Microwave radiometers>  <quantify>  <amount of liquid water>", "<Microwave radiometers>  <quantify>  <amount of supercooled liquid water in clouds>", "<Microwave radiometers>  <quantify>  <amount of supercooled water>", "<Microwave radiometers>  <quantify>  <amount of supercooled liquid water>", "<Microwave radiometers>  <quantify>  <amount in clouds>", "<Microwave radiometers>  <quantify>  <amount of liquid water in clouds>", "<Microwave radiometers>  <quantify>  <amount>", "<Microwave radiometers>  <quantify>  <amount of water in clouds>" ]
+  }, {
+    "sentence_id" : 161,
+    "entities" : [ "O:reference model", "O:temperature dependence" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 162,
+    "entities" : [ "O:ice nuclei" ],
+    "triples" : [ "<ice nuclei>  <is IN>  <active within large population of particles collected on substrate from ambient environment dominated by urban aerosols>" ]
+  }, {
+    "sentence_id" : 169,
+    "entities" : [ "O:radar reflectivity", "O:Doppler velocity" ],
+    "triples" : [ "<radar reflectivity>  <mean Doppler velocity In>  <particular>", "<radar reflectivity>  <are>  <used>", "<radar reflectivity>  <are>  <often used>", "<radar reflectivity>  <mean>  <Doppler velocity>" ]
+  }, {
+    "sentence_id" : 171,
+    "entities" : [ "O:radar Doppler spectrum" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 172,
+    "entities" : [ "O:Doppler spectra moments" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 173,
+    "entities" : [ "O:Doppler spectra shape parameters" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 174,
+    "entities" : [ "O:drizzle particle size distribution" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 175,
+    "entities" : [ "O:radar Doppler spectrum" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 176,
+    "entities" : [ "O:Radiation Sounder", "O:Advanced Microwave", "O:NOAA-17 satellite" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 177,
+    "entities" : [ "O:Atmospheric Radiative Transfer Simulator", "O:satellite radiances" ],
+    "triples" : [ "<Atmospheric Radiative Transfer Simulator>  <simulate>  <satellite radiances>" ]
+  }, {
+    "sentence_id" : 178,
+    "entities" : [ "O:Vaisala RS92 radiosonde sensors", "O:radiosonde measurements" ],
+    "triples" : [ "<Vaisala RS92 radiosonde sensors>  <were>  <used>" ]
+  }, {
+    "sentence_id" : 179,
+    "entities" : [ "O:Weather Research" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 182,
+    "entities" : [ "O:Weather Research" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 188,
+    "entities" : [ "O:land model", "O:Atmospheric Modeling" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 189,
+    "entities" : [ "O:root-mean-square error", "O:GFS forecast no matter" ],
+    "triples" : [ "<root-mean-square error>  <consistently reduced>  <standard deviation>", "<root-mean-square error>  <reduced>  <deviation>", "<root-mean-square error>  <consistently reduced>  <deviation of GOES-13 sounder TPW>", "<root-mean-square error>  <are>  <reduced>", "<root-mean-square error>  <are>  <consistently reduced>", "<root-mean-square error>  <reduced>  <standard deviation of GOES-13 TPW>", "<root-mean-square error>  <consistently reduced>  <standard deviation of GOES-13 sounder TPW>", "<root-mean-square error>  <reduced>  <standard deviation of GOES-13 sounder TPW>", "<root-mean-square error>  <consistently reduced>  <deviation>", "<root-mean-square error>  <are reduced from>  <those>", "<root-mean-square error>  <reduced>  <deviation of GOES-13 TPW>", "<root-mean-square error>  <are consistently reduced from>  <those>", "<root-mean-square error>  <reduced>  <deviation of GOES-13 sounder TPW>", "<root-mean-square error>  <reduced>  <standard deviation>", "<root-mean-square error>  <consistently reduced>  <deviation of GOES-13 TPW>", "<root-mean-square error>  <consistently reduced>  <standard deviation of GOES-13 TPW>" ]
+  }, {
+    "sentence_id" : 190,
+    "entities" : [ "O:root-mean-square error", "O:GFS forecast no matter" ],
+    "triples" : [ "<root-mean-square error>  <consistently reduced>  <standard deviation>", "<root-mean-square error>  <reduced>  <deviation>", "<root-mean-square error>  <consistently reduced>  <deviation of GOES-13 sounder TPW>", "<root-mean-square error>  <are>  <reduced>", "<root-mean-square error>  <are>  <consistently reduced>", "<root-mean-square error>  <reduced>  <standard deviation of GOES-13 TPW>", "<root-mean-square error>  <consistently reduced>  <standard deviation of GOES-13 sounder TPW>", "<root-mean-square error>  <reduced>  <standard deviation of GOES-13 sounder TPW>", "<root-mean-square error>  <consistently reduced>  <deviation>", "<root-mean-square error>  <are reduced from>  <those>", "<root-mean-square error>  <reduced>  <deviation of GOES-13 TPW>", "<root-mean-square error>  <are consistently reduced from>  <those>", "<root-mean-square error>  <reduced>  <deviation of GOES-13 sounder TPW>", "<root-mean-square error>  <reduced>  <standard deviation>", "<root-mean-square error>  <consistently reduced>  <deviation of GOES-13 TPW>", "<root-mean-square error>  <consistently reduced>  <standard deviation of GOES-13 TPW>" ]
+  }, {
+    "sentence_id" : 191,
+    "entities" : [ "O:Community Gridpoint Statistical Interpolation system", "O:Weather Research" ],
+    "triples" : [ "<Community Gridpoint Statistical Interpolation system>  <is implemented in>  <MS-DA>", "<Community Gridpoint Statistical Interpolation system>  <is implemented in>  <data assimilation>", "<Community Gridpoint Statistical Interpolation system>  <is implemented in>  <multiscale data assimilation>" ]
+  }, {
+    "sentence_id" : 193,
+    "entities" : [ "O:Atmospheric Radiation Measurement", "LOCATION:Manus Island" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 194,
+    "entities" : [ "O:asymmetry factor", "O:UltraViolet Multifilter Rotating Shadowband Radiometer", "O:Southern Great Plains" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 195,
+    "entities" : [ "O:OE technique", "ORGANIZATION:Agriculture UV-B Monitoring", "O:USDA UVMRP" ],
+    "triples" : [ "<OE technique>  <thus provides>  <supplemental method for retrieval of aerosol properties with accuracy>", "<OE technique>  <provides>  <supplemental method for retrieval of aerosol properties with accuracy in UV spectral range under various atmospheric conditions>", "<OE technique>  <provides>  <method for use for retrieval of aerosol properties with accuracy>", "<OE technique>  <provides>  <method for use across network for retrieval of aerosol properties with accuracy in UV range>", "<OE technique>  <provides>  <supplemental method for use for retrieval with reasonable accuracy>", "<OE technique>  <thus provides>  <supplemental method for use>", "<OE technique>  <provides>  <method for use for retrieval of aerosol properties with accuracy in UV range under atmospheric conditions>", "<OE technique>  <thus provides>  <supplemental method for retrieval of aerosol properties with accuracy in UV spectral range under conditions>", "<OE technique>  <provides>  <method for use for retrieval with accuracy in UV spectral range under various atmospheric conditions>", "<OE technique>  <provides>  <method for retrieval with accuracy in UV range>", "<OE technique>  <provides>  <supplemental method for use for retrieval with reasonable accuracy in UV spectral range under various conditions>", "<OE technique>  <provides>  <supplemental method for retrieval of aerosol properties with reasonable accuracy in UV spectral range under conditions>", "<OE technique>  <thus provides>  <method for use>", "<OE technique>  <provides>  <method for retrieval of aerosol properties with reasonable accuracy in UV spectral range under atmospheric conditions>", "<OE technique>  <provides>  <method for use across network for retrieval of aerosol properties with accuracy in UV range under conditions>", "<OE technique>  <thus provides>  <method for use for retrieval with accuracy in UV spectral range under atmospheric conditions>", "<OE technique>  <thus provides>  <method for retrieval with reasonable accuracy in UV range>", "<OE technique>  <provides>  <method for retrieval with accuracy in UV spectral range under conditions>", "<OE technique>  <provides>  <supplemental method for use for retrieval with reasonable accuracy in UV range under atmospheric conditions>", "<OE technique>  <provides>  <method for use for retrieval of aerosol properties with reasonable accuracy in UV range under atmospheric conditions>", "<OE technique>  <thus provides>  <method for use for retrieval with accuracy in UV range under conditions>", "<OE technique>  <thus provides>  <method for retrieval with accuracy in UV range under various atmospheric conditions>", "<OE technique>  <provides>  <method for retrieval with reasonable accuracy in UV spectral range under atmospheric conditions>", "<OE technique>  <thus provides>  <method for retrieval with accuracy in UV range under various conditions>", "<OE technique>  <thus provides>  <USDA UVMRP>", "<OE technique>  <provides>  <method for retrieval of aerosol properties with accuracy>", "<OE technique>  <provides>  <method for use for retrieval with accuracy in UV range under various atmospheric conditions>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval of aerosol properties with reasonable accuracy in UV range under atmospheric conditions>", "<OE technique>  <provides>  <method for use for retrieval with reasonable accuracy in UV range under atmospheric conditions>", "<OE technique>  <thus provides>  <method for retrieval of aerosol properties with accuracy in UV range under various atmospheric conditions>", "<OE technique>  <provides>  <supplemental method for retrieval with reasonable accuracy in UV range under conditions>", "<OE technique>  <thus provides>  <supplemental method for retrieval with reasonable accuracy in UV spectral range>", "<OE technique>  <provides>  <method for retrieval with accuracy in UV spectral range under various atmospheric conditions>", "<OE technique>  <provides>  <supplemental method for use for retrieval with reasonable accuracy in UV spectral range under various atmospheric conditions>", "<OE technique>  <thus provides>  <supplemental method>", "<OE technique>  <provides>  <supplemental method for retrieval with accuracy in UV spectral range>", "<OE technique>  <provides>  <supplemental method for retrieval of aerosol properties with accuracy in UV spectral range under atmospheric conditions>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval with accuracy in UV range>", "<OE technique>  <thus provides>  <method for use across network for retrieval>", "<OE technique>  <thus provides>  <method for use across network for retrieval of aerosol properties with accuracy in UV range under various conditions>", "<OE technique>  <thus provides>  <method for use across network for retrieval of aerosol properties>", "<OE technique>  <provides>  <method for retrieval with reasonable accuracy in UV spectral range>", "<OE technique>  <provides>  <method for retrieval of aerosol properties with reasonable accuracy in UV range under various conditions>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval of aerosol properties with accuracy in UV range under atmospheric conditions>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval with accuracy in UV spectral range under various conditions>", "<OE technique>  <provides>  <supplemental method for use for retrieval of aerosol properties with reasonable accuracy in UV spectral range under atmospheric conditions>", "<OE technique>  <provides>  <method for use for retrieval of aerosol properties with accuracy in UV range>", "<OE technique>  <provides>  <method for use across network for retrieval with accuracy in UV range under conditions>", "<OE technique>  <provides>  <method for retrieval with accuracy in UV range under conditions>", "<OE technique>  <thus provides>  <supplemental method for retrieval with reasonable accuracy in UV range under various atmospheric conditions>", "<OE technique>  <thus provides>  <method for retrieval of aerosol properties with accuracy in UV spectral range under conditions>", "<OE technique>  <thus provides>  <supplemental method for retrieval with reasonable accuracy in UV spectral range under conditions>", "<OE technique>  <provides>  <method for retrieval with accuracy in UV range under atmospheric conditions>", "<OE technique>  <provides>  <supplemental method for retrieval of aerosol properties with accuracy in UV range under conditions>", "<OE technique>  <thus provides>  <supplemental method for retrieval of aerosol properties with accuracy in UV range under conditions>", "<OE technique>  <provides>  <supplemental method for use for retrieval of aerosol properties with reasonable accuracy in UV range under atmospheric conditions>", "<OE technique>  <provides>  <method for use for retrieval with reasonable accuracy in UV range under conditions>", "<OE technique>  <provides>  <method for use across network for retrieval of aerosol properties with accuracy in UV spectral range>", "<OE technique>  <provides>  <method for use for retrieval with accuracy in UV spectral range>", "<OE technique>  <provides>  <method for use across network for retrieval with accuracy in UV range under various conditions>", "<OE technique>  <provides>  <supplemental method for use for retrieval of aerosol properties with accuracy in UV range>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval of aerosol properties with accuracy>", "<OE technique>  <provides>  <method for retrieval with reasonable accuracy in UV spectral range under various conditions>", "<OE technique>  <provides>  <supplemental method for retrieval of aerosol properties with accuracy in UV spectral range under conditions>", "<OE technique>  <thus provides>  <supplemental method for retrieval with reasonable accuracy in UV spectral range under various atmospheric conditions>", "<OE technique>  <provides>  <supplemental method for retrieval with reasonable accuracy in UV spectral range>", "<OE technique>  <provides>  <method for use for retrieval of aerosol properties with accuracy in UV spectral range under various atmospheric conditions>", "<OE technique>  <provides>  <method for use for retrieval of aerosol properties with accuracy in UV spectral range>", "<OE technique>  <optimizes>  <model>", "<OE technique>  <provides>  <supplemental method for use for retrieval with accuracy in UV spectral range under various atmospheric conditions>", "<OE technique>  <thus provides>  <method for use for retrieval with reasonable accuracy in UV range>", "<OE technique>  <thus provides>  <method for use for retrieval with reasonable accuracy in UV range under various conditions>", "<OE technique>  <thus provides>  <supplemental method for retrieval with reasonable accuracy in UV range>", "<OE technique>  <provides>  <method for retrieval of aerosol properties with reasonable accuracy in UV spectral range under conditions>", "<OE technique>  <thus provides>  <supplemental method for retrieval of aerosol properties with accuracy in UV spectral range under atmospheric conditions>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval with reasonable accuracy in UV range under conditions>", "<OE technique>  <provides>  <method for retrieval with reasonable accuracy in UV range under various atmospheric conditions>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval with accuracy in UV spectral range under various atmospheric conditions>", "<OE technique>  <provides>  <supplemental method for retrieval of aerosol properties with accuracy>", "<OE technique>  <thus provides>  <method for use for retrieval with accuracy in UV spectral range under conditions>", "<OE technique>  <thus provides>  <method for retrieval with reasonable accuracy in UV spectral range under various atmospheric conditions>", "<OE technique>  <provides>  <method for use for retrieval of aerosol properties with reasonable accuracy in UV range under various conditions>", "<OE technique>  <provides>  <supplemental method>", "<OE technique>  <provides>  <supplemental method for use for retrieval of aerosol properties with reasonable accuracy in UV range under conditions>", "<OE technique>  <provides>  <method>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval with reasonable accuracy in UV spectral range under various atmospheric conditions>", "<OE technique>  <provides>  <method for retrieval of aerosol properties with accuracy in UV spectral range under various conditions>", "<OE technique>  <provides>  <supplemental method for use for retrieval of aerosol properties with accuracy in UV spectral range under conditions>", "<OE technique>  <thus provides>  <method for use for retrieval of aerosol properties with accuracy in UV range>", "<OE technique>  <provides>  <method for use>", "<OE technique>  <provides>  <method for retrieval with reasonable accuracy in UV spectral range under various atmospheric conditions>", "<OE technique>  <provides>  <supplemental method for retrieval with accuracy in UV range under atmospheric conditions>", "<OE technique>  <provides>  <supplemental method for retrieval with reasonable accuracy in UV range under various atmospheric conditions>", "<OE technique>  <thus provides>  <method for use for retrieval of aerosol properties with accuracy in UV range under various conditions>", "<OE technique>  <thus provides>  <method for use for retrieval of aerosol properties with reasonable accuracy in UV range under various atmospheric conditions>", "<OE technique>  <provides>  <method for use for retrieval of aerosol properties with accuracy in UV range under various conditions>", "<OE technique>  <provides>  <method for use for retrieval with reasonable accuracy in UV range>", "<OE technique>  <thus provides>  <method for use for retrieval of aerosol properties with accuracy in UV spectral range under atmospheric conditions>", "<OE technique>  <thus provides>  <supplemental method for retrieval with reasonable accuracy in UV spectral range under atmospheric conditions>", "<OE technique>  <provides>  <method for use across network for retrieval of aerosol properties with accuracy in UV spectral range under atmospheric conditions>", "<OE technique>  <thus provides>  <supplemental method for retrieval of aerosol properties with reasonable accuracy in UV range under various atmospheric conditions>", "<OE technique>  <thus provides>  <method for use for retrieval with accuracy in UV range under atmospheric conditions>", "<OE technique>  <provides>  <method for use for retrieval with reasonable accuracy in UV spectral range under various atmospheric conditions>", "<OE technique>  <provides>  <method for use for retrieval with accuracy in UV range under conditions>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval of aerosol properties with accuracy in UV range>", "<OE technique>  <provides>  <supplemental method for use for retrieval of aerosol properties with accuracy>", "<OE technique>  <thus provides>  <supplemental method for retrieval of aerosol properties with reasonable accuracy in UV range>", "<OE technique>  <thus provides>  <method for retrieval of aerosol properties with reasonable accuracy in UV spectral range>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval of aerosol properties with reasonable accuracy in UV spectral range>", "<OE technique>  <provides>  <method for use across network for retrieval of aerosol properties>", "<OE technique>  <thus provides>  <method for use for retrieval with reasonable accuracy in UV range under atmospheric conditions>", "<OE technique>  <provides>  <supplemental method for retrieval>", "<OE technique>  <thus provides>  <method for retrieval with reasonable accuracy in UV range under various atmospheric conditions>", "<OE technique>  <thus provides>  <method for retrieval of aerosol properties with reasonable accuracy in UV spectral range under various atmospheric conditions>", "<OE technique>  <provides>  <method for use for retrieval of aerosol properties>", "<OE technique>  <thus provides>  <supplemental method for retrieval with accuracy in UV range under various conditions>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval with reasonable accuracy in UV spectral range under atmospheric conditions>", "<OE technique>  <thus provides>  <method for retrieval of aerosol properties with accuracy>", "<OE technique>  <provides>  <supplemental method for use for retrieval of aerosol properties with reasonable accuracy in UV range under various atmospheric conditions>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval of aerosol properties with accuracy in UV range under conditions>", "<OE technique>  <provides>  <method for use for retrieval with reasonable accuracy in UV range under various atmospheric conditions>", "<OE technique>  <thus provides>  <supplemental method for retrieval of aerosol properties>", "<OE technique>  <provides>  <supplemental method for use for retrieval with accuracy in UV range under atmospheric conditions>", "<OE technique>  <thus provides>  <supplemental method for retrieval of aerosol properties with accuracy in UV range under various atmospheric conditions>", "<OE technique>  <provides>  <supplemental method for retrieval of aerosol properties with reasonable accuracy>", "<OE technique>  <provides>  <supplemental method for retrieval of aerosol properties with reasonable accuracy in UV spectral range under various atmospheric conditions>", "<OE technique>  <thus provides>  <supplemental method for retrieval with reasonable accuracy in UV range under various conditions>", "<OE technique>  <provides>  <method for use for retrieval with reasonable accuracy in UV spectral range>", "<OE technique>  <provides>  <method for retrieval of aerosol properties with accuracy in UV spectral range>", "<OE technique>  <provides>  <supplemental method for use for retrieval with reasonable accuracy in UV spectral range>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval with accuracy in UV range under conditions>", "<OE technique>  <thus provides>  <method for use across network for retrieval of aerosol properties with accuracy in UV range under various atmospheric conditions>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval of aerosol properties with accuracy in UV spectral range>", "<OE technique>  <thus provides>  <method for retrieval with accuracy>", "<OE technique>  <provides>  <supplemental method for retrieval of aerosol properties with accuracy in UV range>", "<OE technique>  <provides>  <supplemental method for use for retrieval with accuracy in UV range under various atmospheric conditions>", "<OE technique>  <provides>  <supplemental method for use for retrieval with reasonable accuracy in UV spectral range under atmospheric conditions>", "<OE technique>  <thus provides>  <method for retrieval of aerosol properties with reasonable accuracy in UV range under various atmospheric conditions>", "<OE technique>  <provides>  <method for retrieval of aerosol properties with reasonable accuracy in UV spectral range>", "<OE technique>  <thus provides>  <method for use for retrieval of aerosol properties with accuracy in UV spectral range under various atmospheric conditions>", "<OE technique>  <thus provides>  <method for use for retrieval with reasonable accuracy in UV spectral range under various conditions>", "<OE technique>  <thus provides>  <method for use for retrieval of aerosol properties with accuracy>", "<OE technique>  <thus provides>  <method for retrieval with accuracy in UV spectral range under various atmospheric conditions>", "<OE technique>  <provides>  <method for retrieval of aerosol properties with accuracy in UV spectral range under conditions>", "<OE technique>  <thus provides>  <method for use for retrieval of aerosol properties with reasonable accuracy>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval of aerosol properties with reasonable accuracy in UV range>", "<OE technique>  <provides>  <supplemental method for use for retrieval of aerosol properties with accuracy in UV range under various conditions>", "<OE technique>  <provides>  <method for retrieval with accuracy in UV range under various conditions>", "<OE technique>  <provides>  <supplemental method for use for retrieval of aerosol properties with accuracy in UV range under conditions>", "<OE technique>  <provides>  <method for use for retrieval of aerosol properties with accuracy in UV range under various atmospheric conditions>", "<OE technique>  <provides>  <method for use for retrieval with accuracy in UV spectral range under conditions>", "<OE technique>  <provides>  <method for retrieval of aerosol properties with accuracy in UV spectral range under various atmospheric conditions>", "<OE technique>  <provides>  <supplemental method for use for retrieval of aerosol properties with accuracy in UV spectral range under various atmospheric conditions>", "<OE technique>  <thus provides>  <supplemental method for retrieval of aerosol properties with reasonable accuracy in UV spectral range under various atmospheric conditions>", "<OE technique>  <provides>  <method for retrieval with reasonable accuracy in UV spectral range under conditions>", "<OE technique>  <provides>  <supplemental method for use for retrieval of aerosol properties with accuracy in UV range under various atmospheric conditions>", "<OE technique>  <thus provides>  <method for use for retrieval of aerosol properties with reasonable accuracy in UV range under various conditions>", "<OE technique>  <thus provides>  <method for use for retrieval of aerosol properties with accuracy in UV range under atmospheric conditions>", "<OE technique>  <provides>  <method for use for retrieval with accuracy in UV range under atmospheric conditions>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval of aerosol properties with accuracy in UV range under various atmospheric conditions>", "<OE technique>  <thus provides>  <method for use across network for retrieval of aerosol properties with accuracy in UV spectral range under various atmospheric conditions>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval with accuracy in UV spectral range under conditions>", "<OE technique>  <thus provides>  <supplemental method for retrieval of aerosol properties with reasonable accuracy>", "<OE technique>  <provides>  <method for use across network for retrieval with accuracy in UV spectral range>", "<OE technique>  <thus provides>  <method for retrieval with accuracy in UV spectral range under atmospheric conditions>", "<OE technique>  <thus provides>  <supplemental method for retrieval with accuracy in UV spectral range under atmospheric conditions>", "<OE technique>  <provides>  <supplemental method for retrieval with accuracy in UV range under conditions>", "<OE technique>  <provides>  <supplemental method for use for retrieval of aerosol properties with reasonable accuracy in UV range>", "<OE technique>  <thus provides>  <supplemental method for retrieval with accuracy in UV spectral range>", "<OE technique>  <thus provides>  <method for use for retrieval of aerosol properties with accuracy in UV spectral range>", "<OE technique>  <thus provides>  <method for use across network for retrieval with accuracy in UV spectral range under conditions>", "<OE technique>  <thus provides>  <method for use for retrieval of aerosol properties with reasonable accuracy in UV spectral range under atmospheric conditions>", "<OE technique>  <specifies>  <error covariance matrices>", "<OE technique>  <thus provides>  <supplemental method for retrieval of aerosol properties with reasonable accuracy in UV spectral range>", "<OE technique>  <thus provides>  <method for use for retrieval of aerosol properties with reasonable accuracy in UV spectral range>", "<OE technique>  <provides>  <method for use for retrieval with reasonable accuracy in UV spectral range under various conditions>", "<OE technique>  <thus provides>  <method for retrieval with reasonable accuracy in UV range under various conditions>", "<OE technique>  <provides>  <supplemental method for retrieval of aerosol properties with reasonable accuracy in UV range under various conditions>", "<OE technique>  <provides>  <method for retrieval of aerosol properties with accuracy in UV range under various atmospheric conditions>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval of aerosol properties with reasonable accuracy in UV spectral range under various atmospheric conditions>", "<OE technique>  <thus provides>  <method for retrieval of aerosol properties with reasonable accuracy in UV range under conditions>", "<OE technique>  <provides>  <method for retrieval with reasonable accuracy in UV range under atmospheric conditions>", "<OE technique>  <thus provides>  <method for retrieval of aerosol properties>", "<OE technique>  <thus provides>  <method for use for retrieval of aerosol properties with reasonable accuracy in UV spectral range under various atmospheric conditions>", "<OE technique>  <provides>  <method for retrieval of aerosol properties with accuracy in UV range under various conditions>", "<OE technique>  <provides>  <method for use across network for retrieval of aerosol properties with accuracy in UV spectral range under various atmospheric conditions>", "<OE technique>  <thus provides>  <supplemental method for retrieval of aerosol properties with reasonable accuracy in UV spectral range under atmospheric conditions>", "<OE technique>  <provides>  <method for retrieval with accuracy>", "<OE technique>  <provides>  <method for use across network for retrieval of aerosol properties with accuracy in UV spectral range under various conditions>", "<OE technique>  <provides>  <method for use for retrieval of aerosol properties with reasonable accuracy in UV spectral range under various atmospheric conditions>", "<OE technique>  <provides>  <supplemental method for retrieval with accuracy in UV spectral range under atmospheric conditions>", "<OE technique>  <provides>  <method for use for retrieval of aerosol properties with reasonable accuracy in UV range under conditions>", "<OE technique>  <provides>  <supplemental method for use for retrieval with reasonable accuracy in UV range>", "<OE technique>  <provides>  <supplemental method for retrieval with reasonable accuracy in UV range under various conditions>", "<OE technique>  <thus provides>  <supplemental method for retrieval with accuracy in UV spectral range under various atmospheric conditions>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval of aerosol properties with reasonable accuracy in UV spectral range under atmospheric conditions>", "<OE technique>  <thus provides>  <method for use for retrieval with accuracy in UV range>", "<OE technique>  <provides>  <method for retrieval with reasonable accuracy in UV range under various conditions>", "<OE technique>  <provides>  <method for use for retrieval with reasonable accuracy>", "<OE technique>  <provides>  <supplemental method for use for retrieval>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval of aerosol properties with accuracy in UV spectral range under atmospheric conditions>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval of aerosol properties with reasonable accuracy>", "<OE technique>  <provides>  <method for retrieval of aerosol properties with reasonable accuracy in UV range under various atmospheric conditions>", "<OE technique>  <thus provides>  <supplemental method for retrieval of aerosol properties with accuracy in UV spectral range>", "<OE technique>  <thus provides>  <method for use for retrieval with reasonable accuracy in UV spectral range under conditions>", "<OE technique>  <provides>  <method for retrieval of aerosol properties>", "<OE technique>  <provides>  <method for use across network for retrieval of aerosol properties with accuracy in UV range under various conditions>", "<OE technique>  <thus provides>  <method for use for retrieval of aerosol properties>", "<OE technique>  <thus provides>  <method for retrieval of aerosol properties with accuracy in UV range under conditions>", "<OE technique>  <thus provides>  <method for retrieval of aerosol properties with reasonable accuracy in UV spectral range under various conditions>", "<OE technique>  <thus provides>  <method for use across network for retrieval of aerosol properties with accuracy in UV range>", "<OE technique>  <provides>  <supplemental method for use for retrieval of aerosol properties with reasonable accuracy in UV spectral range under conditions>", "<OE technique>  <thus provides>  <supplemental method for retrieval with accuracy in UV range under various atmospheric conditions>", "<OE technique>  <provides>  <method for retrieval of aerosol properties with reasonable accuracy in UV spectral range under various conditions>", "<OE technique>  <provides>  <method for use across network for retrieval with accuracy in UV range under atmospheric conditions>", "<OE technique>  <thus provides>  <method for use across network for retrieval with accuracy in UV range under conditions>", "<OE technique>  <thus provides>  <method for retrieval with accuracy in UV spectral range under various conditions>", "<OE technique>  <thus provides>  <method for use for retrieval of aerosol properties with reasonable accuracy in UV range under conditions>", "<OE technique>  <thus provides>  <method for use across network for retrieval with accuracy in UV spectral range under various atmospheric conditions>", "<OE technique>  <provides>  <method for use for retrieval of aerosol properties with accuracy in UV spectral range under atmospheric conditions>", "<OE technique>  <provides>  <method for use for retrieval of aerosol properties with reasonable accuracy in UV range>", "<OE technique>  <provides>  <method for use for retrieval>", "<OE technique>  <provides>  <supplemental method for retrieval with reasonable accuracy in UV spectral range under atmospheric conditions>", "<OE technique>  <provides>  <method for use for retrieval with accuracy in UV spectral range under various conditions>", "<OE technique>  <provides>  <method for use across network for retrieval with accuracy in UV spectral range under various atmospheric conditions>", "<OE technique>  <provides>  <supplemental method for use for retrieval with accuracy in UV spectral range under atmospheric conditions>", "<OE technique>  <provides>  <supplemental method for use for retrieval with accuracy in UV range>", "<OE technique>  <thus provides>  <method for use for retrieval of aerosol properties with reasonable accuracy in UV spectral range under various conditions>", "<OE technique>  <provides>  <supplemental method for retrieval of aerosol properties with reasonable accuracy in UV spectral range>", "<OE technique>  <thus provides>  <method for use for retrieval with accuracy in UV range under various atmospheric conditions>", "<OE technique>  <provides>  <method for use for retrieval of aerosol properties with reasonable accuracy>", "<OE technique>  <provides>  <method for use for retrieval of aerosol properties with reasonable accuracy in UV spectral range under conditions>", "<OE technique>  <thus provides>  <supplemental method for retrieval with accuracy in UV spectral range under conditions>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval with reasonable accuracy in UV range under various conditions>", "<OE technique>  <provides>  <method for use across network for retrieval with accuracy in UV range under various atmospheric conditions>", "<OE technique>  <provides>  <method for retrieval with accuracy in UV spectral range under atmospheric conditions>", "<OE technique>  <thus provides>  <supplemental method for retrieval of aerosol properties with reasonable accuracy in UV range under conditions>", "<OE technique>  <provides>  <supplemental method for retrieval with accuracy>", "<OE technique>  <thus provides>  <method for use for retrieval with accuracy>", "<OE technique>  <thus provides>  <supplemental method for retrieval of aerosol properties with reasonable accuracy in UV spectral range under various conditions>", "<OE technique>  <thus provides>  <method for use for retrieval with reasonable accuracy>", "<OE technique>  <provides>  <method for use across network for retrieval with accuracy in UV spectral range under conditions>", "<OE technique>  <thus provides>  <method for retrieval of aerosol properties with reasonable accuracy>", "<OE technique>  <thus provides>  <method for retrieval of aerosol properties with accuracy in UV spectral range under various conditions>", "<OE technique>  <provides>  <supplemental method for use for retrieval with reasonable accuracy in UV range under various conditions>", "<OE technique>  <specifies>  <appropriate error covariance matrices>", "<OE technique>  <thus provides>  <method for use across network for retrieval of aerosol properties with accuracy in UV range under conditions>", "<OE technique>  <provides>  <method for use across network for retrieval>", "<OE technique>  <thus provides>  <method for use for retrieval with reasonable accuracy in UV spectral range>", "<OE technique>  <provides>  <supplemental method for retrieval with reasonable accuracy in UV range>", "<OE technique>  <provides>  <supplemental method for use for retrieval with accuracy in UV spectral range>", "<OE technique>  <provides>  <method for retrieval of aerosol properties with reasonable accuracy in UV range>", "<OE technique>  <provides>  <supplemental method for retrieval of aerosol properties with accuracy in UV range under various atmospheric conditions>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval of aerosol properties with reasonable accuracy in UV spectral range under conditions>", "<OE technique>  <thus provides>  <method for use for retrieval of aerosol properties with accuracy in UV spectral range under conditions>", "<OE technique>  <provides>  <supplemental method for retrieval of aerosol properties with reasonable accuracy in UV range>", "<OE technique>  <thus provides>  <method>", "<OE technique>  <thus provides>  <method for use across network>", "<OE technique>  <provides>  <method for use for retrieval with reasonable accuracy in UV spectral range under conditions>", "<OE technique>  <provides>  <method for use for retrieval with accuracy in UV range>", "<OE technique>  <provides>  <method for retrieval with reasonable accuracy in UV range under conditions>", "<OE technique>  <thus provides>  <method for retrieval of aerosol properties with accuracy in UV range under atmospheric conditions>", "<OE technique>  <provides>  <method for retrieval of aerosol properties with accuracy in UV range under conditions>", "<OE technique>  <thus provides>  <supplemental method for retrieval of aerosol properties with reasonable accuracy in UV range under various conditions>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval>", "<OE technique>  <provides>  <supplemental method for retrieval of aerosol properties with accuracy in UV range under various conditions>", "<OE technique>  <thus provides>  <method for retrieval>", "<OE technique>  <provides>  <supplemental method for use for retrieval with accuracy>", "<OE technique>  <thus provides>  <method for use for retrieval with accuracy in UV range under various conditions>", "<OE technique>  <provides>  <supplemental method for retrieval of aerosol properties with reasonable accuracy in UV range under atmospheric conditions>", "<OE technique>  <thus provides>  <supplemental method for retrieval of aerosol properties with accuracy in UV spectral range under various conditions>", "<OE technique>  <thus provides>  <method for retrieval of aerosol properties with reasonable accuracy in UV range under atmospheric conditions>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval of aerosol properties with reasonable accuracy in UV range under various conditions>", "<OE technique>  <thus provides>  <supplemental method for retrieval of aerosol properties with reasonable accuracy in UV range under atmospheric conditions>", "<OE technique>  <provides>  <supplemental method for use for retrieval of aerosol properties with reasonable accuracy>", "<OE technique>  <thus provides>  <supplemental method for retrieval with reasonable accuracy in UV spectral range under various conditions>", "<OE technique>  <provides>  <method for retrieval of aerosol properties with accuracy in UV spectral range under atmospheric conditions>", "<OE technique>  <provides>  <supplemental method for use for retrieval with reasonable accuracy in UV range under conditions>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval with reasonable accuracy in UV range under various atmospheric conditions>", "<OE technique>  <thus provides>  <supplemental method for retrieval of aerosol properties with accuracy in UV range under various conditions>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval with reasonable accuracy in UV spectral range under various conditions>", "<OE technique>  <provides>  <method for use across network for retrieval with accuracy in UV spectral range under atmospheric conditions>", "<OE technique>  <provides>  <method for retrieval with accuracy in UV spectral range under various conditions>", "<OE technique>  <provides>  <method for use across network for retrieval with accuracy>", "<OE technique>  <provides>  <method for use for retrieval of aerosol properties with reasonable accuracy in UV range under various atmospheric conditions>", "<OE technique>  <provides>  <method for retrieval of aerosol properties with reasonable accuracy in UV spectral range under various atmospheric conditions>", "<OE technique>  <thus provides>  <method for retrieval with reasonable accuracy in UV spectral range under various conditions>", "<OE technique>  <provides>  <method for use for retrieval with reasonable accuracy in UV range under various conditions>", "<OE technique>  <provides>  <supplemental method for retrieval with reasonable accuracy in UV spectral range under various atmospheric conditions>", "<OE technique>  <provides>  <method for use across network for retrieval with accuracy in UV range>", "<OE technique>  <provides>  <method for use for retrieval with accuracy in UV range under various conditions>", "<OE technique>  <provides>  <supplemental method for retrieval with accuracy in UV spectral range under various conditions>", "<OE technique>  <thus provides>  <method for retrieval of aerosol properties with accuracy in UV spectral range>", "<OE technique>  <provides>  <supplemental method for use for retrieval with reasonable accuracy in UV range under various atmospheric conditions>", "<OE technique>  <thus provides>  <method for use across network for retrieval of aerosol properties with accuracy in UV spectral range>", "<OE technique>  <thus provides>  <method for retrieval of aerosol properties with reasonable accuracy in UV spectral range under conditions>", "<OE technique>  <thus provides>  <method for retrieval with reasonable accuracy in UV spectral range under conditions>", "<OE technique>  <provides>  <method for use across network for retrieval of aerosol properties with accuracy in UV range under various atmospheric conditions>", "<OE technique>  <provides>  <supplemental method for use for retrieval of aerosol properties with accuracy in UV spectral range>", "<OE technique>  <provides>  <method for use for retrieval of aerosol properties with accuracy in UV spectral range under conditions>", "<OE technique>  <thus provides>  <method for use across network for retrieval with accuracy in UV range>", "<OE technique>  <thus provides>  <supplemental method for retrieval with reasonable accuracy in UV range under atmospheric conditions>", "<OE technique>  <thus provides>  <method for use across network for retrieval of aerosol properties with accuracy in UV range under atmospheric conditions>", "<OE technique>  <thus provides>  <method for retrieval of aerosol properties with reasonable accuracy in UV range>", "<OE technique>  <provides>  <supplemental method for retrieval of aerosol properties with accuracy in UV spectral range under various conditions>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval of aerosol properties with reasonable accuracy in UV range under conditions>", "<OE technique>  <thus provides>  <supplemental method for retrieval with accuracy in UV spectral range under various conditions>", "<OE technique>  <thus provides>  <supplemental method for retrieval with accuracy>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval with accuracy in UV range under various conditions>", "<OE technique>  <thus provides>  <method for use for retrieval of aerosol properties with accuracy in UV range under conditions>", "<OE technique>  <provides>  <supplemental method for use for retrieval with reasonable accuracy in UV spectral range under conditions>", "<OE technique>  <provides>  <supplemental method for retrieval of aerosol properties>", "<OE technique>  <provides>  <supplemental method for use for retrieval with accuracy in UV range under various conditions>", "<OE technique>  <thus provides>  <supplemental method for retrieval of aerosol properties with accuracy in UV spectral range under various atmospheric conditions>", "<OE technique>  <provides>  <supplemental method for retrieval with reasonable accuracy>", "<OE technique>  <thus provides>  <method for retrieval with reasonable accuracy in UV spectral range>", "<OE technique>  <thus provides>  <method for use across network for retrieval with accuracy in UV range under various atmospheric conditions>", "<OE technique>  <thus provides>  <method for use for retrieval of aerosol properties with reasonable accuracy in UV spectral range under conditions>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval of aerosol properties with reasonable accuracy in UV spectral range under various conditions>", "<OE technique>  <optimizes>  <forward model>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval of aerosol properties with reasonable accuracy in UV range under various atmospheric conditions>", "<OE technique>  <thus provides>  <method for use for retrieval with accuracy in UV spectral range under various conditions>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval with accuracy in UV spectral range under atmospheric conditions>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval of aerosol properties with accuracy in UV spectral range under conditions>", "<OE technique>  <thus provides>  <method for use for retrieval of aerosol properties with reasonable accuracy in UV range>", "<OE technique>  <provides>  <method for use for retrieval of aerosol properties with reasonable accuracy in UV spectral range under various conditions>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval of aerosol properties>", "<OE technique>  <provides>  <supplemental method for retrieval of aerosol properties with reasonable accuracy in UV spectral range under various conditions>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval with accuracy in UV range under various atmospheric conditions>", "<OE technique>  <provides>  <method for use for retrieval of aerosol properties with accuracy in UV range under conditions>", "<OE technique>  <provides>  <method for use for retrieval with accuracy>", "<OE technique>  <provides>  <supplemental method for use for retrieval of aerosol properties with accuracy in UV range under atmospheric conditions>", "<OE technique>  <provides>  <supplemental method for use>", "<OE technique>  <provides>  <supplemental method for retrieval with reasonable accuracy in UV spectral range under conditions>", "<OE technique>  <provides>  <supplemental method for use for retrieval with accuracy in UV spectral range under various conditions>", "<OE technique>  <provides>  <method for retrieval of aerosol properties with reasonable accuracy in UV range under atmospheric conditions>", "<OE technique>  <provides>  <supplemental method for use for retrieval of aerosol properties with reasonable accuracy in UV spectral range under various conditions>", "<OE technique>  <provides>  <method for retrieval with accuracy in UV range under various atmospheric conditions>", "<OE technique>  <provides>  <method for use across network for retrieval of aerosol properties with accuracy in UV spectral range under conditions>", "<OE technique>  <provides>  <supplemental method for use for retrieval of aerosol properties with reasonable accuracy in UV spectral range>", "<OE technique>  <thus provides>  <supplemental method for retrieval of aerosol properties with accuracy in UV range>", "<OE technique>  <thus provides>  <method for use across network for retrieval of aerosol properties with accuracy>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval of aerosol properties with accuracy in UV range under various conditions>", "<OE technique>  <thus provides>  <method for use for retrieval with reasonable accuracy in UV range under conditions>", "<OE technique>  <thus provides>  <method for use across network for retrieval with accuracy in UV range under atmospheric conditions>", "<OE technique>  <thus provides>  <method for use across network for retrieval with accuracy in UV spectral range under atmospheric conditions>", "<OE technique>  <thus provides>  <method for retrieval with accuracy in UV range under atmospheric conditions>", "<OE technique>  <provides>  <supplemental method for retrieval of aerosol properties with reasonable accuracy in UV spectral range under atmospheric conditions>", "<OE technique>  <thus provides>  <supplemental method for retrieval with reasonable accuracy>", "<OE technique>  <provides>  <method for retrieval of aerosol properties with accuracy in UV range under atmospheric conditions>", "<OE technique>  <thus provides>  <supplemental method for retrieval>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval with reasonable accuracy>", "<OE technique>  <thus provides>  <method for use for retrieval with accuracy in UV spectral range under various atmospheric conditions>", "<OE technique>  <provides>  <supplemental method for retrieval with reasonable accuracy in UV range under atmospheric conditions>", "<OE technique>  <provides>  <supplemental method for use for retrieval of aerosol properties with reasonable accuracy in UV range under various conditions>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval with reasonable accuracy in UV range under atmospheric conditions>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval with accuracy in UV range under atmospheric conditions>", "<OE technique>  <provides>  <supplemental method for use for retrieval of aerosol properties with accuracy in UV spectral range under atmospheric conditions>", "<OE technique>  <provides>  <method for retrieval with reasonable accuracy in UV range>", "<OE technique>  <provides>  <supplemental method for use for retrieval of aerosol properties>", "<OE technique>  <provides>  <method for use for retrieval of aerosol properties with reasonable accuracy in UV spectral range>", "<OE technique>  <thus provides>  <method for use for retrieval with reasonable accuracy in UV spectral range under atmospheric conditions>", "<OE technique>  <provides>  <method for retrieval with accuracy in UV spectral range>", "<OE technique>  <provides>  <method for use for retrieval with reasonable accuracy in UV spectral range under atmospheric conditions>", "<OE technique>  <provides>  <supplemental method for retrieval of aerosol properties with accuracy in UV spectral range>", "<OE technique>  <provides>  <method for use for retrieval with accuracy in UV spectral range under atmospheric conditions>", "<OE technique>  <provides>  <method for use for retrieval of aerosol properties with accuracy in UV spectral range under various conditions>", "<OE technique>  <thus provides>  <method for retrieval of aerosol properties with reasonable accuracy in UV spectral range under atmospheric conditions>", "<OE technique>  <thus provides>  <supplemental method for retrieval of aerosol properties with accuracy in UV range under atmospheric conditions>", "<OE technique>  <thus provides>  <method for use for retrieval with accuracy in UV spectral range>", "<OE technique>  <provides>  <supplemental method for retrieval of aerosol properties with accuracy in UV range under atmospheric conditions>", "<OE technique>  <provides>  <supplemental method for retrieval of aerosol properties with reasonable accuracy in UV range under various atmospheric conditions>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval with reasonable accuracy in UV range>", "<OE technique>  <provides>  <supplemental method for use for retrieval with accuracy in UV range under conditions>", "<OE technique>  <provides>  <method for use across network for retrieval with accuracy in UV spectral range under various conditions>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval of aerosol properties with accuracy in UV spectral range under various conditions>", "<OE technique>  <thus provides>  <method for use for retrieval with reasonable accuracy in UV spectral range under various atmospheric conditions>", "<OE technique>  <thus provides>  <method for retrieval with reasonable accuracy>", "<OE technique>  <provides>  <supplemental method for retrieval with accuracy in UV range>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval with reasonable accuracy in UV spectral range under conditions>", "<OE technique>  <provides>  <method for retrieval of aerosol properties with accuracy in UV range>", "<OE technique>  <thus provides>  <supplemental method for retrieval with reasonable accuracy in UV range under conditions>", "<OE technique>  <thus provides>  <method for use across network for retrieval with accuracy>", "<OE technique>  <thus provides>  <method for use across network for retrieval of aerosol properties with accuracy in UV spectral range under atmospheric conditions>", "<OE technique>  <thus provides>  <method for use across network for retrieval with accuracy in UV range under various conditions>", "<OE technique>  <thus provides>  <supplemental method for retrieval with accuracy in UV range under conditions>", "<OE technique>  <thus provides>  <method for retrieval with accuracy in UV spectral range>", "<OE technique>  <thus provides>  <method for retrieval of aerosol properties with accuracy in UV range under various conditions>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval with accuracy in UV spectral range>", "<OE technique>  <thus provides>  <method for retrieval of aerosol properties with accuracy in UV spectral range under atmospheric conditions>", "<OE technique>  <thus provides>  <method for retrieval of aerosol properties with accuracy in UV range>", "<OE technique>  <provides>  <supplemental method for retrieval with accuracy in UV spectral range under various atmospheric conditions>", "<OE technique>  <provides>  <supplemental method for use for retrieval of aerosol properties with reasonable accuracy in UV spectral range under various atmospheric conditions>", "<OE technique>  <provides>  <supplemental method for retrieval with accuracy in UV range under various atmospheric conditions>", "<OE technique>  <thus provides>  <method for use for retrieval with reasonable accuracy in UV range under various atmospheric conditions>", "<OE technique>  <provides>  <method for use across network for retrieval of aerosol properties with accuracy in UV range under atmospheric conditions>", "<OE technique>  <provides>  <method for retrieval of aerosol properties with reasonable accuracy>", "<OE technique>  <thus provides>  <method for use across network for retrieval of aerosol properties with accuracy in UV spectral range under conditions>", "<OE technique>  <provides>  <method for use for retrieval of aerosol properties with reasonable accuracy in UV spectral range under atmospheric conditions>", "<OE technique>  <thus provides>  <method for use across network for retrieval of aerosol properties with accuracy in UV spectral range under various conditions>", "<OE technique>  <thus provides>  <method for retrieval with reasonable accuracy in UV range under atmospheric conditions>", "<OE technique>  <thus provides>  <method for use for retrieval of aerosol properties with accuracy in UV range under various atmospheric conditions>", "<OE technique>  <thus provides>  <method for retrieval of aerosol properties with accuracy in UV spectral range under various atmospheric conditions>", "<OE technique>  <thus provides>  <method for retrieval with accuracy in UV range under conditions>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval with reasonable accuracy in UV spectral range>", "<OE technique>  <provides>  <method for use across network for retrieval of aerosol properties with accuracy>", "<OE technique>  <provides>  <method for retrieval>", "<OE technique>  <thus provides>  <supplemental method for retrieval with accuracy in UV range>", "<OE technique>  <provides>  <supplemental method for retrieval of aerosol properties with reasonable accuracy in UV range under conditions>", "<OE technique>  <provides>  <supplemental method for use for retrieval of aerosol properties with accuracy in UV spectral range under various conditions>", "<OE technique>  <thus provides>  <method for retrieval with reasonable accuracy in UV range under conditions>", "<OE technique>  <provides>  <supplemental method for retrieval with accuracy in UV spectral range under conditions>", "<OE technique>  <thus provides>  <supplemental method for retrieval of aerosol properties with reasonable accuracy in UV spectral range under conditions>", "<OE technique>  <thus provides>  <method for use for retrieval>", "<OE technique>  <thus provides>  <method for retrieval with accuracy in UV range>", "<OE technique>  <provides>  <supplemental method for use for retrieval with accuracy in UV spectral range under conditions>", "<OE technique>  <thus provides>  <method for use for retrieval of aerosol properties with accuracy in UV spectral range under various conditions>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval with accuracy>", "<OE technique>  <thus provides>  <supplemental method for retrieval with accuracy in UV range under atmospheric conditions>", "<OE technique>  <provides>  <method for use across network>", "<OE technique>  <provides>  <supplemental method for retrieval with accuracy in UV range under various conditions>", "<OE technique>  <thus provides>  <method for use for retrieval of aerosol properties with reasonable accuracy in UV range under atmospheric conditions>", "<OE technique>  <thus provides>  <method for retrieval with accuracy in UV spectral range under conditions>", "<OE technique>  <thus provides>  <method for retrieval of aerosol properties with reasonable accuracy in UV range under various conditions>", "<OE technique>  <provides>  <method for retrieval of aerosol properties with reasonable accuracy in UV range under conditions>", "<OE technique>  <provides>  <method for retrieval with reasonable accuracy>", "<OE technique>  <thus provides>  <method for use across network for retrieval with accuracy in UV spectral range>", "<OE technique>  <thus provides>  <method for use across network for retrieval with accuracy in UV spectral range under various conditions>", "<OE technique>  <provides>  <supplemental method for retrieval with reasonable accuracy in UV spectral range under various conditions>", "<OE technique>  <thus provides>  <supplemental method for use for retrieval of aerosol properties with accuracy in UV spectral range under various atmospheric conditions>", "<OE technique>  <thus provides>  <method for retrieval with reasonable accuracy in UV spectral range under atmospheric conditions>" ]
+  }, {
+    "sentence_id" : 196,
+    "entities" : [ "O:Southern Great Plains site", "ORGANIZATION:Energy Atmospheric Radiation Measurement program", "O:Weather Research" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 197,
+    "entities" : [ "O:parameterization schemes" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 198,
+    "entities" : [ "O:Southern Great Plains site", "ORGANIZATION:Energy Atmospheric Radiation Measurement program", "O:Weather Research" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 199,
+    "entities" : [ "O:parameterization schemes" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 201,
+    "entities" : [ "ORGANIZATION:CCN relationship" ],
+    "triples" : [ "<tight sigma CCN relationship>  <exists for>  <particles>", "<tight sigma CCN relationship>  <exists for>  <dry particles>", "<sigma CCN relationship>  <exists for>  <particles>", "<sigma CCN relationship>  <exists for>  <dry particles>" ]
+  }, {
+    "sentence_id" : 204,
+    "entities" : [ "O:Marine Boundary Layer", "ORGANIZATION:MBL cloud condensation nuclei" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 205,
+    "entities" : [ "O:Marine Boundary Layer", "ORGANIZATION:MBL cloud condensation nuclei" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 209,
+    "entities" : [ "O:drizzle peak", "O:drizzle particle size distribution" ],
+    "triples" : [ "<drizzle peak>  <estimate>  <three radar moments of drizzle particle size distribution>", "<drizzle peak>  <can>  <can used>", "<drizzle peak>  <estimate>  <three radar moments>" ]
+  }, {
+    "sentence_id" : 211,
+    "entities" : [ "O:Cloud Droplet Effective Radius" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 212,
+    "entities" : [ "O:DoE Southern Great Plains" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 213,
+    "entities" : [ "O:UHF radar observations", "ORGANIZATION:AMMA field campaign" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 216,
+    "entities" : [ "O:SLDR difference" ],
+    "triples" : [ "<SLDR difference>  <be used for>  <remote sensing methods>", "<SLDR difference>  <be used for>  <remote methods>", "<SLDR difference>  <be used for>  <prospective remote methods>", "<SLDR difference>  <be used for>  <methods>", "<SLDR difference>  <be used for>  <prospective methods>", "<SLDR difference>  <be used for>  <sensing methods>", "<SLDR difference>  <be used for>  <prospective remote sensing methods>", "<SLDR difference>  <be>  <used>", "<SLDR difference>  <be used for>  <prospective sensing methods>" ]
+  }, {
+    "sentence_id" : 219,
+    "entities" : [ "O:cloud particle imager" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 220,
+    "entities" : [ "O:surface CRE" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 222,
+    "entities" : [ "O:size range" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 224,
+    "entities" : [ "O:Intergovernmental Panel", "O:Assessment Report", "O:IPCC AR4" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 226,
+    "entities" : [ "O:surface albedo" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 227,
+    "entities" : [ "O:MODIS aerosol depth" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 228,
+    "entities" : [ "O:US Department", "ORGANIZATION:Energy Atmospheric Radiation Measurements program Southern Great Plains site" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 229,
+    "entities" : [ "O:study the cloud-base" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 230,
+    "entities" : [ "O:turbulence characteristics", "O:time evolution" ],
+    "triples" : [ "<turbulence characteristics>  <evaluate time evolution in>  <simulation>", "<turbulence characteristics>  <evaluate time evolution in>  <eddy simulation>", "<turbulence characteristics>  <evaluate time evolution in>  <large simulation forced by surface>", "<turbulence characteristics>  <evaluate time evolution in>  <large eddy simulation forced by surface>", "<turbulence characteristics>  <can>  <can used>", "<turbulence characteristics>  <evaluate time evolution in>  <large simulation forced>", "<turbulence characteristics>  <evaluate time evolution in>  <large eddy simulation>", "<turbulence characteristics>  <evaluate time evolution in>  <large eddy simulation forced>", "<turbulence characteristics>  <evaluate time evolution in>  <eddy simulation forced>", "<turbulence characteristics>  <evaluate time evolution in>  <simulation forced>", "<turbulence characteristics>  <evaluate>  <variability>", "<turbulence characteristics>  <evaluate time evolution in>  <large simulation>", "<turbulence characteristics>  <evaluate time evolution in>  <eddy simulation forced by surface>", "<turbulence characteristics>  <evaluate>  <time evolution of turbulence structures>", "<turbulence characteristics>  <evaluate time evolution in>  <simulation forced by surface>", "<turbulence characteristics>  <evaluate>  <time evolution>" ]
+  }, {
+    "sentence_id" : 232,
+    "entities" : [ "O:Radiation Measurement", "O:Cloud-Net sites", "O:weather forecasting" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 233,
+    "entities" : [ "O:cloud parametrization scheme" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 234,
+    "entities" : [ "O:the Weather Research" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 235,
+    "entities" : [ "O:cases sign", "O:storm response" ],
+    "triples" : [ "<storm response>  <is in>  <temperature of thermal used>" ]
+  }, {
+    "sentence_id" : 236,
+    "entities" : [ "O:aerosol invigoration effect" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 238,
+    "entities" : [ "O:north Atlantic" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 239,
+    "entities" : [ "O:covariance function" ],
+    "triples" : [ "<covariance function>  <generate>  <threedimensional model ice particles for ray-optics simulations>", "<covariance function>  <generate>  <threedimensional model ice particles for ray-optics simulations at 550-nm wavelength>", "<covariance function>  <generate>  <model ice particles>", "<covariance function>  <generate>  <model ice particles for ray-optics simulations at wavelength>", "<covariance function>  <is used in>  <conjunction with Gaussian random sphere geometry>", "<covariance function>  <generate>  <model ice particles for ray-optics simulations>", "<covariance function>  <generate>  <model ice particles for ray-optics simulations at 550-nm wavelength>", "<covariance function>  <is used in>  <conjunction with sphere geometry>", "<covariance function>  <generate>  <threedimensional model ice particles for ray-optics simulations at wavelength>", "<covariance function>  <is used in>  <conjunction with random sphere geometry>", "<covariance function>  <is used in>  <conjunction>", "<covariance function>  <is used in>  <conjunction with Gaussian sphere geometry>", "<covariance function>  <generate>  <threedimensional model ice particles>" ]
+  }, {
+    "sentence_id" : 243,
+    "entities" : [ "O:bin model simulations" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 244,
+    "entities" : [ "O:the derivative" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 247,
+    "entities" : [ "O:peakedness criterion" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 253,
+    "entities" : [ "PERSON:Markov chain Monte Carlo", "O:probability distribution" ],
+    "triples" : [ "<Markov chain Monte Carlo methods>  <produce>  <estimate of probability distribution>", "<Markov chain Monte Carlo methods>  <can>  <can used>", "<Markov chain Monte Carlo methods>  <produce>  <robust estimate of probability distribution>", "<Markov chain Monte Carlo methods>  <produce>  <estimate>", "<Markov chain Monte Carlo methods>  <produce>  <robust estimate>" ]
+  }, {
+    "sentence_id" : 254,
+    "entities" : [ "O:MCMC algorithm", "O:error characteristics" ],
+    "triples" : [ "<MCMC algorithm>  <explore>  <error characteristics from W-band radar>", "<MCMC algorithm>  <explore>  <error characteristics>", "<MCMC algorithm>  <explore>  <error characteristics of cloud property retrievals from radar>", "<MCMC algorithm>  <explore>  <error characteristics from surface-based radar>", "<MCMC algorithm>  <explore error characteristics for>  <case>", "<MCMC algorithm>  <explore>  <error characteristics of cloud property retrievals from surface-based radar>", "<MCMC algorithm>  <explore>  <error characteristics from surface-based W-band radar>", "<MCMC algorithm>  <explore error characteristics for>  <case of orographic snowfall>", "<MCMC algorithm>  <explore error characteristics for>  <case of snowfall>", "<MCMC algorithm>  <explore>  <error characteristics from radar>", "<MCMC algorithm>  <explore>  <error characteristics of cloud property retrievals>", "<MCMC algorithm>  <explore>  <error characteristics of cloud property retrievals from surface-based W-band radar>", "<MCMC algorithm>  <explore>  <error characteristics of cloud property retrievals from W-band radar>" ]
+  }, {
+    "sentence_id" : 255,
+    "entities" : [ "O:Doppler radar measurements" ],
+    "triples" : [ "<Doppler radar measurements>  <characterize>  <terminal fall speed>", "<Doppler radar measurements>  <characterize>  <fall speed>", "<Doppler radar measurements>  <are>  <used>" ]
+  }, {
+    "sentence_id" : 256,
+    "entities" : [ "O:error magnitude" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 257,
+    "entities" : [ "O:Monsoon Multidisciplinary Analysis" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 261,
+    "entities" : [ "O:Solar Position Algorithm" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 262,
+    "entities" : [ "O:Moon positions" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 263,
+    "entities" : [ "O:broadband ACR" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 265,
+    "entities" : [ "O:Fifth-Generation Pennsylvania State University/National Center", "O:Atmospheric Research Mesoscale Model MM5" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 268,
+    "entities" : [ "O:RMS error" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 272,
+    "entities" : [ "O:CMIP5 models", "O:AMMA transect" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 273,
+    "entities" : [ "O:GPS network observations", "O:AIRS L3" ],
+    "triples" : [ "<GPS network observations>  <are used as>  <stable reference>", "<GPS network observations>  <are>  <used>", "<GPS network observations>  <are used as>  <reference>" ]
+  }, {
+    "sentence_id" : 281,
+    "entities" : [ "O:cloud droplet", "O:aerosol concentration" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 286,
+    "entities" : [ "O:asymmetry points", "O:source region temperature", "O:water vapour" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 287,
+    "entities" : [ "O:laboratory spectrum" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 289,
+    "entities" : [ "ORGANIZATION:CALIPSO satellites", "LOCATION:Ross Island" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 290,
+    "entities" : [ "O:case study", "O:TCAP summer campaign" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 291,
+    "entities" : [ "O:Airborne observations", "O:Semi-Direct Aerosol Campaign", "O:springtime Arctic troposphere" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 295,
+    "entities" : [ "O:regression model", "O:likelihood function" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 296,
+    "entities" : [ "O:CALIPSO satellite show" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 299,
+    "entities" : [ "O:Arctic mixed-phase stratocumulus" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 300,
+    "entities" : [ "O:cloud system" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 302,
+    "entities" : [ "O:Atmospheric System Research program" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 303,
+    "entities" : [ "O:trigger functions" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 305,
+    "entities" : [ "O:vegetation index space", "O:surface energy balance principle" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 307,
+    "entities" : [ "O:sampling errors" ],
+    "triples" : [ "<sampling errors due>  <using>  <scheme>", "<sampling errors>  <are>  <evaluated>", "<sampling errors due>  <using>  <fast scheme>", "<sampling errors due>  <are>  <evaluated>", "<sampling errors>  <using>  <fast scheme>", "<sampling errors>  <using>  <scheme>" ]
+  }, {
+    "sentence_id" : 308,
+    "entities" : [ "O:band model idea", "O:surface radiation scheme" ],
+    "triples" : [ "<band model idea>  <used to>  <development surface radiation scheme>", "<band model idea>  <used in>  <radiative transfer theory>", "<band model idea>  <used to>  <development>", "<band model idea>  <used in>  <transfer theory>" ]
+  }, {
+    "sentence_id" : 310,
+    "entities" : [ "ORGANIZATION:US Atmospheric Radiation Measurement", "O:Tibetan Plateau" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 311,
+    "entities" : [ "O:band model idea", "O:surface radiation scheme" ],
+    "triples" : [ "<band model idea>  <used to>  <development surface radiation scheme>", "<band model idea>  <used in>  <radiative transfer theory>", "<band model idea>  <used to>  <development>", "<band model idea>  <used in>  <transfer theory>" ]
+  }, {
+    "sentence_id" : 313,
+    "entities" : [ "ORGANIZATION:US Atmospheric Radiation Measurement", "O:Tibetan Plateau" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 315,
+    "entities" : [ "O:EDMF version", "O:probability density function" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 316,
+    "entities" : [ "O:Atmospheric Radiation Measurement" ],
+    "triples" : [ "<Atmospheric Radiation Measurement>  <In program is>  <ARM>" ]
+  }, {
+    "sentence_id" : 317,
+    "entities" : [ "O:Atmospheric Radiation Measurement Program" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 318,
+    "entities" : [ "O:Update Cycle", "ORGANIZATION:National Centers", "ORGANIZATION:Environmental Prediction Climate Forecast System Reanalysis", "O:Regional Reanalysis" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 319,
+    "entities" : [ "O:Midlatitude Continental Convective Clouds Experiment", "O:Southern Great Plains" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 320,
+    "entities" : [ "O:AbstractThis study" ],
+    "triples" : [ "<AbstractThis study>  <extends>  <Heated Condensation Framework presented>", "<AbstractThis study>  <extends>  <Heated Condensation Framework>", "<AbstractThis study>  <extends>  <Condensation Framework presented>", "<AbstractThis study>  <extends>  <HCF>", "<AbstractThis study>  <extends>  <Condensation Framework>" ]
+  }, {
+    "sentence_id" : 323,
+    "entities" : [ "LOCATION:Pacific Darwin site" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 324,
+    "entities" : [ "ORGANIZATION:Energy Atmospheric Radiation Measurement", "O:ARM Darwin", "LOCATION:Australia site" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 326,
+    "entities" : [ "O:feature mask" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 328,
+    "entities" : [ "O:Maximum sea surface temperature" ],
+    "triples" : [ "<Last Glacial Maximum sea surface temperature>  <is in>  <Indo-Pacific warm pool>" ]
+  }, {
+    "sentence_id" : 330,
+    "entities" : [ "O:Greenhouse Gases" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 331,
+    "entities" : [ "O:water vapor" ],
+    "triples" : [ "<High temporal resolution water vapor measurements>  <characterize>  <fluctuations in ratio field in layers>", "<High resolution water vapor measurements>  <characterize>  <turbulent fluctuations in ratio field in convective mixed layers>", "<High temporal resolution water vapor measurements>  <characterize>  <turbulent fluctuations in ratio field>", "<High temporal resolution water vapor measurements>  <characterize>  <fluctuations in ratio field in mixed layers>", "<temporal resolution water vapor measurements>  <characterize>  <fluctuations in ratio field in convective mixed layers>", "<resolution water vapor measurements>  <characterize>  <turbulent fluctuations in ratio field in layers>", "<temporal resolution water vapor measurements>  <have>  <have used>", "<resolution water vapor measurements>  <characterize>  <fluctuations in water vapor ratio field in layers>", "<temporal resolution water vapor measurements>  <characterize>  <turbulent fluctuations in ratio field in layers>", "<temporal resolution water vapor measurements>  <characterize>  <fluctuations in ratio field in layers>", "<temporal resolution water vapor measurements>  <characterize>  <turbulent fluctuations in ratio field in convective layers>", "<resolution water vapor measurements>  <characterize>  <fluctuations in ratio field in mixed layers>", "<High resolution water vapor measurements>  <characterize>  <fluctuations in ratio field>", "<High temporal resolution water vapor measurements>  <characterize>  <turbulent fluctuations in ratio field in convective mixed layers>", "<resolution water vapor measurements>  <characterize>  <fluctuations in ratio field in convective layers>", "<High resolution water vapor measurements>  <characterize>  <fluctuations in ratio field in mixed layers>", "<temporal resolution water vapor measurements>  <characterize>  <fluctuations in ratio field>", "<High temporal resolution water vapor measurements>  <characterize>  <fluctuations in ratio field>", "<High resolution water vapor measurements>  <characterize>  <fluctuations in water vapor ratio field in layers>", "<temporal resolution water vapor measurements>  <characterize>  <fluctuations in water vapor ratio field in layers>", "<resolution water vapor measurements>  <characterize>  <fluctuations in ratio field in layers>", "<resolution water vapor measurements>  <characterize>  <turbulent fluctuations in ratio field>", "<High resolution water vapor measurements>  <characterize>  <fluctuations in ratio field in convective mixed layers>", "<High resolution water vapor measurements>  <characterize>  <turbulent fluctuations in water vapor ratio field>", "<resolution water vapor measurements>  <characterize>  <fluctuations>", "<resolution water vapor measurements>  <characterize>  <fluctuations in ratio field>", "<temporal resolution water vapor measurements>  <characterize>  <turbulent fluctuations in water vapor ratio field>", "<High temporal resolution water vapor measurements>  <characterize>  <fluctuations in water vapor ratio field>", "<High temporal resolution water vapor measurements>  <characterize>  <turbulent fluctuations in water vapor ratio field>", "<temporal resolution water vapor measurements>  <characterize>  <turbulent fluctuations in ratio field in mixed layers>", "<High temporal resolution water vapor measurements>  <have>  <have used>", "<High temporal resolution water vapor measurements>  <characterize>  <turbulent fluctuations in ratio field in layers>", "<water vapor mixing ratio field>  <is in>  <convective mixed layers>", "<High temporal resolution water vapor measurements>  <characterize>  <turbulent fluctuations in ratio field in mixed layers>", "<temporal resolution water vapor measurements>  <characterize>  <fluctuations in water vapor ratio field>", "<High resolution water vapor measurements>  <characterize>  <turbulent fluctuations in ratio field>", "<resolution water vapor measurements>  <characterize>  <turbulent fluctuations>", "<High resolution water vapor measurements>  <characterize>  <fluctuations in water vapor ratio field>", "<High resolution water vapor measurements>  <have>  <have used>", "<temporal resolution water vapor measurements>  <characterize>  <fluctuations>", "<High temporal resolution water vapor measurements>  <characterize>  <fluctuations in ratio field in convective layers>", "<High resolution water vapor measurements>  <characterize>  <fluctuations in ratio field in convective layers>", "<temporal resolution water vapor measurements>  <characterize>  <turbulent fluctuations>", "<resolution water vapor measurements>  <characterize>  <turbulent fluctuations in water vapor ratio field>", "<temporal resolution water vapor measurements>  <characterize>  <turbulent fluctuations in ratio field in convective mixed layers>", "<High resolution water vapor measurements>  <characterize>  <fluctuations>", "<High resolution water vapor measurements>  <characterize>  <turbulent fluctuations in ratio field in mixed layers>", "<resolution water vapor measurements>  <characterize>  <turbulent fluctuations in ratio field in convective layers>", "<resolution water vapor measurements>  <have>  <have used>", "<High temporal resolution water vapor measurements>  <characterize>  <fluctuations in water vapor ratio field in layers>", "<resolution water vapor measurements>  <characterize>  <turbulent fluctuations in ratio field in mixed layers>", "<resolution water vapor measurements>  <characterize>  <fluctuations in ratio field in convective mixed layers>", "<High temporal resolution water vapor measurements>  <characterize>  <turbulent fluctuations>", "<resolution water vapor measurements>  <characterize>  <fluctuations in water vapor ratio field>", "<High temporal resolution water vapor measurements>  <characterize>  <fluctuations>", "<temporal resolution water vapor measurements>  <characterize>  <turbulent fluctuations in ratio field>", "<High resolution water vapor measurements>  <characterize>  <fluctuations in ratio field in layers>", "<High resolution water vapor measurements>  <characterize>  <turbulent fluctuations in ratio field in layers>", "<temporal resolution water vapor measurements>  <characterize>  <fluctuations in ratio field in convective layers>", "<High temporal resolution water vapor measurements>  <characterize>  <turbulent fluctuations in ratio field in convective layers>", "<High temporal resolution water vapor measurements>  <characterize>  <fluctuations in ratio field in convective mixed layers>", "<High resolution water vapor measurements>  <characterize>  <turbulent fluctuations>", "<High resolution water vapor measurements>  <characterize>  <turbulent fluctuations in ratio field in convective layers>", "<temporal resolution water vapor measurements>  <characterize>  <fluctuations in ratio field in mixed layers>", "<resolution water vapor measurements>  <characterize>  <turbulent fluctuations in ratio field in convective mixed layers>" ]
+  }, {
+    "sentence_id" : 334,
+    "entities" : [ "O:Fire Inventory" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 336,
+    "entities" : [ "O:bulk microphysics scheme" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 337,
+    "entities" : [ "O:North Slope" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 339,
+    "entities" : [ "O:wave energy flux" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 340,
+    "entities" : [ "O:momentum fluxes" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 341,
+    "entities" : [ "O:column amount" ],
+    "triples" : [ "<column amount>  <used>  <properties>", "<column amount>  <frequently used>  <properties>", "<column amount>  <are>  <used>", "<column amount>  <are>  <frequently used>", "<column amount>  <frequently used>  <optical properties>", "<column amount>  <used>  <optical properties>" ]
+  }, {
+    "sentence_id" : 342,
+    "entities" : [ "LOCATION:Long Island", "O:Aerosol Life Cycle Intensive Operational Period" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 343,
+    "entities" : [ "O:Radiation Measurement", "MISC:Optical Water Depth", "O:Optical Radiative Observations" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 344,
+    "entities" : [ "O:LUT method" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 346,
+    "entities" : [ "O:depolarization backscatter profiling lidar", "O:scanning X band radar", "O:microwave radiometer" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 347,
+    "entities" : [ "O:Midlatitude Continental Convective Clouds Experiment", "O:Southern Great Plains" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 351,
+    "entities" : [ "O:default CESM1", "O:cloud inhomogeneity" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 353,
+    "entities" : [ "ORGANIZATION:Energy Atmospheric Radiation Measurement Southern Great Plains site" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 355,
+    "entities" : [ "O:sampling artifact" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 356,
+    "entities" : [ "O:NAM-SCA model" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 360,
+    "entities" : [ "O:MultiFilter Rotating Shadowband Radiometer", "O:Microwave Radiometer" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 361,
+    "entities" : [ "O:Angstrom coefficient" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 362,
+    "entities" : [ "O:data policy", "O:field observations", "O:MJO study" ],
+    "triples" : [ "<data policy>  <encourages>  <research community>", "<data policy>  <encourages>  <broad research community>" ]
+  }, {
+    "sentence_id" : 363,
+    "entities" : [ "O:National Centers", "ORGANIZATION:Environmental Prediction" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 364,
+    "entities" : [ "ORGANIZATION:Energy Atmospheric Radiation Measurement Southern Great Plains site" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 365,
+    "entities" : [ "O:Summertime observations", "O:Atmospheric Radiation Measurement Southern Great Plains site" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 367,
+    "entities" : [ "O:Atmospheric Radiation Measurement Program", "LOCATION:Manus Island" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 369,
+    "entities" : [ "O:35-GHz Millimeter Microwave Cloud Radar" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 370,
+    "entities" : [ "O:Southern Great Plains", "O:National Centers", "ORGANIZATION:Environmental Prediction" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 372,
+    "entities" : [ "O:35-GHz Millimeter Microwave Cloud Radar" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 373,
+    "entities" : [ "O:Southern Great Plains", "O:National Centers", "ORGANIZATION:Environmental Prediction" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 375,
+    "entities" : [ "O:Summertime observations", "O:Atmospheric Radiation Measurement Southern Great Plains site" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 378,
+    "entities" : [ "O:semidiscretization processing technique" ],
+    "triples" : [ "<semidiscretization processing technique>  <inhibit>  <impact>" ]
+  }, {
+    "sentence_id" : 379,
+    "entities" : [ "O:semidiscretization processing technique" ],
+    "triples" : [ "<semidiscretization processing technique>  <inhibit>  <impact>" ]
+  }, {
+    "sentence_id" : 381,
+    "entities" : [ "O:cumulus parameterization" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 382,
+    "entities" : [ "O:cumulus parameterization" ],
+    "triples" : [ ]
+  }, {
+    "sentence_id" : 383,
+    "entities" : [ "MISC:Doppler moments", "O:mean air" ],
+    "triples" : [ ]
+  } ]
+}

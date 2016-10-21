@@ -61,8 +61,8 @@ object RunTest2015 {
     for(entry <- nlp_output) {
       println(docid)
 
-      writer.write("Paper_Title: " + entry("paper_title") + "\n")
-      writer.write("This paper mentions: ")
+      writer.write(entry("paper_title") + "\n")
+      //writer.write("This paper mentions: ")
       val allMentionsWithData: Map[String, MentionData] = entry("entities").asInstanceOf[List[String]].map(reverse).reduce(_++_)
       //allMentionsWithData.foreach(v => println(v._1 + "--(type, evidence weight)-->"+ v._2.toString))  
 
