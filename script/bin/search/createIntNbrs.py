@@ -4,6 +4,13 @@ import os, sys
 # Generates neirghbour list in integer format using vertex to id hashmap from :
 #vertexNames.txt -> assumes vertex label per line
 # ids are started from id 0
+
+# TODO(Khushbu/Sutanay) -> the number of vertices in vertices.nbrs is more than
+# in vertexNames hashmap. 
+# nede to only contsruct vertex list for vertices in vertexNames.txt and in same
+# order
+# TODO(FIX) (10/21/2016)
+
 def get_vertex_id_map(filename):
     mydict = {}
     i = 0

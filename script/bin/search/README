@@ -48,3 +48,7 @@ sample run command at /NOUS/script/bin/search/run.sh
 6.1) To convert paths generated in step 3 to integer format use script:
 
 
+PS: All of these steps have been performed for 20 entity pairs so far on yago graph ( yagoFacts, yagoTypes, yagoOntology, yagoSimpleTypes) 
+All of the adat generated so far resides on /pic/projects/nous/PathSearch/
+
+
