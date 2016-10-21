@@ -25,8 +25,7 @@ use previosly generated data in repository @bigdatann:/pic/projects/nous/PathSea
 	2.1) vertexNames.txt -> nodeLabel of  330K vertices, one at each line
 	2.2) vertexTypeCleaned.txt ->  nodeWordnet_category_list, corresponding to each vertex in vertexNames.txt
 	2.3) vertexDegree.txt ->nodeDegree, corresponding to each vertex in vertexNames.txt
-	2.4) vertex.nbrs -> node_nbr_list, corresponding to each vertex in vertexNames.txt (Note this needs to be regenerated
- by for only 330K vertices ( remove all nodes startign with "https://" in data graph, they have no wordnet category)
+	2.4) vertex.nbrs -> node_nbr_list, corresponding to each vertex in vertexNames.txt
 	2.5) allWordnetType.txt -> list of all wordnet types in yago graph
 
 3) Use 	nodeId->list[wordnet_class_labels], to generate
@@ -45,10 +44,7 @@ sample run command at /NOUS/script/bin/search/run.sh
 /NOUS/script/bin/search/categorizePaths.py
 
 6) Strings to integer convention in tensorflow model: The tensorflow assumes the line number in vertexNames.txt(2.1) to be vertexId
-6.1) To convert paths generated in step 3 to integer format use script:
-
-
-PS: All of these steps have been performed for 20 entity pairs so far on yago graph ( yagoFacts, yagoTypes, yagoOntology, yagoSimpleTypes) 
-All of the adat generated so far resides on /pic/projects/nous/PathSearch/
-
-
+6.1) To convert paths generated in step 3 to integer format use script: 
+/NOUS/script/bin/search/createIntPaths.py
+6.2) convert vertex.nbrs in integer format (TOFIX). This script needs to only generate nerighbour list for vertices in vertexNames.txt, not all vertices
+/NOUS/script/bin/search/createIntNbrs.py
