@@ -1,4 +1,8 @@
+__author__ = 'weituo'
+
 """
+knowledge relation exmpales are as follows:
+
 represents
 is    component-whole
 hasInstrument
@@ -13,8 +17,6 @@ outputs
 measures
 hasCategory
 hasSubCategory
-
-
 
 
 For site information,
@@ -38,6 +40,9 @@ from collections import OrderedDict
 
 
 def transform(dic, ins):
+    """
+    input: ins is the name of the instrument and dic is its corresponding dictionary
+    """
     print ins
     result = list()
     instru = "<" + ins + ">" + '\t'
@@ -123,7 +128,7 @@ def transform(dic, ins):
 def main():
     filename1 = sys.argv[1]
     filename2 = sys.argv[2]
-    with open(filename1) as json_data1, open(filename2) as json_data2,open('triplesTotal.txt', 'w') as trip_writer:
+    with open(filename1) as json_data1, open(filename2) as json_data2,open('../text_info/triples.txt', 'w') as trip_writer:
     #with open(filename1) as json_data1,open('triplesNew.txt', 'w') as trip_writer:
         data = json.load(json_data1, object_pairs_hook=OrderedDict)
         trip_writer.write("<ARM>\t" + "<represents>\t" + "<atmospheric radiation measurement>\n")

@@ -1,3 +1,4 @@
+__author__ = 'weituo'
 
 import csv
 import re
@@ -6,20 +7,15 @@ from collections import OrderedDict
 
 
 def parse(sentence):
+    """
+
+    """
     titleinfo  = re.split(r"\s{3,}", sentence)
     if len(titleinfo) < 2:
         url = 'N/A'
     else:
         url = titleinfo[1]
     t = titleinfo[0]
-    """
-    year = ''
-    m = re.search(r"\((\d{4})\)", title)
-    if not m:
-        print sentence
-    else:
-        year = m.group(1)
-    """
     lst = re.split(r"\((\d{4})\).", t)
     authors, year, titles = lst[0], lst[1], lst[2]
     #print titles
