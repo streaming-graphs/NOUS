@@ -17,8 +17,8 @@ To collect and parse AAF instruments information at [ARM](http://www.arm.gov) we
  It will generate `triples.txt` as the knowledge base.  
  
  To generate results after disambiguation, run  
- `python parseTitleAbs.py <your_json_file_after_disambiguation>`  
- It outputs `parsedAbs.csv` to display the results. In our case, we use `text_info/T2015.json` as the input. For details to obtain this input, see [NOUS](https://github.com/streaming-graphs/NOUS)  
+ `python parseTitleAbs.py <your_text_file_after_disambiguation>`  
+ It outputs `parsedAbs.csv` to display the results. In our case, we use `text_info/Test13-16.txt` as the input. For details to obtain this input, see [NOUS](https://github.com/streaming-graphs/NOUS)  
 
 
 ##text_info  

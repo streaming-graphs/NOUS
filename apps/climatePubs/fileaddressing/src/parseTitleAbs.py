@@ -8,7 +8,11 @@ from collections import OrderedDict
 
 def parse(sentence):
     """
-
+    input: sentence is the paper title
+    output: year when the paper is publised
+            title
+            url is the url by which the paper can be downloaded
+            authors are the authors
     """
     titleinfo  = re.split(r"\s{3,}", sentence)
     if len(titleinfo) < 2:
@@ -23,6 +27,10 @@ def parse(sentence):
 
 
 def processText(file_path):
+    """
+    input: file_path is the file path where the output of disambiguation
+    output: parseAbs.csv is the collection of the disambiguation result
+    """
     data = OrderedDict()
     total = 0
     non_extracted = 0
