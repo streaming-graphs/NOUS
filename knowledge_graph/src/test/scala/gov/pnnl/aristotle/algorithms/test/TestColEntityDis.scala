@@ -43,6 +43,7 @@ object RunColDisamb{
     println("No of unique triple blocks =" + allTriplesByUrl.size + "\n")
     
     println("Reading graph")
+    
     val g: Graph[String, String] = ReadHugeGraph.getGraph(args(0), sc)
     
     println("geting aliases")

@@ -16,7 +16,7 @@ import org.apache.spark.rdd.RDD.rddToPairRDDFunctions
 import scala.Array.canBuildFrom
 import gov.pnnl.aristotle.algorithms.PathSearch.PathSearchUtils._
 
-object VertexOntologyGenerator {
+object OntologyGenerator {
   
   type EdgeWeight = Long
   type OntologyGraph = Graph[String, EdgeWeight]
@@ -36,69 +36,43 @@ object VertexOntologyGenerator {
     val outputDir = args(1)
     val numClusters = args(2).toInt
     val numIter = args(3).toInt
+    
     val g = ReadHugeGraph.getGraph(inputFile, sc)
-    val vertexlabelFile =  outputDir + "/graphVertLabels"
+    ontologyClustering(g, outputDir, numClusters, numIter, sc)
+  }
+  
+ 
+  
+   /* Given a KB, find clusters in "ontology nodes" using an LDA model 
+   *  An "Ontology node" is defined as any node which is the destination of an
+   *  "rdf:type"(kGraphProp.edgeLabelNodeType) relationship in KB.
+   *  
+   *  Each node in KB ontology is described as a collection of its neighbors
+   *  For e.g : 
+   *  wikicategory_cricket_captains = Set(Virat Kohli, Sachin Tendulkar, Wasim Akram)
+   *  wikicategory_IPL_players = Set(Virat Kohli, Raina, Andrew Symons, Sachin tendulkar)
+   *  and so on
+   *  
+   *  #vertices : Ontology Node in data graph
+   *  edges : Number of common neighbors between two type nodes in the data graph
+   *  An LDA is used to find clusters of nodes with similar word(nbr) distributions
+   */ 
+  def ontologyClustering(g: Graph[String, String], outputDir: String, 
+      numClusters: Int, numIter: Int, sc: SparkContext): Unit = {
+   
+    /* Generate the ontology graph from datagraph*/ 
     val ontologyGraphFile = outputDir + "/ontologyGraph"
+    CreateAndSaveOntologyGraph(g, ontologyGraphFile)
+    // ReadOntologyGraph(ontologyGraphFile, sc)
+         
+    /* Find clusters in ontology graph */
     val clustersByIdFile = outputDir + "/ontologyClustersById"
     val clusterWithLabelsFile = outputDir + "/ontologyClustersByLabel"
+    val vertexLabelFile =  outputDir + "/graphVertLabels"
     val finalOut = outputDir + "/finalClusters"
-    //CreateAndSaveOntologyGraph(g, ontologyGraphFile)
-    //ReadOntologyGraph(ontologyGraphFile, sc)
-    //CreateAndSaveGraphClusters(ontologyGraphFile, clustersByIdFile, numClusters, numIter,  sc)
-    //mapClustersToLabels(clustersByIdFile, vertexlabelFile, clusterWithLabelsFile, sc)
-    //saveClusters(clusterWithLabelsFile, finalOut, sc )
-    //groupEdgesByVertex(inputFile, sc)
-    PrintWordnetOntologyStats(g, outputDir)
-    PrintNodeToWordNetCategories(g, outputDir)
-    //PrintWikiOntologyStats(g, outputDir)
-  }
-  
-  /* Get number of yago entities connected to each wordnet category 
-   * NOte1: each yago entity may connect to multiple wordnet categories
-   * Note2: We are not counting the wikicategory_ nodes connected to wordnet categories
-   */
-  def PrintWordnetOntologyStats(g: Graph[String, String], outputDir: String): Unit = {
-    val wordnetEntities: VertexRDD[Int] = g.aggregateMessages[Int](triplet => {
-      if( (!triplet.srcAttr.startsWith("wikicategory")) && 
-          (triplet.dstAttr.startsWith("wordnet")) )
-        triplet.sendToDst(1)
-    }, (a,b) => a+b)
-    
-    val wordnetWithLabels = wordnetEntities.innerZipJoin(g.vertices)((id, numNbrs, label) => 
-      (label, numNbrs))
-    println("number of total wordnet categories=", wordnetWithLabels.count)
-    wordnetWithLabels.saveAsTextFile(outputDir + "/wordnetClusterStats")
-  }
-  
-  /* For each yago entity, including yago "wikicategory_" nodes, create a Node2vec function, 
-   *containing node's wordnet category information
-   */
-  def PrintNodeToWordNetCategories(g: Graph[String, String], outputDir: String): Unit = {
-    val entitiesWithWordNetCatg : VertexRDD[Set[String]] = g.aggregateMessages[Set[String]](triplet => {
-      if(triplet.dstAttr.startsWith("wordnet"))
-        triplet.sendToSrc(Set(triplet.dstAttr))
-    }, (a,b) => a ++ b)
-    
-    val entityLabelsWithWordNetCatg = entitiesWithWordNetCatg.innerZipJoin(g.vertices)(
-        (id, wordnetCatg, label) => (label, wordnetCatg.fold[String]("")((a,b) => a + "," + b))) 
-    println("number of total entities(regular nodes + wikicategory nodes) with some wordnet categories=", entityLabelsWithWordNetCatg.count)
-    entityLabelsWithWordNetCatg.saveAsTextFile(outputDir + "/yagoEntitiesWordNetCatg")
-  }
-    
-  def PrintWikiOntologyStats(g: Graph[String, String], outputDir: String): Unit = {
-  
-    val wikiEntities: VertexRDD[Array[String]] = g.aggregateMessages[Array[String]](triplet => {
-      if(triplet.attr == KGraphProp.edgeLabelNodeType && triplet.dstAttr.startsWith("wikicategory"))
-        triplet.sendToDst(Array(triplet.srcAttr))
-    }, (a,b) => a++b)
-    
-    val wikiWithLabels = wikiEntities.innerZipJoin(g.vertices)((id, nbrs, label) => (label, nbrs.size, nbrs))
-    println("number of total wiki categories=", wikiWithLabels.count)
-    val totalmemberSize = wikiWithLabels.map(_._2._2).sum
-    println("number of total vertices with wikicategory available=", totalmemberSize)
-    //wikiWithLabels.foreach(v => println(v._2._1, v._2._2, v._2._3.foreach(nbr => 
-    //  print(nbr + " , ")) ))
-    //wikiWithLabels.saveAsTextFile(outputDir + "/wikicategoryClusters")
+    CreateAndSaveGraphClusters(ontologyGraphFile, clustersByIdFile, numClusters, numIter,  sc)
+    mapClustersToLabels(clustersByIdFile, vertexLabelFile, clusterWithLabelsFile, sc)
+    saveClusters(clusterWithLabelsFile, finalOut, sc)
   }
   
   def ReadOntologyGraph(ontologyGraphFile: String, sc: SparkContext): Unit = {
@@ -159,6 +133,11 @@ object VertexOntologyGenerator {
         println(entityPairCount._1.toString, entityPairCount._2))
   }
   
+  /* Save results to file
+   * @Input : RDD[VertexId, ClusterId, vertexLabel] 
+   * @Output : File containing for each cluster : 
+   * cluster Id: List of members(VertexId, vertexLabel)
+   *  */
   def saveClusters(clusterWithLabelsFile: String, outputFile: String, sc: SparkContext): Unit = {
     val clusterAssignments: RDD[(Long, Int, String)] = sc.textFile(clusterWithLabelsFile)
       .map{ln => 
@@ -170,24 +149,13 @@ object VertexOntologyGenerator {
           v(2).substring(0, v(2).length()-1).trim
           ))
           
-     val clusters = clusterAssignments.groupBy(v => v._2)
+     val clusters: RDD[(Int, Iterable[(Long, String)])] = clusterAssignments.groupBy(v => v._2)
      .mapValues(clusterMembers => clusterMembers.map(v => (v._1, v._3)))
      
      clusters.saveAsTextFile(outputFile)
   }
-  /*Given a KB, find clusters in "ontology nodes" using an LDA model 
-   *  An "Ontology node" is defined as any node which is the destination of an
-   *  "rdf:type"(kGraphProp.edgeLabelNodeType) relationship in KB.
-   *  
-   *  Each node in KB ontology is described as a collection of its neighbors
-   *  For e.g : 
-   *  wikicategory_cricket_captains = Set(Virat Kohli, Sachin Tendulkar, Wasim Akram)
-   *  wikicategory_IPL_players = Set(Virat Kohli, Raina, Andrew Symons, Sachin tendulkar)
-   *  and so on
-   *  
-   *  An LDA is used to find clusters of nodes with similar word(nbr) distributions
-   */ 
-  def mapClustersToLabels(clusterByIdFile: String, vertexLabelFile:String, 
+  
+   def mapClustersToLabels(clusterByIdFile: String, vertexLabelFile:String, 
       outputFile: String, sc : SparkContext): Unit = {
    
     val clusterAssignments: RDD[(Long, Int)] = sc.textFile(clusterByIdFile)
@@ -203,7 +171,11 @@ object VertexOntologyGenerator {
     val nodesWithClusterIdAndLabels = clusterAssignments.join(vertLabels)
     nodesWithClusterIdAndLabels.saveAsTextFile(outputFile)
   }
-  /*
+  
+  /* Run Clustering on the given graph 
+   * Removes node pairs with just weight =1 ( single common neighbor)
+   * to improve clustering results
+   */ 
   def CreateAndSaveGraphClusters(graphInputFile: String, outputFile : String, 
       numClusters : Int, numIter:Int, sc: SparkContext): 
   PowerIterationClusteringModel = {
@@ -221,7 +193,9 @@ object VertexOntologyGenerator {
     model
   }
   
-  def runPIC(ontologySim : RDD[(VertexId, VertexId, Double)], numClusters: Int, maxIter: Int): PowerIterationClusteringModel = {
+  /* Run Power Iteration Clustering on given weighed graph */
+  def runPIC(ontologySim : RDD[(VertexId, VertexId, Double)], 
+      numClusters: Int, maxIter: Int): PowerIterationClusteringModel = {
     println("calculating clusters, given number of vertex pairs ", ontologySim.count)
     val pic = new PowerIterationClustering().setK(numClusters).setMaxIterations(maxIter)
     val model = pic.run(ontologySim)
@@ -236,20 +210,34 @@ object VertexOntologyGenerator {
     }
     model
   }
-  * 
-  */
 
+
+  /* For the input graph, generate a new graph of typeNodes
+   * A "typeNode"  is any node which is destination of "rdf:type"(KGraphProp.edgeLabelNodeType) 
+   * There exists an edge between two typeNodes iff they share a datanode
+   * The weight of the edge between two typeNodes = the number of common data nodes between them
+   */
   def CreateAndSaveOntologyGraph(g: Graph[String, String], outFile: String): Unit = {
+    // For all nodes in the graph: Get id's of their rdf:type nodes
     val nodesWithTypes: VertexRDD[SortedSet[VertexId]] = getNodeTypesSortedById(g)
+    
+    /*  Now create pairs of typeNodes belonging to a datanode => 
+     *  these "typeNodes" occurred together for at least 1 node
+     */
     val nodesWithTypesPaired: VertexRDD[Iterator[(VertexId, VertexId)]] = 
       nodesWithTypes.mapValues(typeData => 
         typeData.subsets(2).filter(_.size == 2).map(_.toArray).map(v => (v(0), v(1))))
     println("Number of  nodes with type data ", nodesWithTypesPaired.count)
     
+    /* Count the total instances for each such pair of typeNodes */
     val typePairCounts = nodesWithTypesPaired.flatMap(_._2).countByValue
     //typePairCounts.foreach(keyValue => println(keyValue._1._1,  keyValue._1._2, keyValue._2))
      val outputFile = new File(outFile)
      val outputFileWriter = new BufferedWriter(new FileWriter(outputFile))
+    
+    /* Write to output file 
+     * (typeNode1 , typeNode2 , #Num_Common_Nbrs)
+     */
      for(keyValue <- typePairCounts) {
        outputFileWriter.write(keyValue._1._1.toString + " , " + 
            keyValue._1._2.toString + " , " +  keyValue._2.toString + "\n")
@@ -268,7 +256,8 @@ object VertexOntologyGenerator {
       println("Number of vertices receiving type data = ", vertWithType.count)
       vertWithType
   }
-  
+ 
+  /*
   /* given a vertexRDD[Neighbour Nodes], 
    * compute all pair similarity using "number of common neighbours"
    */
@@ -287,5 +276,7 @@ object VertexOntologyGenerator {
       }     
     commonNbrs.filter(v => ((v._3 > simThreshold) && (v._1 != v._2))).distinct()
   }
+  * 
+  */
   
 }
