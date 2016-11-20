@@ -265,6 +265,7 @@ object DataToPatternGraph {
       var frequentPatternsInIncrementalBatch = getFrequentPatterns(allPatterns, misSupport).cache
       println("all frequent pattern of size 1", frequentPatternsInIncrementalBatch.count)
       println("Sum of all frequent pattern of size 1", frequentPatternsInIncrementalBatch.values.sum)
+      //frequentPatternsInIncrementalBatch.collect.foreach(f=>println(f._1.toList, f._2))
       /*
        * Get Updated Frequent pattern in the window.
        * NOTE : We always use window level stats to do mining
@@ -689,7 +690,7 @@ object DataToPatternGraph {
         windowPatternGraph.triplets
           /*.filter(triple => {
             
-             //* Find Only those edges that should lead to a bigger size pattern  
+             // Find Only those edges that should lead to a bigger size pattern  
              
             //TODO : get a DFS ordering here to make sure redundant pattern keys are not possible
             val smallpattern1 = triple.srcAttr.getPattern.toList
@@ -704,7 +705,8 @@ object DataToPatternGraph {
             //if(triple.srcAttr.timestamp)
               true
             else false
-          })*/.map(triple => {
+          })*/
+          .map(triple => {
 
             val newPatternInstanceMap = triple.srcAttr.patternInstMap ++ triple.dstAttr.patternInstMap
             val timestamp = getMinTripleTime(triple)
