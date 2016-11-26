@@ -117,6 +117,11 @@ object DataToPatternGraph {
         patternInstHash 
     }
   
+  
+  def printNOUSRuntime(outString:String,batchId:Int)
+  {
+    println("\n**NOUS_RUN_START&bid="+batchId+"&outstring="+outString+"&NOUS_RUN_END**\n")
+  }
   def main(args: Array[String]): Unit = {
     if (args.length != 1) {
       println("Usage : <configuration file path>")
@@ -126,7 +131,7 @@ object DataToPatternGraph {
     Logger.getLogger("org").setLevel(Level.OFF)
     Logger.getLogger("akka").setLevel(Level.OFF)
 
-    var runtime_summary : Map[String,String] = Map.empty 
+    //var runtime_summary : Map[String,String] = Map.empty 
     
     val sc = SparkContextInitializer.sc
 
@@ -199,18 +204,17 @@ object DataToPatternGraph {
       currentBatchId = currentBatchId + 1
       var t0 = System.nanoTime()
       val incomingDataGraph: DataGraph = ReadHugeGraph.getTemporalGraphInt(graphFile, sc, batchSizeInMilliSeconds).cache
-      
-      //Get Node degree information
-      //val dataNodeDegreeRDD = incomingDataGraph.degrees
-      
+      val numEdges = incomingDataGraph.edges.count
       var t1 = System.nanoTime()
-      runtime_summary  = runtime_summary +  ("\nNOUS:Incoming Graph Size Count " -> incomingDataGraph.edges.count.toString)
+      printNOUSRuntime("Data Graph Edges" + numEdges, currentBatchId)
+      printNOUSRuntime("Time to construct data graph and count number of edges " + (t1 - t0) * 1e-9 + "seconds" , currentBatchId)
       
       t0=System.nanoTime()
       val incomingPatternGraph: PatternGraph = getPatternGraph(incomingDataGraph, typePred).cache
-      t1=System.nanoTime()
-      runtime_summary  = runtime_summary +  ("\nNOUS:GIP Graph Construction" -> ((t1 - t0) * 1e-9 + "seconds"))
-      runtime_summary  = runtime_summary +  ("\nNOUS:GIP Graph Size" -> incomingPatternGraph.edges.count.toString)
+      val numGIPEdges = incomingPatternGraph.edges.count
+      printNOUSRuntime("GIP Graph Edges" + numGIPEdges, currentBatchId)
+      t1 = System.nanoTime()
+      printNOUSRuntime("Time to construct GIP graph and count number of edges " + (t1 - t0) * 1e-9 + "seconds" , currentBatchId)
       
       /*
        *  Support for Sliding Window : First thing we do is to get our new Window
@@ -239,32 +243,33 @@ object DataToPatternGraph {
         /*
 		    * Remove out-of-window edges and nodes
 		    */
+        t0 = System.nanoTime()
         windowPatternGraph = maintainWindow(windowPatternGraph, currentBatchId, windowSizeInBatchs)
 
         /*
       	 * Make a union of the incomingPatternGraph and windowPatternGraph
       	 * windowPatternGraph is the one used in mining
       	 */
+
         val newVertices = windowPatternGraph.vertices.union(incomingPatternGraph.vertices).cache
         val newEdges = windowPatternGraph.edges.union(incomingPatternGraph.edges).cache
-        println("NOUS: Before WindowGraph size in Vertices " , windowPatternGraph.vertices.count)
-        println("NOUS: Before WindowGraph size in Edges " , windowPatternGraph.edges.count)
-
-        windowPatternGraph = Graph(newVertices,newEdges).cache
         
-        println("NOUS: After WindowGraph size in Vertices " , windowPatternGraph.vertices.count)
-    		println("NOUS: After WindowGraph size in Edges " , windowPatternGraph.edges.count)
+        val numWinEdges = windowPatternGraph.edges.count
+        windowPatternGraph = Graph(newVertices,newEdges).cache
+        t1 = System.nanoTime()
+        printNOUSRuntime("Time to merge Graphs from this batch and window "+ (t1 - t0) * 1e-9 + "seconds" , currentBatchId)        
+    		
 
       }
 
       /*
        * Now start the Mining
        */
-      windowPatternGraph.vertices.collect.foreach(v=>println(v._1, v._2.getPattern.toList, v._2.getInstance.toList, v._2.timestamp))
+      //windowPatternGraph.vertices.collect.foreach(v=>println(v._1, v._2.getPattern.toList, v._2.getInstance.toList, v._2.timestamp))
       var allPatterns = computeMinImageSupport(windowPatternGraph).cache
       var frequentPatternsInIncrementalBatch = getFrequentPatterns(allPatterns, misSupport).cache
-      println("all frequent pattern of size 1", frequentPatternsInIncrementalBatch.count)
-      println("Sum of all frequent pattern of size 1", frequentPatternsInIncrementalBatch.values.sum)
+//      println("all frequent pattern of size 1", frequentPatternsInIncrementalBatch.count)
+//      println("Sum of all frequent pattern of size 1", frequentPatternsInIncrementalBatch.values.sum)
       //frequentPatternsInIncrementalBatch.collect.foreach(f=>println(f._1.toList, f._2))
       /*
        * Get Updated Frequent pattern in the window.
@@ -331,7 +336,10 @@ object DataToPatternGraph {
           t0=System.nanoTime()
           val joinResult: (PatternGraph, DependencyGraph) = joinGraph(windowPatternGraph, dependencyGraph, 
               currentIteration,frequentPatternBroacdCasted,sc)
+          val joinWinEdges = joinResult._1.edges.count
           t1=System.nanoTime()
+          printNOUSRuntime("Num Edges After GIP Join"  + joinWinEdges, currentBatchId)
+          printNOUSRuntime("Time to join Graph with new window edge count" + (t1 - t0) * 1e-9 + "seconds", currentBatchId)
           
           /*runtime_summary  = runtime_summary +  ("GIP Graph Join" -> ((t1 - t0) * 1e-9 + "seconds"))
           runtime_summary  = runtime_summary +  ("GIP Graph Join Size Update" -> incomingPatternGraph.edges.count.toString)*/
@@ -352,8 +360,8 @@ object DataToPatternGraph {
             break
           }
           try{
-            println("all frequent pattern found with count in joins ", frequentPatternsInIncrementalBatch.count)
-            println("Sum of all frequent pattern of size 2", frequentPatternsInIncrementalBatch.values.sum)
+//            println("all frequent pattern found with count in joins ", frequentPatternsInIncrementalBatch.count)
+//            println("Sum of all frequent pattern of size 2", frequentPatternsInIncrementalBatch.values.sum)
             //frequentPatternsInIncrementalBatch.collect.foreach(f=>println(f._1.toList, f._2))
           }catch{
             case e: Exception => println("*** frequentPatternsInIncrementalBatch count failed  **")
@@ -425,11 +433,10 @@ object DataToPatternGraph {
           .saveAsTextFile("DepG"+System.nanoTime()+"/")
           * 
           */
+      val graphsizeAfterJoin = windowPatternGraph.edges.count
       var t1_batch = System.nanoTime()
-      runtime_summary  = runtime_summary +  ("\nNOUS:Batch Processing Time " -> ((t1_batch - t0_batch) * 1e-9 + "seconds"))
-      
-      runtime_summary.iterator.foreach(entry=>println(entry._1, entry._2))
-      
+      printNOUSRuntime("Batch Processing Time " 
+          + (t1_batch - t0_batch) * 1e-9 + "seconds"  + " num Edges end of batch " + graphsizeAfterJoin, currentBatchId)
     }
     
   }
@@ -716,7 +723,6 @@ object DataToPatternGraph {
 
           }).cache
 
-      println("size 2 GIP nodes count is ", allGIPNodes.count)
       var t1=System.nanoTime()
       //println("\nNOUS: GIP Join Node  Construction with count ", ((t1 - t0) * 1e-9 + "seconds"))
 
@@ -776,34 +782,17 @@ object DataToPatternGraph {
       
       val existingGIPNodes = windowPatternGraph.vertices.cache
       val existingGIPEdges = windowPatternGraph.edges.cache
-      t0=System.nanoTime()
-      print("gipEdges count = " + gipEdges.count)
-      t1=System.nanoTime()
-      //println("\nNOUS: GIP Join Edge  Construction with count", ((t1 - t0) * 1e-9 + "seconds"))
-
+      
       /*
        * Newly created Nodes and Edges are already cached
        * NOTE: removing call to distinct
        */
       //print("existingGIPEdes count = " + existingGIPEdges.count)
       
-      t0=System.nanoTime()
       val allnewNodes = existingGIPNodes.union(allGIPNodes).cache
-      //println("\nNOUS: GIP node count after union ", allnewNodes.count)
-      t1=System.nanoTime()
-      //println("\nNOUS: GIP Join Node Union with existing GIPNode", ((t1 - t0) * 1e-9 + "seconds"))
-
-      t0=System.nanoTime()
       val allnewEdges = existingGIPEdges.union(gipEdges).cache
-      //println("\nNOUS: GIP edge count after union ", allnewEdges.count)
-      t1=System.nanoTime()
-      //println("\nNOUS: GIP Join Edges Union with existing GIPEdges", ((t1 - t0) * 1e-9 + "seconds"))
-
-      t0=System.nanoTime()
       val newwindowPatternGraph = Graph(allnewNodes, allnewEdges)
-      t1=System.nanoTime()
-      //println("\nNOUS: GIP Join Graph Construction", ((t1 - t0) * 1e-9 + "seconds"))
-
+      
       return newwindowPatternGraph  
   }
   
@@ -944,29 +933,18 @@ object DataToPatternGraph {
     /*
      * Get initial typed graph
      */
+    var t0=System.nanoTime()
     val typedGraph: Graph[LabelWithTypes, KGEdgeInt] = getTypedGraph(dataGraph, typePred)
-
+    val numTypeGEdges = typedGraph.edges.count
+    var t1=System.nanoTime()
     /*
      * Get nodes in the GIP
      * Using those nodes, create edges in GIP
      */
-    var t0=System.nanoTime()
     val gipVertices : RDD[(Long,PatternInstanceNode)] = getGIPVerticesNoMap(typedGraph, typePred).cache
-    val num_Vertices = gipVertices.count
-    var t1=System.nanoTime()
-    //println("\nNOUS: GIP Vertex Construction with count",num_Vertices, " " , ((t1 - t0) * 1e-9 + "seconds"))
-
-    t0=System.nanoTime()
     val gipEdge : RDD[Edge[Long]] = getGIPEdges(gipVertices).cache
-    //val num_Edges = gipEdge.count
-    t1=System.nanoTime()
-    ////println("\nNOUS: GIP Edge Construction with count ", num_Edges, " " ,((t1 - t0) * 1e-9 + "seconds"))
     
-    t0=System.nanoTime()
     val result = Graph(gipVertices, gipEdge).cache
-    val num_graph_edges = result.edges.count
-    t1=System.nanoTime();
-    //println("\nNOUS: GIP Graph Construction ", num_graph_edges, " " ,((t1 - t0) * 1e-9 + "seconds"))
     return result
     
   }
@@ -1040,9 +1018,6 @@ object DataToPatternGraph {
         }
         local_edges
       })
-      //println("\nNOUS: size of edges : " , gipEdges.count)
-      t1=System.nanoTime()
-      println("NOUS time to construct gipEdge from with gipPatternIdPerDataNode flatmap  :", ((t1 - t0) * 1e-9 + "seconds"))
       return gipEdges
     }
   
@@ -1056,8 +1031,6 @@ object DataToPatternGraph {
      * (Long,Array[(SinglePatternEdge, SingleInstanceEdge)]
      *
      */
-     
-     
      /*
       * validTriples are the triples without any 'type' edge, and also without
       * any edge where either the source or destination has pattern to 
