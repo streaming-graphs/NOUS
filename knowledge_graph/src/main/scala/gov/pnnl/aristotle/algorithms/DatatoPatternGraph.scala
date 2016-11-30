@@ -204,17 +204,21 @@ object DataToPatternGraph {
       currentBatchId = currentBatchId + 1
       var t0 = System.nanoTime()
       val incomingDataGraph: DataGraph = ReadHugeGraph.getTemporalGraphInt(graphFile, sc, batchSizeInMilliSeconds).cache
+      val numVertices = incomingDataGraph.vertices.count
       val numEdges = incomingDataGraph.edges.count
       var t1 = System.nanoTime()
-      printNOUSRuntime("Data Graph Edges" + numEdges, currentBatchId)
-      printNOUSRuntime("Time to construct data graph and count number of edges " + (t1 - t0) * 1e-9 + "seconds" , currentBatchId)
+      printNOUSRuntime("Data Graph Vertices " + numVertices, currentBatchId)
+      printNOUSRuntime("Data Graph Edges " + numEdges, currentBatchId)
+      printNOUSRuntime("Time to construct data graph and count number of edges and vertices " + (t1 - t0) * 1e-9 + "seconds" , currentBatchId)
       
       t0=System.nanoTime()
       val incomingPatternGraph: PatternGraph = getPatternGraph(incomingDataGraph, typePred).cache
+      val numGIPVertices = incomingPatternGraph.vertices.count
       val numGIPEdges = incomingPatternGraph.edges.count
-      printNOUSRuntime("GIP Graph Edges" + numGIPEdges, currentBatchId)
+      printNOUSRuntime("GIP Graph Vertices " + numGIPVertices, currentBatchId)
+      printNOUSRuntime("GIP Graph Edges " + numGIPEdges, currentBatchId)
       t1 = System.nanoTime()
-      printNOUSRuntime("Time to construct GIP graph and count number of edges " + (t1 - t0) * 1e-9 + "seconds" , currentBatchId)
+      printNOUSRuntime("Time to construct GIP graph and count number of edges and vertices " + (t1 - t0) * 1e-9 + "seconds" , currentBatchId)
       
       /*
        *  Support for Sliding Window : First thing we do is to get our new Window
@@ -254,8 +258,18 @@ object DataToPatternGraph {
         val newVertices = windowPatternGraph.vertices.union(incomingPatternGraph.vertices).cache
         val newEdges = windowPatternGraph.edges.union(incomingPatternGraph.edges).cache
         
-        val numWinEdges = windowPatternGraph.edges.count
+        var numWinNodes = windowPatternGraph.vertices.count
+        var numWinEdges = windowPatternGraph.edges.count
+        printNOUSRuntime("Window Graph Vertices Before Windodw Join" + numWinNodes, currentBatchId)
+        printNOUSRuntime("Window Graph Edges Before Windodw Join" + numWinEdges, currentBatchId)
+
         windowPatternGraph = Graph(newVertices,newEdges).cache
+        
+        numWinNodes = windowPatternGraph.vertices.count
+        numWinEdges = windowPatternGraph.edges.count
+        printNOUSRuntime("Window Graph Vertices After Windodw Join" + numWinNodes, currentBatchId)
+        printNOUSRuntime("Window Graph Edges After Windodw Join" + numWinEdges, currentBatchId)
+
         t1 = System.nanoTime()
         printNOUSRuntime("Time to merge Graphs from this batch and window "+ (t1 - t0) * 1e-9 + "seconds" , currentBatchId)        
     		
@@ -268,9 +282,9 @@ object DataToPatternGraph {
       //windowPatternGraph.vertices.collect.foreach(v=>println(v._1, v._2.getPattern.toList, v._2.getInstance.toList, v._2.timestamp))
       var allPatterns = computeMinImageSupport(windowPatternGraph).cache
       var frequentPatternsInIncrementalBatch = getFrequentPatterns(allPatterns, misSupport).cache
-//      println("all frequent pattern of size 1", frequentPatternsInIncrementalBatch.count)
-//      println("Sum of all frequent pattern of size 1", frequentPatternsInIncrementalBatch.values.sum)
-      //frequentPatternsInIncrementalBatch.collect.foreach(f=>println(f._1.toList, f._2))
+      printNOUSRuntime("all frequent pattern of size 1 " + frequentPatternsInIncrementalBatch.count, currentBatchId)
+      // println("Sum of all frequent pattern of size 1", frequentPatternsInIncrementalBatch.values.sum)
+      // frequentPatternsInIncrementalBatch.collect.foreach(f=> println(f._1.toList, f._2))
       /*
        * Get Updated Frequent pattern in the window.
        * NOTE : We always use window level stats to do mining
@@ -319,6 +333,11 @@ object DataToPatternGraph {
          */
         windowPatternGraph =
           getMISFrequentGraph(windowPatternGraph, sc, frequentPatternBroacdCasted)
+        val numMISWinNodes = windowPatternGraph.vertices.count
+        val numMISWinEdges = windowPatternGraph.edges.count
+        printNOUSRuntime("MIS Window Graph Vertices " + numMISWinNodes, currentBatchId)
+        printNOUSRuntime("MIS Window Graph Edges " + numMISWinEdges, currentBatchId)
+
       } catch {
         case e: Exception => println("*** FINISHED WITHOUT FINDING BIGGER PATTERNS **")
       }
@@ -341,9 +360,6 @@ object DataToPatternGraph {
           printNOUSRuntime("Num Edges After GIP Join"  + joinWinEdges, currentBatchId)
           printNOUSRuntime("Time to join Graph with new window edge count" + (t1 - t0) * 1e-9 + "seconds", currentBatchId)
           
-          /*runtime_summary  = runtime_summary +  ("GIP Graph Join" -> ((t1 - t0) * 1e-9 + "seconds"))
-          runtime_summary  = runtime_summary +  ("GIP Graph Join Size Update" -> incomingPatternGraph.edges.count.toString)*/
-
           windowPatternGraph = joinResult._1
           dependencyGraph = joinResult._2
 
@@ -360,9 +376,8 @@ object DataToPatternGraph {
             break
           }
           try{
-//            println("all frequent pattern found with count in joins ", frequentPatternsInIncrementalBatch.count)
-//            println("Sum of all frequent pattern of size 2", frequentPatternsInIncrementalBatch.values.sum)
-            //frequentPatternsInIncrementalBatch.collect.foreach(f=>println(f._1.toList, f._2))
+          	printNOUSRuntime("all frequent pattern found with count in joins " + frequentPatternsInIncrementalBatch.count, currentBatchId)
+          	//println("Sum of all frequent pattern of size 2", frequentPatternsInIncrementalBatch.values.sum)
           }catch{
             case e: Exception => println("*** frequentPatternsInIncrementalBatch count failed  **")
             
@@ -411,32 +426,14 @@ object DataToPatternGraph {
       
       frequentPatternInWindow = updateFrequentPatternInWindow(frequentPatternsInIncrementalBatch, frequentPatternInWindow)
 
-      /*
-       * Save batch level patternGraph
-       *  
-       
-      frequentPattern.map(entry
-          =>{
-        var pattern = ""
-        entry._1.foreach(f => pattern = pattern + f._1 + "\t" + f._2 + "\t" + f._3 + "\t")
-        pattern = pattern + entry._2
-        pattern
-      }).saveAsTextFile(outDir + "/" + "GIP/frequentPattern" 
-                  + System.nanoTime())
-    
-    
-        //dependencyGraph.vertices.filter(v=>v._2!=null).collect.foreach(f=>println(f._1, f._2.pattern.toList))
-        //dependencyGraph.edges.collect.foreach(e=>println(e.srcId, e.attr, e.dstId))
-        dependencyGraph.triplets.map(e=>
-          e.srcAttr.pattern.toList +"#"+e.attr+"#"+e.dstAttr.pattern.toList+"#"+
-          e.srcAttr.ptype+"#"+e.dstAttr.ptype+"#"+e.srcAttr.support+"#"+e.dstAttr.support)
-          .saveAsTextFile("DepG"+System.nanoTime()+"/")
-          * 
-          */
-      val graphsizeAfterJoin = windowPatternGraph.edges.count
+      	val newnumMISWinNodes = windowPatternGraph.vertices.count
+        val newnumMISWinEdges = windowPatternGraph.edges.count
+        printNOUSRuntime("MIS Window Graph Vertices At End of Batch Processing" + newnumMISWinNodes, currentBatchId)
+        printNOUSRuntime("MIS Window Graph Edges At End of Batch Processing" + newnumMISWinEdges, currentBatchId)
+
       var t1_batch = System.nanoTime()
       printNOUSRuntime("Batch Processing Time " 
-          + (t1_batch - t0_batch) * 1e-9 + "seconds"  + " num Edges end of batch " + graphsizeAfterJoin, currentBatchId)
+          + (t1_batch - t0_batch) * 1e-9 + "seconds"  + " num Edges end of batch " + newnumMISWinEdges, currentBatchId)
     }
     
   }
