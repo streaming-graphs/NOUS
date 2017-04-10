@@ -11,19 +11,17 @@ import org.apache.spark.mllib.clustering._
 import gov.pnnl.aristotle.utils.KGraphProp
 import java.io._
 import gov.pnnl.aristotle.algorithms.ReadHugeGraph
-import org.apache.spark.rdd.RDD.numericRDDToDoubleRDDFunctions
 import org.apache.spark.rdd.RDD.rddToPairRDDFunctions
 import scala.Array.canBuildFrom
-import gov.pnnl.aristotle.algorithms.PathSearch.PathSearchUtils._
 
-object OntologyGenerator {
+object OntologyClustering {
   
   type EdgeWeight = Long
   type OntologyGraph = Graph[String, EdgeWeight]
   type NbrNode = (VertexId)
   def main(args: Array[String]): Unit = {
     
-    val sparkConf = new SparkConf().setAppName("LASDemo").setMaster("local")
+    val sparkConf = new SparkConf().setAppName("PIC_clustering").setMaster("local")
     val sc = new SparkContext(sparkConf)
     Logger.getLogger("org").setLevel(Level.OFF)
     Logger.getLogger("akka").setLevel(Level.OFF)
@@ -37,8 +35,9 @@ object OntologyGenerator {
     val numClusters = args(2).toInt
     val numIter = args(3).toInt
     
-    val g = ReadHugeGraph.getGraph(inputFile, sc)
-    ontologyClustering(g, outputDir, numClusters, numIter, sc)
+    //val g = ReadHugeGraph.getGraph(inputFile, sc)
+   // ontologyClustering(g, outputDir, numClusters, numIter, sc)
+    ontologyClustering(inputFile, outputDir, numClusters, numIter, sc)
   }
   
  
@@ -57,12 +56,14 @@ object OntologyGenerator {
    *  edges : Number of common neighbors between two type nodes in the data graph
    *  An LDA is used to find clusters of nodes with similar word(nbr) distributions
    */ 
-  def ontologyClustering(g: Graph[String, String], outputDir: String, 
+  // def ontologyClustering(g: Graph[String, String], outputDir: String, 
+  def ontologyClustering(inputFile: String, outputDir: String, 
       numClusters: Int, numIter: Int, sc: SparkContext): Unit = {
    
     /* Generate the ontology graph from datagraph*/ 
     val ontologyGraphFile = outputDir + "/ontologyGraph"
-    CreateAndSaveOntologyGraph(g, ontologyGraphFile)
+   // CreateAndSaveOntologyGraph(g, ontologyGraphFile)
+    CreateAndSaveOntologyGraphTwitter(inputFile, ontologyGraphFile, sc)
     // ReadOntologyGraph(ontologyGraphFile, sc)
          
     /* Find clusters in ontology graph */
@@ -73,6 +74,42 @@ object OntologyGenerator {
     CreateAndSaveGraphClusters(ontologyGraphFile, clustersByIdFile, numClusters, numIter,  sc)
     mapClustersToLabels(clustersByIdFile, vertexLabelFile, clusterWithLabelsFile, sc)
     saveClusters(clusterWithLabelsFile, finalOut, sc)
+  }
+  
+  def CreateAndSaveOntologyGraphTwitter(twitterUserKeywordFile: String, 
+      outFile: String, sc: SparkContext): Unit = {
+    val userKeyWordSet = sc.textFile(twitterUserKeywordFile).map(ln => 
+      ln.split("\t")).filter(_.length == 3)
+	  .map{arr => 
+	    val user = arr(0).toInt
+	    val keyword = arr(1).toInt
+	    (user, keyword)
+    }.groupByKey()
+    
+    print("Number of unique users", userKeyWordSet.count)
+      /*  Now create pairs of typeNodes belonging to a datanode => 
+     *  these "typeNodes" occurred together for at least 1 node
+     */
+    val nodesWithTypesPaired: RDD[(Int, Iterator[(Int, Int)])] = 
+      userKeyWordSet.mapValues(typeData => 
+        typeData.toSet.subsets(2).filter(_.size == 2).map(_.toArray).map(v => (v(0), v(1))))
+    println("Number of pairs of keywords ", nodesWithTypesPaired.count)
+    
+    /* Count the total instances for each such pair of typeNodes */
+    val typePairCounts = nodesWithTypesPaired.flatMap(_._2).countByValue
+    //typePairCounts.foreach(keyValue => println(keyValue._1._1,  keyValue._1._2, keyValue._2))
+     val outputFile = new File(outFile)
+     val outputFileWriter = new BufferedWriter(new FileWriter(outputFile))
+    
+    /* Write to output file 
+     * (typeNode1 , typeNode2 , #Num_Common_Nbrs)
+     */
+     for(keyValue <- typePairCounts) {
+       outputFileWriter.write(keyValue._1._1.toString + " , " + 
+           keyValue._1._2.toString + " , " +  keyValue._2.toString + "\n")
+     }
+     outputFileWriter.close()
+     print("Saved keyword dsimilatity file", outputFile)
   }
   
   def ReadOntologyGraph(ontologyGraphFile: String, sc: SparkContext): Unit = {

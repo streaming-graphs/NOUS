@@ -41,7 +41,7 @@ object PathSearchPregel {
     FindPathsUsingPregelBatch(graphFile, entityPairsFile , numIteration, 
         outputDir, sc, args.drop(4))
     val t1= System.nanoTime()
-    println("Total Execution Time(s)=", (t1-t0)/1000000000L)
+    println("Total Execution Time(ms)=", (t1-t0)/1000000L)
    }
  
   
@@ -75,7 +75,7 @@ object PathSearchPregel {
     val g: Graph[String, String] = ReadHugeGraph.getGraph(graphFile, sc)
     val te_read = System.nanoTime()
    
-    println("Graph Read Time(s)=", (te_read-ts_read)/1000000000L)
+    println("Graph Read Time(ms)=", (te_read-ts_read)/1000000L)
     println("Adding vertex degree to graph")
     val vertexDegreeRDD = g.degrees 
     val maxDegree = filterFuncArgs(0).toInt
@@ -90,7 +90,7 @@ object PathSearchPregel {
    */
     println("Done adding data to graph. sample vertex=", gExtended.vertices.first)
     val te_join = System.nanoTime()
-    println("#Graph Feature join Time(s)=", (te_join- te_read)/1000000000L)
+    println("#Graph Feature join Time(ms)=", (te_join- te_read)/1000000L)
     gExtended.cache
    
     for(entityLabelPair <- listEntityLabelPairs){
@@ -112,13 +112,13 @@ object PathSearchPregel {
           val allPaths = runPregel(src, dest, gExtended, filterObj, maxPathSize, EdgeDirection.Either)
           val tend_walk = System.nanoTime()
           println("Number of paths = " + allPaths.length)
-          println("Graph Walk Time (s)=", (tend_walk-tstart_walk)/1000000000L)
+          println("Graph Walk Time (ms)=", (tend_walk-tstart_walk)/1000000L)
           
           val outFile = outputDir  + "/" + srcLabel + "." + destLabel + ".paths.out" 
           PathSearchUtils.writePaths(allPaths, outFile)
         }
         val tend_search = System.nanoTime()
-        println("Graph Search Total Time(Entity Disamb + Walk)(s)=", (tend_search- tstart_search)/1000000000L)
+        println("Graph Search Total Time(Entity Disamb + Walk)(ms)=", (tend_search- tstart_search)/1000000L)
       }
     }
     
@@ -135,6 +135,7 @@ object PathSearchPregel {
      val pathDstId = dest._1    
      val initialMsg = List.empty[List[PathEdge]]    
      val pregelGraph = g.mapVertices((id, nodeData) => (nodeData, List.empty[List[PathEdge]])).cache
+   
      
      val messages = pregelGraph.pregel[List[List[PathEdge]]](initialMsg, numIter, activeDirection)(
        
@@ -172,7 +173,7 @@ object PathSearchPregel {
           
          //All other iterations: A triplet is active, 
          // iff source and/or destination have received a message from previous iteration
-          else { 
+          else {      
             var sendMsgIterator: Set[(VertexId, List[List[PathEdge]])] = Set.empty
            
             // Is triplet.source an active vertex

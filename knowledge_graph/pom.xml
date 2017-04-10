@@ -106,7 +106,7 @@
 	<dependency>
 	  <groupId>org.json4s</groupId>
 	  <artifactId>json4s-native_2.10</artifactId>
-	  <version>3.1.0</version>
+	  <version>3.2.11</version>
 	</dependency>
 
 	
@@ -129,18 +129,28 @@
     </dependency>
     <dependency>
       <groupId>org.apache.spark</groupId>
-      <artifactId>spark-core_2.10</artifactId>
-      <version>1.6.0</version>
+      <artifactId>spark-core_2.11</artifactId>
+      <version>2.1.0</version>
     </dependency>
     <dependency>
       <groupId>org.apache.spark</groupId>
-      <artifactId>spark-graphx_2.10</artifactId>
-      <version>1.6.0</version>
+      <artifactId>spark-graphx_2.11</artifactId>
+      <version>2.1.0</version>
     </dependency>
     <dependency>
       <groupId>org.apache.spark</groupId>
-      <artifactId>spark-mllib_2.10</artifactId>
-      <version>1.6.0</version>
+      <artifactId>spark-mllib_2.11</artifactId>
+      <version>2.1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.spark</groupId>
+      <artifactId>spark-sql_2.11</artifactId>
+      <version>2.1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.datasyslab</groupId>
+      <artifactId>geospark</artifactId>
+      <version>0.5.1</version>
     </dependency>
     <!-- https://mvnrepository.com/artifact/org.apache.spark/spark-mllib_2.10 -->
 
@@ -174,31 +184,31 @@
       <artifactId>solr-solrj</artifactId>
       <version>4.10.3</version>
     </dependency>
-    <dependency>
+    <!--dependency>
       <groupId>ext-libs</groupId>
       <artifactId>javatools_20101123</artifactId>
       <version>1.0.0</version>
-    </dependency>
-    <dependency>
+    </dependency-->
+    <!--dependency>
       <groupId>ext-libs</groupId>
       <artifactId>yago2utils-20101202</artifactId>
       <version>1.0.0</version>
-    </dependency>
-    <dependency>
+    </dependency-->
+    <!--dependency>
       <groupId>ext-libs</groupId>
       <artifactId>graphBuilder</artifactId>
       <version>1.0.0</version>
-    </dependency>
-<dependency>
+    </dependency-->
+    <dependency>
 	<groupId>org.scalaz</groupId>
 	<artifactId>scalaz-core_2.10</artifactId>
 	<version>7.2.0-M1</version>
-</dependency>
-  	<dependency>
+    </dependency>
+  	<!--dependency>
   		<groupId>ext-libs</groupId>
   		<artifactId>wordsim</artifactId>
   		<version>1.0.0</version>
-  	</dependency>
+  	</dependency-->
   	<dependency>
 	    <groupId>org.ini4j</groupId>
 	    <artifactId>ini4j</artifactId>

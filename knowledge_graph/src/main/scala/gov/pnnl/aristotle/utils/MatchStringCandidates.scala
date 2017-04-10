@@ -9,7 +9,7 @@ import scala.collection.Set
 import scala.collection.immutable.TreeSet
 //import scala.collection.mutable.Map
 import scala.xml.XML
-import gov.pnnl.fcsd.datasciences.graphBuilder.nlp.semanticParsers.SennaSemanticParser
+//import gov.pnnl.fcsd.datasciences.graphBuilder.nlp.semanticParsers.SennaSemanticParser
 import scala.Array.canBuildFrom
 
 object MatchStringCandidates {
@@ -135,7 +135,7 @@ class SennaConfig(filename: String){
 }
 
 object Context{
- 
+ /*
   // Note once we have Vivek's library we only return list of identifiable objects in the input String
   def getObjectList(text: String, sennaConfig: SennaConfig): Set[String] = {
     //val sennaConfig = new SennaConfig(sennaConfigFile) 
@@ -165,6 +165,7 @@ object Context{
     return setObjects  
   }
   
+  */
   def tripleToObjects(triples : Array[Array[String]]): Set[String] = {
   
     val objectTypes : Array[String] = Array("LOC", "PER", "ORG", "MISC" ) 

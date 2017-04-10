@@ -9,9 +9,6 @@ import scala.collection.LinearSeq
 import scala.collection.immutable.Vector
 import java.nio.file.{Paths, Files}
 
-
-
-
 object MAGParser {
   
   object predicates {
@@ -32,19 +29,23 @@ object MAGParser {
     val sc = new SparkContext(sparkConf)
    
     println("starting from main")
-    if(args.length != 1) {      
-      println("Usage path to <papers.txt> <paperRefrences.txt>" +  
-          " <paperKeywords.txt> <authorAffiliations.txt>, <outputDir>" )
+    if(args.length != 2) {      
+     // println("Usage path to <papers.txt> <paperRefrences.txt>" +  
+     //     " <paperKeywords.txt> <authorAffiliations.txt>, <outputDir>" )
+          println("<authorAffiliations.txt>, <outputDir>" )
       exit
     } 
     //parseAll(args(0), args(1), args(2), args(3), args(4), sc)
     
-    val mainDir = args(0)
-    val inFile = mainDir + "/data2.txt"
-    val outFile = mainDir + "/data3.txt"
-    val intMappingFile = mainDir + "/intMapping.txt"
-    fixTime(inFile, outFile, sc)
-    saveIntGraphMapping(inFile, intMappingFile , sc)
+    // val mainDir = args(0)
+    // val inFile = mainDir + "/data2.txt"
+    // val outFile = mainDir + "/data3.txt"
+    // val intMappingFile = mainDir + "/intMapping.txt"
+    val authorAff = args(0)
+    val outputDir = args(1)
+    parsePaperAuthorAff(authorAff, outputDir, sc)
+    // fixTime(inFile, outFile, sc)
+    // saveIntGraphMapping(inFile, intMappingFile , sc)
   }
   
   def fixTime(inFile: String, outFile:String, sc: SparkContext): Unit = {
@@ -160,8 +161,8 @@ object MAGParser {
       val paperid: String = v(0)
       val authorid : String = v(1)
       val affid = v(2)
-      Array((paperid, predicates.hasAuthor, authorid), 
-          (authorid, predicates.authorHasAff, affid))
+      Array((paperid, predicates.hasAuthor, authorid, predicates.authorHasAff, affid)) 
+       //   (authorid, predicates.authorHasAff, affid))
     }) 
     paperAuthorAffData.map(v => v._1 + "\t" +  v._2 + "\t" +  v._3).saveAsTextFile(outputDir  + "/paperAuthorAff.conv.txt")
   }

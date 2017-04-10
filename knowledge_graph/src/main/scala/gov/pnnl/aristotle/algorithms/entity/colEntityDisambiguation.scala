@@ -72,7 +72,8 @@ class ColEntityDisamb[VD, ED] {
     val candidateIds: Array[NodeId] = mentionToEntityMap.values.flatMap(listEntities => 
       listEntities.map(entity => entity._1)).toArray
     println("Total number of potential candidates, to get neighbourhood data =", candidateIds.size)
-    val  nbrsOfCandidateEntities: Map[NodeId, Set[Entity]] = NodeProp.getOneHopNbrIdsLabels(g, candidateIds).toArray.toMap
+    val  nbrsOfCandidateEntities: Map[NodeId, Set[Entity]] = NodeProp.getOneHopNbrIdsLabels(g, candidateIds)
+    .collect.toArray.toMap
     // Put cheks that if no neighbourhood data is found about a node ,
     // and a mention has only that entity , should we return best string match
    

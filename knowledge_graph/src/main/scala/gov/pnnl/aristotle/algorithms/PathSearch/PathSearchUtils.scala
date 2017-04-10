@@ -146,6 +146,20 @@ object PathSearchUtils {
      entityPairs.collect.toList
    }
    
+   def GetEntityPairsInt(filename: String, sc: SparkContext): List[(Int, Int)] = {
+     val entityPairs = sc.textFile(filename).filter(isValidLine(_))
+     .map(v=> v.split("\t")).filter(_.size == 2).map(v => (v(0).toInt, v(1).toInt))
+     //entityPairs.foreach(println(_))
+     entityPairs.collect.toList
+   }
+   
+   def GetPairsSrcDestSet(filename: String, sc: SparkContext): List[(Int, Set[Int])] = {
+     val entityPairs = sc.textFile(filename).filter(isValidLine(_))
+     .map(v=> v.split("\t")).filter(_.size == 2).map(v => (v(0).toInt, v(1).split(",").map(_.toInt).toSet))
+     //entityPairs.foreach(println(_))
+     entityPairs.collect.toList
+   }
+   
     /* 
    def getFilterType(filterFuncArgs : Array[String]): String = {
      val len = filterFuncArgs.length

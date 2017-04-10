@@ -1,9 +1,7 @@
 /**
  *
  */
-package gov.pnnl.aristotle.algorithms
-
-import gov.pnnl.fcsd.datasciences.graphBuilder.nlp.wordsimilarity.WordNetSimilarity
+package gov.pnnl.aristotle.utils
 import util.control.Breaks._
 import java.io.PrintWriter
 import java.io.File
@@ -13,14 +11,14 @@ import org.apache.log4j.Logger
 import org.apache.log4j.Level
 import org.apache.spark.rdd.RDD
 import scalaz.Scalaz._
-import scala.collection.SortedMap
 
 /**
  * @author puro755
  *
  */
-object WordNet_Mapper_Util {
 
+object WordNet_Mapper_Util {
+/*
    /*
    * Initialize the spark context and its run-time configurations
    */
@@ -90,7 +88,7 @@ object WordNet_Mapper_Util {
     writer2.flush()
 
   }
-
+/*
   def getCorrespondingWordNetIDs(canonical_verb_Map : Map[String,String])
   : Map[String,Set[(Double,String)]] = 
   {
@@ -110,7 +108,7 @@ object WordNet_Mapper_Util {
 
       return reduced_wordnetid_verb_map
     }
-  
+  */
   def getCanonicalVerb(nlpVerb: String): String =
     {
       val answer  = canonical_verb_Map.filter(f => f._2.contains(nlpVerb))
@@ -165,4 +163,6 @@ object WordNet_Mapper_Util {
     }
 
   }
+  * 
+  */
 }  

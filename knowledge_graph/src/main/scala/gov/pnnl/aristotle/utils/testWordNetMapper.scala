@@ -3,14 +3,14 @@
  */
 package gov.pnnl.aristotle.algorithms
 
-import gov.pnnl.aristotle.algorithms.WordNet_Mapper_Util
+import gov.pnnl.aristotle.utils.WordNet_Mapper_Util
 import scala.io.Source
 /**
  * @author puro755
  *
  */
 object testWordNetMapper1 {
-
+/*
   def main(args: Array[String]): Unit = {
 
     val path: String = "predicate_sutanay"
@@ -32,5 +32,5 @@ object testWordNetMapper1 {
     })
     
   }
-
+*/
 }  

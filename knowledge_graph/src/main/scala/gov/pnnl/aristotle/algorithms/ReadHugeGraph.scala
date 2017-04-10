@@ -8,7 +8,7 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.graphx.{ VertexRDD, VertexId }
 import java.io.PrintWriter
 import java.io.File
-import akka.dispatch.Foreach
+//import akka.dispatch.Foreach
 import org.apache.spark.graphx.GraphLoader
 import org.apache.solr.client.solrj.impl.HttpSolrServer
 import org.apache.solr.common.SolrInputDocument
@@ -31,10 +31,10 @@ object ReadHugeGraph {
   //val sc = new SparkContext(sparkConf)
   //val writerSG = new PrintWriter(new File("sampleGraph.ttl"))
   //val writerSGApple = new PrintWriter(new File("sampleGraphApple.ttl"))
-  val edgeListFileName = "edgeList.txt"
-  val edgeListFile = new PrintWriter(new File(edgeListFileName))
+  // val edgeListFileName = "edgeList.txt"
+  // val edgeListFile = new PrintWriter(new File(edgeListFileName))
   //val filename = "/sumitData/myprojects/AIM/aristotle-dev/knowledge_graph/yagowikiinfo.ttl"
-  
+ /* 
   def getEdgeListFile(filename : String, sc : SparkContext ) : Graph[Int, Int]= {
    println("In getEdgeList before map")
     val edges: RDD[Edge[String]] = sc.textFile(filename).map { line =>
@@ -51,6 +51,8 @@ object ReadHugeGraph {
    println("vertices count" + graph.vertices.count)
    return graph
   }
+  * 
+  */
   
   def getFieldsFromLine(line :String) : Array[String] = {
     return line.toLowerCase().replaceAllLiterally("<", "").replaceAllLiterally(">", "").replace(" .", "").split("\\t").map(str => str.stripPrefix(" ").stripSuffix(" "));
@@ -421,11 +423,12 @@ object ReadHugeGraph {
           println("Exception reading graph file line", line)
           ("None", "None", "None")
         }
-      }
+      }.cache
 
-    triples.cache
+
     val edges = triples.map(triple => Edge(triple._1.hashCode().toLong, triple._3.hashCode().toLong, triple._2)).distinct
-    val vertices = triples.flatMap(triple => Array((triple._1.hashCode().toLong, triple._1), (triple._3.hashCode().toLong, triple._3)))
+    val vertices = 
+      triples.flatMap(triple => Array((triple._1.hashCode().toLong, triple._1), (triple._3.hashCode().toLong, triple._3)))
 
     println("starting map phase3 > Building graph");
     val graph = Graph(vertices, edges);

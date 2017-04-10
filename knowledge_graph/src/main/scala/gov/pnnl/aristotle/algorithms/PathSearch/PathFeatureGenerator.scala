@@ -17,7 +17,7 @@ import gov.pnnl.aristotle.algorithms.ReadHugeGraph
 import org.apache.spark.graphx.Graph.graphToGraphOps
 
 object PathFeatureGenerator {
-
+/*
   /* This class aims to represents graph based feature for every node */
   class NodeFeatureVector(val degree: Int, val nodeType: String) extends Serializable {
     override def toString(): String = {
@@ -35,6 +35,8 @@ object PathFeatureGenerator {
       }
     }
   }
+  * 
+  */
   /* This class is a dummy filter which lets all paths(nodes in path) pass the check */ 
   //class FeatureGenerator() extends NodeFilter[ExtendedVD[String, FeatureVector]]
    
@@ -45,15 +47,15 @@ object PathFeatureGenerator {
     Logger.getLogger("akka").setLevel(Level.OFF)
     System.setProperty("hadoop.home.dir", "C:\\fake_hadoop\\")
     println("starting from main")
-    if(args.length != 5) {
-      println("Usage <Graph Path> " + "<Output Directory>" +
-          "<maxpathSize> <degreeFilter> <edgeCountDampingFactor>")
+    if(args.length != 2) {
+      println("Usage <Graph Path> " + "<Output Directory>")
+      //    "<maxpathSize> <degreeFilter> <edgeCountDampingFactor>")
       exit
     }
     
     val graphFile = args(0)
     val outputDir = args(1)
-  
+  /*
     saveFeatureRDD(graphFile, outputDir, sc)
     savePageRank(graphFile, outputDir, sc)
     saveDegree(graphFile, outputDir, sc)
@@ -63,8 +65,25 @@ object PathFeatureGenerator {
     PrintWordnetOntologyStats(graphFile, outputDir, sc)
     PrintNodeToWordNetCategories(graphFile, outputDir, sc)
     PrintWikiOntologyStats(graphFile, outputDir, sc)
+    * 
+    */
+    // getNeighbourList(graphFile, sc, outputDir)
+    PrintWordnetOntologyStats(graphFile, outputDir, sc)
   }
   
+  def getNeighbourList(triplesFile : String, sc: SparkContext, outDir: String): Unit = {
+    println("generating adjacency/neighbour list, reading file", triplesFile)
+    val nbrPairs: RDD[(String, String)] = sc.textFile(triplesFile)
+    .filter(ln => ln.length() > 0 && !ln.startsWith("#"))
+    .map(ln => ln.split("\t")).filter(_.length == 3).flatMap(arr => List((arr(0), arr(2)), (arr(2), arr(0))))
+    
+    println("Aggregating neighbours")
+    val adjList = nbrPairs.reduceByKey((nbr1, nbr2) => nbr1 + "\t" + nbr2)
+    
+    println("Saving data")
+    adjList.saveAsTextFile(outDir + "/adjList.out")
+  }
+  /*
   def saveDegree(graphFile: String, outputDir: String, sc: SparkContext): Unit = {
     val g: Graph[String, String] = ReadHugeGraph.getGraph(graphFile, sc)
     val degree = g.degrees
@@ -151,7 +170,7 @@ object PathFeatureGenerator {
    vertexFeatures.saveAsObjectFile(outputDir + "/vertexFeatures.yago2_facts_wiki_type.obj")
    vertexFeatures.map(v => (v._2._1, v._2._2, v._2._3)).
    saveAsTextFile(outputDir + "/vertexFeatures.yago2_facts_wiki_type.txt")
-  }
+  }*/
   
    
   /* Get number of yago entities connected to each wordnet category 
@@ -161,14 +180,14 @@ object PathFeatureGenerator {
    */
   def PrintWordnetOntologyStats(graphFile: String, outputDir: String, sc: SparkContext): Unit = {
     val g = ReadHugeGraph.getGraph(graphFile, sc)
-    val wordnetEntities: VertexRDD[Int] = g.aggregateMessages[Int](triplet => {
+    val wordnetEntities: VertexRDD[String] = g.aggregateMessages[String](triplet => {
       if( (!triplet.srcAttr.startsWith("wikicategory")) && 
           (triplet.dstAttr.startsWith("wordnet")) )
-        triplet.sendToDst(1)
-    }, (a,b) => a+b)
+        triplet.sendToDst(triplet.srcAttr)
+    }, (a,b) => a + ";;" + b)
     
-    val wordnetWithLabels = wordnetEntities.innerZipJoin(g.vertices)((id, numNbrs, label) => 
-      (label, numNbrs))
+    val wordnetWithLabels = wordnetEntities.innerZipJoin(g.vertices)((id, nbrs, label) => 
+      (label +";;"+ nbrs))
     println("number of total wordnet categories=", wordnetWithLabels.count)
     wordnetWithLabels.saveAsTextFile(outputDir + "/wordnetClusterStats")
   }
@@ -176,6 +195,7 @@ object PathFeatureGenerator {
   /* For each yago entity, including yago "wikicategory_" nodes, 
    * get theor wordnet category information 
    */
+  /*
   def PrintNodeToWordNetCategories(graphFile: String, outputDir: String, sc: SparkContext): Unit = {
     val g = ReadHugeGraph.getGraph(graphFile, sc)
     val entitiesWithWordNetCatg : VertexRDD[Set[String]] = g.aggregateMessages[Set[String]](triplet => {
@@ -352,5 +372,7 @@ object PathFeatureGenerator {
      */
      dampedEdges.toMap
    }
+   * 
+   */
      
 }
