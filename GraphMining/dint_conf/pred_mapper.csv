@@ -1,0 +1,120 @@
+industry,is known for,0
+products,makes,0
+homepage,has homepage,0
+hasWebsite,has homepage,0
+manufacturer,is an example product from,1
+actedIn,acted in,0
+byTransport,made statement,1
+created,created,0
+dealsWith,deal with,0 
+diedIn,died in,0
+diedOnDate,died on,0
+directed,directed,0
+edited,edited,0
+endedOnDate,ended on,0
+endsExistingOnDate,will end on,0
+exports,exports,1
+extractionSource,was extracted from,0
+extractionTechnique,was extrcted from yagoURL,0 
+graduatedFrom,graduated from,0
+happenedIn,happened in,0
+happenedOnDate,happended on,0
+hasAcademicAdvisor,has academic advisor ,0
+hasAirportCode,is an airport with code,0
+hasAnchorText,is described as,0
+hasArea,has area,0
+hasBudget,has budget,0
+hasCallingCode,has callign code,0
+hasCapital,has capital,0
+hasChild,has child,0
+hasCitationTitle,has citation,0
+hasConfidence,has confidence,0
+hasContext,has context,0
+hasContextPrecedingAnchor,has context precedign anchor,0
+hasContextSucceedingAnchor,has context succeeding anchor,0
+hasCurrency,has currency,0
+hasDuration,has duration,0
+hasEconomicGrowth,has economic growth,0
+hasExpenses,has expenses,0
+hasExport,has export,0
+hasExternalWikipediaLinkTo,has wikipedia link,0
+hasFamilyName,has last name,0
+hasGDP,has GDP,0
+hasGender,has gender,0
+hasGeoCoordinates,has geographic coordinates,0
+hasGeonamesClassId,has geographic class id,0
+hasGeonamesEntityId,has geographic entity id,0
+hasGeonamesId,has geographic name id,0
+hasGini,has Gini(yago 0 to 100),0
+hasGivenName,has given name,0
+hasGloss,has gloss,0
+hasHDI,has HDI,0
+hasHeight,has height,0
+hasImdb,the imdb link is,0
+hasImport,imports,0
+hasInflation,has inflation,0
+hasLanguageCode,has language code,0
+hasLatitude,has latitude,0
+hasLength,has length,0
+hasLongitude,has longitude,0
+hasMotto,has motto,0
+hasMusicalRole,has musical role,0
+hasNeighbor,has neighbour(s),0
+hasNumberOfPeople,has number of people,0
+hasNumberOfWikipediaLinks,has following number of wikipedia links:,0
+hasOfficialLanguage,has official language,0
+hasPages,has pages,0
+hasPopulation,has population,0
+hasPopulationDensity,has population,0
+hasPoverty,has poverty,0
+hasPredecessor,has predecessor,0
+hasRevenue,has revenue,0
+hasSuccessor,has successor,0
+hasSynsetId,has synset id,0
+hasWebsite,has website,0
+hasWeight,has weight,0
+hasWikipediaAbstract,has wikipedia abstract,0
+hasWikipediaAnchorText,has wikipedia anchor text,0
+hasWikipediaCategory,has category,0
+hasWikipediaUrl,has wikipedia page,0
+hasWonPrize,won prize,0
+holdsPoliticalPosition,hold polital position,0
+imports,imports,0
+inLanguage,in language,0
+influences,influences,0
+isAffiliatedTo,is affiliated to,0
+isCalled,is called,0
+isCitizenOf,is citizen of,0
+isConnectedTo,is connected to,0
+isInterestedIn,is interested in,0
+isKnownFor,is known for,0
+isLeaderOf,is leader of,0
+isLocatedIn,is located in,1
+isMarriedTo,is married to,0
+isPoliticianOf,is a politician of,0
+isPreferredMeaningOf,is also known as,1
+linksTo,links to,0
+livesIn,lines in,0
+occursIn,occurs in,0
+occursSince,occurs since,0
+occursUntil,occurs until,0
+owns,is owner of,0
+participatedIn,participated in,0
+placedIn,was placed in,0
+playsFor,plays for,0
+produced,produced,0
+startedOnDate,started on,0
+wasBornIn,was born in,0
+wasBornOnDate,was born on,0
+wasCreatedOnDate,was created on,0
+wasDestroyedOnDate,was destroyed on,0
+worksAt,works at,0
+wroteMusicFor,wrote music for,0
+rdf:type,is of type,1
+rdfs:comment,comment,0
+rdfs:domain,has domain,0
+rdfs:label,has label,0
+rdfs:range,has range,0
+rdfs:subClassOf,is a sub type of,0
+rdfs:subPropertyOf,is a property of,0
+skos:prefLabel,is preferred labale of,0
