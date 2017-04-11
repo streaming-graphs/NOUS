@@ -1,4 +1,4 @@
-package gov.pnnl.nous
+package gov.pnnl.nous.pathSearch
 import org.apache.spark._
 import org.apache.spark.graphx._
 import org.apache.spark.rdd._

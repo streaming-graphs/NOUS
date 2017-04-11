@@ -1,4 +1,4 @@
-package gov.pnnl.nous
+package gov.pnnl.nous.pathSearch
 
 import scala.io.Source
 import org.apache.spark._

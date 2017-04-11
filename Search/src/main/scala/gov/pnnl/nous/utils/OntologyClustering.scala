@@ -11,8 +11,8 @@ import org.apache.spark.mllib.clustering._
 import java.io._
 import org.apache.spark.rdd.RDD.rddToPairRDDFunctions
 import scala.Array.canBuildFrom
-import gov.pnnl.nous.PathSearchConf
-import gov.pnnl.nous.PathSearchUtils
+import gov.pnnl.nous.pathSearch.PathSearchConf
+import gov.pnnl.nous.pathSearch.PathSearchUtils
 
 object OntologyClustering {
   
@@ -135,10 +135,14 @@ object OntologyClustering {
     return line.toLowerCase().replaceAllLiterally("<", "").replaceAllLiterally(">", "").replace(" .", "").split("\\t").map(str => str.stripPrefix(" ").stripSuffix(" "));
   }
   
+  def isValidLine(ln : String) : Boolean ={
+    val isvalid = ( (ln.startsWith("@") ==false) && (ln.startsWith("#")==false) && (ln.isEmpty()==false))
+    isvalid
+   }
   
   /* Finds entity pairs with more than 1 edge between them. */
   def groupEdgesByVertexPair(inputFile: String, sc: SparkContext): Unit = {
-    val triples = sc.textFile(inputFile).filter(ln => PathSearchUtils.isValidLine(ln)).map { line =>
+    val triples = sc.textFile(inputFile).filter(ln => isValidLine(ln)).map { line =>
         val fields = getFieldsFromLine(line);
         if (fields.length == 4)
           (fields(1), fields(2), fields(3))

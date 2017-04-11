@@ -1,4 +1,4 @@
-package gov.pnnl.nous
+package gov.pnnl.nous.pathSearch
 
 object PathSearchConf {
    

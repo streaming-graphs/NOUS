@@ -5,6 +5,7 @@ import org.apache.spark._
 import org.apache.spark.SparkContext._
 import org.apache.log4j.Logger
 import org.apache.log4j.Level
+import gov.pnnl.nous.pathSearch._
 
 
 object Main {
