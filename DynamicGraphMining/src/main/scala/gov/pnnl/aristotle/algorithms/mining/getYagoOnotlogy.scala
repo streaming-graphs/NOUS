@@ -1,3 +1,4 @@
+package gov.pnnl.aristotle.algorithms.mining;
 ///**
 // *
 // * @author puro755

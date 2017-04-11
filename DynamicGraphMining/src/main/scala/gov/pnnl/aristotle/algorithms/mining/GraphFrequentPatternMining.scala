@@ -1,3 +1,4 @@
+package gov.pnnl.aristotle.algorithms.mining;
 //package gov.pnnl.aristotle.algorithms.mining
 //
 //import java.io.PrintWriter
