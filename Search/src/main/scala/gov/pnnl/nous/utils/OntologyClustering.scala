@@ -1,4 +1,4 @@
-package gov.pnnl.aristotle.algorithms.PathSearch
+package gov.pnnl.nous.utils
 
 import org.apache.spark._
 import org.apache.spark.SparkContext._
@@ -6,13 +6,13 @@ import org.apache.log4j.Logger
 import org.apache.log4j.Level
 import org.apache.spark.graphx._
 import org.apache.spark.rdd.RDD
-import scala.collection.{SortedSet, Set}
+import scala.collection.SortedSet
 import org.apache.spark.mllib.clustering._
-import gov.pnnl.aristotle.utils.KGraphProp
 import java.io._
-import gov.pnnl.aristotle.algorithms.ReadHugeGraph
 import org.apache.spark.rdd.RDD.rddToPairRDDFunctions
 import scala.Array.canBuildFrom
+import gov.pnnl.nous.PathSearchConf
+import gov.pnnl.nous.PathSearchUtils
 
 object OntologyClustering {
   
@@ -286,7 +286,7 @@ object OntologyClustering {
    * nodes receive their ontology set */
   def getNodeTypesSortedById(g: Graph[String, String]): VertexRDD[SortedSet[NbrNode]] = {
     val vertWithType =  g.aggregateMessages[SortedSet[NbrNode]](triplet => {
-      if(triplet.attr == KGraphProp.edgeLabelNodeType)
+      if(triplet.attr == PathSearchConf.edgeLabelNodeType)
         triplet.sendToSrc(SortedSet((triplet.dstId)))
       },
       (a,b)=> a++b)  

@@ -1,20 +1,14 @@
-package gov.pnnl.aristotle.algorithms.PathSearch
-
-import scala.io.Source
+package gov.pnnl.nous
 import org.apache.spark._
 import org.apache.spark.SparkContext._
 import org.apache.spark.rdd._
-import org.apache.spark.rdd.PairRDDFunctions
 import org.apache.spark.graphx._
-import scala.math.Ordering
-import breeze.stats.distributions
-import scala.util.Sorting
 import java.io._
 import org.apache.log4j.Logger
 import org.apache.log4j.Level
-import gov.pnnl.aristotle.utils._
-import gov.pnnl.aristotle.algorithms.ReadHugeGraph
-import org.apache.spark.graphx.Graph.graphToGraphOps
+
+import gov.pnnl.nous.utils.ReadHugeGraph
+import org.apache.spark.rdd.RDD.rddToPairRDDFunctions
 
 object PathFeatureGenerator {
 /*

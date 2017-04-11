@@ -1,4 +1,4 @@
-package gov.pnnl.aristotle.algorithms.PathSearch
+package gov.pnnl.nous
 
 import scala.io.Source
 import org.apache.spark._
@@ -8,42 +8,15 @@ import org.apache.spark.graphx._
 import scala.math.Ordering
 import scala.util.Sorting
 import java.io._
-import org.apache.log4j.Logger
-import org.apache.log4j.Level
-import gov.pnnl.aristotle.utils._
-import gov.pnnl.aristotle.algorithms.ReadHugeGraph
+
+import gov.pnnl.nous.utils.ReadHugeGraph
+
 import org.apache.spark.graphx.Graph.graphToGraphOps
+import gov.pnnl.nous.utils.ReadHugeGraph
 
 object PathSearchPregel {
 
-   def main(args: Array[String]): Unit = {     
-    val sparkConf = new SparkConf().setAppName("get all paths")
-    sparkConf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
-    val sc = new SparkContext(sparkConf)
-   
-    Logger.getLogger("org").setLevel(Level.OFF)
-    Logger.getLogger("akka").setLevel(Level.OFF)
-    System.setProperty("hadoop.home.dir", "C:\\fake_hadoop\\")
-    println("starting from main")
-    if(args.length < 5) {
-      println("Usage <Graph Path> " +
-          "<File with Entity Pairs for Finding Path<entity1,entity2> " + 
-          "<outputDir> " +
-          "<maxpathSize> <degreeFilter>")
-      exit
-    }
-    
-    val graphFile = args(0)
-    val entityPairsFile = args(1)
-    val outputDir = args(2) 
-    val numIteration = args(3).toInt
-    val t0 = System.nanoTime()    
-    FindPathsUsingPregelBatch(graphFile, entityPairsFile , numIteration, 
-        outputDir, sc, args.drop(4))
-    val t1= System.nanoTime()
-    println("Total Execution Time(ms)=", (t1-t0)/1000000L)
-   }
- 
+  
   
   /* 1) Reads Graph, 
    * 2) Maps labels to  graph entity (src, dest) pairs and 

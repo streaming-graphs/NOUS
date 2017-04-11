@@ -1,9 +1,10 @@
-package gov.pnnl.aristotle.algorithms.PathSearch
+package gov.pnnl.nous
 import org.apache.spark._
 import org.apache.spark.graphx._
 import org.apache.spark.rdd._
 import org.apache.spark.SparkContext._
-import gov.pnnl.aristotle.utils._
+import gov.pnnl.nous.utils.MathUtils
+
 
 
 
@@ -64,7 +65,7 @@ class TopicFilter(destTopicTemp : Array[Double], matchThresholdTemp : Double) ex
   override def isMatch(targetNode: ExtendedVD[String, Array[Double]] ): Boolean = {
     val isMatch: Boolean = 
       targetNode.extension match {
-      case Some(topic) => Math_Utils.jensenShannonDiv(topic, destTopic) < matchThreshold
+      case Some(topic) => MathUtils.jensenShannonDiv(topic, destTopic) < matchThreshold
       case None   => true
     }
     isMatch
@@ -98,7 +99,7 @@ class CitationFilter(minDegree: Int, maxDegree: Int, wordDistTarget: Set[String]
       case Some(extension) => {
         val degree = extension._1
         val wordDist = extension._2
-        ((degree >= minDegree) && (degree <= maxDegree) && (Math_Utils.jaccardCoeff(wordDist, wordDistTarget) > simCoefficient))
+        ((degree >= minDegree) && (degree <= maxDegree) && (MathUtils.jaccardCoeff(wordDist, wordDistTarget) > simCoefficient))
       }
       case None => true
     }

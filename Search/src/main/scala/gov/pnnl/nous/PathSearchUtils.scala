@@ -1,4 +1,4 @@
-package gov.pnnl.aristotle.algorithms.PathSearch
+package gov.pnnl.nous
 
 import scala.io.Source
 import org.apache.spark._
@@ -6,9 +6,9 @@ import org.apache.spark.rdd._
 import org.apache.spark.graphx._
 import scala.math.Ordering
 import scala.util.Sorting
+import gov.pnnl.nous.utils.{StringSim, GenUtils}
 import java.io._
-import gov.pnnl.aristotle.utils._
-import gov.pnnl.aristotle.algorithms.PathSearch._
+
 
 
 object PathSearchUtils {
@@ -48,7 +48,7 @@ object PathSearchUtils {
        candidates = g.vertices.filter(v => v._2.labelToString.toLowerCase().
            contains(label.toLowerCase()))
        if(candidates.count == 0) {
-          candidates = g.vertices.filter(v => Gen_Utils.stringSim(
+          candidates = g.vertices.filter(v => StringSim.getsim(
               label.toLowerCase(), v._2.labelToString) > 0.7)
           if (candidates.count == 0)
                 return Array.empty[(VertexId, ExtendedVD[String, Int])]
@@ -78,7 +78,7 @@ object PathSearchUtils {
             path.map(edge => edge.edgeToString).
             reduce((edge1String, edge2String) => edge1String + "\n" + edge2String)).
             reduce((path1String, path2String) => path1String + "\n\n" + path2String)
-          Gen_Utils.writeToFile(outFile, header + allPathString + "\n")
+          GenUtils.writeToFile(outFile, header + allPathString + "\n")
         }
    }
    
@@ -94,7 +94,7 @@ object PathSearchUtils {
             path.map(edge => edge.edgeToString).
             reduce((edge1String, edge2String) => edge1String + "\n" + edge2String)).
             reduce((path1String, path2String) => path1String + "\n\n" + path2String)
-          Gen_Utils.writeToFile(outFile, header + allPathString + "\n")
+          GenUtils.writeToFile(outFile, header + allPathString + "\n")
         }
    }
   
