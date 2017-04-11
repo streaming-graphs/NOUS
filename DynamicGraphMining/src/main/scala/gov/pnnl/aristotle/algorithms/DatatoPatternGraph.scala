@@ -18,7 +18,6 @@ import com.google.inject.spi.Dependency
 import org.apache.spark.graphx.EdgeDirection
 import scala.util.Random
 import scala.util.control.Breaks._
-import gov.pnnl.aristotle.algorithms.mining.v3.FilterHeuristics
 import java.io.PrintWriter
 
 

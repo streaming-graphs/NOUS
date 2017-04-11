@@ -24,7 +24,6 @@ import gov.pnnl.aristotle.algorithms.mining.datamodel.KGNodeV2
 import gov.pnnl.aristotle.algorithms.mining.datamodel.PGNode
 import gov.pnnl.aristotle.algorithms.mining.datamodel.PatternInstance
 import gov.pnnl.aristotle.algorithms.mining.datamodel.WindowState
-import gov.pnnl.aristotle.algorithms.mining.GraphProfiling
 import gov.pnnl.aristotle.algorithms.mining.datamodel.KGNodeV2Flat
 import gov.pnnl.aristotle.algorithms.mining.datamodel.PatternConstraint
 import gov.pnnl.aristotle.algorithms.mining.datamodel.PatternConstraint
