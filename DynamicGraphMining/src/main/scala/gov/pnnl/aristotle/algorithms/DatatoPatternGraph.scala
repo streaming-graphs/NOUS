@@ -149,6 +149,8 @@ object DataToPatternGraph {
     val maxIterations = log2(ini.get("run", "maxPatternSize").toInt)
     val supportScallingFactor = ini.get("run", "supportScallingFactor").toInt
     val debugId = ini.get("run", "debugId").toInt
+    val frqPatternFilePath = ini.get("output", "frqPatternFilePath")
+    val depGraphFilePath = ini.get("output","depGraphFilePath")
     
     /*
      * Print all configuration variable to re-produce the experiment
@@ -486,9 +488,22 @@ object DataToPatternGraph {
       }
     }
     
+    //windowPatternGraph.vertices.collect.foreach(v=>println(v._1, v._2.getPattern.toList,v._2.getInstance.toList))
+    val frqPatternFile = new PrintWriter(new File(frqPatternFilePath)) 
+    val depGraphFile = new PrintWriter(new File(depGraphFilePath))
+    frequentPatternInWindow.collect.foreach(f=>
+      frqPatternFile.println(customPrintList(f._1.toList) + "\t" + f._2)) 
+    dependencyGraph.triplets.collect.foreach(f
+        =>depGraphFile.println(customPrintList(f.srcAttr.pattern.toList) +"=>" + customPrintList(f.dstAttr.pattern.toList)))
+ 
+        frqPatternFile.flush()
+    depGraphFile.flush()
   }
 
-  
+  def customPrintList(input : List[Any]) : String =
+  {
+    return input.toString.replaceAll("List", "").replaceAll("\\)\\)", ")").replaceAll("\\(\\(", "(")
+  }
   def updateFrequentPatternInWindow(frequentPatternInBatch : RDD[(PatternId, Int)],
       frequentPatternInWindow : RDD[(PatternId, Int)]) : RDD[(PatternId, Int)] =
   {
