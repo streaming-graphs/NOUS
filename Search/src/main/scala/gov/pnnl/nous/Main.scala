@@ -6,6 +6,7 @@ import org.apache.spark.SparkContext._
 import org.apache.log4j.Logger
 import org.apache.log4j.Level
 import gov.pnnl.nous.pathSearch._
+import gov.pnnl.nous.pathSearch.Attr.PathSearchPregel
 
 
 object Main {

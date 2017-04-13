@@ -1,6 +1,4 @@
-package gov.pnnl.nous.pathSearch
-
-import scala.io.Source
+package gov.pnnl.nous.pathSearch.Attr
 import org.apache.spark._
 import org.apache.spark.rdd._
 import org.apache.spark.graphx._
@@ -8,6 +6,9 @@ import scala.math.Ordering
 import scala.util.Sorting
 import gov.pnnl.nous.utils.{StringSim, GenUtils}
 import java.io._
+import gov.pnnl.nous.pathSearch.Attr.ExtendedVD
+import gov.pnnl.nous.pathSearch.Attr.PathEdge
+import scala.Array.canBuildFrom
 
 
 

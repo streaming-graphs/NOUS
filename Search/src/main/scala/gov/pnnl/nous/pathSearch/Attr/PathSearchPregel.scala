@@ -1,22 +1,19 @@
-package gov.pnnl.nous.pathSearch
-
-import scala.io.Source
+package gov.pnnl.nous.pathSearch.Attr
 import org.apache.spark._
 import org.apache.spark.SparkContext._
 import org.apache.spark.rdd._
 import org.apache.spark.graphx._
-import scala.math.Ordering
-import scala.util.Sorting
 import java.io._
-
-import gov.pnnl.nous.utils.ReadHugeGraph
-
+import gov.pnnl.nous.utils.ReadGraph
 import org.apache.spark.graphx.Graph.graphToGraphOps
-import gov.pnnl.nous.utils.ReadHugeGraph
+import gov.pnnl.nous.pathSearch.Attr.PathSearchUtils
+import gov.pnnl.nous.pathSearch.Attr.ExtendedVD => ExtendedVD[String,Int]}
+import gov.pnnl.nous.pathSearch.Attr.MaxDegreeFilter
+import gov.pnnl.nous.pathSearch.Attr.NodeFilter
+import gov.pnnl.nous.pathSearch.Attr.PathEdge
+
 
 object PathSearchPregel {
-
-  
   
   /* 1) Reads Graph, 
    * 2) Maps labels to  graph entity (src, dest) pairs and 
@@ -45,7 +42,7 @@ object PathSearchPregel {
     }
     
     val ts_read = System.nanoTime()
-    val g: Graph[String, String] = ReadHugeGraph.getGraph(graphFile, sc)
+    val g: Graph[String, String] = ReadGraph.getGraph(graphFile, sc)
     val te_read = System.nanoTime()
    
     println("Graph Read Time(ms)=", (te_read-ts_read)/1000000L)
