@@ -7,9 +7,9 @@ import org.apache.spark.rdd._
 import org.apache.spark.graphx._
 import java.io._
 import gov.pnnl.nous.utils.ReadGraph
-
 import org.apache.spark.rdd.RDD.rddToPairRDDFunctions
 import PathSearchIntDataTypes._
+
 
 
 object PathSearchInt {
@@ -42,17 +42,21 @@ object PathSearchInt {
       topicFile: String = "NONE", vertexTopicSep: String = "\t", topicSep: String = ",", 
       enableDestFilter: Boolean = false, enablePairFilter: Boolean = false): Unit = {
     
-    val adjList =  DataReader.getGraphInt(graphFile, sc, sep, lineLen)
-    val adjMap = adjList.collect.toMap
+    val adjMap =  DataReader.getGraphInt(graphFile, sc, sep, lineLen).collect.toMap
+    
     if(topicFile != "NONE") {
+      println("Trying to read topics File", topicFile)
       val topics = DataReader.getTopics(topicFile, sc, vertexTopicSep, topicSep).collect.toMap
       val myFilter =new TopicFilter(topicCoherence)
+      assert(topics.size == adjMap.size)
       FindPathsIntBatch(adjMap, entityPairsFile, sc, outDir, maxIter, myFilter, topics)
     } else if (maxDegree > 0){
+      println("Trying to create degree filter with maxDegree", maxDegree)
       val myFilter = new DegreeFilter(maxDegree)
       val degree = adjMap.mapValues(_.size)
       FindPathsIntBatch(adjMap, entityPairsFile, sc, outDir, maxIter, myFilter, degree)  
     } else {
+      println("Found no filter, executing regular path enumeration")
       val myFilter = new DummyFilter()
       FindPathsIntBatch(adjMap, entityPairsFile, sc, outDir, maxIter, myFilter, Map.empty)  
     }    
@@ -63,7 +67,7 @@ object PathSearchInt {
       outDir: String, maxIter: Int, pathFilter : PathFilter[VD], nodeFeatureMap: Map[VertexId, VD]): Unit = {
     
      val pairs: Array[(Int, Int)] = sc.textFile(entityPairsFile).map(ln => ln.split("\t"))
-     .filter(_.length != 2)
+     .filter(_.length == 2)
      .map(arr => (arr(0).toInt, arr(1).toInt)).collect
 
      for (pair <- pairs) {
@@ -74,8 +78,15 @@ object PathSearchInt {
     	 
            val allPaths = FindPathsInt(pair._1, pair._2, adjMap, nodeFeatureMap,
                0, maxIter, pathFilter, pathSofar)
+           println("Number of paths found between pairs", pair._1, pair._2, allPaths.length)
            for(path <- allPaths) {
-             writer.write(path.toString() + "\n")
+             print(pair._1 + " : ")
+             for(edge <- path) {
+               print("(" + edge._2 + ") " + edge._1 + ", ")
+               writer.write("(" + edge._2 + ") " + edge._1 + ", ")
+             }
+             println()
+             writer.write("\n")
            }
     	   writer.flush()
            writer.close()
@@ -113,14 +124,16 @@ object PathSearchInt {
         val newpath =  nodesSoFar.::(nbrid)
         val nbrPaths = FindPathsInt(nbrid, dest, adjMap, nodeFeatureMap,
                0, maxIter, pathFilter, newpath)
-        allPaths = allPaths.++(nbrPaths)
+        val newPaths:  List[Path]  = nbrPaths.mapConserve(v => nbrEdge::v)
+        allPaths = allPaths.++(newPaths)
       }
       } else {
         if(!nodesSoFar.contains(nbrid)) {
           val newpath =  nodesSoFar.::(nbrid)
-          val nbrPaths = FindPathsInt(nbrid, dest, adjMap, nodeFeatureMap,
+          val nbrPaths:  List[Path]  = FindPathsInt(nbrid, dest, adjMap, nodeFeatureMap,
                0, maxIter, pathFilter, newpath)
-          allPaths = allPaths.++(nbrPaths)
+          val newPaths:  List[Path]  = nbrPaths.mapConserve(v => nbrEdge::v)
+          allPaths = allPaths.++(newPaths)
         }
       }
     }

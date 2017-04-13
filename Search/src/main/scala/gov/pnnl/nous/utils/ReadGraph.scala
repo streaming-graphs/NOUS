@@ -19,7 +19,7 @@ object ReadGraph {
   }
   
   def getGraph(filename : String, sc : SparkContext): Graph[String, String] = {
-    println("starting map phase1");
+    println("starting graph read");
     val triples: RDD[(String, String, String)] =
       sc.textFile(filename).filter(ln => isValidLineFromGraphFile(ln)).map { line =>
         val fields = getFieldsFromLine(line);
@@ -38,7 +38,7 @@ object ReadGraph {
     val vertices = 
       triples.flatMap(triple => Array((triple._1.hashCode().toLong, triple._1), (triple._3.hashCode().toLong, triple._3)))
 
-    println("starting map phase3 > Building graph");
+    println("Read complete, Building graph");
     val graph = Graph(vertices, edges);
     println("edge count " + graph.edges.count)
     println("vertices count" + graph.vertices.count)

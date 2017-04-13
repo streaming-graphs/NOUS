@@ -10,7 +10,7 @@ import scala.Array.canBuildFrom
 
 object DataReader {
  def getGraphInt(filename: String, sc: SparkContext, sep: String = "\t", lineLen : Int = 3): RDD[(VertexId, Iterable[IntEdge] )] = {
-    println("starting map phase1");
+    println("loading integer graph");
     val triples: RDD[(VertexId, Iterable[IntEdge] )] =
       sc.textFile(filename).filter(ln => isValidLineFromGraphFile(ln))
       .map(line => getFieldsFromLine(line, sep)).filter(_.length == lineLen)
@@ -18,6 +18,8 @@ object DataReader {
           (fields(0).toLong, (fields(2).toLong, fields(1).toInt)),
           (fields(2).toLong, (fields(0).toLong, fields(1).toInt))
           )).groupByKey
+    println("Number of vertices", triples.count)
+    println("Number of edges", triples.values.flatMap(v => v).count)
     triples.cache
   }
   
