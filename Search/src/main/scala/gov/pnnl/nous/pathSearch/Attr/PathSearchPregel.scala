@@ -6,11 +6,6 @@ import org.apache.spark.graphx._
 import java.io._
 import gov.pnnl.nous.utils.ReadGraph
 import org.apache.spark.graphx.Graph.graphToGraphOps
-import gov.pnnl.nous.pathSearch.Attr.PathSearchUtils
-import gov.pnnl.nous.pathSearch.Attr.ExtendedVD => ExtendedVD[String,Int]}
-import gov.pnnl.nous.pathSearch.Attr.MaxDegreeFilter
-import gov.pnnl.nous.pathSearch.Attr.NodeFilter
-import gov.pnnl.nous.pathSearch.Attr.PathEdge
 
 
 object PathSearchPregel {

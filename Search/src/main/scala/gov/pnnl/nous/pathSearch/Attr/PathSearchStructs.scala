@@ -115,8 +115,7 @@ trait PathRank {
   def edgeRank(edge: PathEdge): Double
   def pathRank(path: List[PathEdge]): Double
 }
-}
-*/
+
 /*
 class PrepareFilter[VD, ED](filterType: String , filterArgs: Array[String], sc: SparkContext){
   val filterTypeLower = filterType.toLowerCase()
