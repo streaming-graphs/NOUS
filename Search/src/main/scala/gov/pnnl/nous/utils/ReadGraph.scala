@@ -46,27 +46,7 @@ object ReadGraph {
     return graph
   }
   
-  def getGraphInt(filename: String, sc: SparkContext, sep: String = "\t", lineLen : Int = 3): RDD[( Int, Iterable[(Int, String)] )] = {
-    println("starting map phase1");
-    val triples: RDD[(Int, Iterable[(Int, String)] )] =
-      sc.textFile(filename).filter(ln => isValidLineFromGraphFile(ln))
-      .map(line => getFieldsFromLine(line, sep)).filter(_.length == lineLen)
-      .flatMap(fields => Array(
-          (fields(0).toInt, (fields(2).toInt, fields(1))),
-          (fields(2).toInt, (fields(0).toInt, fields(1)))
-          )).groupByKey
-    triples.cache
-  }
-  
-  def getTopics(filename: String, sc: SparkContext, vertexTopicSep : String = "\t", topicSep: String = ","): RDD[(Int, Array[Double] )] = {
-    println("starting map phase1");
-    val topics: RDD[(Int, Array[Double] )] =
-      sc.textFile(filename).filter(ln => isValidLineFromGraphFile(ln))
-      .map(line => line.split(vertexTopicSep)).filter(_.length == 2)
-      .map(idWithTopic => (idWithTopic(0).toInt, idWithTopic(1).split(topicSep).map(t => t.toDouble)))
-        
-    topics.cache
-  }
+ 
   
 }
 

@@ -22,7 +22,6 @@ object PathSearchInt {
       System.exit(1)
     }
     
-     
     val sparkConf = new SparkConf().setAppName("IntPathSearch").setMaster("local")
     val sc = new SparkContext(sparkConf)
     Logger.getLogger("org").setLevel(Level.OFF)
@@ -34,7 +33,6 @@ object PathSearchInt {
     val maxIter = args(3).toInt
     val maxDegree = -1
     run(graphFile, entityPairsFile, outDir, maxIter, sc, "\t", 3, maxDegree, 0.0)
-    
   }
   
   def run(graphFile: String, entityPairsFile: String, outDir: String, maxIter: Int,
@@ -57,8 +55,7 @@ object PathSearchInt {
     } else {
       val myFilter = new DummyFilter()
       FindPathsIntBatch(adjMap, entityPairsFile, sc, outDir, maxIter, myFilter, Map.empty)  
-    }
-    
+    }    
   }
   
   def FindPathsIntBatch[VD](adjMap: Map[VertexId, Iterable[IntEdge]], 
