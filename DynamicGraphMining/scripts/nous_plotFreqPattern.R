@@ -5,3 +5,4 @@ setEPS()
 postscript(args[2])
 barplot(dataset$V2,names.arg = dataset$V1,las=2)
 dev.off()
+

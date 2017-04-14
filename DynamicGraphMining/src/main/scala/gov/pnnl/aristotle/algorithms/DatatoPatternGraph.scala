@@ -150,6 +150,7 @@ object DataToPatternGraph {
     val supportScallingFactor = ini.get("run", "supportScallingFactor").toInt
     val debugId = ini.get("run", "debugId").toInt
     val frqPatternFilePath = ini.get("output", "frqPatternFilePath")
+    val frqPatternPerBatchFilePath = ini.get("output", "frqPatternPerBatchFilePath")
     val depGraphFilePath = ini.get("output","depGraphFilePath")
     
     /*
@@ -489,15 +490,20 @@ object DataToPatternGraph {
     }
     
     //windowPatternGraph.vertices.collect.foreach(v=>println(v._1, v._2.getPattern.toList,v._2.getInstance.toList))
-    val frqPatternFile = new PrintWriter(new File(frqPatternFilePath)) 
+    val frqPatternFile = new PrintWriter(new File(frqPatternFilePath))
+    val frqPatternPerBatchFile = new PrintWriter(new File(frqPatternPerBatchFilePath)) 
     val depGraphFile = new PrintWriter(new File(depGraphFilePath))
+    
+    frequentPatternInWindowPerBatch.collect.foreach(f=>
+      frqPatternPerBatchFile.println(f._1 + "\t" + customPrintList(f._2._1) + "\t" + f._2._2))
     frequentPatternInWindow.collect.foreach(f=>
       frqPatternFile.println(customPrintList(f._1.toList) + "\t" + f._2)) 
     dependencyGraph.triplets.collect.foreach(f
         =>depGraphFile.println(customPrintList(f.srcAttr.pattern.toList) +"=>" + customPrintList(f.dstAttr.pattern.toList)))
  
-        frqPatternFile.flush()
+    frqPatternFile.flush()
     depGraphFile.flush()
+    frqPatternPerBatchFile.flush()
   }
 
   def customPrintList(input : List[Any]) : String =
