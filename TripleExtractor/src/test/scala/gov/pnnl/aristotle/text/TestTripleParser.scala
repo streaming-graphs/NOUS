@@ -30,7 +30,7 @@ class TripleParserTest extends FlatSpec {
     val doc1 = "Obama was born in Hawaii"
     val triples1 = TripleParser.getTriples(doc1)
     triples1.foreach(println)
-    val triple1_0 = triples1(0)
+    val triple1_0 = triples1.last
     assert(triple1_0.sub == "Obama")
     assert(triple1_0.pred == "was born in")
     assert(triple1_0.obj == "Hawaii")

@@ -21,6 +21,9 @@ This module is used to extract entity triples in the format of (subjective, pred
  
  ```bash
  cd [Repo_Home]/TripleExtractor
+ with Tests:
+ mvn package
+ without Tests:
  mvn package -DskipTests
  ```
 Here `[Repo_Home]` is the path to your cloned directory `NOUS`. 

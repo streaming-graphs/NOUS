@@ -408,13 +408,25 @@ object TripleParser extends Serializable {
     val inPath = args(0)
     val lines = scala.io.Source.fromFile(inPath).getLines.toList.filter(_.size != 0)
     if (args.size == 2) {
+      val resultName = "output2"
+      val writer = new PrintWriter(new File(resultName))
       for (line <- lines) {
-        TripleParser.getFancyTriples(line)
+        for ( item <- TripleParser.getFancyTriples(line)) {
+          writer.write(item.sub + "\t" + item.pred + "\t" + item.obj)
+          writer.write("\n")
+        }
       }
+      writer.close()
     } else {
+      val resultName = "output1"
+      val writer = new PrintWriter(new File(resultName))
       for (line <- lines) {
-        TripleParser.getTriples(line)
+        for ( item <- TripleParser.getTriples(line)) {
+          writer.write(item.sub + "\t" + item.pred + "\t" + item.obj)
+          writer.write("\n")
+        }
       }
+      writer.close()
     }
   }
 }
