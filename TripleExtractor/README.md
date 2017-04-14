@@ -1,7 +1,7 @@
 
 ## Triple Extractor Introduction  
 
-This module is used to extract entity triples in the format of (subjective, predicate, objective). For example, the triple for sentence "Tom stands on the chair" should be (Tom, stands on, the chair). So this module is designed for the  scenario where the entity triple is needed given sentences.  
+This module is used to extract entity triples in the format of (subjective, predicate, objective) from sentences. For example, the triple for sentence "Tom stands on the chair" should be (Tom, stands on, the chair).
 
 
 ##  Build and Execute :
@@ -21,9 +21,6 @@ This module is used to extract entity triples in the format of (subjective, pred
  
  ```bash
  cd [Repo_Home]/TripleExtractor
- with Tests:
- mvn package
- without Tests:
  mvn package -DskipTests
  ```
 Here `[Repo_Home]` is the path to your cloned directory `NOUS`. 
