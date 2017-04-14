@@ -24,4 +24,3 @@ Here `[Repo_Home]` is the path to your cloned directory `NOUS`.
 
 ### 2.3 Run Hello World
 Implements Entity Disambiguation as described by Han et al in "Collective Entity Linking in Web Text: A Graph-based Method, SIGIR 2011"
-
