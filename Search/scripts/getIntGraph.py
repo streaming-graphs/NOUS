@@ -80,6 +80,7 @@ def convertGraphToInt(graphDir, outputDir):
                         vertexMap)
     return
 
+# Converts given labeled file to integer format using vertex map
 def convertGraphFileToInt(inFile, outFile, vertexMap):
     print("trying to read data file : ", inFile)
     fin = io.open(inFile, encoding ='utf8')
@@ -127,23 +128,10 @@ def convertGraphFileToInt(inFile, outFile, vertexMap):
     fin.close
     fout.close
 
-topDir="/people/d3x771/projects/knowledgeGraph/PathSearchBenchmark/data/"
-#dataset="yago"
-dataset="yago2/sample"
-#dataset="wordnet"
-#dataset="freebase"
-#dataset="MAG"
-mainDir= topDir + dataset + "/"
+mainDir=./examples/
 graphInDir = mainDir + "/graph/"
 graphOutDir = mainDir + "/intGraph/"
 vertexDictFile = mainDir + "/vertexDictionary.out"
-
-#if(dataset == "yago" or dataset == "freebase"):
-#    cleanTestTriples(mainDir + "testPositive.txt", graphDir +
-#                 "testPositive.clean.txt")
-#convertGraphToInt(graphInDir, graphOutDir)
-#convertGraphFileToInt(mainDir + "/entityPairs.train.txt", mainDir +
-#                      "/entityPairs.train.int.txt", vertexMap)
 vertexMap = createVertexMap(graphInDir)
 saveVertexMap(vertexDictFile, vertexMap)
 convertGraphFileToInt(graphInDir + "/yagoSampleAllDetroit.ttl", graphOutDir +
