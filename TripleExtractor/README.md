@@ -36,7 +36,7 @@ Triple extractor supports NLP of text and supports multiple text formats (Text o
 java -cp target/uber-TripleParser-0.1-SNAPSHOT.jar gov.pnnl.aristotle.text.TripleParser ./examples/triple-extractor/triple-extractor.input 
 ```  
 
-Your output on the screen should contain the original sentence, pos tag, NER output, OpenIE output, Purged output, and Final output.  
+Your output on the screen should contain the original sentence, pos tag, NER output, OpenIE output, Purged output, and Final output and looks like [output1](https://github.com/streaming-graphs/NOUS/tree/master/TripleExtractor/examples/triple-extractor/output1)  
 
 to run the triple extractor example based on more complex rules :  
 
@@ -46,4 +46,4 @@ to run the triple extractor example based on more complex rules :
 java -cp target/uber-TripleParser-0.1-SNAPSHOT.jar gov.pnnl.aristotle.text.TripleParser ./examples/triple-extractor/triple-extractor.input 1 
 ```   
 
-Your output on the screen shuold contain the original sentence, NER output, OpenIE output, Purged output, Final output. And each section contains cleaner output.
+Your output on the screen shuold contain the original sentence, NER output, OpenIE output, Purged output, Final output and looks like [output2](https://github.com/streaming-graphs/NOUS/tree/master/TripleExtractor/examples/triple-extractor/output2)
