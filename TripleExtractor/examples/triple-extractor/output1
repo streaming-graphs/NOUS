@@ -1,0 +1,15 @@
+Aerialtronics	rdf:type	MISC
+World Congress Centre	rdf:type	ORGANIZATION
+April	rdf:type	DATE
+Atlanta	rdf:type	LOCATION
+tour	rdf:type	O
+United States	rdf:type	LOCATION
+AUVSI Unmanned Systems	rdf:type	MISC
+Europe	rdf:type	LOCATION
+exhibitions	rdf:type	O
+trade show	rdf:type	O
+May	rdf:type	DATE
+World Congress Centre	is in	Atlanta
+four exhibitions	is in	United States
+Aerialtronics	is on	back tour with four exhibitions in United States in April including AUVSI Unmanned Systems 2015 trade show at World Congress Centre in Atlanta
+tour	is with	four exhibitions in United States in April including AUVSI Unmanned Systems 2015 trade show at World Congress Centre in Atlanta
