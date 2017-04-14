@@ -3,6 +3,7 @@ package gov.pnnl.aristotle.utils
 import scala.io.Source
 import java.io.PrintWriter
 import java.io.File
+import org.ini4j.Wini
 
 
 object CreateGraphVizDotFile {
@@ -25,17 +26,22 @@ object CreateGraphVizDotFile {
   
 
   def main(args: Array[String]): Unit = {
+    
+    val confFilePath = args(0)
+    val ini = new Wini(new File(confFilePath));
+    val depGraphFilePath = ini.get("output","depGraphFilePath")
+    
 
     //drawTTLFile("GraphMineInputTime5.txt", "GraphMineInputTime5.dot")
     //drawDepGraph("DependencyGraphEdges396174451444519/part-00000")
-    drawDepGraph(args(0))
+    drawDepGraph(depGraphFilePath)
   }
 
   def drawDepGraph(filepath : String)
   {
 
     var entity_Map: Map[String, Long] = Map.empty
-    var all_patterns_dot = new PrintWriter(new File("all_patternint.dot"))
+    var all_patterns_dot = new PrintWriter(new File("./output/dependencyGraph.dot"))
     all_patterns_dot.println("digraph data {")
     all_patterns_dot.println("rankdir=LR;")
     var all_pattern_counter = 0
@@ -47,30 +53,28 @@ object CreateGraphVizDotFile {
     for (line <- Source.fromFile(filepath).getLines()) {
       if (line.startsWith("@") || line.startsWith("#") || line.isEmpty()) { ; }
       else {
-        val clean_line_array = line.replaceAll("\\(", "").replaceAll("\\)", "").split("List")
-        val src = clean_line_array(1)
-        val dst = clean_line_array(2)
-        allnodes = allnodes + (dst.split("#")(0) -> dst.split("#")(1).replaceAll(",", "").toInt)
+        val clean_line_array = line.split("=>")
+        val src = clean_line_array(0)
+        val dst = clean_line_array(1)
 
         /*
          * Avoid making self loop
          */
-        if (!src.split("#")(0).equalsIgnoreCase(dst.split("#")(0))) {
-          all_patterns_dot.println('"' + src.split("#")(0) + '"' + " -> " + '"' + dst.split("#")(0) +
+        if (!src.equalsIgnoreCase(dst)) {
+          all_patterns_dot.println('"' + src + '"' + " -> " + '"' + dst +
             '"' + " [label=" + '"' + "part_of" + '"' + "]")
           all_pattern_counter += 1
 
         }
       }
     }
-    allnodes.foreach(f => println(f._1 + " " + f._2.toInt))
+    //allnodes.foreach(f => println(f._1 + " " + f._2.toInt))
     println(allnodes.size)
-    allnodes.foreach(n => all_patterns_dot.println('"' + n._1 + '"' + " [style=filled, fillcolor=" + fillcolor_map.getOrElse(n._2, "red") + "]"))
+    //allnodes.foreach(n => all_patterns_dot.println('"' + n._1 + '"' + " [style=filled, fillcolor=" + fillcolor_map.getOrElse(n._2, "red") + "]"))
     all_patterns_dot.println("}")
     all_patterns_dot.flush()
 
-    all_patterns_dot.flush()
-
+    
   }
   
   
