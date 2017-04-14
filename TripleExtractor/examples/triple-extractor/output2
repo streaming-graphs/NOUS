@@ -1,0 +1,14 @@
+Aerialtronics is back on tour with four exhibitions in the United States and Europe in April and May, including the AUVSI Unmanned Systems 2015 trade show at the World Congress Centre in Atlanta.
+********** NER output **********
+O:United States
+O:AUVSI Unmanned Systems
+O:World Congress Centre
+********** OpenIE output **********
+World Congress Centre   is in   Atlanta     
+********** Purged output **********
+World Congress Centre   is in   Atlanta     
+********** Final output **********
+United States   rdf:type    O       
+AUVSI Unmanned Systems  rdf:type    O       
+World Congress Centre   rdf:type    O       
+World Congress Centre   is in   Atlanta 

@@ -1,0 +1,108 @@
+Aerialtronics is back on tour with four exhibitions in the United States and Europe in April and May, including the AUVSI Unmanned Systems 2015 trade show at the World Congress Centre in Atlanta.
+[Aerialtronics] POS [NNP]] NER [MISC] isNP [true]
+[is] POS [VBZ]] NER [O] isNP [false]
+[back] POS [RB]] NER [O] isNP [false]
+[on] POS [IN]] NER [O] isNP [false]
+[tour] POS [NN]] NER [O] isNP [true]
+[with] POS [IN]] NER [O] isNP [false]
+[four] POS [CD]] NER [NUMBER] isNP [false]
+[exhibitions] POS [NNS]] NER [O] isNP [true]
+[in] POS [IN]] NER [O] isNP [false]
+[the] POS [DT]] NER [O] isNP [false]
+[United] POS [NNP]] NER [LOCATION] isNP [true]
+[States] POS [NNPS]] NER [LOCATION] isNP [true]
+[and] POS [CC]] NER [O] isNP [false]
+[Europe] POS [NNP]] NER [LOCATION] isNP [true]
+[in] POS [IN]] NER [O] isNP [false]
+[April] POS [NNP]] NER [DATE] isNP [true]
+[and] POS [CC]] NER [O] isNP [false]
+[May] POS [NNP]] NER [DATE] isNP [true]
+[,] POS [,]] NER [O] isNP [false]
+[including] POS [VBG]] NER [O] isNP [false]
+[the] POS [DT]] NER [O] isNP [false]
+[AUVSI] POS [NNP]] NER [MISC] isNP [true]
+[Unmanned] POS [NNP]] NER [MISC] isNP [true]
+[Systems] POS [NNP]] NER [MISC] isNP [true]
+[2015] POS [CD]] NER [DATE] isNP [false]
+[trade] POS [NN]] NER [O] isNP [true]
+[show] POS [NN]] NER [O] isNP [true]
+[at] POS [IN]] NER [O] isNP [false]
+[the] POS [DT]] NER [O] isNP [false]
+[World] POS [NNP]] NER [ORGANIZATION] isNP [true]
+[Congress] POS [NNP]] NER [ORGANIZATION] isNP [true]
+[Centre] POS [NNP]] NER [ORGANIZATION] isNP [true]
+[in] POS [IN]] NER [O] isNP [false]
+[Atlanta] POS [NNP]] NER [LOCATION] isNP [true]
+[.] POS [.]] NER [O] isNP [false]
+********** NER output **********
+O:tour
+O:trade show
+LOCATION:Atlanta
+ORGANIZATION:World Congress Centre
+DATE:April
+LOCATION:United States
+DATE:May
+LOCATION:Europe
+O:exhibitions
+MISC:AUVSI Unmanned Systems
+MISC:Aerialtronics
+********** OpenIE output **********
+Aerialtronics   is on   tour with four exhibitions in United States in April including AUVSI Unmanned Systems 2015 trade show      
+Aerialtronics   is on   tour with four exhibitions in April including AUVSI Unmanned Systems 2015 trade show        
+Aerialtronics   is on   back tour with four exhibitions in April including AUVSI Unmanned Systems 2015 trade show at World Congress Centre in Atlanta        
+Aerialtronics   is on   back tour with four exhibitions including AUVSI Unmanned Systems 2015 trade show        
+Aerialtronics   is on   tour with four exhibitions including AUVSI Unmanned Systems 2015 trade show at World Congress Centre        
+Aerialtronics   is on   back tour with four exhibitions in United States in April including AUVSI Unmanned Systems 2015 trade show at World Congress Centre     
+Aerialtronics   is on   tour with four exhibitions in United States in April        
+four exhibitions    is in   April       
+Aerialtronics   is on   back tour       
+Aerialtronics   is on   tour        
+Aerialtronics   is on   back tour with four exhibitions in United States in April       
+Aerialtronics   is on   back tour with four exhibitions in United States in April including AUVSI Unmanned Systems 2015 trade show
+Aerialtronics   is on   tour with four exhibitions in United States including AUVSI Unmanned Systems 2015 trade show at World Congress Centre in Atlanta        
+World Congress Centre   is in   Atlanta     
+Aerialtronics   is on   tour with four exhibitions including AUVSI Unmanned Systems 2015 trade show at World Congress Centre in Atlanta        
+Aerialtronics   is on   back tour with four exhibitions in United States including AUVSI Unmanned Systems 2015 trade show at World Congress Centre in Atlanta      
+Aerialtronics   is on   back tour with four exhibitions in United States in April including AUVSI Unmanned Systems 2015 trade show at World Congress Centre in Atlanta      
+Aerialtronics   is on   tour with four exhibitions in United States including AUVSI Unmanned Systems 2015 trade show        
+Aerialtronics   is on   back tour with four exhibitions including AUVSI Unmanned Systems 2015 trade show at World Congress Centre in Atlanta     
+Aerialtronics   is on   back tour with four exhibitions in United States including AUVSI Unmanned Systems 2015 trade show at World Congress Centre     
+Aerialtronics   is on   tour with four exhibitions in United States including AUVSI Unmanned Systems 2015 trade show at World Congress Centre       
+Aerialtronics   is on   back tour with four exhibitions in April including AUVSI Unmanned Systems 2015 trade show       
+Aerialtronics   is on   tour with four exhibitions in April including AUVSI Unmanned Systems 2015 trade show at World Congress Centre in Atlanta        
+tour    is with four exhibitions in United States in April including AUVSI Unmanned Systems 2015 trade show at World Congress Centre in Atlanta     
+Aerialtronics   is on   tour with four exhibitions including AUVSI Unmanned Systems 2015 trade show     
+Aerialtronics   is on   back tour with four exhibitions in United States including AUVSI Unmanned Systems 2015 trade show       
+Aerialtronics   is on   back tour with four exhibitions in United States        
+Aerialtronics   is on   tour with four exhibitions      
+Aerialtronics   is on   back tour with four exhibitions     
+Aerialtronics   is on   back tour with four exhibitions including AUVSI Unmanned Systems 2015 trade show at World Congress Centre    
+Aerialtronics   is on   back tour with four exhibitions in April including AUVSI Unmanned Systems 2015 trade show at World Congress Centre       
+four exhibitions    is in   United States       
+Aerialtronics   is on   back tour with four exhibitions in April        
+Aerialtronics   is on   tour with four exhibitions in April     
+Aerialtronics   is on   tour with four exhibitions in United States     
+Aerialtronics   is on   tour with four exhibitions in April including AUVSI Unmanned Systems 2015 trade show at World Congress Centre       
+Aerialtronics   is on   tour with four exhibitions in United States in April including AUVSI Unmanned Systems 2015 trade show at World Congress Centre      
+Aerialtronics   is on   tour with four exhibitions in United States in April including AUVSI Unmanned Systems 2015 trade show at World Congress Centre in Atlanta       
+********** Purged output **********
+World Congress Centre   is in   Atlanta     
+four exhibitions    is in   United States       
+Aerialtronics   is on   back tour with four exhibitions in United States in April including AUVSI Unmanned Systems 2015 trade show at World Congress Centre in Atlanta      
+tour    is with four exhibitions in United States in April including AUVSI Unmanned Systems 2015 trade show at World Congress Centre in Atlanta     
+********** Final output **********
+Aerialtronics   rdf:type    MISC        
+World Congress Centre   rdf:type    ORGANIZATION        
+April   rdf:type    DATE        
+Atlanta rdf:type    LOCATION        
+tour    rdf:type    O       
+United States   rdf:type    LOCATION        
+AUVSI Unmanned Systems  rdf:type    MISC        
+Europe  rdf:type    LOCATION        
+exhibitions rdf:type    O       
+trade show  rdf:type    O       
+May rdf:type    DATE        
+World Congress Centre   is in   Atlanta     
+four exhibitions    is in   United States       
+Aerialtronics   is on   back tour with four exhibitions in United States in April including AUVSI Unmanned Systems 2015 trade show at World Congress Centre in Atlanta      
+tour    is with four exhibitions in United States in April including AUVSI Unmanned Systems 2015 trade show at World Congress Centre in Atlanta
