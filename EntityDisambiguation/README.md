@@ -1,6 +1,7 @@
 # NOUS : Construction and Querying of Dynamic Knowledge Graphs
 ## 1. Introduction	
-Entity Linking or Disambiguation is the task maps an entity mentioned in text to the matching vertex in the graph. NOUS entity linking implements the parallel version of the Entity Disambiguation algorithm as described by Han et al in "Collective Entity Linking in Web Text: A Graph-based Method, SIGIR 2011"
+Entity Disambiguation algorithms map  "mention of an entity" in text to its corresponding matching vertex in the knowledge base. 
+NOUS implements the parallel version of the Entity Disambiguation algorithm as described by Han et al in "Collective Entity Linking in Web Text: A Graph-based Method, SIGIR 2011"
 
 ## 2. Build and Execute Hello World Program(s):
 ### 2.1 Prerequisites
