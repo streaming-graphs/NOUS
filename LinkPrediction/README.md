@@ -4,9 +4,10 @@ Implements Bayesian Personalized Ranking model for top N item recommendation, us
 
 ## 2 Build and Execute Hello World Program(s):
 ### 2.1 Prerequisites
-python 2.7+
-Python modules used:
-numpy, scipy, networkx
+* python 2.7+ with follwing dependencies
+* numpy, 
+* scipy, 
+* networkx
 
 ### 2.2 Run Hello World
 $cd $NOUS_HOME/LinkPrediction/examples
