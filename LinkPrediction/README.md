@@ -16,3 +16,4 @@ For the output, it will print out the HR, ARHR, and AUC for each iteration
 
 ## Publications
 Baichuan Zhang, Sutanay Choudhury, Mohammad Al Hasan, Xia Ning, Khushbu Agarwal, Sumit Purohit, and Paola Pesntez Cabrera: Trust from the past: Bayesian Personalized Ranking based Link Prediction in Knowledge Graphs, published in SDM Workshop on Mining Networks and Graphs (MNG 2016), Miami, FL.
+https://pdfs.semanticscholar.org/0928/ae1a420c379bfa1f3f01225606b64e9ad168.pdf
