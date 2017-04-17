@@ -10,8 +10,8 @@ Implements Bayesian Personalized Ranking model for top N item recommendation, us
 * networkx
 
 ### 2.2 Run Hello World
-$cd $NOUS_HOME/LinkPrediction/examples
-$python ../src/social_BPR.py graph_deadsWith.txt subj_entity.txt
+ * cd $NOUS_HOME/LinkPrediction/examples
+ * python ../src/social_BPR.py graph_deadsWith.txt subj_entity.txt
 
 For the output, it will print out the HR, ARHR, and AUC for each iteration
 
