@@ -15,13 +15,13 @@ NOUS implements the parallel version of the Entity Disambiguation algorithm as d
 
 ` clone https://github.com/streaming-graphs/NOUS.git NOUS `
 
- Perform maven build in any of the module : `triple_extractor` OR `knowledge_graph` Ex:
+ Perform maven build :
  
  ```bash
- cd [Repo_Home]/triple_extractor
+ cd [Repo_Home]/EntityDisambiguation
  mvn package
  ```
 Here `[Repo_Home]` is the path to your cloned directory `NOUS`. 
 
 ### 2.3 Run Hello World
-Implements Entity Disambiguation as described by Han et al in "Collective Entity Linking in Web Text: A Graph-based Method, SIGIR 2011"
+[SPARK_HOME]/bin/spark-submit --verbose --jars "[PATH_TO_JAR]" --master [SPARK_MASTER]  --class "gov.pnnl.nous.Main" "[PATH_TO_JAR]"  < <outputDir> <topicsFile> <maxPathLength> <maxDegree> <topcCoherenceThreshold(Optional)>

@@ -11,6 +11,7 @@ import scala.collection.Map
 import gov.pnnl.nous.utils._
 import breeze.linalg.Transpose.LiftApply
 import gov.pnnl.nous.utils.ReadGraph
+import ColEntityTypes._
 
 /* This class implements the  collective entity linking algorithm as described in the paper 
  * "Collective entity linking in web text: a graph-based method". 
@@ -31,7 +32,7 @@ class ColEntityDisamb[VD, ED] {
   def disambiguate(allMentionsWithData: Map[String, MentionData], g: Graph[String, String], 
       vertexRDDWithAlias: VertexRDD[String],
       phraseMatchThreshold: Double = 0.7, mentionToEntityMatchThreshold: Double = 0.0, 
-      lambda: Double= 0.1 ): 
+      lambda: Double= 0.1, aliasSep: String =  " <Alias> "): 
       Map[Mention, (Entity, SimScore)] = {
     
     
@@ -40,7 +41,7 @@ class ColEntityDisamb[VD, ED] {
     //1. Get candidates entities for each mention
     val mentionLabels: List[Mention] = allMentionsWithData.keys.toList
     val mentionToEntityMap: Map[Mention, Iterable[Entity]] = 
-      getMatchCandidates(mentionLabels, vertexRDDWithAlias, phraseMatchThreshold)
+      getMatchCandidates(mentionLabels, vertexRDDWithAlias, phraseMatchThreshold, aliasSep: String)
     println("\nCandidate matches for each mention (in main function):")
     mentionToEntityMap.foreach(matches => println(matches._1 + "=>"  + matches._2.toString))
     // if no or only single candidates are found for each mention, then return
@@ -79,7 +80,7 @@ class ColEntityDisamb[VD, ED] {
     val mentionToEntityScore : Map[Mention, Set[(Entity, SimScore)]] = 
       ColEntityDisScores.getEntityMentionCompScore(mentionsWithData, 
           mentionToEntityMap, nbrsOfCandidateEntities, 
-          mentionToEntityMatchThreshold, phraseMatchThreshold)
+          mentionToEntityMatchThreshold, phraseMatchThreshold, aliasSep)
   
           
     //3. Score semantic relatedness between entity candidates of each mention
@@ -88,8 +89,7 @@ class ColEntityDisamb[VD, ED] {
     
     //4. Prepare ReferentGraph(vertices, edges) from mentions and entities
     println("Creating normalized referent graph")  
-    val refGraph = new ReferentGraph(mentionsWithData, mentionToEntityScore, 
-          entityToEntitySemanticRelScore)
+    val refGraph = new ReferentGraph(mentionsWithData, mentionToEntityScore, entityToEntitySemanticRelScore)
    
     println(" Performing collective inference")
     getMatchUsingMaxReferentGraph(refGraph, mentionsWithoutEntityMatch, 
@@ -115,10 +115,10 @@ class ColEntityDisamb[VD, ED] {
    */
   
   private def getMatchCandidates(mentionLabels: List[Mention] , vertexRDDWithAlias: VertexRDD[String], 
-      phraseMatchThreshold: Double): Map[Mention, Iterable[Entity]] = {
+      phraseMatchThreshold: Double, aliasSep: String): Map[Mention, Iterable[Entity]] = {
     
     val mentionToEntityCandidates : Map[Mention, Iterable[Entity]] = 
-      MatchStringCandidates.getMatchesRDDWithAlias(mentionLabels, vertexRDDWithAlias, phraseMatchThreshold).collectAsMap 
+      NodeProp.getMatchesRDDWithAlias(mentionLabels, vertexRDDWithAlias, phraseMatchThreshold, aliasSep).collectAsMap 
     println("\nCandidate matches for each mention:")
     mentionToEntityCandidates.foreach(matches => println(matches._1 + "=>"  + matches._2.toString))
     mentionToEntityCandidates   

@@ -4,6 +4,7 @@ package gov.pnnl.nous
 import scala.collection.Map
 import breeze.linalg._
 import breeze.numerics._
+import ColEntityTypes._
 
 object EvidenceProp{
   

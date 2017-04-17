@@ -3,7 +3,8 @@ package gov.pnnl.nous
 import scala.collection.Set
 import scala.collection.Map
 import org.apache.spark.graphx._
-import gov.pnnl.nous.utils.{MentionData, GenUtils}
+import gov.pnnl.nous.utils.{MentionData, GenUtils, StringSim}
+import ColEntityTypes._
 
 object ColEntityDisScores {
   
@@ -18,7 +19,7 @@ object ColEntityDisScores {
   def getEntityMentionCompScore(mentionsWithData : Map[Mention, MentionData] , 
       mentionsToEntityMap: Map[Mention, Iterable[Entity]], 
       candidateNbrs: Map[VertexId, Set[Entity]],  mentionToEntityMatchThreshold: Double, 
-      phraseMatchThreshold: Double) :  Map[Mention, Set[(Entity, SimScore)]]= {
+      phraseMatchThreshold: Double, aliasSep: String) :  Map[Mention, Set[(Entity, SimScore)]]= {
     
     val allMentionsInGivenContext = mentionsWithData.keys.toSet
     println("Number of mentions to score", allMentionsInGivenContext.size)
@@ -38,7 +39,7 @@ object ColEntityDisScores {
       
       val entityWithScore : Set[(Entity, SimScore)] = candEntityList.map( entity => {
         val entityId = entity._1
-        val entityLabel = entity._2.split(KGraphProp.aliasSep)(0)
+        val entityLabel = entity._2.split(aliasSep)(0)
         val entityNbrs : Set[Entity] = candidateNbrs.get(entityId).get
         val simScore = getMentionEntityScore(mentionData, entityNbrs , allMentionsInGivenContext-mention, phraseMatchThreshold, totalSizeCandEntityNbrs)
         //println("Scoring mention to entity similatity", mention, entityLabel, simScore)
@@ -107,7 +108,7 @@ object ColEntityDisScores {
     
     var commonEntities  = 0
     for (mention <- allMentionInContext) {
-       val found = entityNbrs.exists(entity => Gen_Utils.stringSim(entity._2, mention) > phraseMatchThreshold)
+       val found = entityNbrs.exists(entity => StringSim.getsim(entity._2, mention) > phraseMatchThreshold)
        if(found) commonEntities+=1
     }
     //println("common nbrs, numMentionsInContext, numOfEntityNbrs", commonEntities, numMentionsInContext, numOfEntityNbrs)

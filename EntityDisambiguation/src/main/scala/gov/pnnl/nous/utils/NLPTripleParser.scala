@@ -27,6 +27,10 @@ object NLPTripleParser {
   type EntityLabel = String
   type EntityTypeMap = Map[EntityLabel, MentionData]
   
+  object predicateTypeMapper{
+    val typeMap : Map[String, String] = Map(("PER", "people"), ("LOC", "location"), ("ORG", "company"), ("MISC",""))
+  }
+  
   def main(args: Array[String]) : Unit = {
     val sparkConf = new SparkConf().setAppName("PathSearch")
     val sc = new SparkContext(sparkConf)
