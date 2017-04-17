@@ -128,13 +128,14 @@ def convertGraphFileToInt(inFile, outFile, vertexMap):
     fin.close
     fout.close
 
-mainDir=./examples/
-graphInDir = mainDir + "/graph/"
-graphOutDir = mainDir + "/intGraph/"
-vertexDictFile = mainDir + "/vertexDictionary.out"
-vertexMap = createVertexMap(graphInDir)
-saveVertexMap(vertexDictFile, vertexMap)
-convertGraphFileToInt(graphInDir + "/yagoSampleAllDetroit.ttl", graphOutDir +
-                      "/yagoSampleAllDetroit.int.ttl", vertexMap)
+if __name__ == "__main__":
+    mainDir=./examples/
+    graphInDir = mainDir + "/graph/"
+    graphOutDir = mainDir + "/intGraph/"
+    vertexDictFile = mainDir + "/vertexDictionary.out"
+    vertexMap = createVertexMap(graphInDir)
+    saveVertexMap(vertexDictFile, vertexMap)
+    convertGraphFileToInt(graphInDir + "/yagoSample.ttl", graphOutDir +
+                      "/yagoSampl.int.ttl", vertexMap)
 
 

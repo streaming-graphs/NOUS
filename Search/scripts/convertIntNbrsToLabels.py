@@ -1,12 +1,9 @@
 #!/usr/bin/python
 import os, sys, io
 
-mainDir = "/people/d3x771/projects/knowledgeGraph/PathSearchBenchmark/data/yago2//intGraph/withoutEdgeInt/"
-vertexDictFile = mainDir + "/wordnet_vertices.out"
-nbrFile = mainDir + "/wordnetNbrIds.out"
-outFile = mainDir + "/wordnetNbrLabels.out"
-#graphDir = mainDir + "/sample/"
-
+# reads a file of form
+# "label	integer_id"
+# as {integerid -> label}
 def getVertexDict(filename):
     my_dict = {}
     print("trying to get vertex dict: ", filename)
@@ -20,6 +17,9 @@ def getVertexDict(filename):
     fdict.close()
     return my_dict
     
+# reads an inFile of format
+# "srcid  num_nbrs nbr_id1,nbrid2,nbrid3.."
+# and converts it to labeled format
 def convertIdsToLabels(vertexDictFile, inFile, outFile):
     vertex_dict = getVertexDict(vertexDictFile)
     print("trying to read nbrList : ", nbrFile)
@@ -28,28 +28,25 @@ def convertIdsToLabels(vertexDictFile, inFile, outFile):
     for line in fin:
         if(len(line) != 0):
             if(line[0] != '#' and line[0] != '@'):
-                arr = line.strip().split("\t")
-                if(len(arr) == 3):
-                    src = int(arr[0].strip())
-                    count = int(arr[1].strip())
-                    nbrs = arr[2].strip().split(",")
-                    nbr_labels = ""
-                    for nbr in nbrs:
-                        nbr_id = int(nbr)
-                        if(nbr_id in vertex_dict):
-                            nbr_label = vertex_dict.get(nbr_id)
-                            nbr_labels = nbr_labels + ";;" + nbr_label
+                arr = line.strip().split(",")
+                if(len(arr) >= 2):
+                    path_labels = ""
+                    for node in arr:
+                        node_id = int(node)
+                        if(node_id in vertex_dict):
+                            node_label = vertex_dict.get(node_id)
+                            path_labels = path_labels + ";;" + node_label
                         else:
-                            print("Found a wordnet id not in dict (src, nbrid)=", src, nbr_id)
-                    fout.write(str(src) + ";;" + nbr_labels + "\n")
-                elif(len(arr) == 2 and int(arr[1].strip()) != 0) :
-                    print("find line not of length 3 and count is not zero:"  + line)
+                            print("Found a node id not in dict (src, nbrid)=", node_id, line)
+                    fout.write(nbr_labels + "\n")
+                else:
+		    print("Found a path with less than length 1", line)
     fin.close()
     fout.close()
 
 if __name__ == "__main__":
     mainDir = "./examples/"
     vertexDictFile = mainDir + "/vertexDictionary.out"
-    inFile = mainDir + "/wordnetNbrIds.out"
-    outFile = mainDir + "/wordnetNbrLabels.out"
+    inFile = mainDir + "/paths.int.out"
+    outFile = mainDir + "/paths.labeled.out"
     convertIdsToLabels(vertexDictFile, inFile, outFile)
