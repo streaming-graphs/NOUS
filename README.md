@@ -39,9 +39,9 @@ Collective Entity Linking in Web Text: A Graph-based Method, Han et al, SIGIR 20
 ### 2.2 Build
  Clone github repository 
 
-` clone https://github.com/streaming-graphs/NOUS.git NOUS `
+` git clone https://github.com/streaming-graphs/NOUS.git NOUS `
 
- Perform maven build in any of the module : `TripleExtractor` OR `Mining` Ex:
+All NOUS modules (except LinkPrediction) are written in scala and can be compiled with maven. LinkPrediction is written in Python and can be run directly. Perform maven build in any of the module : `TripleExtractor` OR `Mining` Ex:
  
  ```bash
  cd [Repo_Home]/TripleExtractor
