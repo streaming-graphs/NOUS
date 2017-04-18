@@ -232,7 +232,7 @@ object ReadHugeGraph {
         var longtime = -1L
         val fields = getFieldsFromLine(line);
         try{
-          val f = DateTimeFormat.forPattern("yyyy/MM/dd HH:mm:ss.SSS");
+          val f = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
           var parsedDate = fields(3).replaceAll("t", " ").trim()
           /*
            * if parseData is of pattern yyyy/MM/ HH:mm:ss.SSS
