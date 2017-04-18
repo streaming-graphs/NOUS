@@ -17,7 +17,7 @@ object PathSearchInt {
  
   def main(args: Array[String]): Unit = {
     
-    if(args.length < 4){
+    if(args.length < 5){
       println("Usage <graphPath> <entityPairspath> <outDir> <maxIter>")
       System.exit(1)
     }
@@ -31,8 +31,10 @@ object PathSearchInt {
     val entityPairsFile = args(1)
     val outDir = args(2)
     val maxIter = args(3).toInt
+    val lineLen  = args(4).toInt
     val maxDegree = -1
-    run(graphFile, entityPairsFile, outDir, maxIter, sc, "\t", 3, maxDegree, 0.0)
+    
+    run(graphFile, entityPairsFile, outDir, maxIter, sc, "\t", lineLen, maxDegree, 0.0)
   }
   
   def run(graphFile: String, entityPairsFile: String, outDir: String, maxIter: Int,
@@ -80,10 +82,15 @@ object PathSearchInt {
                0, maxIter, pathFilter, pathSofar)
            println("Number of paths found between pairs", pair._1, pair._2, allPaths.length)
            for(path <- allPaths) {
-             print(pair._1 + " : ")
+             val srcString = pair._1 + " : "
+             print(srcString)
+             writer.write(srcString)
              for(edge <- path) {
-               print("(" + edge._2 + ") " + edge._1 + ", ")
-               writer.write("(" + edge._2 + ") " + edge._1 + ", ")
+               val direction : String = if(edge._3) "Out" else "In"
+               val edgeLabel : String = if(edge._2 == defaultEdgeLabel) "" else edge._2.toString + "-"
+               val line = "(" + edgeLabel + direction + ") " + edge._1 + ", "
+               print(line)
+               writer.write(line)
              }
              println()
              writer.write("\n")
