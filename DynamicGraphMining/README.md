@@ -1,21 +1,15 @@
-# NOUS : Construction and Querying of Dynamic Knowledge Graphs
-Automated construction of knowledge graphs remains an expensive technical challenge that
-is beyond the reach for most enterprises and academic institutions.
-NOUS is an end-to-end framework for developing custom knowledge graphs driven
-analytics for arbitrary application domains.
-The uniqueness of our system lies A) in its combination of curated KGs along with
-knowledge extracted from unstructured text, B) support for advanced trending and explanatory
-questions on a dynamic KG, and C) the ability to
-answer queries where the answer is embedded across multiple data sources.
+# Graph Mining
+This component of the NOUS provides a distributed system for online pattern
+discovery in graph streams. It combines both incremental mining and parallel mining
+for feasible pattern detection over graph streams. 
 
 ## 1. Introduction	
-NOUS provides complete suite of capabilities needed to build a domain specific knowledge graph
-from streaming data. This includes
- * Triple Extraction from Natural Language Text(NLP)
- * Mapping Raw Triples to Knowledge Graph
- * Confidence Estimation via Link Prediction
- * Rule Learning /Trend Discovery via Frequent Graph Mining
- * Question Answering
+It has the following unique features that differ from conventional incremental
+querying and mining systems.
+ * Events as graph patterns.
+ * Incremental mining.
+ * Scale-up.
+ * Easy-to-use.
 
 Relevant Publications
 
@@ -26,7 +20,7 @@ Relevant Publications
 ### 2.1 Prerequisites
 * Java 1.7 OR above
 * Maven
-* Apache Spark 1.2 OR above
+* Apache Spark 1.6 OR above
 * HDFS File System (Optional)
 
 ### 2.2 Build
@@ -34,16 +28,16 @@ Relevant Publications
 
 ` clone https://github.com/streaming-graphs/NOUS.git NOUS `
 
- Perform maven build in any of the module : `triple_extractor` OR `knowledge_graph` Ex:
+ Perform maven build in any of the module : `DynamicGraphMining` Ex:
  
  ```bash
- cd [Repo_Home]/triple_extractor
+ cd [Repo_Home]/DynamicGraphMining
  mvn package
  ```
 Here `[Repo_Home]` is the path to your cloned directory `NOUS`. 
 
 ### 2.3 Run Hello World
-NOUS is organized into two major projects triple_extractor and knowledge_graph. We provide toy examples to test setup for each module under NOUS  [examples directroy](https://github.com/streaming-graphs/NOUS/blob/master/examples/). For algorithmic and implementation details please refer to `NOUS Design`  section. 
+We provide toy examples to test setup for each module under NOUS  [examples directroy](https://github.com/streaming-graphs/NOUS/blob/master/examples/). For algorithmic and implementation details please refer to `NOUS Design`  section. 
 
 #### 2.3.1 Triple Extractor
 Triple extractor supports NLP of text and supports multiple text formats (Text only, OpenGraph Protocol, JSON). To run the triple extractor example
