@@ -11,8 +11,8 @@ import org.apache.spark.mllib.clustering._
 import java.io._
 import org.apache.spark.rdd.RDD.rddToPairRDDFunctions
 import scala.Array.canBuildFrom
-import gov.pnnl.nous.pathSearch.PathSearchConf
-import gov.pnnl.nous.pathSearch.PathSearchUtils
+import gov.pnnl.nous.pathSearch.Attr.PathSearchConf
+import gov.pnnl.nous.pathSearch.Attr.PathSearchUtils
 
 object OntologyClustering {
   

@@ -1,4 +1,4 @@
-package gov.pnnl.nous.pathSearch
+package gov.pnnl.nous.pathSearch.Attr
 import org.apache.spark._
 import org.apache.spark.graphx._
 import org.apache.spark.rdd._
@@ -115,14 +115,7 @@ trait PathRank {
   def edgeRank(edge: PathEdge): Double
   def pathRank(path: List[PathEdge]): Double
 }
- /* 
-  // Adds topic distribution Array(topic strength) to each node ( topic id start from 1)
-  def addAll[VD, ED](graph: Graph[VD, ED], topicsFileAll: String, sc: SparkContext) : Graph[ ExtendedVD[VD, Array[Double]], ED] = {
-    val topicsRDD : RDD[(Long, Array[Double])]= TopicLearner.getYagoTopicsRDDAll(topicsFileAll, sc)
-    graph.outerJoinVertices(topicsRDD)((vertexid, vertexData, topic) => new ExtendedVD(vertexData, topic))
-  }
-}
-*/
+
 /*
 class PrepareFilter[VD, ED](filterType: String , filterArgs: Array[String], sc: SparkContext){
   val filterTypeLower = filterType.toLowerCase()

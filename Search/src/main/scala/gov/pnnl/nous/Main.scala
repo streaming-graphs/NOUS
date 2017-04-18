@@ -6,11 +6,12 @@ import org.apache.spark.SparkContext._
 import org.apache.log4j.Logger
 import org.apache.log4j.Level
 import gov.pnnl.nous.pathSearch._
+import gov.pnnl.nous.pathSearch.Attr.PathSearchPregel
 
 
 object Main {
  def main(args: Array[String]): Unit = {     
-    val sparkConf = new SparkConf().setAppName("get all paths")
+    val sparkConf = new SparkConf().setAppName("get all paths").setMaster("local")
     sparkConf.set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
     val sc = new SparkContext(sparkConf)
    

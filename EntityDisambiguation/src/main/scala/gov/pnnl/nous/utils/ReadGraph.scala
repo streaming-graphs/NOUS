@@ -8,18 +8,18 @@ import org.apache.spark.rdd.RDD
 import scala.Array.canBuildFrom
 
 
-object ReadHugeGraph {
+object ReadGraph {
 
   def isValidLineFromGraphFile(ln : String) : Boolean ={
     ((ln.startsWith("3210#") ==false) &&  (ln.startsWith("@") ==false) && (ln.startsWith("#")==false) && (ln.isEmpty()==false))
   }
   
-  def getFieldsFromLine(line :String) : Array[String] = {
-    return line.toLowerCase().replaceAllLiterally("<", "").replaceAllLiterally(">", "").replace(" .", "").split("\\t").map(str => str.stripPrefix(" ").stripSuffix(" "));
+  def getFieldsFromLine(line :String, sep: String = "\t") : Array[String] = {
+    return line.toLowerCase().replaceAllLiterally("<", "").replaceAllLiterally(">", "").replace(" .", "").split(sep).map(str => str.stripPrefix(" ").stripSuffix(" "));
   }
   
- def getGraph(filename : String, sc : SparkContext): Graph[String, String] = {
-    println("starting map phase1");
+  def getGraph(filename : String, sc : SparkContext): Graph[String, String] = {
+    println("starting graph read");
     val triples: RDD[(String, String, String)] =
       sc.textFile(filename).filter(ln => isValidLineFromGraphFile(ln)).map { line =>
         val fields = getFieldsFromLine(line);
@@ -38,7 +38,7 @@ object ReadHugeGraph {
     val vertices = 
       triples.flatMap(triple => Array((triple._1.hashCode().toLong, triple._1), (triple._3.hashCode().toLong, triple._3)))
 
-    println("starting map phase3 > Building graph");
+    println("Read complete, Building graph");
     val graph = Graph(vertices, edges);
     println("edge count " + graph.edges.count)
     println("vertices count" + graph.vertices.count)
@@ -46,6 +46,7 @@ object ReadHugeGraph {
     return graph
   }
   
+ 
   
 }
 
