@@ -107,25 +107,6 @@ In general:
 
 NOUS code is organized in two maven projects triple_extractor and knowledge_graph. This section contains details of algorithms and code structure. 
 
-### 3.1 triple_extractor : 
-
-Contains NLP code, takes text documents as input and produces triples of the form
-subject, predicate, object, timestamp, documentId
-* Parsers:  Identify data format, filter documents in english language and extract (text, timestamp, other document metadata). The parser supports:
-	* 1) ordinary text files, 2) web pages supporting OpenGraph protocol, 3) JSON 
-
-* Triple extraction:  TripleParser.scala performs the following tasks to extract triples from every sentence of a given document: a) named entity extraction, b) co-reference resolution and c) triple extraction via Open Information Extraction (OpenIE) and Semantic Role Labeling (SRL).  We use Stanford CoreNLP as the underlying library for most tasks and EasySRL from University of Washington for Semantic Role Labeling. TripleFilter.scala a number of heuristics to extract final triples from the OpenIE/SRL output.
-
-* Relation Extraction:  Triple extraction produces a large number of predicates (ranging into thousands), which need to be mapped to a few predicates (tens to couple hundreds).  RelationMiner.scala provides an implementation of a Distant Supervision algorithm for extracting relations.  Given a file with a list of seed subject-predicate pairs and a file containing a list of text corpus files, it will extract a set of rules for the target relation.  The rules are written out to an output file which should be reviewed by a human expert.  
-
-Test Example:  Given a sentence `Aerialtronics is back on tour with four exhibitions in the United States and Europe in April and May, including the AUVSI Unmanned Systems 2015 trade show at the World Congress Centre in Atlanta.`", we will initially extract the following from step 4:
-Named Entities: Aerialtronics, United States, Europle, April, World Congress Centre, Atlanta.
-Raw triples: 
-Triple1: (Aerialtronics, is back on, tour with four exhibitions).
-Triple2: (World Congress Centre, in, Atlanta).
-Next, we will run these rules through our filtering heuristics and rule-based relation extractors.  The first one will be rejected as we reject triples with no named entity in the subject phrase.  The second one will be mapped to (World Congress Centre, is-located, Atlanta) using a rule that says (org, in, location) => (org,is-located-location).
-
-See Run/Example section above on instruction for running the code
 
 ### 3.2 knowledge_graph : 
 knowledge_graph component of the NOUS deals with construction of in-memory property graph and execution of analytical algorithms on newly created graph. It has following modules as part of it:
