@@ -107,3 +107,5 @@ Example:
 Edit this file to change the value of "K", and output file paths. It will generate follwoing files
 * frequentPatternsPerBatchTopK.tsv
 * frequentPatternsPerBatchTopKFormatted.tsv
+
+![Top 20 Frequent Patterns](https://github.com/streaming-graphs/NOUS/blob/master/Mining/output/frequentPatternsTopK.png)
