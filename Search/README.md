@@ -80,7 +80,7 @@ The output files will be generated in directory "/examples/yago/output/integer" 
 following format.
 ```
 srcId : (edgeId1-edgeDirection1) nodeId1, (edgeId2-edgeDirection2) nodeid2...
-``
+```
 
 See next section on how to convert labeled graph to integer format and convert paths back to labeled format.
 
