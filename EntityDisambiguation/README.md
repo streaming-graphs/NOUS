@@ -30,4 +30,4 @@ To run example:
 
 spark-submit --verbose --jars target/entity_disambiguation-1.0-SNAPSHOT.jar --master "local"  --class "gov.pnnl.nous.Main" target/entity_disambiguation-1.0-SNAPSHOT.jar examples/triplesTotal.txt examples/output2 0.65 0.3
 
-Your output should look like [disambiguation_output]()
+Your output should look like [disambiguation_output](https://github.com/streaming-graphs/NOUS/blob/master-dev/EntityDisambiguation/examples/disambiguation_output)
