@@ -13,7 +13,7 @@ NOUS implements the parallel version of the Entity Disambiguation algorithm as d
 ### 2.2 Build
  Clone github repository 
 
-` clone https://github.com/streaming-graphs/NOUS.git NOUS `
+`git clone https://github.com/streaming-graphs/NOUS.git NOUS `
 
  Perform maven build :
  
@@ -28,4 +28,6 @@ Here `[Repo_Home]` is the path to your cloned directory `NOUS`.
 
 To run example:
 
-spark-submit --verbose --jars target/entity_disambiguation-1.0-SNAPSHOT.jar --master "local"  --class "gov.pnnl.nous.Main" target/entity_disambiguation-1.0-SNAPSHOT.jar examples/sampleYago.ttl examples/sampleTriples.ttl 0.65 0.3
+spark-submit --verbose --jars target/entity_disambiguation-1.0-SNAPSHOT.jar --master "local"  --class "gov.pnnl.nous.Main" target/entity_disambiguation-1.0-SNAPSHOT.jar examples/triplesTotal.txt examples/output2 0.65 0.3
+
+Your output should look like [disambiguation_output]()
