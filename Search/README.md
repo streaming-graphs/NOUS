@@ -52,5 +52,38 @@ default value = "NONE"
 <topicCoherenceThreshold(Optional)> : Ignores path if any consecutive vertices have topic similarity < threshold 
 default value = -1
 
-Example: To run example data, finding all paths upto length 4:
-spark-submit --jars target/uber-graph-search-nous-0.1.jar --master "local" --class "gov.pnnl.nous.Main" target/uber-graph-search-nous-0.1.jar  ./examples/yago/yagoIntSample.ttl ./examples/yago/entityPairs.int.txt  ./examples/yago/output 4 3
+Example: To run example data, finding all paths upto length 3:
+spark-submit --jars target/uber-graph-search-nous-0.1.jar --master "local" --class "gov.pnnl.nous.Main" target/uber-graph-search-nous-0.1.jar  ./examples/yago/yagoIntSample.ttl ./examples/yago/entityPairs.int.txt  ./examples/yago/output 3
+
+Sample Output:
+loading integer graph
+(Number of vertices,25474)
+(Number of edges,98070)
+Found no filter, executing regular path enumeration
+(Number of paths found between pairs,1,11532,2045)
+(Number of paths found between pairs,1,16848,9)
+(Number of paths found between pairs,11505,11442,32)
+
+The output files will be generated in directory "/examples/yago/output/"  and contain paths in integer format.
+
+### 2.4 Labels To Integer format and vice versa
+Search module provides 2 custom scripts 
+* 1) to convert labeled graph to integer format 
+* 2) to convert path results back to labeld data format
+
+#### 2.4.1 Labeld Graph to Integer format:
+update path to input and output file in scripts/getIntGraph.py 
+````
+python scripts/getIntGraph.py 
+
+will generate:
+
+vertexDictonary.txt
+and files containing mapping of each graph triple to its integer format
+
+#### 2.4.2 Integer Paths to Labeled Paths
+
+python scripts/
+
+
+
