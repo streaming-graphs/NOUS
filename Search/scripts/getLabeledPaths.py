@@ -17,8 +17,8 @@ def getIdtoLabelDict(filename):
     fdict.close()
     return my_dict
     
-# reads an inFile of format
-# "srcid  num_nbrs nbr_id1,nbrid2,nbrid3.."
+# reads an inFile containing a path per line of format :
+# "srcid : edge1, edge2.. "
 # and converts it to labeled format
 def convertIdsToLabels(vertex_dict, edge_dict, inFile, outFile, srcToPathSep, edgeSep):
     print("trying to read paths : ", inFile)
