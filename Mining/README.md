@@ -69,36 +69,11 @@ Here [NOUS HOME] is the path to the checkout out directory.
 Various run-time parameters can be configured using `knowledge_graph.conf` file provided with the source code. 
 
 
-### 3.2 knowledge_graph : 
-knowledge_graph component of the NOUS deals with construction of in-memory property graph and execution of analytical algorithms on newly created graph. It has following modules as part of it:
-#### 3.2.1 algorithms.entity 
-Implements Entity Disambiguation as described by Han et al in "Collective Entity Linking in Web Text: A Graph-based Method, SIGIR 2011"
-
-#### 3.2.2 algorithms.mining 
-Implements dynamic graph mining to find closed patterns over a sliding time window
-##### Input
-Graph Mining Module supports different input graph formats. 
- 
-[dronedata.ttl](https://github.com/streaming-graphs/NOUS/blob/master/data/graphmining/dronedata.ttl) input file in the "data/graphmining" directory shows one such format. The input file has tab separated values representing <subject> <relation_ship> <object> <timestamp> <source_id>
- 
- `<FAA>     <releases>        <updated UAS guidance>    2015-09-22T13:00:49+00:00       http://www.uavexpertnews.com/faa-releases-updated-uas-guidance-tells-of-new-uas-leaders/`
-  
- [citeseer.ttl](https://github.com/streaming-graphs/NOUS/blob/master/data/graphmining/citeseer.lg) data set contains a selection of the CiteSeer data set (http://citeseer.ist.psu.edu/).
- 
- These papers are classified into one of the following six classes:
-
-      Agents
- 	AI
- 	DB
- 	IR
- 	M
- 	HCI
-
  ##### Output
- 
- Graph Mining Module generates output in multiple formats. One such format shows discovered patterns with it occurrence frequency.
- 
- `<schumer>        <require> <technology>    <faa>     <finalize regulations>      <before  fatal drone accident> => 210`
 
-#### 3.2.3 algorithms.pathRanking
-Implements question answering using LDA based heristics to find most coherent paths linking two entities
+Mining code generates various files to present the output. All the output file name and file paths can be configured in `knowledge_graph.conf` file.
+
+* `frequentPatterns.tsv`: It lists all the frequent patterns across the "window".
+* `frequentPatternsPerBatch.tsv`: It lists batch-wise summary of all the frequent patterns.
+* `dependencyGraph.txt`: It presents the pattern growth tree showing all the smaller patterns participating in a larger pattern.
+
