@@ -1,11 +1,15 @@
-# NOUS Search: Implements following algorithms for graph search 
-1) Path Finder : Finding paths between pair of entities. The Paths found are characterized by topic coherence and specificity. (user configurable)
+# NOUS Search: 
+Implements Path Finding  algorithms for knowledge graphs. Unlike traditional methods in 
+path finding, that focus on shortest paths, we focus on finding "highly coherent" and 
+"specific" paths between pairs of entities. The algorithms are user configurable in minimum topic 
+coherence and maximum specificity
 
 ## 2. Build and Execute Hello World Program(s):
 ### 2.1 Prerequisites
 * Java 1.7+
 * Maven
 * Apache Spark 2.1 OR above
+* Python 2.7+
 * HDFS File System (Optional)
 
 ### 2.2 Build
@@ -18,8 +22,9 @@
 Here `[Repo_Home]` is the path to your cloned directory `NOUS`. 
 
 ### 2.3 Run Hello World
-[SPARK_HOME]/bin/spark-submit --verbose --jars "[PATH_TO_JAR]" --master [SPARK_MASTER]  --class "gov.pnnl.nous.Main" "[PATH_TO_JAR]"  <graphPath> <entityPairsFile> <outputDir> <maxPathLength> <optional:numEntitiesPerGraphLine> <optional:maxDegree> <optional:topicsFile> <optional: topicCoherenceThreshold>
-
+```
+[SPARK_HOME]/bin/spark-submit --verbose --jars "[PATH_TO_JAR]" --master [SPARK_MASTER]  --class "gov.pnnl.nous.pathSearch.Int.PathSearch" "[PATH_TO_JAR]"  <graphPath> <entityPairsFile> <outputDir> <maxPathLength> <optional:numEntitiesPerGraphLine> <optional:maxDegree> <optional:topicsFile> <optional: topicCoherenceThreshold>
+```
 <graphPath> : Path to a triples file(or directory containing triples files). The vertex ids and edge labels are expected to be mapped to integer format. Each line on triple file 
 contains srcId, edgeLabelId and dstId separetd by tab:
 <srcId>	<edgeLabelId>	<dstId>
@@ -53,7 +58,10 @@ default value = "NONE"
 default value = -1
 
 Example: To run example data, finding all paths upto length 3:
+
+```
 spark-submit --jars target/path_search-1.0-SNAPSHOT.jar --master "local" --class "gov.pnnl.nous.pathSearch.Int.PathSearch" target/path_search-1.0-SNAPSHOT.jar  ./examples/yago/intGraph/ ./examples/yago/entityPairs.int.txt  ./examples/yago/output/integer/ 3
+```
 
 Sample Output:
 loading integer graph
@@ -64,7 +72,12 @@ Found no filter, executing regular path enumeration
 (Number of paths found between pairs,1,16848,9)
 (Number of paths found between pairs,11505,11442,32)
 
-The output files will be generated in directory "/examples/yago/output/integer"  and contain paths in integer format. See next section on how to convert labeled graph to integer format and convert paths back to labeled format.
+The output files will be generated in directory "/examples/yago/output/integer"  and contain paths in
+following format.
+
+srcId : (edgeId1-edgeDirection1) nodeId1, (edgeId2-edgeDirection2) nodeid2...
+
+See next section on how to convert labeled graph to integer format and convert paths back to labeled format.
 
 ### 2.4 Labels To Integer format and vice versa
 Search module provides 2 custom scripts 
