@@ -1,5 +1,5 @@
 # Graph Mining
-This component of the NOUS provides a distributed system for online pattern
+This module of the NOUS provides a distributed system for online pattern
 discovery in graph streams. It combines both incremental mining and parallel mining
 for feasible pattern detection over graph streams. 
 
@@ -23,89 +23,50 @@ Relevant Publications
 * Apache Spark 1.6 OR above
 * HDFS File System (Optional)
 
+### 2.1 Recommended
+* Java 1.7 
+* Maven
+* Apache Spark 2.0 OR above
+* HDFS File System (Optional)
+
 ### 2.2 Build
  Clone github repository 
 
 ` clone https://github.com/streaming-graphs/NOUS.git NOUS `
 
- Perform maven build in any of the module : `DynamicGraphMining` Ex:
+ Perform maven build in any of the module : `Mining` Ex:
  
  ```bash
- cd [Repo_Home]/DynamicGraphMining
+ cd [Repo_Home]/Mining
  mvn package
  ```
 Here `[Repo_Home]` is the path to your cloned directory `NOUS`. 
 
 ### 2.3 Run Hello World
-We provide toy examples to test setup for each module under NOUS  [examples directroy](https://github.com/streaming-graphs/NOUS/blob/master/examples/). For algorithmic and implementation details please refer to `NOUS Design`  section. 
 
-#### 2.3.1 Triple Extractor
-Triple extractor supports NLP of text and supports multiple text formats (Text only, OpenGraph Protocol, JSON). To run the triple extractor example
-[triple-extractor.input](https://github.com/streaming-graphs/NOUS/blob/master/examples/triple-extractor/triple-extractor.input) :
+##### 2.3.1 Graph Mining: 
+This module takes triple file(s) (could be produced from NLP processing using other NOUS modules) as input and finds frequent patterns over time. User can configure the minimum support count for frequent patterns, time window and the number of iterations.
 
-`cd [Repo_Home]/triple_extractor`
+Required Input file format consist of tab separated 4 entries that corresponds to <subject> <object> <predicate> and <timestamp>. For Example:
 
-```java
-java -cp target/uber-TripleParser-0.1-SNAPSHOT.jar gov.pnnl.aristotle.text.TripleParser ../examples/triple-extractor/triple-parser.input 
+```
+7       1       77849   2010-01-01T05:01:00.000
+26      2       77850   2010-01-01T05:01:00.000
+26      2       77851   2010-01-01T05:01:00.000
+5       3       77852   2010-01-01T05:01:00.000
+5       3       77853   2010-01-01T05:01:00.000
+5       3       77854   2010-01-01T05:01:00.000
 ```
 
-##### 2.3.2 Knowledge Graph - Graph Mining: 
-This module takes triple file(s) (could be produced from NLP processing 2.3.1)  as input and finds frequent patterns over time. User can configure the minimum support count for frequent patterns, time window and number of iterations.
 To run test examples (needs Spark), execute 
 ```java
-[SPARK_HOME]/bin/spark-submit --verbose --jars "[PATH_TO_NOUS_JAR]" --master [SPARK_MASTER]  --class "gov.pnnl.aristotle.algorithms.GraphMiner" target/knowledge_graph-0.1-SNAPSHOT-jar-with-dependencies.jar rdf:type 10 5 3 ../examples/graphmining/dronedata.ttl
+[SPARK_HOME]/bin/spark-submit --verbose --jars [PATH TO NOUS JAR] --master yarn --deploy-mode client --num-executors 8 --executor-cores 8  --executor-memory 45G  --driver-memory 45g --conf "spark.driver.extraJavaOptions=-XX:+UseCompressedOops -verbose:gc -XX:+PrintGCDetails -XX:+PrintGCTimeStamps"  --conf "spark.driver.maxResultSize=20g"  --conf spark.history.fs.logDirectory="/user/spark/applicationHistory" --class "gov.pnnl.aristotle.algorithms.DataToPatternGraph"  
+[PATH TO NOUS JAR] [NOUS HOME]/Mining/conf/knowledge_graph.conf 
 ```
 
-On a spark Cluster Graph Mining code can be run using :
+Here [NOUS HOME] is the path to the checkout out directory.
 
-```bash
-cd [Repo_Home]/knowledge_graph
-```
-```java
-[SPARK_HOME]/bin/spark-submit --verbose --jars "[PATH_TO_NOUS_JAR]" --master [SPARK_MASTER]  --class "gov.pnnl.aristotle.algorithms.GraphMiner" [PATH_TO_NOUS_JAR]  [BASE_TYPE] [MIN_SUPPORT] [TYPE_THRESHOLD] [MAX_ITERATIONS] [INPUT_FILE_PATH]
-```
-where:
-```
-[BASE_TYPE]      :   String value of any edge label between source and destination that is considerred as a 'type' of the source. 
-Ex. Triple such as <Barack Obama> rdf:type <Person> can be identified with BASE_TYPE as "rdf:type"
-
-[MIN_SUPPORT]    :   Positive Integer value that specify minimum frequency of any pattern to be considered as "Frequent"
-
-[TYPE_THRESHOLD] :   Positive Integer value that specify minimum frequency of any Entity to be considered as a "type" 
-
-[MAX_ITERATIONS] :   Positive Integer value that specify maximum number of iteration performed by graph miner component
-```
-
-#### 2.3.3 Knowledge Graph - Question Answering:
-The QA module takes triple file (could be produced from NLP processing) as input and answers questions(What/Who/Why) interactively. Query parameters are entered separated by "_", as shown below:
-* What/Who questions(Entity queries) are answered as query type 1 and 2 :
-	* 1_X implies ` Tell me about X (e.g: 1_Google => What is Google) `
-  	* 2_X_Y implies ` Tell me about X in context of Y (e.g. 2_Harry Potter_author => Who authored Harry Potter series)`
-* Why/How(Path Queries) as query type 3 
-  	* 3_X_Y implies ` How X relates to Y (3_Lebron James_Urban Meyer => How does Lebron James know Urban Meyer)`
-
-To run the question answering module for test example, start the session using :
-```bash
-cd [Repo_Home]/knowledge_graph
-```
-
-```java
-[SPARK_HOME]/bin/spark-submit --verbose --jars "[PATH_TO_NOUS_JAR]" --master [SPARK_MASTER]  --class "gov.pnnl.aristotle.algorithms.DemoDriver" target/knowledge_graph-0.1-SNAPSHOT-jar-with-dependencies.jar  ../examples/question-answering/search-input.ttl
-
-Wait for graph to load and prompt for queries to appear, enter
-1_Drone
-3_CIA_Drone
-3_Amazon_Drone
-```
-
-In general: 
-```java
-[SPARK_HOME]/bin/spark-submit --verbose --jars "[PATH_TO_NOUS_JAR]" --master [SPARK_MASTER]  --class "gov.pnnl.aristotle.algorithms.DemoDriver" [PATH_TO_NOUS_JAR]  [INPUT_FILE_PATH]
-```
-
-## 3 NOUS Design: 
-
-NOUS code is organized in two maven projects triple_extractor and knowledge_graph. This section contains details of algorithms and code structure. 
+Various run-time parameters can be configured using `knowledge_graph.conf` file provided with the source code. 
 
 
 ### 3.2 knowledge_graph : 
