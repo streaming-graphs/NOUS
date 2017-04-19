@@ -1,4 +1,0 @@
-INPUT_FORMAT=<format type>
-NPROC=<number of procs for this node>
-INPUT_LIST=<path to input file.list>
-OUTPUT_DIR=<path to outpur dir>
