@@ -12,7 +12,7 @@ import PathSearchIntDataTypes._
 
 
 
-object PathSearchInt {
+object PathSearch {
   
  
   def main(args: Array[String]): Unit = {
@@ -71,15 +71,14 @@ object PathSearchInt {
      val pairs: Array[(Int, Int)] = sc.textFile(entityPairsFile).map(ln => ln.split("\t"))
      .filter(_.length == 2)
      .map(arr => (arr(0).toInt, arr(1).toInt)).collect
-
+     val psObj = new PathSearchRec(adjMap, nodeFeatureMap, pathFilter, maxIter)
      for (pair <- pairs) {
        try {
     	   val outFile: String = outDir + "/" + pair._1.toString + "__" + pair._2.toString
     	   val writer = new BufferedWriter(new FileWriter(outFile))
     	   val pathSofar: List[VertexId] = List(pair._1)
     	 
-           val allPaths = FindPathsInt(pair._1, pair._2, adjMap, nodeFeatureMap,
-               0, maxIter, pathFilter, pathSofar)
+           val allPaths = psObj.FindPathsInt(pair._1, pair._2, 0, pathSofar)
            println("Number of paths found between pairs", pair._1, pair._2, allPaths.length)
            for(path <- allPaths) {
              val srcString = pair._1 + " : "
@@ -104,49 +103,7 @@ object PathSearchInt {
      }
   }
   
-  def FindPathsInt[VD](src: VertexId, dest: VertexId, 
-      adjMap: Map[VertexId , Iterable[IntEdge]], 
-      nodeFeatureMap :  Map[VertexId , VD],
-      currIter: Int, maxIter: Int, pathFilter : PathFilter[VD], 
-      nodesSoFar: List[VertexId]): List[Path] = {
-    
-    var allPaths: List[Path] = List.empty
-    if(src == dest || currIter >= maxIter)
-      return allPaths
-    
-    val srcEdges : Iterable[IntEdge] = adjMap.get(src).get
-    val directEdges: List[Path]  = srcEdges.filter(v => v._1 == dest).map(v => List(v)).toList
-    allPaths = allPaths++directEdges
-    
-    val otherNbrEdges = srcEdges.filter(v => v._1 != dest)
-    for(nbrEdge <- otherNbrEdges) {
-      val nbrid: VertexId = nbrEdge._1
-      if(nodeFeatureMap.size > 0) {
-      val nbrData: VD = nodeFeatureMap.get(nbrid).get
-      val prevNode: VertexId = nodesSoFar.last
-      val prevNodeData: VD = nodeFeatureMap.get(prevNode).get
-      if(!nodesSoFar.contains(nbrid) && 
-          pathFilter.isValidNode(nbrData) && 
-          pathFilter.isValidPair(prevNodeData, nbrData)){
-        val newpath =  nodesSoFar.::(nbrid)
-        val nbrPaths = FindPathsInt(nbrid, dest, adjMap, nodeFeatureMap,
-               0, maxIter, pathFilter, newpath)
-        val newPaths:  List[Path]  = nbrPaths.mapConserve(v => nbrEdge::v)
-        allPaths = allPaths.++(newPaths)
-      }
-      } else {
-        if(!nodesSoFar.contains(nbrid)) {
-          val newpath =  nodesSoFar.::(nbrid)
-          val nbrPaths:  List[Path]  = FindPathsInt(nbrid, dest, adjMap, nodeFeatureMap,
-               0, maxIter, pathFilter, newpath)
-          val newPaths:  List[Path]  = nbrPaths.mapConserve(v => nbrEdge::v)
-          allPaths = allPaths.++(newPaths)
-        }
-      }
-    }
-    return allPaths    
-  }
-      
+  
  
 }
 

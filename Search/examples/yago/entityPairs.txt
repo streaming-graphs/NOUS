@@ -1,0 +1,3 @@
+Detroit	Ford_Motor_Company
+Detroit	San_Francisco
+Henry_Ford	William_C._Durant
