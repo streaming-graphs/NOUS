@@ -99,3 +99,11 @@ Example:
 
 
 ![Dependency Graph](https://github.com/streaming-graphs/NOUS/blob/master/Mining/output/dependencyGraph.png)
+
+#### 2.4.2 To get Top-K frequent patterns and corresponding Dependency Graph
+
+`python getTopKFrequentPattens.py`
+
+Edit this file to change the value of "K", and output file paths. It will generate follwoing files
+* frequentPatternsPerBatchTopK.tsv
+* frequentPatternsPerBatchTopKFormatted.tsv
