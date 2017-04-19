@@ -1,6 +1,6 @@
 # NOUS Search: 
 Implements Path Finding  algorithms for knowledge graphs. Unlike traditional methods in 
-path finding, that focus on shortest paths, we focus on finding "highly coherent" and 
+path finding that focus on shortest paths, we focus on finding "highly coherent" and 
 "specific" paths between pairs of entities. The algorithms are user configurable in minimum topic 
 coherence and maximum specificity
 
@@ -15,23 +15,24 @@ coherence and maximum specificity
 ### 2.2 Build
  Clone github repository 
 ```
-` clone https://github.com/streaming-graphs/NOUS.git NOUS `
+ git clone https://github.com/streaming-graphs/NOUS.git NOUS
  cd [Repo_Home]/Search
  mvn package
  ```
 Here `[Repo_Home]` is the path to your cloned directory `NOUS`. 
 
 ### 2.3 Run Hello World
+Command Line Configuration :
 ```
 [SPARK_HOME]/bin/spark-submit --verbose --jars "[PATH_TO_JAR]" --master [SPARK_MASTER]  --class "gov.pnnl.nous.pathSearch.Int.PathSearch" "[PATH_TO_JAR]"  <graphPath> <entityPairsFile> <outputDir> <maxPathLength> <optional:numEntitiesPerGraphLine> <optional:maxDegree> <optional:topicsFile> <optional: topicCoherenceThreshold>
-```
+
 <graphPath> : Path to a triples file(or directory containing triples files). The vertex ids and edge labels are expected to be mapped to integer format. Each line on triple file 
 contains srcId, edgeLabelId and dstId separetd by tab:
-<srcId>	<edgeLabelId>	<dstId>
+` <srcId>	<edgeLabelId>	<dstId> `
 
-<entityPairsFile> : Path to a file containing entity pair (integer format) per line, separated by tab 
-<entityId1>	<entityId2>
-<entityId3>	<entityId4>
+entityPairsFile : Path to a file containing entity pair (integer format) per line, separated by tab 
+` <entityId1>	<entityId2> `
+` <entityId3>	<entityId4> `
 
 <outputDir> : Path to an outputDir. (search code will create an output file containing paths for each entity pair in this directory)
 
@@ -56,6 +57,7 @@ default value = "NONE"
 
 <topicCoherenceThreshold(Optional)> : Ignores path if any consecutive vertices have topic similarity < threshold 
 default value = -1
+```
 
 Example: To run example data, finding all paths upto length 3:
 
