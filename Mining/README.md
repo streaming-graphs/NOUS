@@ -77,7 +77,7 @@ Mining code generates various files to present the output. All the output file n
 * `frequentPatternsPerBatch.tsv`: It lists batch-wise summary of all the frequent patterns.
 * `dependencyGraph.txt`: It presents the pattern growth tree showing all the smaller patterns participating in a larger pattern.
 
-##### 2.3.1 Analysis:
+### 2.4 Analysis:
 Mining module also provides various scripts to analyze and visualize output data in the form of plots and images. The scripts do require third party tools such as 
 * R
 * Python
@@ -86,7 +86,7 @@ Mining module also provides various scripts to analyze and visualize output data
 
 Some examples are given below:
 
-To generate GraphViz supported format of the depenendency graph : 
+#### 2.4.1 To generate GraphViz supported format of the depenendency graph : 
 ` scala CreateGraphVizDotFile.scala <path to dependencyGraph.txt file>`
 It will generate dependencyGraph.dot file which can be viewed in the GraphViz.
 
