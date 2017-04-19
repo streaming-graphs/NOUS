@@ -174,31 +174,11 @@
       <artifactId>solr-solrj</artifactId>
       <version>4.10.3</version>
     </dependency>
-    <dependency>
-      <groupId>ext-libs</groupId>
-      <artifactId>javatools_20101123</artifactId>
-      <version>1.0.0</version>
-    </dependency>
-    <dependency>
-      <groupId>ext-libs</groupId>
-      <artifactId>yago2utils-20101202</artifactId>
-      <version>1.0.0</version>
-    </dependency>
-    <dependency>
-      <groupId>ext-libs</groupId>
-      <artifactId>graphBuilder</artifactId>
-      <version>1.0.0</version>
-    </dependency>
 <dependency>
 	<groupId>org.scalaz</groupId>
 	<artifactId>scalaz-core_2.10</artifactId>
 	<version>7.2.0-M1</version>
 </dependency>
-  	<dependency>
-  		<groupId>ext-libs</groupId>
-  		<artifactId>wordsim</artifactId>
-  		<version>1.0.0</version>
-  	</dependency>
   	<dependency>
 	    <groupId>org.ini4j</groupId>
 	    <artifactId>ini4j</artifactId>
