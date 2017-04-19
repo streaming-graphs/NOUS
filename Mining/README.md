@@ -82,3 +82,17 @@ Mining module also provides various scripts to analyze and visualize output data
 * R
 * Python
 * GraphViz
+
+
+Some examples are given below:
+
+To generate GraphViz supported format of the depenendency graph : 
+` scala CreateGraphVizDotFile.scala <path to dependencyGraph.txt file>`
+It will generate dependencyGraph.dot file which can be viewed in the GraphViz.
+
+To generate GraphViz image in an eps file:
+
+`dot -Tps <path to dependencyGraph.dot file> -o <output path to dependencyGraph.eps file>`
+
+Example:
+`dot -Tps ../output/dependencyGraph.dot -o ../output/dependencyGraph.eps`
