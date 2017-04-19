@@ -22,7 +22,9 @@ def cleanTriples(inputFile, outFile):
 def createVertexMap(graphDir):
     dataFiles = os.listdir(graphDir)
     mydict = {}
+    edgeDict = {}
     i=0
+    edgeId = 0
     for edgeFile in dataFiles:
         print("trying to read data file : ", edgeFile)
         fin = io.open(graphDir + "/" + edgeFile, encoding ='utf8')
@@ -34,7 +36,7 @@ def createVertexMap(graphDir):
                     arr = cleanLine.split("\t")
                     if(len(arr) == 3):
                         node1 = arr[0].strip()
-                        #eLabel = arr[1].strip()
+                        eLabel = arr[1].strip()
                         node2 = arr[2].strip()
                         if(node1 not in mydict):
                             mydict[node1] = i
@@ -42,14 +44,17 @@ def createVertexMap(graphDir):
                         if(node2 not in mydict):
                             mydict[node2] = i
                             i=i+1
+                        if(eLabel not in edgeDict):
+                            edgeDict[eLabel] = edgeId
+                            edgeId = edgeId + 1
                     else:
                         print("find line not of length 3 :"  + line)
         fin.close()
     print("size of dictioary = ", len(mydict))
-    return mydict
+    return (mydict, edgeDict)
 
 # Save map in "key \t value \n" format
-def saveVertexMap(outFile, mydict):
+def saveMap(outFile, mydict):
     fout=io.open(outFile, mode="w+", encoding = 'utf8')
     for k,v in mydict.iteritems():
         fout.write(k + "\t" + str(v) + "\n")
@@ -71,17 +76,17 @@ def loadVertexMap(filepath):
 
 # Given a mapping of labels to integers 
 # converts labeled graph triples or edgelist into integer format
-def convertGraphToInt(graphDir, outputDir):
-    vertexMap = createVertexMap(graphDir)
-    saveVertexMap(vetexDictFile , vertexMap)
+def convertGraphToInt(graphDir, outputDir, vertexDictFilePath, edgeDictFilePath):
+    (vertexMap, edgeMap) = createVertexMap(graphDir)
+    saveMap(vertexDictFile , vertexMap)
+    saveMap(edgeDictFile , edgeMap)
     edgeFiles = os.listdir(graphDir)
     for edgeFile in edgeFiles:
         convertFileToInt(graphDir + "/" + edgeFile, outputDir + "/" + edgeFile,
-                        vertexMap)
+                        vertexMap, edgeMap)
     return
 
-# Converts given labeled file to integer format using vertex map
-def convertGraphFileToInt(inFile, outFile, vertexMap):
+def convertGraphFileToInt(inFile, outFile, vertexMap, edgeMap):
     print("trying to read data file : ", inFile)
     fin = io.open(inFile, encoding ='utf8')
     fout = open(outFile, mode = "w+")
@@ -93,9 +98,9 @@ def convertGraphFileToInt(inFile, outFile, vertexMap):
                 node1 = arr[0].strip()
                 eLabel = arr[1].strip()
                 node2 = arr[2].strip()
-            elif(len(arr) == 2):
-                node1 = arr[0].strip()
-                node2 = arr[1].strip()
+            #elif(len(arr) == 2):
+            #    node1 = arr[0].strip()
+            #    node2 = arr[1].strip()
             else:
                 print("Unrecogniezed graph format")
                 exit
@@ -114,28 +119,41 @@ def convertGraphFileToInt(inFile, outFile, vertexMap):
                 id2 = -1
                 print("Found a vertex without an id in map", node2)
                 exit()
-
-		    #if(eLabel in vertexMap):
-		    #	edgeId = vertexMap.get(eLabel)
-		    #else:
-		    #	edgeId = -1
-		    #	print("Found a edge , without an id", eLabel)
-            #outLine = str(id1) + "\t" + str(edgeId) + "\t" + str(id2) + "\n"
+            
+            if(eLabel in edgeMap):
+                edgeId = edgeMap.get(eLabel)
+            else:
+                edgeId = -1
+                print("Found a edge , without an id", eLabel)
+            outLine = str(id1) + "\t" + str(edgeId) + "\t" + str(id2) + "\n"
 
             #outLine = str(id1) + "\t" + eLabel + "\t" + str(id2) + "\n"
-            outLine = str(id1) + "\t" + str(id2) + "\n"
+            #outLine = str(id1) + "\t" + str(id2) + "\n"
             fout.write(outLine)
     fin.close
     fout.close
 
-if __name__ == "__main__":
-    mainDir=./examples/
-    graphInDir = mainDir + "/graph/"
-    graphOutDir = mainDir + "/intGraph/"
-    vertexDictFile = mainDir + "/vertexDictionary.out"
-    vertexMap = createVertexMap(graphInDir)
-    saveVertexMap(vertexDictFile, vertexMap)
-    convertGraphFileToInt(graphInDir + "/yagoSample.ttl", graphOutDir +
-                      "/yagoSampl.int.ttl", vertexMap)
+topDir="/people/d3x771/projects/knowledgeGraph/PathSearchBenchmark/data/"
+#dataset="yago"
+dataset="yago2/sample"
+#dataset="wordnet"
+#dataset="freebase"
+#dataset="MAG"
+mainDir= topDir + dataset + "/"
+graphInDir = mainDir + "/graph/"
+graphOutDir = mainDir + "/intGraph/"
+vertexDictFile = mainDir + "/vertexDictionary.out"
+edgeDictFile = mainDir + "/edgeDictionary.out"
+#if(dataset == "yago" or dataset == "freebase"):
+#    cleanTestTriples(mainDir + "testPositive.txt", graphDir +
+#                 "testPositive.clean.txt")
+#convertGraphToInt(graphInDir, graphOutDir)
+#convertGraphFileToInt(mainDir + "/entityPairs.train.txt", mainDir +
+#                      "/entityPairs.train.int.txt", vertexMap)
+(vertexMap, edgeMap) = createVertexMap(graphInDir)
+saveMap(vertexDictFile, vertexMap)
+saveMap(edgeDictFile, edgeMap)
+convertGraphFileToInt(graphInDir + "/yagoSampleAllDetroit.ttl", graphOutDir +
+                      "/yagoSampleAllDetroit.int.ttl", vertexMap, edgeMap)
 
 

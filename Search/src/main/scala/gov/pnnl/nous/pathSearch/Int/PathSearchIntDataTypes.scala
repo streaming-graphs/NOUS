@@ -6,8 +6,10 @@ import gov.pnnl.nous.utils.MathUtils
 object PathSearchIntDataTypes{
   type VertexEmb = Array[Double]
   type VertexId = Long
-  type IntEdge = (VertexId, Int)
+  type IsOutgoing = Boolean
+  type IntEdge = (VertexId, Int, IsOutgoing)
   type Path = List[IntEdge]
+  val defaultEdgeLabel = -1
 }
 
 import PathSearchIntDataTypes._

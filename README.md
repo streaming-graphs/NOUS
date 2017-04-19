@@ -8,7 +8,7 @@ knowledge extracted from unstructured text, B) support for advanced trending and
 questions on a dynamic KG, and C) the ability to 
 answer queries where the answer is embedded across multiple data sources.
 
-## Introduction	
+## 1 Introduction	
 NOUS provides complete suite of capabilities needed to build a domain specific knowledge graph 
 from streaming data. This includes 
 1) Natural language processing(NLP), 
@@ -28,8 +28,8 @@ Collective Entity Linking in Web Text: A Graph-based Method, Han et al, SIGIR 20
 * Search : Given a attributed graph and entity pairs, return all paths 
 * Link Prediction: Confidence estimation of each link in the graph using Naive Bayes 
 
-### How to build and execute NOUS:
-#### Prerequisites
+## 2 How to build and execute NOUS:
+### 2.1 Prerequisites
 * Java 1.7 OR above
 * Maven 3.0 or above
 * Apache Spark 2.0 OR above
@@ -39,9 +39,9 @@ Collective Entity Linking in Web Text: A Graph-based Method, Han et al, SIGIR 20
 ### 2.2 Build
  Clone github repository 
 
-` clone https://github.com/streaming-graphs/NOUS.git NOUS `
+` git clone https://github.com/streaming-graphs/NOUS.git NOUS `
 
- Perform maven build in any of the module : `TripleExtractor` OR `Mining` Ex:
+All NOUS modules (except LinkPrediction) are written in scala and can be compiled with maven. LinkPrediction is written in Python and can be run directly. Perform maven build in any of the module : `TripleExtractor` OR `Mining` Ex:
  
  ```bash
  cd [Repo_Home]/TripleExtractor
@@ -51,5 +51,8 @@ Here `[Repo_Home]` is the path to your cloned directory `NOUS`.
 
 ### 2.3 Run Hello World
 NOUS is organized into multiple modules that support the KB workflow. Each module 
-contains README and data to run the examples.
-For algorithmic and implementation details please refer to `NOUS paper in DesWeb 2017`. 
+contains README and data to run the examples. Refer to module's README for further details.
+
+## 3 Publications
+* Algorithmic and implementation details please refer to `NOUS paper in DesWeb 2017` or https://arxiv.org/pdf/1606.02314.pdf
+
