@@ -83,7 +83,7 @@ and files containing mapping of each graph triple to its integer format
 
 #### 2.4.2 Integer Paths to Labeled Paths
 
-python scripts/
+python scripts/getLabeledPaths.py
 
 
 

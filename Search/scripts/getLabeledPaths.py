@@ -20,9 +20,7 @@ def getIdtoLabelDict(filename):
 # reads an inFile of format
 # "srcid  num_nbrs nbr_id1,nbrid2,nbrid3.."
 # and converts it to labeled format
-def convertIdsToLabels(vertexDictFile, edgeDictFile, inFile, outFile, srcToPathSep, edgeSep):
-    vertex_dict = getIdtoLabelDict(vertexDictFile)
-    edge_dict = getIdtoLabelDict(edgeDictFile)
+def convertIdsToLabels(vertex_dict, edge_dict, inFile, outFile, srcToPathSep, edgeSep):
     print("trying to read paths : ", inFile)
     fin = open(inFile, "r")
     fout=io.open(outFile, mode="w+", encoding = 'utf8')
@@ -56,11 +54,23 @@ def convertIdsToLabels(vertexDictFile, edgeDictFile, inFile, outFile, srcToPathS
                     fout.write(path + "\n")
     fin.close()
     fout.close()
+   
 
 if __name__ == "__main__":
-    mainDir = "../examples/yago/"
-    vertexDictFile = mainDir + "/vertexDictionary.out"
-    edgeDictFile = mainDir + "edgeDictionary.out"
-    inFile = mainDir + "output/1__16848"
-    outFile = mainDir + "output/1__16848.labeled.out"
-    convertIdsToLabels(vertexDictFile, edgeDictFile, inFile, outFile, ":", ",")
+    if(len(sys.argv) == 4):
+        mainDir = sys.argv[1]
+        pathInDir = sys.argv[2]
+        pathOutDir = sys.argv[3]
+    	vertexDictFile = mainDir + "/vertexDictionary.out"
+    	edgeDictFile = mainDir + "/edgeDictionary.out"
+
+        vertex_dict = getIdtoLabelDict(vertexDictFile)
+        edge_dict = getIdtoLabelDict(edgeDictFile)
+        for inFile in os.listdir(pathInDir):
+	    inPath = pathInDir + "/" + inFile
+            outPath = pathOutDir + "/" + inFile + ".labeled"
+	    convertIdsToLabels(vertex_dict, edge_dict, inPath, outPath, ":", ",")
+	    print("Finished writing", outPath)
+    else:
+	print("Check command line arguments : ")
+	print("Usage <pathToDirContainingVertexEdgeDict> <inputPathsDir> <outputPathsDir>")
