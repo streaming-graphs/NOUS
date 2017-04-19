@@ -16,8 +16,8 @@ object PathSearch {
   
  
   def main(args: Array[String]): Unit = {
-    
-    if(args.length < 5){
+    val numargs = args.length
+    if(numargs < 4){
       println("Usage <graphPath> <entityPairspath> <outDir> <maxIter>")
       System.exit(1)
     }
@@ -27,26 +27,29 @@ object PathSearch {
     Logger.getLogger("org").setLevel(Level.OFF)
     Logger.getLogger("akka").setLevel(Level.OFF)
     
-    val graphFile = args(0)
-    val entityPairsFile = args(1)
-    val outDir = args(2)
-    val maxIter = args(3).toInt
-    val lineLen  = args(4).toInt
-    val maxDegree = -1
+    val graphFile: String = args(0)
+    val entityPairsFile: String = args(1)
+    val outDir: String = args(2)
+    val maxIter: Int = args(3).toInt
+    val lineLen: Int = if(numargs >= 5) args(4).toInt else 3
+    val maxDegree: Int = if(numargs >= 6 ) args(5).toInt else -1
+    val topicsFile: String = if(numargs >= 7) args(6) else "NONE"
+    val topicCoherence : Double = if(numargs >= 8) args(7).toDouble  else -1.0
     
-    run(graphFile, entityPairsFile, outDir, maxIter, sc, "\t", lineLen, maxDegree, 0.0)
+    run(graphFile, entityPairsFile, outDir, maxIter, sc, "\t", lineLen, maxDegree, topicsFile, topicCoherence)
   }
   
   def run(graphFile: String, entityPairsFile: String, outDir: String, maxIter: Int,
       sc: SparkContext, 
       sep: String, lineLen: Int,
-      maxDegree: Int, topicCoherence: Double, 
-      topicFile: String = "NONE", vertexTopicSep: String = "\t", topicSep: String = ",", 
+      maxDegree: Int, 
+      topicFile: String, topicCoherence: Double, 
+      vertexTopicSep: String = "\t", topicSep: String = ",", 
       enableDestFilter: Boolean = false, enablePairFilter: Boolean = false): Unit = {
     
     val adjMap =  DataReader.getGraphInt(graphFile, sc, sep, lineLen).collect.toMap
     
-    if(topicFile != "NONE") {
+    if(topicFile != "NONE" && topicCoherence > 0.0) {
       println("Trying to read topics File", topicFile)
       val topics = DataReader.getTopics(topicFile, sc, vertexTopicSep, topicSep).collect.toMap
       val myFilter =new TopicFilter(topicCoherence)
@@ -82,16 +85,16 @@ object PathSearch {
            println("Number of paths found between pairs", pair._1, pair._2, allPaths.length)
            for(path <- allPaths) {
              val srcString = pair._1 + " : "
-             print(srcString)
+             //print(srcString)
              writer.write(srcString)
              for(edge <- path) {
                val direction : String = if(edge._3) "Out" else "In"
                val edgeLabel : String = if(edge._2 == defaultEdgeLabel) "" else edge._2.toString + "-"
                val line = "(" + edgeLabel + direction + ") " + edge._1 + ", "
-               print(line)
+               //print(line)
                writer.write(line)
              }
-             println()
+             // println()
              writer.write("\n")
            }
     	   writer.flush()
