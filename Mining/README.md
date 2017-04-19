@@ -96,3 +96,6 @@ To generate GraphViz image in an eps file:
 
 Example:
 `dot -Tps ../output/dependencyGraph.dot -o ../output/dependencyGraph.eps`
+
+
+![Dependency Graph](https://github.com/streaming-graphs/NOUS/blob/master/Mining/output/dependencyGraph.png)
