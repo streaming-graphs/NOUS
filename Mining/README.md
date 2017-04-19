@@ -47,7 +47,7 @@ Here `[Repo_Home]` is the path to your cloned directory `NOUS`.
 ##### 2.3.1 Graph Mining: 
 This module takes triple file(s) (could be produced from NLP processing using other NOUS modules) as input and finds frequent patterns over time. User can configure the minimum support count for frequent patterns, time window and the number of iterations.
 
-Required Input file format consist of tab separated 4 entries that corresponds to <subject> <object> <predicate> and <timestamp>. For Example:
+Required Input file format consist of tab separated 4 entries that corresponds to `<subject> <object> <predicate> and <timestamp>`. For Example:
 
 ```
 7       1       77849   2010-01-01T05:01:00.000
@@ -96,3 +96,14 @@ To generate GraphViz image in an eps file:
 
 Example:
 `dot -Tps ../output/dependencyGraph.dot -o ../output/dependencyGraph.eps`
+
+
+![Dependency Graph](https://github.com/streaming-graphs/NOUS/blob/master/Mining/output/dependencyGraph.png)
+
+#### 2.4.2 To get Top-K frequent patterns and corresponding Dependency Graph
+
+`python getTopKFrequentPattens.py`
+
+Edit this file to change the value of "K", and output file paths. It will generate follwoing files
+* frequentPatternsPerBatchTopK.tsv
+* frequentPatternsPerBatchTopKFormatted.tsv
