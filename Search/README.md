@@ -84,32 +84,53 @@ srcId : (edgeId1-edgeDirection1) nodeId1, (edgeId2-edgeDirection2) nodeid2...
 
 See next section on how to convert labeled graph to integer format and convert paths back to labeled format.
 
-### 2.4 Labels To Integer format and vice versa
+### 2.4 Scripts 
 Search module provides 2 custom python scripts 
 * To convert labeled graph to integer format (scripts/getIntGraph.py)
 * To convert path results back to labeld data format (scripts/getLabeledPaths.py)
 
 #### 2.4.1 Labeled Graph to Integer format:
 Converts a graph triples to integer format and saves the vertex and edge dictionary.
+Input graph triples of the form
+```
+srcLabel	edgelabel	dstlabel
+```
+Outputs triple of the form, and saves mapping dictionary
+```
+srcId	edgeId	dstId
+```
+To run the script
 ```
 python scripts/getIntGraph.py <graphInDirPath> <graphOutDirPath> <dictOutDirPath>
-
+```
 To run yago example :
+```
 python scripts/getIntGraph.py examples/yago/origGraph/ examples/yago/intGraph/ examples/yago/
 ```
 
-will convert regular yago triples in the directory "examples/yago/origGraph/ " to inetger and write file under "examples/yago/intGraph/". The mapping of vertex labels and edge labels will be saved under examples/yago/vertexDictionary.txt and examples/yago/edegDictionary.txt respectively.
-```
+Converts regular yago triples in the directory "examples/yago/origGraph/ " to integer and write file under "examples/yago/intGraph/". The mapping of vertex labels and edge labels will be saved under examples/yago/vertexDictionary.txt and examples/yago/edegDictionary.txt respectively.
+
 #### 2.4.2 Integer Paths to Labeled Paths
 Use this script to convert output of NOUS-PathSearch back to labeled format:
+Input paths format:
+```
+srcId : (edgeId1-edgeDirection1) nodeId1, (edgeId2-edgeDirection2) nodeid2...
+```
+Outputs Path
+```
+srcLabel : (edgeLabel-edgeDirection1) nodeLabel1, (edgeLabel2-edgeDirection2) nodeLabel2...
+```
+To run:
 ```
 python scripts/getLabeledPaths.py <pathToDirContainingVertexEdgeDict> <inputPathsDir> <outputPathsDir>
+```
 
 To transform yago results
+```
 python scripts/getLabeledPaths.py examples/yago/ examples/yago/output/integer/ examples/yago/output/labeled/
 ```
 
-will read vertexDictionary.txt and edgeDictionary.txt from "examples/yago/" to get integer to labels mapping.
-Read all files containing paths in integer format from directory "examples/yago/output/integer/" and write their corresponding labeled version in "examples/yago/output/labeled/".
+Reads "examples/yago/vertexDictionary.txt" and "examples/yago/edgeDictionary.txt" to get dictionary.
+Reads input files containing paths in integer format from directory "examples/yago/output/integer/" and write their corresponding labeled version in "examples/yago/output/labeled/".
 
 
