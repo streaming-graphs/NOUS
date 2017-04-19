@@ -66,6 +66,7 @@ spark-submit --jars target/path_search-1.0-SNAPSHOT.jar --master "local" --class
 ```
 
 Sample Output:
+```
 loading integer graph
 (Number of vertices,25474)
 (Number of edges,98070)
@@ -73,32 +74,38 @@ Found no filter, executing regular path enumeration
 (Number of paths found between pairs,1,11532,2045)
 (Number of paths found between pairs,1,16848,9)
 (Number of paths found between pairs,11505,11442,32)
+```
 
 The output files will be generated in directory "/examples/yago/output/integer"  and contain paths in
 following format.
-
+```
 srcId : (edgeId1-edgeDirection1) nodeId1, (edgeId2-edgeDirection2) nodeid2...
+``
 
 See next section on how to convert labeled graph to integer format and convert paths back to labeled format.
 
 ### 2.4 Labels To Integer format and vice versa
-Search module provides 2 custom scripts 
-* 1) to convert labeled graph to integer format 
-* 2) to convert path results back to labeld data format
+Search module provides 2 custom python scripts 
+* To convert labeled graph to integer format (scripts/getIntGraph.py)
+* To convert path results back to labeld data format (scripts/getLabeledPaths.py)
 
 #### 2.4.1 Labeled Graph to Integer format:
-python scripts/getIntGraph.py <graphInDirPath> <graphOutDirPath> <dictOutDirPath>
-example
+Converts a graph triples to integer format and saves the vertex and edge dictionary.
 ```
+python scripts/getIntGraph.py <graphInDirPath> <graphOutDirPath> <dictOutDirPath>
+
+To run yago example :
 python scripts/getIntGraph.py examples/yago/origGraph/ examples/yago/intGraph/ examples/yago/
+```
 
 will convert regular yago triples in the directory "examples/yago/origGraph/ " to inetger and write file under "examples/yago/intGraph/". The mapping of vertex labels and edge labels will be saved under examples/yago/vertexDictionary.txt and examples/yago/edegDictionary.txt respectively.
 ```
 #### 2.4.2 Integer Paths to Labeled Paths
 Use this script to convert output of NOUS-PathSearch back to labeled format:
-python scripts/getLabeledPaths.py <pathToDirContainingVertexEdgeDict> <inputPathsDir> <outputPathsDir>
-example
 ```
+python scripts/getLabeledPaths.py <pathToDirContainingVertexEdgeDict> <inputPathsDir> <outputPathsDir>
+
+To transform yago results
 python scripts/getLabeledPaths.py examples/yago/ examples/yago/output/integer/ examples/yago/output/labeled/
 ```
 
