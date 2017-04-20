@@ -8,7 +8,7 @@ knowledge extracted from unstructured text, B) support for advanced trending and
 questions on a dynamic KG, and C) the ability to 
 answer queries where the answer is embedded across multiple data sources.
 
-## 1 Introduction	
+## Introduction	
 NOUS provides complete suite of capabilities needed to build a domain specific knowledge graph 
 from streaming data. This includes 
 1) Natural language processing(NLP), 
@@ -28,15 +28,15 @@ Collective Entity Linking in Web Text: A Graph-based Method, Han et al, SIGIR 20
 * Search : Given a attributed graph and entity pairs, return all paths 
 * Link Prediction: Confidence estimation of each link in the graph using Naive Bayes 
 
-## 2 How to build and execute NOUS:
-### 2.1 Prerequisites
+## How to build and execute NOUS:
+### Prerequisites
 * Java 1.7 OR above
 * Maven 3.0 or above
 * Apache Spark 2.0 OR above
 * Scala 2.10
 * HDFS File System (Optional)
 
-### 2.2 Build
+### Build
  Clone github repository 
 
 ` git clone https://github.com/streaming-graphs/NOUS.git NOUS `
@@ -49,11 +49,11 @@ All NOUS modules (except LinkPrediction) are written in scala and can be compile
  ```
 Here `[Repo_Home]` is the path to your cloned directory `NOUS`. 
 
-### 2.3 Run Hello World
+### Run Hello World
 NOUS is organized into multiple modules that support the KB workflow. Each module 
 contains README and data to run the examples. Refer to module's README for further details.
 
-## 3 Publications
+## Publications
 * Choudhury S, K Agarwal, S Purohit, B Zhang, M Pirrung, W Smith, and M Thomas.  2017. “NOUS: Construction and Querying of Dynamic Knowledge Graphs.” 8th International Workshop on Data Engineering meets the Semantic Web. [link](https://arxiv.org/pdf/1606.02314.pdf)
 * Zhang B, S Choudhury, M Al-Hasan, X Ning, P Pesantez, S Purohit, and K Agarwal.  2016.  "Trust from the past: Bayesian Personalized Ranking based Link Prediction in Knowledge Graphs."  In 2016 SIAM Data Mining Workshop on Mining Networks and Graphs: A Big Data Analytic Challenge. [link](https://arxiv.org/abs/1601.03778)
 
