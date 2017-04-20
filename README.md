@@ -54,5 +54,6 @@ NOUS is organized into multiple modules that support the KB workflow. Each modul
 contains README and data to run the examples. Refer to module's README for further details.
 
 ## 3 Publications
-* Algorithmic and implementation details please refer to `NOUS paper in DesWeb 2017` or https://arxiv.org/pdf/1606.02314.pdf
+* Choudhury S, K Agarwal, S Purohit, B Zhang, M Pirrung, W Smith, and M Thomas.  2017. “NOUS: Construction and Querying of Dynamic Knowledge Graphs.” 8th International Workshop on Data Engineering meets the Semantic Web. [link](https://arxiv.org/pdf/1606.02314.pdf)
+* Zhang B, S Choudhury, M Al-Hasan, X Ning, P Pesantez, S Purohit, and K Agarwal.  2016.  "Trust from the past: Bayesian Personalized Ranking based Link Prediction in Knowledge Graphs."  In 2016 SIAM Data Mining Workshop on Mining Networks and Graphs: A Big Data Analytic Challenge. [link](https://arxiv.org/abs/1601.03778)
 
