@@ -31,9 +31,9 @@ Collective Entity Linking in Web Text: A Graph-based Method, Han et al, SIGIR 20
 ## How to build and execute NOUS:
 ### Prerequisites
 * Java 1.7 OR above
-* Maven 3.0 or above
-* Apache Spark 2.0 OR above
-* Scala 2.10
+* [Maven](https://maven.apache.org/install.html) 3.0 or above
+* [Apache Spark](https://spark.apache.org/docs/latest/) 2.0 OR above
+* [Scala](https://www.scala-lang.org/) 2.10
 * HDFS File System (Optional)
 
 ### Build
