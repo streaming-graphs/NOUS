@@ -1,5 +1,5 @@
 # NOUS : Construction and Querying of Dynamic Knowledge Graphs
-Automated construction of knowledge graphs remains an expensive technical challenge that 
+Automated construction of knowledge graphs (KG) remains an expensive technical challenge that 
 is beyond the reach for most enterprises and academic institutions. 
 NOUS is an end-to-end framework for developing custom knowledge graphs driven 
 analytics for arbitrary application domains. 
@@ -22,7 +22,7 @@ from streaming data. This includes
 * TripleExtractor: Contains NLP code, takes text document as input 
 and produces triples of the for
 subject, predicate, object 
-* EntityDisambiguation : Entity linking to a given KB, (implements the algorithm in 
+* EntityDisambiguation : Entity linking to a given KG, (implements the algorithm in 
 Collective Entity Linking in Web Text: A Graph-based Method, Han et al, SIGIR 2011)  
 * Mining : Given a streaming graph, find frequent patterns
 * Search : Given a attributed graph and entity pairs, return all paths 
@@ -50,7 +50,7 @@ All NOUS modules (except LinkPrediction) are written in scala and can be compile
 Here `[Repo_Home]` is the path to your cloned directory `NOUS`. 
 
 ### Run Hello World
-NOUS is organized into multiple modules that support the KB workflow. Each module 
+NOUS is organized into multiple modules that support the KG workflow. Each module 
 contains README and data to run the examples. Refer to module's README for further details.
 
 ## Publications
