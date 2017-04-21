@@ -82,11 +82,11 @@ def convertGraphToInt(graphDir, outputDir, vertexDictFilePath, edgeDictFilePath)
     saveMap(edgeDictFile , edgeMap)
     edgeFiles = os.listdir(graphDir)
     for edgeFile in edgeFiles:
-        convertFileToInt(graphDir + "/" + edgeFile, outputDir + "/" + edgeFile,
+        convertFileToInt(graphDir + "/" + edgeFile, outputDir + "/" + edgeFile + ".int",
                         vertexMap, edgeMap)
     return
 
-def convertGraphFileToInt(inFile, outFile, vertexMap, edgeMap):
+def convertFileToInt(inFile, outFile, vertexMap, edgeMap):
     print("trying to read data file : ", inFile)
     fin = io.open(inFile, encoding ='utf8')
     fout = open(outFile, mode = "w+")
@@ -133,27 +133,14 @@ def convertGraphFileToInt(inFile, outFile, vertexMap, edgeMap):
     fin.close
     fout.close
 
-topDir="/people/d3x771/projects/knowledgeGraph/PathSearchBenchmark/data/"
-#dataset="yago"
-dataset="yago2/sample"
-#dataset="wordnet"
-#dataset="freebase"
-#dataset="MAG"
-mainDir= topDir + dataset + "/"
-graphInDir = mainDir + "/graph/"
-graphOutDir = mainDir + "/intGraph/"
-vertexDictFile = mainDir + "/vertexDictionary.out"
-edgeDictFile = mainDir + "/edgeDictionary.out"
-#if(dataset == "yago" or dataset == "freebase"):
-#    cleanTestTriples(mainDir + "testPositive.txt", graphDir +
-#                 "testPositive.clean.txt")
-#convertGraphToInt(graphInDir, graphOutDir)
-#convertGraphFileToInt(mainDir + "/entityPairs.train.txt", mainDir +
-#                      "/entityPairs.train.int.txt", vertexMap)
-(vertexMap, edgeMap) = createVertexMap(graphInDir)
-saveMap(vertexDictFile, vertexMap)
-saveMap(edgeDictFile, edgeMap)
-convertGraphFileToInt(graphInDir + "/yagoSampleAllDetroit.ttl", graphOutDir +
-                      "/yagoSampleAllDetroit.int.ttl", vertexMap, edgeMap)
-
-
+if __name__ == "__main__":
+    if(len(sys.argv) == 4):
+        graphInDir = sys.argv[1]
+        graphOutDir = sys.argv[2]
+        dictOutDir = sys.argv[3]
+	vertexDictFile = dictOutDir + "/vertexDictionary.out"
+	edgeDictFile = dictOutDir + "/edgeDictionary.out"
+        convertGraphToInt(graphInDir,graphOutDir, vertexDictFile, edgeDictFile)
+    else:
+	print("Check command line arguments")
+	print("Usage <graphInDirPath> <graphOutDirPath> <dictOutDirPath>")
