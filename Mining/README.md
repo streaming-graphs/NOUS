@@ -32,7 +32,7 @@ Relevant Publications
 ### 2.2 Build
  Clone github repository 
 
-` clone https://github.com/streaming-graphs/NOUS.git NOUS `
+`git clone https://github.com/streaming-graphs/NOUS.git NOUS `
 
  Perform maven build in any of the module : `Mining` Ex:
  
