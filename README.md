@@ -8,7 +8,7 @@ knowledge extracted from unstructured text, B) support for advanced trending and
 questions on a dynamic KG, and C) the ability to 
 answer queries where the answer is embedded across multiple data sources.
 
-By the way, what does [NOUS](https://en.wikipedia.org/wiki/Nous) mean?
+What does NOUS mean? "The capacity to reason with experiential knowledge."  See [here](https://en.wikipedia.org/wiki/Nous) and [there](http://biblehub.com/greek/3563.htm).
 
 ## Introduction	
 NOUS provides complete suite of capabilities needed to build a domain specific knowledge graph 
