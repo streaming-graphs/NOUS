@@ -8,7 +8,6 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.graphx.{ VertexRDD, VertexId }
 import java.io.PrintWriter
 import java.io.File
-import akka.dispatch.Foreach
 import org.apache.spark.graphx.GraphLoader
 import org.apache.solr.client.solrj.impl.HttpSolrServer
 import org.apache.solr.common.SolrInputDocument
