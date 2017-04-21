@@ -1,4 +1,4 @@
-# NOUS : Construction and Querying of Dynamic Knowledge Graphs
+# NOUS: Construction and Querying of Dynamic Knowledge Graphs
 Automated construction of knowledge graphs (KG) remains an expensive technical challenge that 
 is beyond the reach for most enterprises and academic institutions. 
 NOUS is an end-to-end framework for developing custom knowledge graphs driven 
@@ -7,6 +7,8 @@ The uniqueness of our system lies A) in its combination of curated KGs along wit
 knowledge extracted from unstructured text, B) support for advanced trending and explanatory 
 questions on a dynamic KG, and C) the ability to 
 answer queries where the answer is embedded across multiple data sources.
+
+By the way, what does [NOUS](https://en.wikipedia.org/wiki/Nous) mean?
 
 ## Introduction	
 NOUS provides complete suite of capabilities needed to build a domain specific knowledge graph 
