@@ -56,7 +56,7 @@ NOUS is organized into multiple modules that support the KG workflow. Each modul
 contains README and data to run the examples. Refer to module's README for further details.
 
 ## Publications and Presentations
-1. Choudhury S, K Agarwal, S Purohit, B Zhang, M Pirrung, W Smith, and M Thomas.  2017. “NOUS: Construction and Querying of Dynamic Knowledge Graphs.” 8th International Workshop on Data Engineering meets the Semantic Web. [link](https://arxiv.org/abs/1606.02314)
-2. Zhang B, S Choudhury, M Al-Hasan, X Ning, P Pesantez, S Purohit, and K Agarwal.  2016.  "Trust from the past: Bayesian Personalized Ranking based Link Prediction in Knowledge Graphs."  In 2016 SIAM Data Mining Workshop on Mining Networks and Graphs: A Big Data Analytic Challenge. [link](https://arxiv.org/abs/1601.03778)
-3. Choudhury S, K Agarwal, S Purohit. 2016. "Navigating the Maps of Science" [link](https://www.slideshare.net/SutanayChoudhury/navigating-the-maps-of-science)
-4. Choudhury S, C Dowling. 2014. "Benchmarking Named Entity Disambiguation approaches for Streaming Graphs." [link](https://arxiv.org/abs/1407.3751)
+1. Choudhury S, K Agarwal, S Purohit, B Zhang, M Pirrung, W Smith, and M Thomas.  2017. “NOUS: Construction and Querying of Dynamic Knowledge Graphs.” 8th International Workshop on Data Engineering meets the Semantic Web. [paper](https://arxiv.org/abs/1606.02314)[slides](https://www.slideshare.net/SutanayChoudhury/construction-and-querying-of-dynamic-knowledge-graphs)
+2. Zhang B, S Choudhury, M Al-Hasan, X Ning, P Pesantez, S Purohit, and K Agarwal.  2016.  "Trust from the past: Bayesian Personalized Ranking based Link Prediction in Knowledge Graphs."  In 2016 SIAM Data Mining Workshop on Mining Networks and Graphs: A Big Data Analytic Challenge. [paper](https://arxiv.org/abs/1601.03778)
+3. Choudhury S, K Agarwal, S Purohit. 2016. "Navigating the Maps of Science" [slides](https://www.slideshare.net/SutanayChoudhury/navigating-the-maps-of-science)
+4. Choudhury S, C Dowling. 2014. "Benchmarking Named Entity Disambiguation approaches for Streaming Graphs." [technical report](https://arxiv.org/abs/1407.3751)
