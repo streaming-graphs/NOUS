@@ -133,7 +133,7 @@ def convertGraphFileToInt(inFile, outFile, vertexMap, edgeMap):
     fin.close
     fout.close
 
-mainDir="../examples/wsj/"
+mainDir="../examples/perfData/"
 graphInDir = mainDir + "/graph/"
 graphOutDir = mainDir + "/intGraph/"
 vertexDictFile = mainDir + "/vertexDictionary.out"
