@@ -37,6 +37,8 @@ object getGraphDistributionsWithLabels {
     val batchSizeInTime = ini.get("run", "batchSizeInTime")
     val typePred = ini.get("run", "typeEdge").toInt
     val dateTimeFormatPattern = ini.get("run","dateTimeFormatPattern")
+    val EdgeLabelDistributionDir = ini.get("output", "EdgeLabelDistributionDir")
+
     
      /*
      * Initialize various global parameters.
@@ -111,7 +113,7 @@ object getGraphDistributionsWithLabels {
         newSignatures
       }).reduceByKey((cnt1,cnt2)=>cnt1+cnt2)
       
-      oneEdgeRDD.saveAsTextFile("EdgeLabelDistribution")
+      oneEdgeRDD.saveAsTextFile(EdgeLabelDistributionDir)
       
        
       
