@@ -20,7 +20,7 @@ import scala.collection.mutable.ListBuffer
  * @author puro755
  *
  */
-object getGraphDistributions {
+object getGraphDistributionsWithLabels {
 
   def main(args: Array[String]): Unit = {
     
