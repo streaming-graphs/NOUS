@@ -104,10 +104,19 @@ object getGraphDistributionsWithLabels {
        var newSignatures : ListBuffer[(List[Int],Int)] = ListBuffer.empty   
         allSrcProps.map(sprop=>{
           allDstProps.map(dprop =>{
+            //attribute label distribution at both source and dst
             val tmpSign = List(src._2._2(0)) ++  sprop ++ List(edgeLabel, dst._2._2(0)) ++ dprop 
             newSignatures += ((tmpSign, 1))
+            
           })
         })
+        
+          allSrcProps.map(sprop=>{
+            // attribute label distribution only at source and take dst node label only 
+            val tmpSign = List(src._2._2(0)) ++  sprop ++ List(edgeLabel, dst._2._2(0)) ++ List(dst._2._1) 
+            newSignatures += ((tmpSign, 1))
+        })
+
         newSignatures
       }).reduceByKey((cnt1,cnt2)=>cnt1+cnt2)
       
