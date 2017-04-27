@@ -8,7 +8,6 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.graphx.{ VertexRDD, VertexId }
 import java.io.PrintWriter
 import java.io.File
-import akka.dispatch.Foreach
 import org.apache.spark.graphx.GraphLoader
 import org.apache.solr.client.solrj.impl.HttpSolrServer
 import org.apache.solr.common.SolrInputDocument
@@ -225,14 +224,15 @@ object ReadHugeGraph {
     return graph
   }
   
- def getTemporalGraphInt(filename : String, sc : SparkContext, batchSizeInMilliSeconds:Long = -1L): Graph[Int, KGEdgeInt] = {
+ def getTemporalGraphInt(filename : String, sc : SparkContext, batchSizeInMilliSeconds:Long = -1L,
+     dateTimeFormatPattern: String = "yyyy-MM-dd HH:mm:ss.SSS"): Graph[Int, KGEdgeInt] = {
     println("starting map phase1");
     val quadruples: RDD[(Int, Int, Int,Long)] =
       sc.textFile(filename).filter(ln => isValidLineFromGraphFile(ln)).map { line =>
         var longtime = -1L
         val fields = getFieldsFromLine(line);
         try{
-          val f = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss.SSS");
+          val f = DateTimeFormat.forPattern(dateTimeFormatPattern);
           var parsedDate = fields(3).replaceAll("t", " ").trim()
           /*
            * if parseData is of pattern yyyy/MM/ HH:mm:ss.SSS
