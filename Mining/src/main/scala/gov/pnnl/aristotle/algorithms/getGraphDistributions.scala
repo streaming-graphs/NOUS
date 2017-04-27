@@ -36,6 +36,7 @@ object getGraphDistributions {
     val startTime = ini.get("run", "startTime").toInt
     val batchSizeInTime = ini.get("run", "batchSizeInTime")
     val typePred = ini.get("run", "typeEdge").toInt
+    val dateTimeFormatPattern = ini.get("run","dateTimeFormatPattern")
     
      /*
      * Initialize various global parameters.
@@ -50,7 +51,8 @@ object getGraphDistributions {
     	
       currentBatchId = currentBatchId + 1
       var t0 = System.nanoTime()
-      val incomingDataGraph: DataGraph = ReadHugeGraph.getTemporalGraphInt(graphFile, sc, batchSizeInMilliSeconds).cache
+      val incomingDataGraph: DataGraph = ReadHugeGraph.getTemporalGraphInt(graphFile, 
+          sc, batchSizeInMilliSeconds,dateTimeFormatPattern).cache
       println("v size is", incomingDataGraph.vertices.count)
       println("e size is", incomingDataGraph.edges.count)
       
@@ -59,7 +61,10 @@ object getGraphDistributions {
       
       val bctype = sc.broadcast(typePred)
       val loclatype = bctype.value
-      val validGraph = typeGraph.subgraph(epred  => (epred.attr.getlabel != loclatype))
+      //val validEdgeGraph = typeGraph.subgraph(epred  => (epred.attr.getlabel != loclatype))
+      // the code in next line takes care of basetpe edges also
+      val validGraph = typeGraph.subgraph(vpred = (id,atr) => atr._2.size > 0)
+      
 
       val oneEdgeRDD = validGraph.triplets.map(triple=>{
         val src = triple.srcAttr
