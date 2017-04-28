@@ -37,6 +37,7 @@ object getGraphDistributionsWithLabels {
     val batchSizeInTime = ini.get("run", "batchSizeInTime")
     val typePred = ini.get("run", "typeEdge").toInt
     val dateTimeFormatPattern = ini.get("run","dateTimeFormatPattern")
+    val EdgeLabelDistributionDir = ini.get("output","EdgeLabelDistributionDir")
     
      /*
      * Initialize various global parameters.
@@ -56,18 +57,20 @@ object getGraphDistributionsWithLabels {
       
       val typeGraph = DataToPatternGraph.getTypedGraph(incomingDataGraph, typePred)
       println("v size is", typeGraph.vertices.count)
+      println("e size is", typeGraph.edges.count)
+      
       
       val bctype = sc.broadcast(typePred)
       val loclatype = bctype.value
       //val validEdgeGraph = typeGraph.subgraph(epred  => (epred.attr.getlabel != loclatype))
       // the code in next line takes care of basetpe edges also
-      typeGraph.vertices.mapValues(vval=>(vval._1,vval._2.size)).saveAsTextFile("typenode")
+      //typeGraph.vertices.mapValues(vval=>(vval._1,vval._2.size)).saveAsTextFile("typenode")
       val validGraph = typeGraph.subgraph(vpred = (id,atr) => atr._2.size > 0)
       
       println("valid v size is", validGraph.vertices.count)
       println("valid e size is", validGraph.edges.count)
       
-      System.exit(1)
+
       /*
        * need to create a property graph like structure where each node contains the edge labels.
        * ie SP will have <coworker sc> <hasCountry india>
@@ -120,16 +123,16 @@ object getGraphDistributionsWithLabels {
             newSignatures += ((tmpSign, 1))
         })
 
-        allDstProps.map(dprop=>{
+       /* allDstProps.map(dprop=>{
             // attribute label distribution only at source and take dst node label only 
             val tmpSign = List(src._2._2(0)) ++  List(src._2._1)  ++ List(edgeLabel, dst._2._2(0)) ++ dprop 
             newSignatures += ((tmpSign, 1))
-        })
+        })*/
        
         newSignatures
       }).reduceByKey((cnt1,cnt2)=>cnt1+cnt2)
       
-      oneEdgeRDD.saveAsTextFile("EdgeLabelDistribution2")
+      oneEdgeRDD.saveAsTextFile(EdgeLabelDistributionDir)
       
        
       
