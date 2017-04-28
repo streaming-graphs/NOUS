@@ -61,10 +61,11 @@ object getGraphDistributionsWithLabels {
       val loclatype = bctype.value
       //val validEdgeGraph = typeGraph.subgraph(epred  => (epred.attr.getlabel != loclatype))
       // the code in next line takes care of basetpe edges also
+      typeGraph.vertices.mapValues(vval=>(vval._1,vval._2.size)).saveAsTextFile("typenode")
       val validGraph = typeGraph.subgraph(vpred = (id,atr) => atr._2.size > 0)
       
-      println("v size is", incomingDataGraph.vertices.count)
-      println("e size is", incomingDataGraph.edges.count)
+      println("valid v size is", validGraph.vertices.count)
+      println("valid e size is", validGraph.edges.count)
       
       System.exit(1)
       /*
