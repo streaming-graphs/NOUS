@@ -53,8 +53,6 @@ object getGraphDistributionsWithLabels {
       var t0 = System.nanoTime()
       val incomingDataGraph: DataGraph = ReadHugeGraph.getTemporalGraphInt(graphFile, 
           sc, batchSizeInMilliSeconds,dateTimeFormatPattern).cache
-      println("v size is", incomingDataGraph.vertices.count)
-      println("e size is", incomingDataGraph.edges.count)
       
       val typeGraph = DataToPatternGraph.getTypedGraph(incomingDataGraph, typePred)
       println("v size is", typeGraph.vertices.count)
@@ -65,6 +63,10 @@ object getGraphDistributionsWithLabels {
       // the code in next line takes care of basetpe edges also
       val validGraph = typeGraph.subgraph(vpred = (id,atr) => atr._2.size > 0)
       
+      println("v size is", incomingDataGraph.vertices.count)
+      println("e size is", incomingDataGraph.edges.count)
+      
+      System.exit(1)
       /*
        * need to create a property graph like structure where each node contains the edge labels.
        * ie SP will have <coworker sc> <hasCountry india>
@@ -111,7 +113,7 @@ object getGraphDistributionsWithLabels {
           })
         })
         
-/*        allSrcProps.map(sprop=>{
+        allSrcProps.map(sprop=>{
             // attribute label distribution only at source and take dst node label only 
             val tmpSign = List(src._2._2(0)) ++  sprop ++ List(edgeLabel, dst._2._2(0)) ++ List(dst._2._1) 
             newSignatures += ((tmpSign, 1))
@@ -122,7 +124,7 @@ object getGraphDistributionsWithLabels {
             val tmpSign = List(src._2._2(0)) ++  List(src._2._1)  ++ List(edgeLabel, dst._2._2(0)) ++ dprop 
             newSignatures += ((tmpSign, 1))
         })
-*/        
+       
         newSignatures
       }).reduceByKey((cnt1,cnt2)=>cnt1+cnt2)
       
