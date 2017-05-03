@@ -29,6 +29,7 @@ object getGraphDistributionsWithLabels {
 
     /*
      * Read configuration parameters.
+     * Please change the parameter in the conf file 'args(0)'. sample file is conf/knowledge_graph.conf
      */
     val confFilePath = args(0)
     val ini = new Wini(new File(confFilePath));
