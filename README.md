@@ -1,4 +1,4 @@
-# NOUS: Construction and Querying of Dynamic Knowledge Graphs
+# NOUS: Construction, Querying  and Reasoning in Dynamic Knowledge Graphs
 Automated construction of knowledge graphs (KG) remains an expensive technical challenge that 
 is beyond the reach for most enterprises and academic institutions. 
 NOUS is an end-to-end framework for developing custom knowledge graphs driven 
@@ -18,6 +18,8 @@ from streaming data. This includes
 3) Confidence Estimation using Link Prediction. 
 4) Rule Learning/Trend Discovery using Frequent Graph Mining
 5) Question Answering using Graph Search 
+
+
 
 ### NOUS Project Structure :
 
@@ -60,3 +62,6 @@ contains README and data to run the examples. Refer to module's README for furth
 2. Zhang B, S Choudhury, M Al-Hasan, X Ning, P Pesantez, S Purohit, and K Agarwal.  2016.  "Trust from the past: Bayesian Personalized Ranking based Link Prediction in Knowledge Graphs."  In 2016 SIAM Data Mining Workshop on Mining Networks and Graphs: A Big Data Analytic Challenge. [paper](https://arxiv.org/abs/1601.03778)
 3. Choudhury S, K Agarwal, S Purohit. 2016. "Navigating the Maps of Science" [slides](https://www.slideshare.net/SutanayChoudhury/navigating-the-maps-of-science)
 4. Choudhury S, C Dowling. 2014. "Benchmarking Named Entity Disambiguation approaches for Streaming Graphs." [technical report](https://arxiv.org/abs/1407.3751)
+
+#### Upcoming Capabilities
+Hypothesis Generation using Deep Learning
