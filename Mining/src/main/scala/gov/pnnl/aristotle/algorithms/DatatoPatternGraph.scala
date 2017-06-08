@@ -454,7 +454,7 @@ object DataToPatternGraph {
 
           //Get redundant patterns
           val redundantPatterns = getRedundantPatterns(dependencyGraph)
-          var redundantPatternsBroacdCasted: Broadcast[RDD[(PatternId, Int)]] = sc.broadcast(redundantPatterns)
+          var redundantPatternsBroacdCasted: Broadcast[Array[(PatternId, Int)]] = sc.broadcast(redundantPatterns.collect)
 
           //Filter frequent pattern and get all non-redundant frequent patterns.
           val nonreduncantFrequentPattern = frequentPatternsInIncrementalBatch.subtract(redundantPatterns)
