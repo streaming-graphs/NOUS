@@ -46,6 +46,24 @@ object getGraphDistributionsWithLabels {
     val batchSizeInMilliSeconds = getBatchSizerInMillSeconds(batchSizeInTime)
     var currentBatchId = getBatchId(startTime, batchSizeInTime) - 1 
 
+    /*
+     * for MAG, the predicates are :
+     * 
+     * object predicates {
+			  val hasPublishDate = 1
+			  val hasPublishYear = 2
+			  val hasConfId = 3
+			  val hasAuthor = 4
+			  //val paperHasAff = 5
+			  val authorHasAff = 6
+			  //val hasKeyword = 7
+			  val hasFieldOfStudy = 8
+			  val cites = 9
+			  val hasType = 10
+			  }
+     * 
+     */
+    
     for (graphFile <- Source.fromFile(pathOfBatchGraph).
         getLines().filter(str => !str.startsWith("#"))) {
       
@@ -90,8 +108,8 @@ object getGraphDistributionsWithLabels {
             (dist._1,(dist._2._1,dist._2._2, newDist))
           }, // Vertex Program
           triplet => { // Send Message
-            val existingPatternsAtDst: List[List[Int]] = triplet.dstAttr._2._3
-              //NOTE: we store <edge type> <dst label> on the srouce node
+            //val existingPatternsAtDst: List[List[Int]] = triplet.dstAttr._2._3
+            //NOTE: we store <edge type> <dst label> on the srouce node
               val newpatterns = List(List(triplet.attr.getlabel, triplet.dstAttr._2._1))
               Iterator((triplet.srcId, newpatterns))
           },
@@ -99,7 +117,7 @@ object getGraphDistributionsWithLabels {
         )
       
       
-      
+      //newPropGraph.triplets.collect.foreach(t=>println(t.toString))
       
       val oneEdgeRDD = newPropGraph.triplets.flatMap(triple=>{
         val src = triple.srcAttr
@@ -112,16 +130,32 @@ object getGraphDistributionsWithLabels {
         allSrcProps.map(sprop=>{
           allDstProps.map(dprop =>{
             //attribute label distribution at both source and dst
-            val tmpSign = List(src._2._2(0)) ++  sprop ++ List(edgeLabel, dst._2._2(0)) ++ dprop 
-            newSignatures += ((tmpSign, 1))
+            if((sprop(0) != edgeLabel) && (dprop(0) != edgeLabel))
+            {
+              
+              /*
+               * Some Examples:
+               * 
+               * person hasName Sumit worskWith person hasCountry India
+               * 
+               * author affiliatedTo PNNL publishIn Conf hasFoS AI
+               */ 
+              
+              val tmpSign = List(src._2._2(0)) ++ sprop ++ List(edgeLabel, dst._2._2(0)) ++ dprop
+              newSignatures += ((tmpSign, 1))
+            }
             
           })
         })
         
         allSrcProps.map(sprop=>{
             // attribute label distribution only at source and take dst node label only 
-            val tmpSign = List(src._2._2(0)) ++  sprop ++ List(edgeLabel, dst._2._2(0)) ++ List(dst._2._1) 
-            newSignatures += ((tmpSign, 1))
+          if((sprop(0) != edgeLabel) )
+            {
+            val tmpSign = List(src._2._2(0)) ++ sprop ++ List(edgeLabel, dst._2._2(0)) 
+            //newSignatures += ((tmpSign, 1))
+
+          }
         })
 
        /* allDstProps.map(dprop=>{
@@ -133,7 +167,7 @@ object getGraphDistributionsWithLabels {
         newSignatures
       }).reduceByKey((cnt1,cnt2)=>cnt1+cnt2)
       
-      oneEdgeRDD.saveAsTextFile(EdgeLabelDistributionDir)
+      oneEdgeRDD.saveAsTextFile("EdgeLabelDistribution4NoClust")
       
        
       
