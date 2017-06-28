@@ -52,13 +52,15 @@ object getGraphStatistics {
     val batchSizeInMilliSeconds = getBatchSizerInMillSeconds(batchSizeInTime)
     var currentBatchId = getBatchId(startTime, batchSizeInTime) - 1
 
+    val op  = "Graph.stat"
+    val outputStatFile = new PrintWriter(new File(op))
+    
     for (
       graphFile <- Source.fromFile(pathOfBatchGraph).
         getLines().filter(str => !str.startsWith("#"))
     ) {
       
-      val op  = graphFile + ".stat"
-      val outputStatFile = new PrintWriter(new File(op))
+      
       
       var t0_batch = System.nanoTime()
 
