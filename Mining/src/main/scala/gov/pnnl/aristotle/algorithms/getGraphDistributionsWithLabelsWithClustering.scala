@@ -142,7 +142,9 @@ object getGraphDistributionsWithLabelsWithClustering {
       val hasAuthorEdge = 4
       val authorGraph = baseRDD.filter(entry => {
         entry._2._1 == hasAuthorEdge
-      }).map(paperAuthorEdge => (paperAuthorEdge._1, paperAuthorEdge._2._1, paperAuthorEdge._2._2))
+      }).map(paperAuthorEdge 
+          //(paper1, 4, paper10)
+          => (paperAuthorEdge._1, paperAuthorEdge._2._1, paperAuthorEdge._2._2))
       
       /*
        * get (paper10 sp) , (paper10 sc)
@@ -156,31 +158,52 @@ object getGraphDistributionsWithLabelsWithClustering {
        *    It is left join at authorRDD so that in case we dont have paper reputation for 
        *    a paper, we still keep the author information form the authorRDD 
        */    
-       
         val resultingAuthorRDD = authorRDD.leftOuterJoin(paperReputation)
         val authorReputation = resultingAuthorRDD.flatMap(authorEntry =>{
           val autCiteFrm1Paper = authorEntry._2._1.map(author=> (author,authorEntry._2._2.getOrElse(0)))
           autCiteFrm1Paper
         }).reduceByKey((cite1,cite2) => cite1 + cite2)
-          
-              
-          
-          
+
+      /*
+        * Get RDD of unique Conferences
+        */
+      val hasConfIdEdge = 3
+      val confCount = baseRDD.filter(entry => entry._2._1 == hasConfIdEdge).map(paperConfEdge => {
+        paperConfEdge._2._2
+      }).countByValue()
+       confCount.foreach(f=>println("conf " + f._1, " with coutn " + f._2))
+       
+       /*
+        * Get RDD of unique FoS
+        */
+      val hasFieldOfStudyEdge = 8
+      val FoSCount = baseRDD.filter(entry => entry._2._1 == hasFieldOfStudyEdge).map(paperFoSEdge => {
+        paperFoSEdge._2._2
+      }).countByValue()
+       FoSCount.foreach(f=>println("FOS  " + f._1, " with coutn " + f._2))
+     
+       println("total size of conf "  + confCount.size)
+       println("total size of fos "  + FoSCount.size)
+       
       /*
        * Serialize Citation Graph
        */
-      citationGraph.map(entry=>entry._1 + "\t" + entry._2 + "\t" + entry._3).saveAsTextFile("PaperCitationGraph")
+      //citationGraph.map(entry=>entry._1 + "\t" + entry._2 + "\t" + entry._3).saveAsTextFile("PaperCitationGraph")
   
+      /*
+       * Serialize Authorship Graph
+       */
+      //authorGraph.map(entry=>entry._1 + "\t" + entry._2 + "\t" + entry._3).saveAsTextFile("PaperAuthorshipGraph")
+      
       /*
        *  Serialize Paper Attribute List
        */  
-      binnedPaperReputation.map(entry=>entry._1 + "\t" + entry._2).saveAsTextFile("PaperAttributes") 
-      
+      //binnedPaperReputation.map(entry=>entry._1 + "\t" + entry._2).saveAsTextFile("PaperAttributes") 
       
       /*
        * Serialize Author Attribute List
        */
-      authorReputation.map(entry => entry._1 + "\t" + entry._2).saveAsTextFile("AuthorAttributes")
+      //authorReputation.map(entry => entry._1 + "\t" + entry._2).saveAsTextFile("AuthorAttributes")
       
       
       /*
