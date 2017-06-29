@@ -123,22 +123,66 @@ object getGraphDistributionsWithLabelsWithClustering {
       val binnedPaperReputation = paperReputation.map(paper => {
         if(paper._2 < one3) (paper._1,1)
         else if(paper._2 < two3) (paper._1, 2)
-        else if(paper._2 < full) (paper._1, 3)
+        else (paper._1, 3)
       })
       
-       
       
+       /*
+        * get Author Reputation.
+        * We use already computed paperReputation for this task.
+        * paperReputation:
+        * 		(paper10 25) i.e. paper10 has 25 citations
+        *   
+        * We also compute
+        * 		(paper10 sp) , (paper10 sc) 
+        * ie. paper10 is authored by sp and sc
+        * 
+        *     
+        */
+      val hasAuthorEdge = 4
+      val authorGraph = baseRDD.filter(entry => {
+        entry._2._1 == hasAuthorEdge
+      }).map(paperAuthorEdge => (paperAuthorEdge._1, paperAuthorEdge._2._1, paperAuthorEdge._2._2))
+      
+      /*
+       * get (paper10 sp) , (paper10 sc)
+       */
+      val authorRDD = authorGraph.map(autherFact 
+          => (autherFact._1, List(autherFact._3))).reduceByKey((authList1, authList2) => authList1 ++ authList2)
+     
+      /*
+       *    Left Outer Join authorRDD and paperReputation
+       *    
+       *    It is left join at authorRDD so that in case we dont have paper reputation for 
+       *    a paper, we still keep the author information form the authorRDD 
+       */    
+       
+        val resultingAuthorRDD = authorRDD.leftOuterJoin(paperReputation)
+        val authorReputation = resultingAuthorRDD.flatMap(authorEntry =>{
+          val autCiteFrm1Paper = authorEntry._2._1.map(author=> (author,authorEntry._2._2.getOrElse(0)))
+          autCiteFrm1Paper
+        }).reduceByKey((cite1,cite2) => cite1 + cite2)
+          
+              
+          
+          
       /*
        * Serialize Citation Graph
        */
-      citationGraph.saveAsTextFile("PaperCitationGraph")
+      citationGraph.map(entry=>entry._1 + "\t" + entry._2 + "\t" + entry._3).saveAsTextFile("PaperCitationGraph")
   
       /*
        *  Serialize Paper Attribute List
        */  
-      binnedPaperReputation.saveAsTextFile("PaperAttributes") 
+      binnedPaperReputation.map(entry=>entry._1 + "\t" + entry._2).saveAsTextFile("PaperAttributes") 
       
-
+      
+      /*
+       * Serialize Author Attribute List
+       */
+      authorReputation.map(entry => entry._1 + "\t" + entry._2).saveAsTextFile("AuthorAttributes")
+      
+      
       /*
       var t0_batch = System.nanoTime()
 
