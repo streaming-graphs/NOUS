@@ -21,6 +21,8 @@ import java.io.PrintWriter
 import org.apache.spark.mllib.clustering.{ KMeans, KMeansModel }
 import org.apache.spark.mllib.linalg.Vectors
 import scala.collection.JavaConversions._
+import java.util.regex.Pattern
+import org.apache.spark.SparkContext
 
 /**
  * @author puro755
@@ -79,6 +81,65 @@ object getGraphDistributionsWithLabelsWithClustering {
         getLines().filter(str => !str.startsWith("#"))
     ) {
 
+      /*
+       * Read graph files as RDD of 
+       * (<subject>			<(edgeType,object)> i.e.
+       * 
+       * (<paper1>			<(cites,paper10>) 
+       */
+      
+      val baseRDD = getQuadruplesRDD(graphFile,sc)
+      
+      /*
+       * Get Citation Graph
+       * 
+       * <paper1> <9> <paper2>
+       */
+      val citationEdge = 9
+      val citationGraph = baseRDD.filter(entry => {
+        entry._2._1 == citationEdge
+      }).map(citationEdge => (citationEdge._1, citationEdge._2._1, citationEdge._2._2))
+      
+      
+      
+      
+      /*
+       * Get Reputation of a Paper
+       */
+      val paperReputation = citationGraph.map(citationEdge 
+          => (citationEdge._3, 1)).reduceByKey((citeCnt1, citeCnt2) => citeCnt1 + citeCnt2)
+      
+          
+      /*
+       *    Get Log scale bins
+       */    
+      val minLog = scala.math.log(paperReputation.values.min) / scala.math.log(2)
+      val maxLog = scala.math.log(paperReputation.values.max) / scala.math.log(2)
+      val (zero, one3, two3, full) = (0, maxLog/3, 2 * maxLog/3, maxLog)
+      
+      /*
+       * Get paper Reputation as {1,2,3}
+       */
+      val binnedPaperReputation = paperReputation.map(paper => {
+        if(paper._2 < one3) (paper._1,1)
+        else if(paper._2 < two3) (paper._1, 2)
+        else if(paper._2 < full) (paper._1, 3)
+      })
+      
+       
+      
+      /*
+       * Serialize Citation Graph
+       */
+      citationGraph.saveAsTextFile("PaperCitationGraph")
+  
+      /*
+       *  Serialize Paper Attribute List
+       */  
+      binnedPaperReputation.saveAsTextFile("PaperAttributes") 
+      
+
+      /*
       var t0_batch = System.nanoTime()
 
       currentBatchId = currentBatchId + 1
@@ -229,7 +290,9 @@ object getGraphDistributionsWithLabelsWithClustering {
       //      val noderdd = newPropGraph.vertices
 
     }
-
+*/
+  }
+  
   }
 
   def getPowerIterationCluteringGraph(validGraph: Graph[(DataToPatternGraph.Label, List[Int]), KGEdgeInt]): Graph[(Long, (DataToPatternGraph.Label, List[Int], List[Int])), KGEdgeInt] =
@@ -317,4 +380,43 @@ object getGraphDistributionsWithLabelsWithClustering {
       val dateTime = f.parseDateTime(startTimeString);
       return dateTime.getMillis()
     }
+  
+  
+  def getQuadruplesRDD(graphFile : String, sc:SparkContext) : RDD[(Int, (Int, Int,Int)) ] =
+  {
+    val quadruples: RDD[(Int, (Int, Int,Int))] =
+        sc.textFile(graphFile).filter(ln => ReadHugeGraph.isValidLineFromGraphFile(ln)).map { line =>
+          var longtime = -1
+          val fields = ReadHugeGraph.getFieldsFromLine(line);
+          try {
+            var parsedDate = fields(3).replaceAll("t", " ").trim()
+            longtime = parsedDate.hashCode()
+            if (fields.length == 4) {
+                (fields(0).toInt, (fields(1).toInt, fields(2).toInt, longtime))
+            } else if (fields.length == 3)
+              (fields(0).toInt, (fields(1).toInt, fields(2).toInt, 0))
+            else {
+              //println("Exception reading graph file line", line)
+              (-1, (-1, -1, -1))
+            }
+          } catch {
+            case ex: org.joda.time.IllegalFieldValueException => {
+              println("IllegalFieldValueException exception")
+              (-1, (-1, -1, -1))
+            }
+            case ex: java.lang.ArrayIndexOutOfBoundsException =>
+              {
+                println("AIOB:", line)
+                (-1, (-1, -1, -1))
+              }
+            case ex: java.lang.NumberFormatException =>
+              println("AIOB2:", line)
+              (-1, (-1, -1, -1))
+          }
+
+        }
+
+    quadruples.cache
+    return quadruples
+  }
 }
