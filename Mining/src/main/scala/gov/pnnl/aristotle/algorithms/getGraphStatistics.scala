@@ -22,6 +22,7 @@ import org.apache.spark.mllib.clustering.{ KMeans, KMeansModel }
 import org.apache.spark.mllib.linalg.Vectors
 import scala.collection.JavaConversions._
 import java.io.FileWriter
+import org.apache.spark.rdd.RDD
 
 /**
  * @author puro755
@@ -92,9 +93,34 @@ object getGraphStatistics {
           
     
       
+      /*
+       * Get Total Edge of a given edgeType
+       */
+      val targetEdgeTypes = Array(9)
+      targetEdgeTypes.foreach(et=>{
+        val totalTargetEdges = typeGraph.triplets.filter(t 
+            => t.attr.getlabel == et).count
+        outputStatFile.println("Total Edges of Type " + et + " " + totalTargetEdges)
+      })
       
-      
-    
+
+      /*
+       * Get count of facts which does not has a typed predicate, grouped by 
+       * edge type
+       * i.e.
+       * 		<paper1> <hasConfId>	<c10>  
+       *   where there is not type for <c10>
+       */
+      val unTypedEdgesPerEdgeType = typeGraph.triplets.map(t=>{
+        if(t.dstAttr._2.size == 0)
+          (t.attr.getlabel, 1)
+          else
+            (t.attr.getlabel, 0)
+      }).reduceByKey((cnt1,cnt2) => cnt1 + cnt2).collect()
+      unTypedEdgesPerEdgeType.foreach(et => {
+        outputStatFile.println("Total Typeless Edges of Type " + et + " " + et._2)
+      })
+     
       outputStatFile.flush()
     }
 
