@@ -121,6 +121,25 @@ object getGraphStatistics {
         outputStatFile.println("Total Typeless Edges of Type " + et + " " + et._2)
       })
      
+      /*
+       * Similarly Get count of facts which DOES has a typed predicate, grouped by 
+       * edge type
+       * i.e.
+       * 		<paper1> <hasConfId>	<c10>  
+       *   where there IS type for <c10>
+       */
+      val typedEdgesPerEdgeType = typeGraph.triplets.map(t=>{
+        if(t.dstAttr._2.size > 0)
+          (t.attr.getlabel, 1)
+          else
+            (t.attr.getlabel, 0)
+      }).reduceByKey((cnt1,cnt2) => cnt1 + cnt2).collect()
+      typedEdgesPerEdgeType.foreach(et => {
+        outputStatFile.println("Total Typed Edges of Type " + et + " " + et._2)
+      })
+     
+      
+      
       outputStatFile.flush()
     }
 
