@@ -170,20 +170,27 @@ object getGraphDistributionsWithLabelsWithClustering {
       val hasConfIdEdge = 3
       val confCount = baseRDD.filter(entry => entry._2._1 == hasConfIdEdge).map(paperConfEdge => {
         paperConfEdge._2._2
-      }).countByValue()
-       confCount.foreach(f=>println("conf " + f._1, " with coutn " + f._2))
-       
+      }).distinct.sortBy(f => f)
+       //confCount.foreach(f=>println("conf " + f._1, " with coutn " + f._2))
+       confCount.saveAsTextFile("Conferences")
        /*
         * Get RDD of unique FoS
         */
       val hasFieldOfStudyEdge = 8
       val FoSCount = baseRDD.filter(entry => entry._2._1 == hasFieldOfStudyEdge).map(paperFoSEdge => {
         paperFoSEdge._2._2
-      }).countByValue()
-       FoSCount.foreach(f=>println("FOS  " + f._1, " with coutn " + f._2))
+      }).distinct.sortBy(f => f)//.countByValue()
+      FoSCount.saveAsTextFile("FOS")
+       //FoSCount.foreach(f=>println("FOS  " + f._1, " with coutn " + f._2))
      
-       println("total size of conf "  + confCount.size)
-       println("total size of fos "  + FoSCount.size)
+       //println("total size of conf "  + confCount.size)
+       //println("total size of fos "  + FoSCount.size)
+      /*
+       * For Year 2010
+       * 
+       * total size of conf 17782
+       * total size of fos 36214
+       */
        
       /*
        * Serialize Citation Graph
