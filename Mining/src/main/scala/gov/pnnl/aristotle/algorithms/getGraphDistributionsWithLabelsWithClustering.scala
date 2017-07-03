@@ -167,7 +167,7 @@ object getGraphDistributionsWithLabelsWithClustering {
       //confCount.saveAsTextFile("Conferences")
       val totalConferences = confCount.count()
       val confArray = confCount.collect
-      var confMap: scala.collection.mutable.Map[Int, Int] = null
+      var confMap: scala.collection.mutable.Map[Int, Int] = scala.collection.mutable.Map.empty
       for (conf <- confArray) {
         confMap.put(conf, 0)
       }
@@ -182,7 +182,7 @@ object getGraphDistributionsWithLabelsWithClustering {
       //FoSCount.saveAsTextFile("FOS")
       //FoSCount.foreach(f=>println("FOS  " + f._1, " with coutn " + f._2))
       val FoSArray = FoSCount.collect
-      var FoSMap: scala.collection.mutable.Map[Int, Int] = null
+      var FoSMap: scala.collection.mutable.Map[Int, Int] = scala.collection.mutable.Map.empty
       for (fos <- FoSArray) {
         FoSMap.put(fos, 0)
       }
