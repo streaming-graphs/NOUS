@@ -87,9 +87,9 @@ object getGraphDistributionsWithLabelsWithClustering {
        * 
        * (<paper1>			<(cites,paper10>) 
        */
-      
-      val baseRDD = getQuadruplesRDD(graphFile,sc)
-      
+
+      val baseRDD = getQuadruplesRDD(graphFile, sc)
+
       /*
        * Get Citation Graph
        * 
@@ -99,35 +99,29 @@ object getGraphDistributionsWithLabelsWithClustering {
       val citationGraph = baseRDD.filter(entry => {
         entry._2._1 == citationEdge
       }).map(citationEdge => (citationEdge._1, citationEdge._2._1, citationEdge._2._2))
-      
-      
-      
-      
+
       /*
        * Get Reputation of a Paper
        */
-      val paperReputation = citationGraph.map(citationEdge 
-          => (citationEdge._3, 1)).reduceByKey((citeCnt1, citeCnt2) => citeCnt1 + citeCnt2)
-      
-          
+      val paperReputation = citationGraph.map(citationEdge => (citationEdge._3, 1)).reduceByKey((citeCnt1, citeCnt2) => citeCnt1 + citeCnt2)
+
       /*
        *    Get Log scale bins
-       */    
+       */
       val minLog = scala.math.log(paperReputation.values.min) / scala.math.log(2)
       val maxLog = scala.math.log(paperReputation.values.max) / scala.math.log(2)
-      val (zero, one3, two3, full) = (0, maxLog/3, 2 * maxLog/3, maxLog)
-      
+      val (zero, one3, two3, full) = (0, maxLog / 3, 2 * maxLog / 3, maxLog)
+
       /*
        * Get paper Reputation as {1,2,3}
        */
       val binnedPaperReputation = paperReputation.map(paper => {
-        if(paper._2 < one3) (paper._1,1)
-        else if(paper._2 < two3) (paper._1, 2)
+        if (paper._2 < one3) (paper._1, 1)
+        else if (paper._2 < two3) (paper._1, 2)
         else (paper._1, 3)
       })
-      
-      
-       /*
+
+      /*
         * get Author Reputation.
         * We use already computed paperReputation for this task.
         * paperReputation:
@@ -142,27 +136,25 @@ object getGraphDistributionsWithLabelsWithClustering {
       val hasAuthorEdge = 4
       val authorGraph = baseRDD.filter(entry => {
         entry._2._1 == hasAuthorEdge
-      }).map(paperAuthorEdge 
-          //(paper1, 4, paper10)
-          => (paperAuthorEdge._1, paperAuthorEdge._2._1, paperAuthorEdge._2._2))
-      
+      }).map(paperAuthorEdge //(paper1, 4, paper10)
+      => (paperAuthorEdge._1, paperAuthorEdge._2._1, paperAuthorEdge._2._2))
+
       /*
        * get (paper10 sp) , (paper10 sc)
        */
-      val authorRDD = authorGraph.map(autherFact 
-          => (autherFact._1, List(autherFact._3))).reduceByKey((authList1, authList2) => authList1 ++ authList2)
-     
+      val authorRDD = authorGraph.map(autherFact => (autherFact._1, List(autherFact._3))).reduceByKey((authList1, authList2) => authList1 ++ authList2)
+
       /*
        *    Left Outer Join authorRDD and paperReputation
        *    
        *    It is left join at authorRDD so that in case we dont have paper reputation for 
        *    a paper, we still keep the author information form the authorRDD 
-       */    
-        val resultingAuthorRDD = authorRDD.leftOuterJoin(paperReputation)
-        val authorReputation = resultingAuthorRDD.flatMap(authorEntry =>{
-          val autCiteFrm1Paper = authorEntry._2._1.map(author=> (author,authorEntry._2._2.getOrElse(0)))
-          autCiteFrm1Paper
-        }).reduceByKey((cite1,cite2) => cite1 + cite2)
+       */
+      val resultingAuthorRDD = authorRDD.leftOuterJoin(paperReputation)
+      val authorReputation = resultingAuthorRDD.flatMap(authorEntry => {
+        val autCiteFrm1Paper = authorEntry._2._1.map(author => (author, authorEntry._2._2.getOrElse(0)))
+        autCiteFrm1Paper
+      }).reduceByKey((cite1, cite2) => cite1 + cite2)
 
       /*
         * Get RDD of unique Conferences
@@ -171,48 +163,90 @@ object getGraphDistributionsWithLabelsWithClustering {
       val confCount = baseRDD.filter(entry => entry._2._1 == hasConfIdEdge).map(paperConfEdge => {
         paperConfEdge._2._2
       }).distinct.sortBy(f => f)
-       //confCount.foreach(f=>println("conf " + f._1, " with coutn " + f._2))
-       confCount.saveAsTextFile("Conferences")
-       /*
+      //confCount.foreach(f=>println("conf " + f._1, " with coutn " + f._2))
+      //confCount.saveAsTextFile("Conferences")
+      val totalConferences = confCount.count()
+      val confArray = confCount.collect
+      var confMap: Map[Int, Int] = null
+      for (conf <- confArray) {
+        confMap.put(conf, 0)
+      }
+      val confMapCast = sc.broadcast(confMap)
+      /*
         * Get RDD of unique FoS
         */
       val hasFieldOfStudyEdge = 8
       val FoSCount = baseRDD.filter(entry => entry._2._1 == hasFieldOfStudyEdge).map(paperFoSEdge => {
         paperFoSEdge._2._2
-      }).distinct.sortBy(f => f)//.countByValue()
-      FoSCount.saveAsTextFile("FOS")
-       //FoSCount.foreach(f=>println("FOS  " + f._1, " with coutn " + f._2))
-     
-       //println("total size of conf "  + confCount.size)
-       //println("total size of fos "  + FoSCount.size)
+      }).distinct.sortBy(f => f) //.countByValue()
+      //FoSCount.saveAsTextFile("FOS")
+      //FoSCount.foreach(f=>println("FOS  " + f._1, " with coutn " + f._2))
+      val FoSArray = FoSCount.collect
+      var FoSMap: Map[Int, Int] = null
+      for (fos <- FoSArray) {
+        FoSMap.put(fos, 0)
+      }
+      val fosMapCast = sc.broadcast(FoSMap)
+
+      //println("total size of conf "  + confCount.size)
+      //println("total size of fos "  + FoSCount.size)
       /*
        * For Year 2010
        * 
        * total size of conf 17782
        * total size of fos 36214
        */
-       
+
+      /*
+       * construct fos feature vector for confs
+       */
+      val paperConf = baseRDD.filter(entry => entry._2._1 == hasConfIdEdge)
+      val paperFoS = baseRDD.filter(entry => entry._2._1 == hasFieldOfStudyEdge)
+      val joinPaperConfFoS = paperConf.join(paperFoS)
+      // Now we have (paper, (paper hasConf Conf) (paper hasFos fos))
+      val confFoS = joinPaperConfFoS.map(entry => (entry._2._1._3, Set(entry._2._2._3))).reduceByKey((fos1, fos2) => fos1 ++ fos2)
+
+      var localfosMap = fosMapCast.value
+      val confFeatureVectorLabel = confFoS.map(confEntry => {
+        confEntry._2.map(confFosEntry => localfosMap.put(confFosEntry, 1))
+        val localFoSArray = localfosMap.map(fosExistsNot => fosExistsNot._2.toDouble).toArray
+        (confEntry._1, Vectors.dense(localFoSArray))
+      })
+      val confFeatureVector = confFeatureVectorLabel.map(f => f._2)
+
+      val numClusters = 5
+      val numIterations = 20
+      val clusters = KMeans.train(confFeatureVector, numClusters, numIterations)
+      //clusters.clusterCenters.foreach(c=>println(" size is " , c.toString()))
+
+      val predictions = confFeatureVectorLabel.map(entry =>
+        (entry._1, clusters.predict(entry._2)))
+        
+      predictions.saveAsTextFile("ConfClustering")  
+
+      //       val join_node_pattern_metrics = node_pattern_association_per_batch.fullOuterJoin( batch_metrics.node_pattern_association.map( node_pattern => ( node_pattern._1, Set( ( batch_id, node_pattern._2 ) ) ) ) )
+      //this.node_pattern_association_per_batch = join_node_pattern_metrics.map( node => ( node._1, node._2._1.getOrElse( Set.empty ) ++ node._2._2.getOrElse( Set.empty ) ) )
+
       /*
        * Serialize Citation Graph
        */
       //citationGraph.map(entry=>entry._1 + "\t" + entry._2 + "\t" + entry._3).saveAsTextFile("PaperCitationGraph")
-  
+
       /*
        * Serialize Authorship Graph
        */
       //authorGraph.map(entry=>entry._1 + "\t" + entry._2 + "\t" + entry._3).saveAsTextFile("PaperAuthorshipGraph")
-      
+
       /*
        *  Serialize Paper Attribute List
-       */  
+       */
       //binnedPaperReputation.map(entry=>entry._1 + "\t" + entry._2).saveAsTextFile("PaperAttributes") 
-      
+
       /*
        * Serialize Author Attribute List
        */
       //authorReputation.map(entry => entry._1 + "\t" + entry._2).saveAsTextFile("AuthorAttributes")
-      
-      
+
       /*
       var t0_batch = System.nanoTime()
 
@@ -365,8 +399,8 @@ object getGraphDistributionsWithLabelsWithClustering {
 
     }
 */
-  }
-  
+    }
+
   }
 
   def getPowerIterationCluteringGraph(validGraph: Graph[(DataToPatternGraph.Label, List[Int]), KGEdgeInt]): Graph[(Long, (DataToPatternGraph.Label, List[Int], List[Int])), KGEdgeInt] =
@@ -454,11 +488,10 @@ object getGraphDistributionsWithLabelsWithClustering {
       val dateTime = f.parseDateTime(startTimeString);
       return dateTime.getMillis()
     }
-  
-  
-  def getQuadruplesRDD(graphFile : String, sc:SparkContext) : RDD[(Int, (Int, Int,Int)) ] =
-  {
-    val quadruples: RDD[(Int, (Int, Int,Int))] =
+
+  def getQuadruplesRDD(graphFile: String, sc: SparkContext): RDD[(Int, (Int, Int, Int))] =
+    {
+      val quadruples: RDD[(Int, (Int, Int, Int))] =
         sc.textFile(graphFile).filter(ln => ReadHugeGraph.isValidLineFromGraphFile(ln)).map { line =>
           var longtime = -1
           val fields = ReadHugeGraph.getFieldsFromLine(line);
@@ -466,7 +499,7 @@ object getGraphDistributionsWithLabelsWithClustering {
             var parsedDate = fields(3).replaceAll("t", " ").trim()
             longtime = parsedDate.hashCode()
             if (fields.length == 4) {
-                (fields(0).toInt, (fields(1).toInt, fields(2).toInt, longtime))
+              (fields(0).toInt, (fields(1).toInt, fields(2).toInt, longtime))
             } else if (fields.length == 3)
               (fields(0).toInt, (fields(1).toInt, fields(2).toInt, 0))
             else {
@@ -490,7 +523,7 @@ object getGraphDistributionsWithLabelsWithClustering {
 
         }
 
-    quadruples.cache
-    return quadruples
-  }
+      quadruples.cache
+      return quadruples
+    }
 }
