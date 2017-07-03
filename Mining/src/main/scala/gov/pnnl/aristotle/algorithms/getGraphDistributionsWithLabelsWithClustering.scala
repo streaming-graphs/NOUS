@@ -179,6 +179,7 @@ object getGraphDistributionsWithLabelsWithClustering {
       val FoSCount = baseRDD.filter(entry => entry._2._1 == hasFieldOfStudyEdge).map(paperFoSEdge => {
         paperFoSEdge._2._2
       }).distinct.sortBy(f => f) //.countByValue()
+      val totalFoSCount = FoSCount.count
       //FoSCount.saveAsTextFile("FOS")
       //FoSCount.foreach(f=>println("FOS  " + f._1, " with coutn " + f._2))
       val FoSArray = FoSCount.collect
@@ -188,8 +189,8 @@ object getGraphDistributionsWithLabelsWithClustering {
       }
       val fosMapCast = sc.broadcast(FoSMap)
 
-      //println("total size of conf "  + confCount.size)
-      //println("total size of fos "  + FoSCount.size)
+      println("total size of conf "  + totalConferences)
+      println("total size of fos "  + totalFoSCount)
       /*
        * For Year 2010
        * 
@@ -210,6 +211,9 @@ object getGraphDistributionsWithLabelsWithClustering {
       val confFeatureVectorLabel = confFoS.map(confEntry => {
         confEntry._2.map(confFosEntry => localfosMap.put(confFosEntry, 1))
         val localFoSArray = localfosMap.map(fosExistsNot => fosExistsNot._2.toDouble).toArray
+        var fixedArray = Array[Double](totalFoSCount)
+        for (i <- 0 until totalFoSCount.toInt)
+          fixedArray(i) = localFoSArray(i)
         (confEntry._1, Vectors.dense(localFoSArray))
       })
       val confFeatureVector = confFeatureVectorLabel.map(f => f._2)
@@ -222,7 +226,7 @@ object getGraphDistributionsWithLabelsWithClustering {
       val predictions = confFeatureVectorLabel.map(entry =>
         (entry._1, clusters.predict(entry._2)))
         
-      predictions.saveAsTextFile("ConfClustering")  
+      predictions.saveAsTextFile("ConfClustering2")  
 
       //       val join_node_pattern_metrics = node_pattern_association_per_batch.fullOuterJoin( batch_metrics.node_pattern_association.map( node_pattern => ( node_pattern._1, Set( ( batch_id, node_pattern._2 ) ) ) ) )
       //this.node_pattern_association_per_batch = join_node_pattern_metrics.map( node => ( node._1, node._2._1.getOrElse( Set.empty ) ++ node._2._2.getOrElse( Set.empty ) ) )
