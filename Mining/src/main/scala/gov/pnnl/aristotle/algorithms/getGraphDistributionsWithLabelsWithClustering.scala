@@ -102,8 +102,10 @@ object getGraphDistributionsWithLabelsWithClustering {
 
       /*
        * Get Reputation of a Paper
+       * (paper0 12345)
        */
-      val paperReputation = citationGraph.map(citationEdge => (citationEdge._3, 1)).reduceByKey((citeCnt1, citeCnt2) => citeCnt1 + citeCnt2)
+      val paperReputation = citationGraph.map(citationEdge 
+          => (citationEdge._3, 1)).reduceByKey((citeCnt1, citeCnt2) => citeCnt1 + citeCnt2)
 
       /*
        *    Get Log scale bins
@@ -136,42 +138,53 @@ object getGraphDistributionsWithLabelsWithClustering {
       val hasAuthorEdge = 4
       val authorGraph = baseRDD.filter(entry => {
         entry._2._1 == hasAuthorEdge
-      }).map(paperAuthorEdge //(paper1, 4, paper10)
-      => (paperAuthorEdge._1, paperAuthorEdge._2._1, paperAuthorEdge._2._2))
+      }).map(paperAuthorEdge //(paper1, (4, paper10, time1)
+      => (paperAuthorEdge._1, paperAuthorEdge._2._1, paperAuthorEdge._2._2)) // (paper1 4 paper10)
 
       /*
-       * get (paper10 sp) , (paper10 sc)
+       * get (paper10, List(sp, sc))
        */
-      val authorRDD = authorGraph.map(autherFact => (autherFact._1, List(autherFact._3))).reduceByKey((authList1, authList2) => authList1 ++ authList2)
+      val authorRDD = authorGraph.map(autherFact 
+          => (autherFact._1, List(autherFact._3))).reduceByKey((authList1, authList2) => authList1 ++ authList2)
 
       /*
        *    Left Outer Join authorRDD and paperReputation
        *    
        *    It is left join at authorRDD so that in case we dont have paper reputation for 
        *    a paper, we still keep the author information form the authorRDD 
+       *    
+       *    authorRDD is : (paper10, List(sp, sc))
+       *    paperReputation is : (paper0 12345)
        */
       val resultingAuthorRDD = authorRDD.leftOuterJoin(paperReputation)
+      
       val authorReputation = resultingAuthorRDD.flatMap(authorEntry => {
-        val autCiteFrm1Paper = authorEntry._2._1.map(author => (author, authorEntry._2._2.getOrElse(0)))
-        autCiteFrm1Paper
-      }).reduceByKey((cite1, cite2) => cite1 + cite2)
+        val authorCitationFrom1Paper = authorEntry._2._1.map(author => (author, authorEntry._2._2.getOrElse(0)))
+        authorCitationFrom1Paper //List((sp,12345), (sc,12345))
+      }).reduceByKey((cite1, cite2) => cite1 + cite2) //reduce (sp 12345) and (sp 6789)
 
       /*
-        * Get RDD of unique Conferences
-        */
-      val hasConfIdEdge = 3
-      val confCount = baseRDD.filter(entry => entry._2._1 == hasConfIdEdge).map(paperConfEdge => {
-        paperConfEdge._2._2
-      }).distinct.sortBy(f => f)
-      //confCount.foreach(f=>println("conf " + f._1, " with coutn " + f._2))
-      //confCount.saveAsTextFile("Conferences")
-      val totalConferences = confCount.count()
-      val confArray = confCount.collect
-      var confMap: scala.collection.mutable.Map[Int, Int] = scala.collection.mutable.Map.empty
-      for (conf <- confArray) {
-        confMap.put(conf, 0)
-      }
-      val confMapCast = sc.broadcast(confMap)
+       *    Get Log scale bins for Author Reputation
+       */
+      val minLogAuthCite = scala.math.log(authorReputation.values.min) / scala.math.log(2)
+      val maxLogAuthCite = scala.math.log(authorReputation.values.max) / scala.math.log(2)
+      val (zeroAR, one3AR, two3AR, fullAR) = (0, maxLogAuthCite / 3, 2 * maxLogAuthCite / 3, maxLog)
+
+      
+      /*
+       * Get Author Reputation as {1,2,3}
+       */
+      val binnedAuthorReputation = authorReputation.map(author => {
+        if (author._2 < one3AR) (author._1, 1)
+        else if (author._2 < two3AR) (author._1, 2)
+        else (author._1, 3)
+      })
+      
+      
+      /*
+       * Perform KMean Clustering of FoS based on feature vactor of all
+       * unique Conference Ids
+       */
       /*
         * Get RDD of unique FoS
         */
@@ -180,54 +193,73 @@ object getGraphDistributionsWithLabelsWithClustering {
         paperFoSEdge._2._2
       }).distinct.sortBy(f => f) //.countByValue()
       val totalFoSCount = FoSCount.count
-      //FoSCount.saveAsTextFile("FOS")
-      //FoSCount.foreach(f=>println("FOS  " + f._1, " with coutn " + f._2))
-      val FoSArray = FoSCount.collect
-      var FoSMap: scala.collection.mutable.Map[Int, Int] = scala.collection.mutable.Map.empty
-      for (fos <- FoSArray) {
-        FoSMap.put(fos, 0)
-      }
-      val fosMapCast = sc.broadcast(FoSMap)
 
-      println("total size of conf "  + totalConferences)
-      println("total size of fos "  + totalFoSCount)
+      /*
+       * construct Conference feature vector for Every FoS
+       */
+      val hasConfIdEdge = 3
+      val paperConf = baseRDD.filter(entry => entry._2._1 == hasConfIdEdge)
+      val paperFoS = baseRDD.filter(entry => entry._2._1 == hasFieldOfStudyEdge)
+      val joinPaperConfFoS = paperConf.join(paperFoS)
+      // Now we have (paper, ((paper hasConf Conf) (paper hasFos fos)))
+
+      // Get set of Conferences for each FoS
+      val confsEachFoS = joinPaperConfFoS.map(entry 
+          => (entry._2._2._3, Set(entry._2._1._3))).reduceByKey((confset1, confset2) => confset1 ++ confset2)
+      //Now we have (fos1, Set(conf1,conf2....))(fos2,Set(conf2,conf3...))
+
+      //Get all unique Conferences
+      val uniqueConfs = baseRDD.filter(entry => entry._2._1 == hasConfIdEdge).map(paperConfEdge => {
+        paperConfEdge._2._2
+      }).distinct
+      val localUniqueConfs = uniqueConfs.collect
+      val totalConfCount = localUniqueConfs.length
+
+      var confMap: scala.collection.mutable.Map[Int, Int] = scala.collection.mutable.Map.empty
+      for (conf <- localUniqueConfs)  confMap.put(conf, 0)
+      
+      val confMapCast = sc.broadcast(confMap)
+      //Now we have broadcasted a map of all the conferences to each executor
+      
+      
+      
       /*
        * For Year 2010
        * 
        * total size of conf 17782
        * total size of fos 36214
+       * 
+       * paper conf size 3880494
+       * paper fos size 28878760
        */
 
-      /*
-       * construct fos feature vector for confs
-       */
-      val paperConf = baseRDD.filter(entry => entry._2._1 == hasConfIdEdge)
-      val paperFoS = baseRDD.filter(entry => entry._2._1 == hasFieldOfStudyEdge)
-      val joinPaperConfFoS = paperConf.join(paperFoS)
-      // Now we have (paper, (paper hasConf Conf) (paper hasFos fos))
-      val confFoS = joinPaperConfFoS.map(entry => (entry._2._1._3, Set(entry._2._2._3))).reduceByKey((fos1, fos2) => fos1 ++ fos2)
-
-      var localfosMap = fosMapCast.value
-      val confFeatureVectorLabel = confFoS.map(confEntry => {
-        confEntry._2.map(confFosEntry => localfosMap.put(confFosEntry, 1))
-        val localFoSArray = localfosMap.map(fosExistsNot => fosExistsNot._2.toDouble).toArray
-        var fixedArray = Array[Double](totalFoSCount)
-        for (i <- 0 until totalFoSCount.toInt)
-          fixedArray(i) = localFoSArray(i)
-        (confEntry._1, Vectors.dense(localFoSArray))
+      var localConfMap = confMapCast.value
+      
+      // (fos, set(conf1,conf2,conf3....))
+      val fosFeatureVectorLabel = confsEachFoS.map(fosEntry => {
+        fosEntry._2.map(confFosEntry => localConfMap.put(confFosEntry, 1)) //instruction ends here
+        val localConfArray = localConfMap.map(fosExistsNot => fosExistsNot._2.toDouble).toArray
+        var fosFeatureArrayWithConfs = Array[Double](totalConfCount.toInt)
+        for (i <- 0 until totalConfCount.toInt)
+          fosFeatureArrayWithConfs(i) = localConfArray(i)
+        (fosEntry._1, Vectors.dense(fosFeatureArrayWithConfs))
       })
-      val confFeatureVector = confFeatureVectorLabel.map(f => f._2)
+      val fosFeatureVector = fosFeatureVectorLabel.map(f => f._2)
 
       val numClusters = 5
       val numIterations = 20
-      val clusters = KMeans.train(confFeatureVector, numClusters, numIterations)
+      val clusters = KMeans.train(fosFeatureVector, numClusters, numIterations)
       //clusters.clusterCenters.foreach(c=>println(" size is " , c.toString()))
 
-      val predictions = confFeatureVectorLabel.map(entry =>
+      val predictions = fosFeatureVectorLabel.map(entry =>
         (entry._1, clusters.predict(entry._2)))
-        
-      predictions.saveAsTextFile("ConfClustering2")  
+       
+      /*
+       * (fosid, fosClusterId)
+       */
+        predictions.saveAsTextFile("FoSClustering")  
 
+        
       //       val join_node_pattern_metrics = node_pattern_association_per_batch.fullOuterJoin( batch_metrics.node_pattern_association.map( node_pattern => ( node_pattern._1, Set( ( batch_id, node_pattern._2 ) ) ) ) )
       //this.node_pattern_association_per_batch = join_node_pattern_metrics.map( node => ( node._1, node._2._1.getOrElse( Set.empty ) ++ node._2._2.getOrElse( Set.empty ) ) )
 
