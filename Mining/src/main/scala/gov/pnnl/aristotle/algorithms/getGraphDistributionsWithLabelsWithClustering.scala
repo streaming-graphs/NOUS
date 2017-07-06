@@ -123,6 +123,7 @@ object getGraphDistributionsWithLabelsWithClustering {
         else (paper._1, 3)
       })
 
+      
       /*
         * get Author Reputation.
         * We use already computed paperReputation for this task.
@@ -189,10 +190,10 @@ object getGraphDistributionsWithLabelsWithClustering {
         * Get RDD of unique FoS
         */
       val hasFieldOfStudyEdge = 8
-      val FoSCount = baseRDD.filter(entry => entry._2._1 == hasFieldOfStudyEdge).map(paperFoSEdge => {
+      val FoSUnique = baseRDD.filter(entry => entry._2._1 == hasFieldOfStudyEdge).map(paperFoSEdge => {
         paperFoSEdge._2._2
       }).distinct.sortBy(f => f) //.countByValue()
-      val totalFoSCount = FoSCount.count
+      val totalFoSCount = FoSUnique.count
 
       /*
        * construct Conference feature vector for Every FoS
@@ -201,11 +202,11 @@ object getGraphDistributionsWithLabelsWithClustering {
       val paperConf = baseRDD.filter(entry => entry._2._1 == hasConfIdEdge)
       val paperFoS = baseRDD.filter(entry => entry._2._1 == hasFieldOfStudyEdge)
       val joinPaperConfFoS = paperConf.join(paperFoS)
-      // Now we have (paper, ((paper hasConf Conf) (paper hasFos fos)))
+      // Now we have (paper, ((hasConf Confid timeid) (hasFos fosid timeid)))
 
       // Get set of Conferences for each FoS
       val confsEachFoS = joinPaperConfFoS.map(entry 
-          => (entry._2._2._3, Set(entry._2._1._3))).reduceByKey((confset1, confset2) => confset1 ++ confset2)
+          => (entry._2._2._2, Set(entry._2._1._2))).reduceByKey((confset1, confset2) => confset1 ++ confset2)
       //Now we have (fos1, Set(conf1,conf2....))(fos2,Set(conf2,conf3...))
 
       //Get all unique Conferences
@@ -231,15 +232,19 @@ object getGraphDistributionsWithLabelsWithClustering {
        * 
        * paper conf size 3880494
        * paper fos size 28878760
+       * size of pap conf joinPaperConfFoS  28878760
        */
 
       var localConfMap = confMapCast.value
-      
+      println("local map size is " + localConfMap.size)
       // (fos, set(conf1,conf2,conf3....))
       val fosFeatureVectorLabel = confsEachFoS.map(fosEntry => {
         fosEntry._2.map(confFosEntry => localConfMap.put(confFosEntry, 1)) //instruction ends here
         val localConfArray = localConfMap.map(fosExistsNot => fosExistsNot._2.toDouble).toArray
-        var fosFeatureArrayWithConfs = Array[Double](totalConfCount.toInt)
+        var fosFeatureArrayWithConfs = new Array[Double](totalConfCount.toInt)
+        // Array needs to be created with new to get the desired behavior 
+        /// https://stackoverflow.com/questions/2700175/scala-array-constructor
+        
         for (i <- 0 until totalConfCount.toInt)
           fosFeatureArrayWithConfs(i) = localConfArray(i)
         (fosEntry._1, Vectors.dense(fosFeatureArrayWithConfs))
@@ -257,9 +262,37 @@ object getGraphDistributionsWithLabelsWithClustering {
       /*
        * (fosid, fosClusterId)
        */
-        predictions.saveAsTextFile("FoSClustering")  
+        predictions.saveAsTextFile("FoSClustering2")  
 
-        
+       
+      /*
+       * Now Augment Paper Attributes
+       * 
+       * 1. create (fos0 paper1) from (paper1 fos0)
+       * 2. join (fos0 paper1) with predictions which is (fosid, fosClusterId) to create (fosid, paperid, clusterid)
+       * 3. create (paperid, clusterid)
+       * 4. joint it with paperreputationRDD
+       * 
+       */ 
+       val fosPap = paperFoS.map(paperEntry => (paperEntry._2._2, paperEntry._1))
+       val fosWithClusterId = fosPap.leftOuterJoin(predictions) //(fos1, (paper2, OPTION[clustid3]))
+       val paperWithFoSCluster = fosWithClusterId.map(fosEntry => (fosEntry._2._1, fosEntry._2._2.getOrElse(-1)))
+       val paperAttibutes = binnedPaperReputation.join(paperWithFoSCluster)
+
+       
+       /*
+       * Now Augment Author Attributes
+       * 
+       * 1. create (fos0 paper1) from (paper1 fos0)
+       * 2. join (fos0 paper1) with predictions which is (fosid, fosClusterId) to create (fosid, paperid, clusterid)
+       * 3. create (paperid, clusterid)
+       * 4. joint it with paperreputationRDD
+       * 
+       */ 
+       val paperAuthor = baseRDD.filter(entry=>entry._2._1 == hasAuthorEdge)
+       
+
+       
       //       val join_node_pattern_metrics = node_pattern_association_per_batch.fullOuterJoin( batch_metrics.node_pattern_association.map( node_pattern => ( node_pattern._1, Set( ( batch_id, node_pattern._2 ) ) ) ) )
       //this.node_pattern_association_per_batch = join_node_pattern_metrics.map( node => ( node._1, node._2._1.getOrElse( Set.empty ) ++ node._2._2.getOrElse( Set.empty ) ) )
 
