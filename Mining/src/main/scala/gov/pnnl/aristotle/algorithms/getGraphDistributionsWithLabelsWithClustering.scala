@@ -50,8 +50,8 @@ object getGraphDistributionsWithLabelsWithClustering {
     val allAttributeEdgesLine = ini.get("run", "attributeEdge");
     val allAttributeEdges: Array[Int] = allAttributeEdgesLine.split(",").map(_.toInt)
     //int[] allAttributeEdges2 = ini.get("run").getAll("fortuneNumber", int[].class);
-    val numClusters = ini.get("Learning", "numClusters")
-    val numIterations = ini.get("Learning", "numIterations")
+    val numClusters = ini.get("Learning", "numClusters").toInt
+    val numIterations = ini.get("Learning", "numIterations").toInt
 
     
     /*
