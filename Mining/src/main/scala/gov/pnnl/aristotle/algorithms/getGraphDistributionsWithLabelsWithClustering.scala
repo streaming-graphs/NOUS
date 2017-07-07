@@ -50,11 +50,19 @@ object getGraphDistributionsWithLabelsWithClustering {
     val allAttributeEdgesLine = ini.get("run", "attributeEdge");
     val allAttributeEdges: Array[Int] = allAttributeEdgesLine.split(",").map(_.toInt)
     //int[] allAttributeEdges2 = ini.get("run").getAll("fortuneNumber", int[].class);
+    val numClusters = ini.get("Learning", "numClusters")
+    val numIterations = ini.get("Learning", "numIterations")
+
+    
+    /*
+     * Output parameters
+     */
     val citationGraphDir = ini.get("output", "citationGraphDir")
     val authorGraphDir = ini.get("output", "authorGraphDir")
     val paperAttributeDir = ini.get("output", "paperAttributeDir")
     val authorAttributeDir = ini.get("output", "authorAttributeDir")
     val fosClusterDir = ini.get("output", "fosClusterDir")
+
 
     // TODO: how to read it as int array
     /*
@@ -256,8 +264,6 @@ object getGraphDistributionsWithLabelsWithClustering {
       })
       val fosFeatureVector = fosFeatureVectorLabel.map(f => f._2)
 
-      val numClusters = 5
-      val numIterations = 20
       val clusters = KMeans.train(fosFeatureVector, numClusters, numIterations)
       //clusters.clusterCenters.foreach(c=>println(" size is " , c.toString()))
 
