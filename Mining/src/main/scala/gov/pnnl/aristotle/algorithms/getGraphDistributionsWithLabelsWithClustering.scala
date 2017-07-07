@@ -50,6 +50,11 @@ object getGraphDistributionsWithLabelsWithClustering {
     val allAttributeEdgesLine = ini.get("run", "attributeEdge");
     val allAttributeEdges: Array[Int] = allAttributeEdgesLine.split(",").map(_.toInt)
     //int[] allAttributeEdges2 = ini.get("run").getAll("fortuneNumber", int[].class);
+    val citationGraphDir = ini.get("output", "citationGraphDir")
+    val authorGraphDir = ini.get("output", "authorGraphDir")
+    val paperAttributeDir = ini.get("output", "paperAttributeDir")
+    val authorAttributeDir = ini.get("output", "authorAttributeDir")
+    val fosClusterDir = ini.get("output", "fosClusterDir")
 
     // TODO: how to read it as int array
     /*
@@ -262,7 +267,7 @@ object getGraphDistributionsWithLabelsWithClustering {
       /*
        * (fosid, fosClusterId)
        */
-        predictions.saveAsTextFile("FoSClustering2")  
+        predictions.saveAsTextFile(fosClusterDir)  
 
        
       /*
@@ -277,6 +282,7 @@ object getGraphDistributionsWithLabelsWithClustering {
        val fosPap = paperFoS.map(paperEntry => (paperEntry._2._2, paperEntry._1))
        val fosWithClusterId = fosPap.leftOuterJoin(predictions) //(fos1, (paper2, OPTION[clustid3]))
        val paperWithFoSCluster = fosWithClusterId.map(fosEntry => (fosEntry._2._1, fosEntry._2._2.getOrElse(-1)))
+       // TODO: check if there are multiple FOS for a paper that lead to different clusterID 
        val paperAttibutes = binnedPaperReputation.join(paperWithFoSCluster)
 
        
@@ -291,30 +297,33 @@ object getGraphDistributionsWithLabelsWithClustering {
        */ 
        val paperAuthor = baseRDD.filter(entry=>entry._2._1 == hasAuthorEdge)
        
+       // We already have paperWithFoSCluster from above
+       val paperWithFoSAuther = paperAuthor.join(paperWithFoSCluster)
+       // We have (paper0 ((hasAuth sp time0),clustId1))
+       val autherFoSClusterID = paperWithFoSAuther.map(entry => (entry._2._1._2, entry._2._2))
+       val autherAttributes = authorReputation.join(autherFoSClusterID)
 
        
-      //       val join_node_pattern_metrics = node_pattern_association_per_batch.fullOuterJoin( batch_metrics.node_pattern_association.map( node_pattern => ( node_pattern._1, Set( ( batch_id, node_pattern._2 ) ) ) ) )
-      //this.node_pattern_association_per_batch = join_node_pattern_metrics.map( node => ( node._1, node._2._1.getOrElse( Set.empty ) ++ node._2._2.getOrElse( Set.empty ) ) )
 
       /*
        * Serialize Citation Graph
        */
-      //citationGraph.map(entry=>entry._1 + "\t" + entry._2 + "\t" + entry._3).saveAsTextFile("PaperCitationGraph")
+      citationGraph.map(entry=>entry._1 + "\t" + entry._2 + "\t" + entry._3).saveAsTextFile(citationGraphDir)
 
       /*
        * Serialize Authorship Graph
        */
-      //authorGraph.map(entry=>entry._1 + "\t" + entry._2 + "\t" + entry._3).saveAsTextFile("PaperAuthorshipGraph")
+      authorGraph.map(entry=>entry._1 + "\t" + entry._2 + "\t" + entry._3).saveAsTextFile(authorGraphDir)
 
       /*
        *  Serialize Paper Attribute List
        */
-      //binnedPaperReputation.map(entry=>entry._1 + "\t" + entry._2).saveAsTextFile("PaperAttributes") 
+      paperAttibutes.map(entry=>entry._1 + "\t" + entry._2).saveAsTextFile(paperAttributeDir) 
 
       /*
        * Serialize Author Attribute List
        */
-      //authorReputation.map(entry => entry._1 + "\t" + entry._2).saveAsTextFile("AuthorAttributes")
+      autherAttributes.map(entry => entry._1 + "\t" + entry._2).saveAsTextFile(authorAttributeDir)
 
       /*
       var t0_batch = System.nanoTime()
