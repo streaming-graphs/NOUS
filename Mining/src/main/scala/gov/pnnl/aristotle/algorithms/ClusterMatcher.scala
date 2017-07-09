@@ -43,10 +43,13 @@ object ClusterMatcher {
     val ini = new Wini(new File(confFilePath));
     val pathOfPartGraph = ini.get("run", "batchInfoFilePath");
     val pathOfDictionaryFile = ini.get("run", "pathOfDictionaryFile")
+    val pathOfDescriptionFile = ini.get("run", "pathOfDescriptionFile")
     val startTime = ini.get("run", "startTime").toInt
     val batchSizeInTime = ini.get("run", "batchSizeInTime")
     val typePred = ini.get("run", "typeEdge").toInt
     val dateTimeFormatPattern = ini.get("run", "dateTimeFormatPattern")
+    
+    val fosDescClusterDir = ini.get("output", "fosDescClusterDir")
 
     type EntityCluster = (Int, Int)
     val allEntityClusterRDD: RDD[EntityCluster] =
@@ -57,17 +60,36 @@ object ClusterMatcher {
 
         })
 
-    type EntityDictionary = (Int, String)    
+        // ABCDEF  12345
+    type EntityDictionary = (String, Int)    
     val allEntityDictionary  : RDD[EntityDictionary] = 
-    sc.textFile(pathOfPartGraph).filter(ln => ReadHugeGraph.isValidLineFromGraphFile(ln)).map(line =>
+    sc.textFile(pathOfDictionaryFile).filter(ln => ReadHugeGraph.isValidLineFromGraphFile(ln)).map(line =>
         {
           val cleanedLineArray = line.trim().split("\t")
-          (cleanedLineArray(0).hashCode(),cleanedLineArray(1))
+          (cleanedLineArray(1), cleanedLineArray(0).toInt)
         })
+    
+        // ABCDEF DataMining
+        type EntityDescription = (String, String)    
+    val allEntityDescriptionRDD  : RDD[EntityDescription] = 
+    sc.textFile(pathOfDescriptionFile).filter(ln => ReadHugeGraph.isValidLineFromGraphFile(ln)).map(line =>
+        {
+          val cleanedLineArray = line.trim().split("\t")
+          (cleanedLineArray(0),cleanedLineArray(1))
+        })
+    
+        // (ABCDEF (12345 DataMining))
+        val entityDictionaryDescription = allEntityDictionary.join(allEntityDescriptionRDD)
+        val entityDictionaryDescriptionWithKey = entityDictionaryDescription.map(entry => (entry._2._1, (entry._1, entry._2._2)))
+        //(12345 (ABCDEF DataMining))
         
-     val allEntityClusterDictionary = allEntityClusterRDD.join(allEntityDictionary)
-     val allEntityStringCluster = allEntityClusterDictionary.map(entry => (entry._2._2, entry._2._1))
-     allEntityStringCluster.map(entry => entry._1 + "\t" + entry._2).saveAsTextFile("allEntityStringCluster")
+        //(12345 (3 (ABCDEF DataMining))) //12345 is in 3rd clusterID
+     val allEntityClusterDictionary = allEntityClusterRDD.join(entityDictionaryDescriptionWithKey)
+     
+     //(3 DataMining)
+     val allEntityStringCluster = allEntityClusterDictionary.map(entry => (entry._2._1, entry._2._2._2))
+     
+     allEntityStringCluster.map(entry => entry._1 + "\t" + entry._2).saveAsTextFile(fosDescClusterDir)
     }
     
 
