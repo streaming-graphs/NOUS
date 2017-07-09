@@ -324,12 +324,12 @@ object getGraphDistributionsWithLabelsWithClustering {
       /*
        *  Serialize Paper Attribute List
        */
-      paperAttibutes.map(entry=>entry._1 + "\t" + entry._2).saveAsTextFile(paperAttributeDir) 
+      paperAttibutes.map(entry=>entry._1 + "\t" + entry._2._1 + "\t" + entry._2._2).saveAsTextFile(paperAttributeDir) 
 
       /*
        * Serialize Author Attribute List
        */
-      autherAttributes.map(entry => entry._1 + "\t" + entry._2).saveAsTextFile(authorAttributeDir)
+      autherAttributes.map(entry => entry._1 + "\t" + entry._2._1 + "\t" + entry._2._2).saveAsTextFile(authorAttributeDir)
 
       /*
       var t0_batch = System.nanoTime()
