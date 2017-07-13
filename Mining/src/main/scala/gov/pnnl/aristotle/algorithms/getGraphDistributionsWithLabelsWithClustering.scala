@@ -49,6 +49,8 @@ object getGraphDistributionsWithLabelsWithClustering {
     val EdgeLabelDistributionDir = ini.get("output", "EdgeLabelDistributionDir")
     val allAttributeEdgesLine = ini.get("run", "attributeEdge");
     val allAttributeEdges: Array[Int] = allAttributeEdgesLine.split(",").map(_.toInt)
+    val fosTreePath : String  = ini.get("run", "FoSTreePath");
+    val pathOfDictionaryFile = ini.get("run", "pathOfDictionaryFile")
     //int[] allAttributeEdges2 = ini.get("run").getAll("fortuneNumber", int[].class);
     val numClusters = ini.get("Learning", "numClusters").toInt
     val numIterations = ini.get("Learning", "numIterations").toInt
@@ -89,6 +91,55 @@ object getGraphDistributionsWithLabelsWithClustering {
      * 
      */
 
+    // ABCDEF  GHIJK
+    type FOS = String
+    type Level = String
+    type confidence = Double
+    type FosTreeEntry = (FOS, Level, FOS, Level, confidence)
+    val allFoS: RDD[FosTreeEntry] = sc.textFile(fosTreePath).filter(ln => ReadHugeGraph.isValidLineFromGraphFile(ln)).map(line =>
+      {
+        val cleanedLineArray = line.trim().split("\t")
+        (cleanedLineArray(0), cleanedLineArray(1), cleanedLineArray(2),
+          cleanedLineArray(3), cleanedLineArray(5).toDouble)
+      })
+    
+      // (L1fos, L2Fos)
+      val allL2L1FoS = allFoS.filter(entry 
+          => (entry._2.equalsIgnoreCase("L2") 
+              && entry._4.equalsIgnoreCase("L1"))).map(entry
+                  =>(entry._3,entry._1)).distinct
+    
+     // ABCDEF  12345
+    type EntityDictionary = (String, Int)    
+    val allEntityDictionary  : RDD[EntityDictionary] = 
+    sc.textFile(pathOfDictionaryFile).filter(ln => ReadHugeGraph.isValidLineFromGraphFile(ln)).map(line =>
+        {
+          //177942 09B4F1FA
+          val cleanedLineArray = line.trim().split(" ")
+          (cleanedLineArray(1), cleanedLineArray(0).toInt)
+        })          
+   // Get All L1's Int mapping and its L2
+        // CS(L1) (CS-mapping, DM(L2))
+    val allL1ForExistingL2 = allEntityDictionary.join(allL2L1FoS)
+    
+    val allL2WithL1IntVal = allL1ForExistingL2.map(entry=>{
+      (entry._2._2, entry._2._1) // (DM, CS-Mapping) i.e. (DM, 24680)
+    }).groupByKey
+
+    //(DM, CS-IntMapping)
+    val allL2WithDominantL1 = allL2WithL1IntVal.map(entry => {
+      val allL1s = entry._2
+      if (allL1s.size == 1)
+        (entry._1, allL1s.toList(0))
+      else {
+        (entry._1, entry._2.groupBy(identity).maxBy(_._2.size)._1)
+      }
+    })
+    // Join this with dictionary to get L2's Int Mapping
+    // (DM, (CS-Mapping, DM-Mapping)) --> (DM-Mapping, CS-Mapping)
+    val allL2WithL2MappingDominantL1 = allL2WithDominantL1.join(allEntityDictionary).map(entry
+        =>(entry._2._2, entry._1))
+        
     for (
       graphFile <- Source.fromFile(pathOfBatchGraph).
         getLines().filter(str => !str.startsWith("#"))
@@ -214,6 +265,15 @@ object getGraphDistributionsWithLabelsWithClustering {
       val hasConfIdEdge = 3
       val paperConf = baseRDD.filter(entry => entry._2._1 == hasConfIdEdge)
       val paperFoS = baseRDD.filter(entry => entry._2._1 == hasFieldOfStudyEdge)
+      
+      /*
+       * In the given dataset, FoS are L1L2 levels of MAG,
+       * For better clustering convert all L2s to L1
+       */
+      val fosPap = paperFoS.map(paperEntry => (paperEntry._2._2, paperEntry._1))
+      //Read FoSHeirarchy to for L2 only
+      val l1l2FosPaper = fosPap.join(allL2WithL2MappingDominantL1)
+      
       val joinPaperConfFoS = paperConf.join(paperFoS)
       // Now we have (paper, ((hasConf Confid timeid) (hasFos fosid timeid)))
 
@@ -279,13 +339,12 @@ object getGraphDistributionsWithLabelsWithClustering {
       /*
        * Now Augment Paper Attributes
        * 
-       * 1. create (fos0 paper1) from (paper1 fos0)
+       * 1. create (fos0 paper1) from (paper1 fos0) : We already have it
        * 2. join (fos0 paper1) with predictions which is (fosid, fosClusterId) to create (fosid, paperid, clusterid)
        * 3. create (paperid, clusterid)
        * 4. joint it with paperreputationRDD
        * 
        */ 
-       val fosPap = paperFoS.map(paperEntry => (paperEntry._2._2, paperEntry._1))
        val fosWithClusterId = fosPap.leftOuterJoin(predictions) //(fos1, (paper2, OPTION[clustid3]))
        val paperWithFoSCluster = fosWithClusterId.map(fosEntry => (fosEntry._2._1, fosEntry._2._2.getOrElse(-1)))
        // TODO: check if there are multiple FOS for a paper that lead to different clusterID 

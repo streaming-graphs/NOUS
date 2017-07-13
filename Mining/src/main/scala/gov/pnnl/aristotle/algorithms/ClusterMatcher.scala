@@ -65,7 +65,8 @@ object ClusterMatcher {
     val allEntityDictionary  : RDD[EntityDictionary] = 
     sc.textFile(pathOfDictionaryFile).filter(ln => ReadHugeGraph.isValidLineFromGraphFile(ln)).map(line =>
         {
-          val cleanedLineArray = line.trim().split("\t")
+          //177942 09B4F1FA
+          val cleanedLineArray = line.trim().split(" ")
           (cleanedLineArray(1), cleanedLineArray(0).toInt)
         })
     
@@ -88,8 +89,12 @@ object ClusterMatcher {
      
      //(3 DataMining)
      val allEntityStringCluster = allEntityClusterDictionary.map(entry => (entry._2._1, entry._2._2._2))
-     
-     allEntityStringCluster.map(entry => entry._1 + "\t" + entry._2).saveAsTextFile(fosDescClusterDir)
+         
+val processedallEntityStringCluster = allEntityStringCluster.map(f
+         =>(f._1, Set(f._2))).reduceByKey((fos1,fos2) => fos1 ++ fos2)
+         
+     processedallEntityStringCluster.groupByKey.map(entry 
+         => entry._1 + "\t" + entry._2.toString.replaceAll("Set", "")).saveAsTextFile(fosDescClusterDir)
     }
     
 
