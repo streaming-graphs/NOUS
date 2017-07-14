@@ -41,7 +41,7 @@ object getGraphDistributionsWithLabelsWithClustering {
      */
     val confFilePath = args(0)
     val ini = new Wini(new File(confFilePath));
-    val pathOfBatchGraph = ini.get("run", "batchInfoFilePath");
+    val pathOfBatchGraph = ini.get("run", "pathOfPartGraph");
     val startTime = ini.get("run", "startTime").toInt
     val batchSizeInTime = ini.get("run", "batchSizeInTime")
     val typePred = ini.get("run", "typeEdge").toInt
