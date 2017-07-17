@@ -41,7 +41,7 @@ object getGraphDistributionsWithLabelsWithClustering {
      */
     val confFilePath = args(0)
     val ini = new Wini(new File(confFilePath));
-    val pathOfBatchGraph = ini.get("run", "pathOfPartGraph");
+    val pathOfBatchGraph = ini.get("run", "batchInfoFilePath");
     val startTime = ini.get("run", "startTime").toInt
     val batchSizeInTime = ini.get("run", "batchSizeInTime")
     val typePred = ini.get("run", "typeEdge").toInt
@@ -50,7 +50,7 @@ object getGraphDistributionsWithLabelsWithClustering {
     val allAttributeEdgesLine = ini.get("run", "attributeEdge");
     val allAttributeEdges: Array[Int] = allAttributeEdgesLine.split(",").map(_.toInt)
     val fosTreePath : String  = ini.get("run", "FoSTreePath");
-    val pathOfDictionaryFile = ini.get("run", "pathOfDictionaryFile")
+    val pathOfDescriptionFile = ini.get("run", "pathOfDescriptionFile")
     //int[] allAttributeEdges2 = ini.get("run").getAll("fortuneNumber", int[].class);
     val numClusters = ini.get("Learning", "numClusters").toInt
     val numIterations = ini.get("Learning", "numIterations").toInt
@@ -100,7 +100,7 @@ object getGraphDistributionsWithLabelsWithClustering {
       {
         val cleanedLineArray = line.trim().split("\t")
         (cleanedLineArray(0), cleanedLineArray(1), cleanedLineArray(2),
-          cleanedLineArray(3), cleanedLineArray(5).toDouble)
+          cleanedLineArray(3), cleanedLineArray(4).toDouble)
       })
     
       // (L1fos, L2Fos)
@@ -112,7 +112,7 @@ object getGraphDistributionsWithLabelsWithClustering {
      // ABCDEF  12345
     type EntityDictionary = (String, Int)    
     val allEntityDictionary  : RDD[EntityDictionary] = 
-    sc.textFile(pathOfDictionaryFile).filter(ln => ReadHugeGraph.isValidLineFromGraphFile(ln)).map(line =>
+    sc.textFile(pathOfDescriptionFile).filter(ln => ReadHugeGraph.isValidLineFromGraphFile(ln)).map(line =>
         {
           //177942 09B4F1FA
           val cleanedLineArray = line.trim().split(" ")
@@ -138,7 +138,7 @@ object getGraphDistributionsWithLabelsWithClustering {
     // Join this with dictionary to get L2's Int Mapping
     // (DM, (CS-Mapping, DM-Mapping)) --> (DM-Mapping, CS-Mapping)
     val allL2WithL2MappingDominantL1 = allL2WithDominantL1.join(allEntityDictionary).map(entry
-        =>(entry._2._2, entry._1))
+        =>(entry._2._2,entry._2._1)) //entry._1))
         
     for (
       graphFile <- Source.fromFile(pathOfBatchGraph).
@@ -272,14 +272,19 @@ object getGraphDistributionsWithLabelsWithClustering {
        */
       val fosPap = paperFoS.map(paperEntry => (paperEntry._2._2, paperEntry._1))
       //Read FoSHeirarchy to for L2 only
+      // joining (fosid, paperid) with (DM-Mapping, CS-Mapping) where we have L2 mappings only 
+      // get (fosidOFDM, (paperid, CS-Mapping)
       val l1l2FosPaper = fosPap.join(allL2WithL2MappingDominantL1)
       
-      val joinPaperConfFoS = paperConf.join(paperFoS)
-      // Now we have (paper, ((hasConf Confid timeid) (hasFos fosid timeid)))
+      //get (paperid, l1Mapping)
+      val fixedPaperFoS = l1l2FosPaper.map(entry=>(entry._2._1, entry._2._2))
+      
+      val joinPaperConfFoS = paperConf.join(fixedPaperFoS)
+      // Now we have (paper, ((hasConf Confid timeid) L2FoSId)))
 
       // Get set of Conferences for each FoS
       val confsEachFoS = joinPaperConfFoS.map(entry 
-          => (entry._2._2._2, Set(entry._2._1._2))).reduceByKey((confset1, confset2) => confset1 ++ confset2)
+          => (entry._2._2, Set(entry._2._1._2))).reduceByKey((confset1, confset2) => confset1 ++ confset2)
       //Now we have (fos1, Set(conf1,conf2....))(fos2,Set(conf2,conf3...))
 
       //Get all unique Conferences
