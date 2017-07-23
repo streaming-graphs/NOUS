@@ -117,7 +117,7 @@ object getGraphDistributionsWithLabelsWithClustering {
           //177942 09B4F1FA
           val cleanedLineArray = line.trim().split(" ")
           (cleanedLineArray(1), cleanedLineArray(0).toInt)
-        })          
+        }).distinct          
    // Get All L1's Int mapping and its L2
         // CS(L1) (CS-mapping, DM(L2))
     val allL1ForExistingL2 = allEntityDictionary.join(allL2L1FoS)
@@ -138,8 +138,8 @@ object getGraphDistributionsWithLabelsWithClustering {
     // Join this with dictionary to get L2's Int Mapping
     // (DM, (CS-Mapping, DM-Mapping)) --> (DM-Mapping, CS-Mapping)
     val allL2WithL2MappingDominantL1 = allL2WithDominantL1.join(allEntityDictionary).map(entry
+        //entry is (fos1L2String,(fosL1Id,fosL2Id))
         =>(entry._2._2,entry._2._1)) //entry._1))
-        
     for (
       graphFile <- Source.fromFile(pathOfBatchGraph).
         getLines().filter(str => !str.startsWith("#"))
@@ -209,8 +209,8 @@ object getGraphDistributionsWithLabelsWithClustering {
       /*
        * get (paper10, List(sp, sc))
        */
-      val authorRDD = authorGraph.map(autherFact 
-          => (autherFact._1, List(autherFact._3))).reduceByKey((authList1, authList2) => authList1 ++ authList2)
+      val authorRDD = authorGraph.map(AuthorFact 
+          => (AuthorFact._1, List(AuthorFact._3))).reduceByKey((authList1, authList2) => authList1 ++ authList2)
 
       /*
        *    Left Outer Join authorRDD and paperReputation
@@ -269,23 +269,67 @@ object getGraphDistributionsWithLabelsWithClustering {
       /*
        * In the given dataset, FoS are L1L2 levels of MAG,
        * For better clustering convert all L2s to L1
+       * 
+       * (fos1,paper11)
+       * (fos1,paper12)
+       * (fos1,paper13)
+       * 
+       * (fos2,paper11)
+       * (fos3,paper11)
+       * (fos2,paper12)
        */
       val fosPap = paperFoS.map(paperEntry => (paperEntry._2._2, paperEntry._1))
+      
+      
       //Read FoSHeirarchy to for L2 only
       // joining (fosid, paperid) with (DM-Mapping, CS-Mapping) where we have L2 mappings only 
       // get (fosidOFDM, (paperid, CS-Mapping)
+      /*
+       * (fos1,(paper11, fos1L1))
+       * (fos1,(paper12, fos1L1))
+       * (fos1,(paper13, fos1L1))
+       * 
+       * (fos2,paper11, fos2L1))
+       * (fos3,paper11, fos3L1))
+       * (fos2,paper12, fos2L1))
+       */
       val l1l2FosPaper = fosPap.join(allL2WithL2MappingDominantL1)
       
       //get (paperid, l1Mapping)
+      /*
+       * (paper11, fos1L1)
+       * (paper12, fos1L1)
+       * (paper13, fos1L1)
+       * 
+       * paper11, fos2L1)
+       * paper11, fos3L1)
+       * paper12, fos2L1)
+       */
       val fixedPaperFoS = l1l2FosPaper.map(entry=>(entry._2._1, entry._2._2))
-      
+
+       
+      /*
+       * (paper11, ((hasConf Confid1 timeid), fos1L1))
+       * (paper12, ((hasConf Confid2 timeid), fos1L1))
+       * (paper13, ((hasConf Confid3 timeid), fos1L1))
+       * 
+       * paper11, ((hasConf Confid1 timeid), fos2L1))
+       * paper11, ((hasConf Confid1 timeid), fos3L1))
+       * paper12, ((hasConf Confid2 timeid), fos2L1))
+       */
+
       val joinPaperConfFoS = paperConf.join(fixedPaperFoS)
-      // Now we have (paper, ((hasConf Confid timeid) L2FoSId)))
+      // Now we have (paper, ((hasConf Confid timeid) L1FoSId)))
 
       // Get set of Conferences for each FoS
       val confsEachFoS = joinPaperConfFoS.map(entry 
           => (entry._2._2, Set(entry._2._1._2))).reduceByKey((confset1, confset2) => confset1 ++ confset2)
       //Now we have (fos1, Set(conf1,conf2....))(fos2,Set(conf2,conf3...))
+      /*
+       * (fos1L1, set(Confid1,Confid2,ConfId3))
+       * (fos2L1, set(Confid1,Confid2))
+       * (fos2L1, set(Confid1))
+       */
 
       //Get all unique Conferences
       val uniqueConfs = baseRDD.filter(entry => entry._2._1 == hasConfIdEdge).map(paperConfEdge => {
@@ -368,10 +412,10 @@ object getGraphDistributionsWithLabelsWithClustering {
        val paperAuthor = baseRDD.filter(entry=>entry._2._1 == hasAuthorEdge)
        
        // We already have paperWithFoSCluster from above
-       val paperWithFoSAuther = paperAuthor.join(paperWithFoSCluster)
+       val paperWithFoSAuthor = paperAuthor.join(paperWithFoSCluster)
        // We have (paper0 ((hasAuth sp time0),clustId1))
-       val autherFoSClusterID = paperWithFoSAuther.map(entry => (entry._2._1._2, entry._2._2))
-       val autherAttributes = authorReputation.join(autherFoSClusterID)
+       val AuthorFoSClusterID = paperWithFoSAuthor.map(entry => (entry._2._1._2, entry._2._2))
+       val AuthorAttributes = binnedAuthorReputation.join(AuthorFoSClusterID)
 
        
 
@@ -393,7 +437,7 @@ object getGraphDistributionsWithLabelsWithClustering {
       /*
        * Serialize Author Attribute List
        */
-      autherAttributes.map(entry => entry._1 + "\t" + entry._2._1 + "\t" + entry._2._2).saveAsTextFile(authorAttributeDir)
+      AuthorAttributes.map(entry => entry._1 + "\t" + entry._2._1 + "\t" + entry._2._2).saveAsTextFile(authorAttributeDir)
 
       /*
       var t0_batch = System.nanoTime()

@@ -41,7 +41,7 @@ object ClusterMatcher {
      */
     val confFilePath = args(0)
     val ini = new Wini(new File(confFilePath));
-    val pathOfPartGraph = ini.get("run", "batchInfoFilePath");
+    val pathOfPartGraph = ini.get("run", "pathOfPartGraph");
     val pathOfDictionaryFile = ini.get("run", "pathOfDictionaryFile")
     val pathOfDescriptionFile = ini.get("run", "pathOfDescriptionFile")
     val startTime = ini.get("run", "startTime").toInt
@@ -63,7 +63,7 @@ object ClusterMatcher {
         // ABCDEF  12345
     type EntityDictionary = (String, Int)    
     val allEntityDictionary  : RDD[EntityDictionary] = 
-    sc.textFile(pathOfDictionaryFile).filter(ln => ReadHugeGraph.isValidLineFromGraphFile(ln)).map(line =>
+    sc.textFile(pathOfDescriptionFile).filter(ln => ReadHugeGraph.isValidLineFromGraphFile(ln)).map(line =>
         {
           //177942 09B4F1FA
           val cleanedLineArray = line.trim().split(" ")
@@ -73,7 +73,7 @@ object ClusterMatcher {
         // ABCDEF DataMining
         type EntityDescription = (String, String)    
     val allEntityDescriptionRDD  : RDD[EntityDescription] = 
-    sc.textFile(pathOfDescriptionFile).filter(ln => ReadHugeGraph.isValidLineFromGraphFile(ln)).map(line =>
+    sc.textFile(pathOfDictionaryFile).filter(ln => ReadHugeGraph.isValidLineFromGraphFile(ln)).map(line =>
         {
           val cleanedLineArray = line.trim().split("\t")
           (cleanedLineArray(0),cleanedLineArray(1))
@@ -90,7 +90,7 @@ object ClusterMatcher {
      //(3 DataMining)
      val allEntityStringCluster = allEntityClusterDictionary.map(entry => (entry._2._1, entry._2._2._2))
          
-val processedallEntityStringCluster = allEntityStringCluster.map(f
+     val processedallEntityStringCluster = allEntityStringCluster.map(f
          =>(f._1, Set(f._2))).reduceByKey((fos1,fos2) => fos1 ++ fos2)
          
      processedallEntityStringCluster.groupByKey.map(entry 
