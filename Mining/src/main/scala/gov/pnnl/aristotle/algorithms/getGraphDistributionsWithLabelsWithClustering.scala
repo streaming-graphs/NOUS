@@ -30,41 +30,33 @@ import org.apache.spark.SparkContext
  */
 object getGraphDistributionsWithLabelsWithClustering {
 
+  val sc = SparkContextInitializer.sc
+    
+  
   def main(args: Array[String]): Unit = {
 
-    val sc = SparkContextInitializer.sc
     type DataGraph = Graph[Int, KGEdgeInt]
     type NbrTypes = Set[Int]
+    
     /*
      * Read configuration parameters.
      * Please change the parameter in the conf file 'args(0)'. sample file is conf/knowledge_graph.conf
      */
     val confFilePath = args(0)
     val ini = new Wini(new File(confFilePath));
+    val allAttributeEdgesLine = ini.get("run", "attributeEdge");
+    val allAttributeEdges: Array[Int] = allAttributeEdgesLine.split(",").map(_.toInt)
+    val fosTreePath : String  = ini.get("run", "FoSTreePath");
+    val pathOfDescriptionFile = ini.get("run", "pathOfDescriptionFile")
+    //int[] allAttributeEdges2 = ini.get("run").getAll("fortuneNumber", int[].class);
+
     val pathOfBatchGraph = ini.get("run", "batchInfoFilePath");
     val startTime = ini.get("run", "startTime").toInt
     val batchSizeInTime = ini.get("run", "batchSizeInTime")
     val typePred = ini.get("run", "typeEdge").toInt
     val dateTimeFormatPattern = ini.get("run", "dateTimeFormatPattern")
     val EdgeLabelDistributionDir = ini.get("output", "EdgeLabelDistributionDir")
-    val allAttributeEdgesLine = ini.get("run", "attributeEdge");
-    val allAttributeEdges: Array[Int] = allAttributeEdgesLine.split(",").map(_.toInt)
-    val fosTreePath : String  = ini.get("run", "FoSTreePath");
-    val pathOfDescriptionFile = ini.get("run", "pathOfDescriptionFile")
-    //int[] allAttributeEdges2 = ini.get("run").getAll("fortuneNumber", int[].class);
-    val numClusters = ini.get("Learning", "numClusters").toInt
-    val numIterations = ini.get("Learning", "numIterations").toInt
-
     
-    /*
-     * Output parameters
-     */
-    val citationGraphDir = ini.get("output", "citationGraphDir")
-    val authorGraphDir = ini.get("output", "authorGraphDir")
-    val paperAttributeDir = ini.get("output", "paperAttributeDir")
-    val authorAttributeDir = ini.get("output", "authorAttributeDir")
-    val fosClusterDir = ini.get("output", "fosClusterDir")
-
 
     // TODO: how to read it as int array
     /*
@@ -91,104 +83,74 @@ object getGraphDistributionsWithLabelsWithClustering {
      * 
      */
 
-    // ABCDEF  GHIJK
-    type FOS = String
-    type Level = String
-    type confidence = Double
-    type FosTreeEntry = (FOS, Level, FOS, Level, confidence)
-    val allFoS: RDD[FosTreeEntry] = sc.textFile(fosTreePath).filter(ln => ReadHugeGraph.isValidLineFromGraphFile(ln)).map(line =>
-      {
-        val cleanedLineArray = line.trim().split("\t")
-        (cleanedLineArray(0), cleanedLineArray(1), cleanedLineArray(2),
-          cleanedLineArray(3), cleanedLineArray(4).toDouble)
-      })
-    
-      // (L1fos, L2Fos)
-      val allL2L1FoS = allFoS.filter(entry 
-          => (entry._2.equalsIgnoreCase("L2") 
-              && entry._4.equalsIgnoreCase("L1"))).map(entry
-                  =>(entry._3,entry._1)).distinct
-    
-     // ABCDEF  12345
-    type EntityDictionary = (String, Int)    
-    val allEntityDictionary  : RDD[EntityDictionary] = 
-    sc.textFile(pathOfDescriptionFile).filter(ln => ReadHugeGraph.isValidLineFromGraphFile(ln)).map(line =>
-        {
-          //177942 09B4F1FA
-          val cleanedLineArray = line.trim().split(" ")
-          (cleanedLineArray(1), cleanedLineArray(0).toInt)
-        }).distinct          
-   // Get All L1's Int mapping and its L2
-        // CS(L1) (CS-mapping, DM(L2))
-    val allL1ForExistingL2 = allEntityDictionary.join(allL2L1FoS)
-    
-    val allL2WithL1IntVal = allL1ForExistingL2.map(entry=>{
-      (entry._2._2, entry._2._1) // (DM, CS-Mapping) i.e. (DM, 24680)
-    }).groupByKey
-
-    //(DM, CS-IntMapping)
-    val allL2WithDominantL1 = allL2WithL1IntVal.map(entry => {
-      val allL1s = entry._2
-      if (allL1s.size == 1)
-        (entry._1, allL1s.toList(0))
-      else {
-        (entry._1, entry._2.groupBy(identity).maxBy(_._2.size)._1)
-      }
-    })
-    // Join this with dictionary to get L2's Int Mapping
-    // (DM, (CS-Mapping, DM-Mapping)) --> (DM-Mapping, CS-Mapping)
-    val allL2WithL2MappingDominantL1 = allL2WithDominantL1.join(allEntityDictionary).map(entry
-        //entry is (fos1L2String,(fosL1Id,fosL2Id))
-        =>(entry._2._2,entry._2._1)) //entry._1))
+ 
     for (
       graphFile <- Source.fromFile(pathOfBatchGraph).
         getLines().filter(str => !str.startsWith("#"))
     ) {
+      val allL2WithL2MappingDominantL1 = getCurrentYearL2IntWithL1Int(sc, fosTreePath, pathOfDescriptionFile)
+      getClusteredAttributedGraph(graphFile, allL2WithL2MappingDominantL1, ini)
+    }
 
-      /*
+  }
+
+  def getClusteredAttributedGraph(graphFile : String,allL2WithL2MappingDominantL1:RDD[(Int,Int)],ini : Wini)
+  {
+
+    val numClusters = ini.get("Learning", "numClusters").toInt
+    val numIterations = ini.get("Learning", "numIterations").toInt
+
+    /*
+     * Output parameters
+     */
+    val citationGraphDir = ini.get("output", "citationGraphDir")
+    val authorGraphDir = ini.get("output", "authorGraphDir")
+    val paperAttributeDir = ini.get("output", "paperAttributeDir")
+    val authorAttributeDir = ini.get("output", "authorAttributeDir")
+    val fosClusterDir = ini.get("output", "fosClusterDir")
+
+    /*
        * Read graph files as RDD of 
        * (<subject>			<(edgeType,object)> i.e.
        * 
        * (<paper1>			<(cites,paper10>) 
        */
 
-      val baseRDD = getQuadruplesRDD(graphFile, sc)
+    val baseRDD = getQuadruplesRDD(graphFile, sc)
 
-      /*
+    /*
        * Get Citation Graph
        * 
        * <paper1> <9> <paper2>
        */
-      val citationEdge = 9
-      val citationGraph = baseRDD.filter(entry => {
-        entry._2._1 == citationEdge
-      }).map(citationEdge => (citationEdge._1, citationEdge._2._1, citationEdge._2._2))
+    val citationEdge = 9
+    val citationGraph = baseRDD.filter(entry => {
+      entry._2._1 == citationEdge
+    }).map(citationEdge => (citationEdge._1, citationEdge._2._1, citationEdge._2._2))
 
-      /*
+    /*
        * Get Reputation of a Paper
        * (paper0 12345)
        */
-      val paperReputation = citationGraph.map(citationEdge 
-          => (citationEdge._3, 1)).reduceByKey((citeCnt1, citeCnt2) => citeCnt1 + citeCnt2)
+    val paperReputation = citationGraph.map(citationEdge => (citationEdge._3, 1)).reduceByKey((citeCnt1, citeCnt2) => citeCnt1 + citeCnt2)
 
-      /*
+    /*
        *    Get Log scale bins
        */
-      val minLog = scala.math.log(paperReputation.values.min) / scala.math.log(2)
-      val maxLog = scala.math.log(paperReputation.values.max) / scala.math.log(2)
-      val (zero, one3, two3, full) = (0, maxLog / 3, 2 * maxLog / 3, maxLog)
+    val minLog = scala.math.log(paperReputation.values.min) / scala.math.log(2)
+    val maxLog = scala.math.log(paperReputation.values.max) / scala.math.log(2)
+    val (zero, one3, two3, full) = (0, maxLog / 3, 2 * maxLog / 3, maxLog)
 
-      /*
+    /*
        * Get paper Reputation as {1,2,3}
        */
-      val binnedPaperReputation = paperReputation.map(paper => {
-        if (paper._2 < one3) (paper._1, 1)
-        else if (paper._2 < two3) (paper._1, 2)
-        else (paper._1, 3)
-      })
+    val binnedPaperReputation = paperReputation.map(paper => {
+      if (paper._2 < one3) (paper._1, 1)
+      else if (paper._2 < two3) (paper._1, 2)
+      else (paper._1, 3)
+    })
 
-      
-      /*
+    /*
         * get Author Reputation.
         * We use already computed paperReputation for this task.
         * paperReputation:
@@ -200,19 +162,18 @@ object getGraphDistributionsWithLabelsWithClustering {
         * 
         *     
         */
-      val hasAuthorEdge = 4
-      val authorGraph = baseRDD.filter(entry => {
-        entry._2._1 == hasAuthorEdge
-      }).map(paperAuthorEdge //(paper1, (4, paper10, time1)
-      => (paperAuthorEdge._1, paperAuthorEdge._2._1, paperAuthorEdge._2._2)) // (paper1 4 paper10)
+    val hasAuthorEdge = 4
+    val authorGraph = baseRDD.filter(entry => {
+      entry._2._1 == hasAuthorEdge
+    }).map(paperAuthorEdge //(paper1, (4, paper10, time1)
+    => (paperAuthorEdge._1, paperAuthorEdge._2._1, paperAuthorEdge._2._2)) // (paper1 4 paper10)
 
-      /*
+    /*
        * get (paper10, List(sp, sc))
        */
-      val authorRDD = authorGraph.map(AuthorFact 
-          => (AuthorFact._1, List(AuthorFact._3))).reduceByKey((authList1, authList2) => authList1 ++ authList2)
+    val authorRDD = authorGraph.map(AuthorFact => (AuthorFact._1, List(AuthorFact._3))).reduceByKey((authList1, authList2) => authList1 ++ authList2)
 
-      /*
+    /*
        *    Left Outer Join authorRDD and paperReputation
        *    
        *    It is left join at authorRDD so that in case we dont have paper reputation for 
@@ -221,52 +182,50 @@ object getGraphDistributionsWithLabelsWithClustering {
        *    authorRDD is : (paper10, List(sp, sc))
        *    paperReputation is : (paper0 12345)
        */
-      val resultingAuthorRDD = authorRDD.leftOuterJoin(paperReputation)
-      
-      val authorReputation = resultingAuthorRDD.flatMap(authorEntry => {
-        val authorCitationFrom1Paper = authorEntry._2._1.map(author => (author, authorEntry._2._2.getOrElse(0)))
-        authorCitationFrom1Paper //List((sp,12345), (sc,12345))
-      }).reduceByKey((cite1, cite2) => cite1 + cite2) //reduce (sp 12345) and (sp 6789)
+    val resultingAuthorRDD = authorRDD.leftOuterJoin(paperReputation)
 
-      /*
+    val authorReputation = resultingAuthorRDD.flatMap(authorEntry => {
+      val authorCitationFrom1Paper = authorEntry._2._1.map(author => (author, authorEntry._2._2.getOrElse(0)))
+      authorCitationFrom1Paper //List((sp,12345), (sc,12345))
+    }).reduceByKey((cite1, cite2) => cite1 + cite2) //reduce (sp 12345) and (sp 6789)
+
+    /*
        *    Get Log scale bins for Author Reputation
        */
-      val minLogAuthCite = scala.math.log(authorReputation.values.min) / scala.math.log(2)
-      val maxLogAuthCite = scala.math.log(authorReputation.values.max) / scala.math.log(2)
-      val (zeroAR, one3AR, two3AR, fullAR) = (0, maxLogAuthCite / 3, 2 * maxLogAuthCite / 3, maxLog)
+    val minLogAuthCite = scala.math.log(authorReputation.values.min) / scala.math.log(2)
+    val maxLogAuthCite = scala.math.log(authorReputation.values.max) / scala.math.log(2)
+    val (zeroAR, one3AR, two3AR, fullAR) = (0, maxLogAuthCite / 3, 2 * maxLogAuthCite / 3, maxLog)
 
-      
-      /*
+    /*
        * Get Author Reputation as {1,2,3}
        */
-      val binnedAuthorReputation = authorReputation.map(author => {
-        if (author._2 < one3AR) (author._1, 1)
-        else if (author._2 < two3AR) (author._1, 2)
-        else (author._1, 3)
-      })
-      
-      
-      /*
+    val binnedAuthorReputation = authorReputation.map(author => {
+      if (author._2 < one3AR) (author._1, 1)
+      else if (author._2 < two3AR) (author._1, 2)
+      else (author._1, 3)
+    })
+
+    /*
        * Perform KMean Clustering of FoS based on feature vactor of all
        * unique Conference Ids
        */
-      /*
+    /*
         * Get RDD of unique FoS
         */
-      val hasFieldOfStudyEdge = 8
-      val FoSUnique = baseRDD.filter(entry => entry._2._1 == hasFieldOfStudyEdge).map(paperFoSEdge => {
-        paperFoSEdge._2._2
-      }).distinct.sortBy(f => f) //.countByValue()
-      val totalFoSCount = FoSUnique.count
+    val hasFieldOfStudyEdge = 8
+    val FoSUnique = baseRDD.filter(entry => entry._2._1 == hasFieldOfStudyEdge).map(paperFoSEdge => {
+      paperFoSEdge._2._2
+    }).distinct.sortBy(f => f) //.countByValue()
+    val totalFoSCount = FoSUnique.count
 
-      /*
+    /*
        * construct Conference feature vector for Every FoS
        */
-      val hasConfIdEdge = 3
-      val paperConf = baseRDD.filter(entry => entry._2._1 == hasConfIdEdge)
-      val paperFoS = baseRDD.filter(entry => entry._2._1 == hasFieldOfStudyEdge)
-      
-      /*
+    val hasConfIdEdge = 3
+    val paperConf = baseRDD.filter(entry => entry._2._1 == hasConfIdEdge)
+    val paperFoS = baseRDD.filter(entry => entry._2._1 == hasFieldOfStudyEdge)
+
+    /*
        * In the given dataset, FoS are L1L2 levels of MAG,
        * For better clustering convert all L2s to L1
        * 
@@ -278,13 +237,12 @@ object getGraphDistributionsWithLabelsWithClustering {
        * (fos3,paper11)
        * (fos2,paper12)
        */
-      val fosPap = paperFoS.map(paperEntry => (paperEntry._2._2, paperEntry._1))
-      
-      
-      //Read FoSHeirarchy to for L2 only
-      // joining (fosid, paperid) with (DM-Mapping, CS-Mapping) where we have L2 mappings only 
-      // get (fosidOFDM, (paperid, CS-Mapping)
-      /*
+    val fosPap = paperFoS.map(paperEntry => (paperEntry._2._2, paperEntry._1))
+
+    //Read FoSHeirarchy to for L2 only
+    // joining (fosid, paperid) with (DM-Mapping, CS-Mapping) where we have L2 mappings only 
+    // get (fosidOFDM, (paperid, CS-Mapping)
+    /*
        * (fos1,(paper11, fos1L1))
        * (fos1,(paper12, fos1L1))
        * (fos1,(paper13, fos1L1))
@@ -293,10 +251,10 @@ object getGraphDistributionsWithLabelsWithClustering {
        * (fos3,paper11, fos3L1))
        * (fos2,paper12, fos2L1))
        */
-      val l1l2FosPaper = fosPap.join(allL2WithL2MappingDominantL1)
-      
-      //get (paperid, l1Mapping)
-      /*
+    val l1l2FosPaper = fosPap.join(allL2WithL2MappingDominantL1)
+
+    //get (paperid, l1Mapping)
+    /*
        * (paper11, fos1L1)
        * (paper12, fos1L1)
        * (paper13, fos1L1)
@@ -305,10 +263,9 @@ object getGraphDistributionsWithLabelsWithClustering {
        * paper11, fos3L1)
        * paper12, fos2L1)
        */
-      val fixedPaperFoS = l1l2FosPaper.map(entry=>(entry._2._1, entry._2._2))
+    val fixedPaperFoS = l1l2FosPaper.map(entry => (entry._2._1, entry._2._2))
 
-       
-      /*
+    /*
        * (paper11, ((hasConf Confid1 timeid), fos1L1))
        * (paper12, ((hasConf Confid2 timeid), fos1L1))
        * (paper13, ((hasConf Confid3 timeid), fos1L1))
@@ -318,35 +275,32 @@ object getGraphDistributionsWithLabelsWithClustering {
        * paper12, ((hasConf Confid2 timeid), fos2L1))
        */
 
-      val joinPaperConfFoS = paperConf.join(fixedPaperFoS)
-      // Now we have (paper, ((hasConf Confid timeid) L1FoSId)))
+    val joinPaperConfFoS = paperConf.join(fixedPaperFoS)
+    // Now we have (paper, ((hasConf Confid timeid) L1FoSId)))
 
-      // Get set of Conferences for each FoS
-      val confsEachFoS = joinPaperConfFoS.map(entry 
-          => (entry._2._2, Set(entry._2._1._2))).reduceByKey((confset1, confset2) => confset1 ++ confset2)
-      //Now we have (fos1, Set(conf1,conf2....))(fos2,Set(conf2,conf3...))
-      /*
+    // Get set of Conferences for each FoS
+    val confsEachFoS = joinPaperConfFoS.map(entry => (entry._2._2, Set(entry._2._1._2))).reduceByKey((confset1, confset2) => confset1 ++ confset2)
+    //Now we have (fos1, Set(conf1,conf2....))(fos2,Set(conf2,conf3...))
+    /*
        * (fos1L1, set(Confid1,Confid2,ConfId3))
        * (fos2L1, set(Confid1,Confid2))
        * (fos2L1, set(Confid1))
        */
 
-      //Get all unique Conferences
-      val uniqueConfs = baseRDD.filter(entry => entry._2._1 == hasConfIdEdge).map(paperConfEdge => {
-        paperConfEdge._2._2
-      }).distinct
-      val localUniqueConfs = uniqueConfs.collect
-      val totalConfCount = localUniqueConfs.length
+    //Get all unique Conferences
+    val uniqueConfs = baseRDD.filter(entry => entry._2._1 == hasConfIdEdge).map(paperConfEdge => {
+      paperConfEdge._2._2
+    }).distinct
+    val localUniqueConfs = uniqueConfs.collect
+    val totalConfCount = localUniqueConfs.length
 
-      var confMap: scala.collection.mutable.Map[Int, Int] = scala.collection.mutable.Map.empty
-      for (conf <- localUniqueConfs)  confMap.put(conf, 0)
-      
-      val confMapCast = sc.broadcast(confMap)
-      //Now we have broadcasted a map of all the conferences to each executor
-      
-      
-      
-      /*
+    var confMap: scala.collection.mutable.Map[Int, Int] = scala.collection.mutable.Map.empty
+    for (conf <- localUniqueConfs) confMap.put(conf, 0)
+
+    val confMapCast = sc.broadcast(confMap)
+    //Now we have broadcasted a map of all the conferences to each executor
+
+    /*
        * For Year 2010
        * 
        * total size of conf 17782
@@ -357,35 +311,34 @@ object getGraphDistributionsWithLabelsWithClustering {
        * size of pap conf joinPaperConfFoS  28878760
        */
 
-      var localConfMap = confMapCast.value
-      println("local map size is " + localConfMap.size)
-      // (fos, set(conf1,conf2,conf3....))
-      val fosFeatureVectorLabel = confsEachFoS.map(fosEntry => {
-        fosEntry._2.map(confFosEntry => localConfMap.put(confFosEntry, 1)) //instruction ends here
-        val localConfArray = localConfMap.map(fosExistsNot => fosExistsNot._2.toDouble).toArray
-        var fosFeatureArrayWithConfs = new Array[Double](totalConfCount.toInt)
-        // Array needs to be created with new to get the desired behavior 
-        /// https://stackoverflow.com/questions/2700175/scala-array-constructor
-        
-        for (i <- 0 until totalConfCount.toInt)
-          fosFeatureArrayWithConfs(i) = localConfArray(i)
-        (fosEntry._1, Vectors.dense(fosFeatureArrayWithConfs))
-      })
-      val fosFeatureVector = fosFeatureVectorLabel.map(f => f._2)
+    var localConfMap = confMapCast.value
+    println("local map size is " + localConfMap.size)
+    // (fos, set(conf1,conf2,conf3....))
+    val fosFeatureVectorLabel = confsEachFoS.map(fosEntry => {
+      fosEntry._2.map(confFosEntry => localConfMap.put(confFosEntry, 1)) //instruction ends here
+      val localConfArray = localConfMap.map(fosExistsNot => fosExistsNot._2.toDouble).toArray
+      var fosFeatureArrayWithConfs = new Array[Double](totalConfCount.toInt)
+      // Array needs to be created with new to get the desired behavior 
+      /// https://stackoverflow.com/questions/2700175/scala-array-constructor
 
-      val clusters = KMeans.train(fosFeatureVector, numClusters, numIterations)
-      //clusters.clusterCenters.foreach(c=>println(" size is " , c.toString()))
+      for (i <- 0 until totalConfCount.toInt)
+        fosFeatureArrayWithConfs(i) = localConfArray(i)
+      (fosEntry._1, Vectors.dense(fosFeatureArrayWithConfs))
+    })
+    val fosFeatureVector = fosFeatureVectorLabel.map(f => f._2)
 
-      val predictions = fosFeatureVectorLabel.map(entry =>
-        (entry._1, clusters.predict(entry._2)))
-       
-      /*
+    val clusters = KMeans.train(fosFeatureVector, numClusters, numIterations)
+    //clusters.clusterCenters.foreach(c=>println(" size is " , c.toString()))
+
+    val predictions = fosFeatureVectorLabel.map(entry =>
+      (entry._1, clusters.predict(entry._2)))
+
+    /*
        * (fosid, fosClusterId)
        */
-        predictions.saveAsTextFile(fosClusterDir)  
+    predictions.saveAsTextFile(fosClusterDir)
 
-       
-      /*
+    /*
        * Now Augment Paper Attributes
        * 
        * 1. create (fos0 paper1) from (paper1 fos0) : We already have it
@@ -393,14 +346,13 @@ object getGraphDistributionsWithLabelsWithClustering {
        * 3. create (paperid, clusterid)
        * 4. joint it with paperreputationRDD
        * 
-       */ 
-       val fosWithClusterId = fosPap.leftOuterJoin(predictions) //(fos1, (paper2, OPTION[clustid3]))
-       val paperWithFoSCluster = fosWithClusterId.map(fosEntry => (fosEntry._2._1, fosEntry._2._2.getOrElse(-1)))
-       // TODO: check if there are multiple FOS for a paper that lead to different clusterID 
-       val paperAttibutes = binnedPaperReputation.join(paperWithFoSCluster)
+       */
+    val fosWithClusterId = fosPap.leftOuterJoin(predictions) //(fos1, (paper2, OPTION[clustid3]))
+    val paperWithFoSCluster = fosWithClusterId.map(fosEntry => (fosEntry._2._1, fosEntry._2._2.getOrElse(-1)))
+    // TODO: check if there are multiple FOS for a paper that lead to different clusterID 
+    val paperAttibutes = binnedPaperReputation.join(paperWithFoSCluster)
 
-       
-       /*
+    /*
        * Now Augment Author Attributes
        * 
        * 1. create (fos0 paper1) from (paper1 fos0)
@@ -408,38 +360,36 @@ object getGraphDistributionsWithLabelsWithClustering {
        * 3. create (paperid, clusterid)
        * 4. joint it with paperreputationRDD
        * 
-       */ 
-       val paperAuthor = baseRDD.filter(entry=>entry._2._1 == hasAuthorEdge)
-       
-       // We already have paperWithFoSCluster from above
-       val paperWithFoSAuthor = paperAuthor.join(paperWithFoSCluster)
-       // We have (paper0 ((hasAuth sp time0),clustId1))
-       val AuthorFoSClusterID = paperWithFoSAuthor.map(entry => (entry._2._1._2, entry._2._2))
-       val AuthorAttributes = binnedAuthorReputation.join(AuthorFoSClusterID)
+       */
+    val paperAuthor = baseRDD.filter(entry => entry._2._1 == hasAuthorEdge)
 
-       
+    // We already have paperWithFoSCluster from above
+    val paperWithFoSAuthor = paperAuthor.join(paperWithFoSCluster)
+    // We have (paper0 ((hasAuth sp time0),clustId1))
+    val AuthorFoSClusterID = paperWithFoSAuthor.map(entry => (entry._2._1._2, entry._2._2))
+    val AuthorAttributes = binnedAuthorReputation.join(AuthorFoSClusterID)
 
-      /*
+    /*
        * Serialize Citation Graph
        */
-      citationGraph.map(entry=>entry._1 + "\t" + entry._2 + "\t" + entry._3).saveAsTextFile(citationGraphDir)
+    citationGraph.map(entry => entry._1 + "\t" + entry._2 + "\t" + entry._3).saveAsTextFile(citationGraphDir)
 
-      /*
+    /*
        * Serialize Authorship Graph
        */
-      authorGraph.map(entry=>entry._1 + "\t" + entry._2 + "\t" + entry._3).saveAsTextFile(authorGraphDir)
+    authorGraph.map(entry => entry._1 + "\t" + entry._2 + "\t" + entry._3).saveAsTextFile(authorGraphDir)
 
-      /*
+    /*
        *  Serialize Paper Attribute List
        */
-      paperAttibutes.map(entry=>entry._1 + "\t" + entry._2._1 + "\t" + entry._2._2).saveAsTextFile(paperAttributeDir) 
+    paperAttibutes.map(entry => entry._1 + "\t" + entry._2._1 + "\t" + entry._2._2).saveAsTextFile(paperAttributeDir)
 
-      /*
+    /*
        * Serialize Author Attribute List
        */
-      AuthorAttributes.map(entry => entry._1 + "\t" + entry._2._1 + "\t" + entry._2._2).saveAsTextFile(authorAttributeDir)
+    AuthorAttributes.map(entry => entry._1 + "\t" + entry._2._1 + "\t" + entry._2._2).saveAsTextFile(authorAttributeDir)
 
-      /*
+    /*
       var t0_batch = System.nanoTime()
 
       currentBatchId = currentBatchId + 1
@@ -591,10 +541,66 @@ object getGraphDistributionsWithLabelsWithClustering {
 
     }
 */
-    }
 
   }
+  
+  
+  def getCurrentYearL2IntWithL1Int(sc: SparkContext,fosTreePath:String,pathOfDescriptionFile:String) : RDD[(Int,Int)] = 
+  {
+      // ABCDEF  GHIJK
+      type FOS = String
+      type Level = String
+      type confidence = Double
+      type FosTreeEntry = (FOS, Level, FOS, Level, confidence)
+      val allFoS: RDD[FosTreeEntry] = sc.textFile(fosTreePath).filter(ln => ReadHugeGraph.isValidLineFromGraphFile(ln)).map(line =>
+        {
+          val cleanedLineArray = line.trim().split("\t")
+          (cleanedLineArray(0), cleanedLineArray(1), cleanedLineArray(2),
+            cleanedLineArray(3), cleanedLineArray(4).toDouble)
+        })
 
+      // (L1fos, L2Fos)
+      val allL2L1FoS = allFoS.filter(entry => (entry._2.equalsIgnoreCase("L2")
+        && entry._4.equalsIgnoreCase("L1"))).map(entry => (entry._3, entry._1)).distinct
+
+      // ABCDEF  12345 
+      // It is a year specific file
+      type EntityDictionary = (String, Int)
+      val allEntityDictionary: RDD[EntityDictionary] =
+        sc.textFile(pathOfDescriptionFile).filter(ln => ReadHugeGraph.isValidLineFromGraphFile(ln)).map(line =>
+          {
+            //177942 09B4F1FA
+            val cleanedLineArray = line.trim().split(" ")
+            (cleanedLineArray(1), cleanedLineArray(0).toInt)
+          }).distinct
+
+      // Get All L1's Int mapping and its L2
+      // CS(L1) (CS-mapping, DM(L2))
+      val allL1ForExistingL2 = allEntityDictionary.join(allL2L1FoS)
+
+      val allL2WithL1IntVal = allL1ForExistingL2.map(entry => {
+        (entry._2._2, entry._2._1) // (DM, CS-Mapping) i.e. (DM, 24680)
+      }).groupByKey
+
+      //(DM, CS-IntMapping)
+      val allL2WithDominantL1 = allL2WithL1IntVal.map(entry => {
+        val allL1s = entry._2
+        if (allL1s.size == 1)
+          (entry._1, allL1s.toList(0))
+        else {
+          (entry._1, entry._2.groupBy(identity).maxBy(_._2.size)._1)
+        }
+      })
+
+      // Join this with dictionary to get L2's Int Mapping
+      // (DM, (CS-Mapping, DM-Mapping)) --> (DM-Mapping, CS-Mapping)
+      val allL2WithL2MappingDominantL1 = allL2WithDominantL1.join(allEntityDictionary).map(entry //entry is (fos1L2String,(fosL1Id,fosL2Id))
+      => (entry._2._2, entry._2._1)) //entry._1))
+
+      return allL2WithL2MappingDominantL1
+    }
+  
+  
   def getPowerIterationCluteringGraph(validGraph: Graph[(DataToPatternGraph.Label, List[Int]), KGEdgeInt]): Graph[(Long, (DataToPatternGraph.Label, List[Int], List[Int])), KGEdgeInt] =
     {
       /*
