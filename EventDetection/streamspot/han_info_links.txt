@@ -1,0 +1,13 @@
+http://machinelearningmastery.com/timedistributed-layer-for-long-short-term-memory-networks-in-python/
+
+https://richliao.github.io/supervised/classification/2016/12/26/textclassifier-HATN/
+
+https://gist.github.com/cbaziotis/7ef97ccf71cbc14366835198c09809d2
+
+https://gist.github.com/nigeljyng/37552fb4869a5e81338f82b338a304d3
+
+https://gist.github.com/rmdort/596e75e864295365798836d9e8636033
+
+https://github.com/synthesio/hierarchical-attention-networks
+
+https://gist.github.com/cbaziotis/6428df359af27d58078ca5ed9792bd6d
