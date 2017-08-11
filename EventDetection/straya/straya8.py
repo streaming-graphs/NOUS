@@ -1,3 +1,6 @@
+# Attempting to visualize the UNSW graph.
+
+
 import networkx as nx
 import matplotlib.pyplot as plt
 
@@ -19,6 +22,7 @@ with open(directory + fn + ext, 'r') as f:
             G.add_edge(src, dest, color='r', weight=1)
 
 list_of_nodes = set(G.nodes())
+# Print how many times each edge has appeared
 for edge in G.edges(data=True):
     print edge[0] + '--' + str(edge[2]['weight']) + '-->' + edge[1]
 
@@ -46,6 +50,7 @@ with open(directory + fn + ext, 'r') as f:
 print count
 print '----------'
 
+# Print how many times each edge has appeared
 for edge in G.edges(data=True):
     print edge[0] + '--' + str(edge[2]['weight']) + '-->' + edge[1]
 

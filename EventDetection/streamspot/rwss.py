@@ -8,7 +8,7 @@ import sys
 
 
 directory = 'data/streamspot/data/all_divs/'
-pb = Pushbullet('o.1tXNNRN1ypt5ECObCnUHPB2c5sUdM0df')
+pb = Pushbullet('API key')
 pl = int(sys.argv[1])
 
 

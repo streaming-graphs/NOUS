@@ -18,7 +18,7 @@ numpy.random.seed(7)
 pl = int(sys.argv[1])
 
 # Pushbullet Notification
-pb = Pushbullet('o.1tXNNRN1ypt5ECObCnUHPB2c5sUdM0df')
+pb = Pushbullet('API key')
 # pb.push_note('Job Started!' + '_' + str(flips) + 'f_pl' + str(pl), 'This is your notice')
 pb.push_note('LSTM Job Started!', ' ')
 

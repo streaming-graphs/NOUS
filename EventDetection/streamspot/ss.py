@@ -8,7 +8,7 @@ import pickle as pkl
 
 dg = nx.DiGraph()
 directory = 'data/streamspot/data/all_divs/'
-# pb = Pushbullet('o.1tXNNRN1ypt5ECObCnUHPB2c5sUdM0df')
+# pb = Pushbullet('API Key')
 
 for gid in range(0, 600):
     # if gid % 50 == 0:

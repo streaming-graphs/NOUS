@@ -1,3 +1,6 @@
+# Count the number of times different IPs appear in attack/normal files
+
+
 directory = 'data/straya/'
 att = 'normal'
 fn = ''

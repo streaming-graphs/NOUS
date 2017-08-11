@@ -18,7 +18,7 @@ from pushbullet import Pushbullet
 
 
 # Pushbullet Notification
-pb = Pushbullet('o.1tXNNRN1ypt5ECObCnUHPB2c5sUdM0df')
+pb = Pushbullet('API key')
 pb.push_note('HATTN Job Started!', ' ')
 
 # Set the constants

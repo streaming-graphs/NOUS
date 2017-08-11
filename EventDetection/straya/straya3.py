@@ -1,3 +1,9 @@
+# Creata a list of words found in attack and normal files and rank them based on their frequency
+# There are ~680,000 words in the attack file, over 10million in the normal file.
+# Since we will be choosing only a subset of the 50 features in downstream code, it is wise to just create this
+# list for the attack file and just use a counter (explained in detail in relevant file) for the normal records.
+
+
 directory = 'data/straya/'
 fn = 'attack'
 ext = '.csv'

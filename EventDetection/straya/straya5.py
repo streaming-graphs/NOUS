@@ -1,3 +1,7 @@
+# Using the commands in splits.sh, split the sorted attack files into multiple chunks
+# Combine those chunks to form a .npy file suitable for HAN training using this file
+
+
 import numpy as np
 
 
@@ -17,13 +21,11 @@ for i in range(1, 10):
             linelist = [int(x) for x in line.split(',')]
             newline = [linelist[0]] + [linelist[4]] + [linelist[2]]
             newline += [linelist[5]] + [linelist[6]] + [linelist[13]] + [linelist[24]] + [linelist[25]] + [linelist[32]]
-            # newline += [1]  # Label
             doc.append(newline)
         attack.append(doc)
 
 attack = np.array(attack)
 np.save(directory + 'attack.npy', attack)
-# print attack.shape
 
 # For 1-9:
 # For 1-51:
@@ -42,9 +44,12 @@ lookup = {}
 olf = open(directory + 'ordered_list.txt', 'r')
 for i, line in enumerate(olf):
     lookup[line.strip()] = i
-lookup['Backdoors'] = 183
 olf.close()
+
 count = len(lookup) + 1
+# Use this counter instead of creating ranked lists of words in the normal file to keep the number of unique words
+# to a minimum. Save considerably on training time
+
 normalf = open(directory + 'normal.csv', 'r')
 normalc = normalf.readlines()[:21000]
 normal = []
@@ -61,7 +66,6 @@ for line in normalc:
             linelist.append(lookup[x.strip()])
     newline = [linelist[0]] + [linelist[4]] + [linelist[2]]
     newline += [linelist[5]] + [linelist[6]] + [linelist[13]] + [linelist[24]] + [linelist[25]] + [linelist[32]]
-    # newline += [0]  # Label
     doc.append(newline)
     if len(doc) == 50:
         normal.append(doc)
@@ -70,4 +74,3 @@ normalf.close()
 
 normal = np.array(normal)
 np.save(directory + 'normal.npy', normal)
-# print normal.shape

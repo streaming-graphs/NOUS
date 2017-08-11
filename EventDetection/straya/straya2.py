@@ -1,3 +1,8 @@
+# This file groups records with same attack, attack-sub-cat pairs together
+# The sorted file can be split into multiple files using the bash script lines
+# provided in splits.sh
+
+
 import csv
 
 
@@ -15,15 +20,6 @@ with open(directory + fn + ext, 'r') as f:
         count = hist.get(key, 0) + 1
         hist[key] = count
 
-for k, v in hist.items():
-    if v >= 50:
-        new_hist[k] = v
-        # if k[0] == 'Generic':
-        #     print k, v
-
-# print len(new_hist)
-# print sum(new_hist.values())
-
 f = directory + fn + ext
 reader = csv.reader(open(f))
 sorted_attack = sorted(reader, key=lambda row: row[-3], reverse=True)
@@ -38,6 +34,5 @@ with open(directory + fn + ext, 'r') as nf:
         newline += [linelist[-1]]
         newline = ','.join(newline)
         wf.write(newline)
-        # print newline
-        # exit(0)
+
 wf.close()
