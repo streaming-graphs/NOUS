@@ -1,5 +1,6 @@
 # author - Richard Liao
 # Dec 26 2016
+# Using this author's implementation
 import os
 os.environ['KERAS_BACKEND'] = 'theano'
 

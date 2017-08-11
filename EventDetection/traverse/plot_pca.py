@@ -21,7 +21,7 @@ import random
 # plt.plot(pca.components_[1], pca.components_[0])
 # plt.savefig('pca_plot.pdf')
 # plt.close()
-
+#
 # Save embeddings as numpy file from walk file
 # embs = []
 # with open(embname) as f:

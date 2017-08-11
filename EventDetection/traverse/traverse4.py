@@ -1,5 +1,6 @@
 # Read all_samples
 # Read vertdict
+# Substitute words with nums
 d = {}
 with open('data/vertexDictionary_rels.out') as f:
     for line in f:

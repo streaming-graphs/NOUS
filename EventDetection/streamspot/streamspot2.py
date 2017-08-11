@@ -15,6 +15,7 @@ pl = int(sys.argv[1])
 def rwss(graph, start, length):
     # Take in a graph ID and a path length pl
     # Return a string of length 2pl with pl number of nodes and pl-1 number of edges and a label 0/1
+    # This function takes in the node type and uses that in the path string
     sampled_path = []
     current = start
     sampled_path.append(g.node[current]['type'])
@@ -28,23 +29,26 @@ def rwss(graph, start, length):
     return sampled_path
 
 
-def rwss_id(graph, start, length):
-    # Take in a graph ID and a path length pl
-    # Return a string of length 2pl with pl number of nodes and pl-1 number of edges and a label 0/1
-    sampled_path = []
-    current = start
-    sampled_path.append(current)
-    cur_edges = graph.edges([current], data=True)
-    for k in range(length):
-        r = np.random.choice(range(len(cur_edges)))
-        sampled_path.append(cur_edges[r][-1]['type'])
-        current = cur_edges[r][1]
-        sampled_path.append(current)
-        cur_edges = graph.edges(cur_edges[r][1], data=True)
-    return sampled_path
+# def rwss_id(graph, start, length):
+#     # Take in a graph ID and a path length pl
+#     # Return a string of length 2pl with pl number of nodes and pl-1 number of edges and a label 0/1
+#     # This function takes in the node ID and uses that in the path string
+#     # We found that IDs are not the same across graphs. So using this is not very meaningful
+#     sampled_path = []
+#     current = start
+#     sampled_path.append(current)
+#     cur_edges = graph.edges([current], data=True)
+#     for k in range(length):
+#         r = np.random.choice(range(len(cur_edges)))
+#         sampled_path.append(cur_edges[r][-1]['type'])
+#         current = cur_edges[r][1]
+#         sampled_path.append(current)
+#         cur_edges = graph.edges(cur_edges[r][1], data=True)
+#     return sampled_path
 
 
 if __name__ == '__main__':
+    # Create positive and negative random paths
     pos_gid = np.hstack([np.arange(0, 300, 1), np.arange(400, 600, 1)])
     neg_gid = np.arange(300, 400, 1)
 
@@ -88,12 +92,6 @@ if __name__ == '__main__':
 
     all_samples = pos_samples + neg_samples
     np.random.shuffle(all_samples)
-
-    # print len(pos_samples), len(pos_samples[0])
-    # print pos_samples[0]
-    # print len(neg_samples), len(neg_samples[0])
-    # print neg_samples[0]
-    # print len(all_samples), len(all_samples[0])
 
     # Write to file
     dirdotdot = 'data/streamspot/data/'

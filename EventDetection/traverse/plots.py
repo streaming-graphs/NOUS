@@ -1,3 +1,5 @@
+# Hard coded accuracy information for plotting purposes
+
 import matplotlib.pyplot as plt
 
 x4 = [1, 2, 3]

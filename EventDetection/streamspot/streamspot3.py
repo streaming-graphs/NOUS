@@ -1,3 +1,6 @@
+# Convert the edge string to numbers
+# Feed this set of graphs to the Hierarchical Attention Network
+
 import numpy as np
 
 
@@ -14,6 +17,7 @@ for gid in range(0, 600):
         for line in f:
             edge = line.split()[:-1]
             edge_str = ''.join([edge[1], edge[4], edge[3]])
+            # Ignore the most popular edges to reduce similarity among graphs
             if edge_str in ['awe', 'auc', 'bGc', 'aGe', 'avc', 'aHe']:
                 continue
             if edge_str in edge2num:
@@ -35,4 +39,4 @@ for gid in range(0, 600):
     doc = np.genfromtxt(fname + 'w.txt')[:MAX_SENTS]
     data[gid] = doc
 print data.shape
-np.save('kdd_data124.npy', data)
+np.save('kdd_data_' + str(MAX_SENTS) + '.npy', data)

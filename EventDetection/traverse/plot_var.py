@@ -1,3 +1,6 @@
+# Hard coded numbers to plot the difference between positive and negative samples
+
+
 import matplotlib.pyplot as plt
 
 x4 = [1, 2, 3]

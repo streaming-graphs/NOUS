@@ -1,5 +1,6 @@
 # author - Richard Liao
 # Dec 26 2016
+# Using this author's implementation
 import os
 os.environ['KERAS_BACKEND'] = 'theano'
 
@@ -31,7 +32,7 @@ TEST_SPLIT = 0.2
 directory = 'data/streamspot/data/all_divs/'
 
 # Read the data and create the labels
-data = np.load('kdd_data124.npy')
+data = np.load('.npy')
 labels = np.zeros((data.shape[0], 1), dtype='int32')
 labels[300:400] = 1
 labels = to_categorical(labels)

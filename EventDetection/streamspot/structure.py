@@ -1,3 +1,6 @@
+# Get some properties of different types of graphs in the streamspot dataset
+
+
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np

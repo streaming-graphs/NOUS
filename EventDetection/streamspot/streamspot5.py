@@ -1,3 +1,7 @@
+# Visualize the dataset by looking at what nodes appear the most number of times
+# and other stats
+
+
 import matplotlib.pyplot as plt
 import numpy as np
 import networkx as nx
@@ -30,23 +34,23 @@ plt.plot(xax, valsbc[:500], 'b.')
 plt.plot(xax, valsdc[:500], 'g.')
 plt.savefig('centralityscat500.pdf')
 
-# with open(directory + fname, 'r') as f:
-#     content = f.readlines()
-#
-# hist = {}
-#
-# for cont in content:
-#     words = cont.split('\t')
-#     for i in [1, 3]:
-#         temp = hist.get(words[i], 0)
-#         hist[words[i]] = temp + 1
-#
-# # print hist
-# keys = sorted(hist, key=hist.get, reverse=True)
-# lh = len(hist)
-# xax = np.arange(0, lh)
-# plt.plot(xax, sorted(hist.values(), reverse=True), '.')
-# plt.locator_params(axis='x', nbins=lh-1)
-# plt.xticks(xax, keys)
-#
-# plt.savefig('hist' + fname + 'n.pdf')
+with open(directory + fname, 'r') as f:
+    content = f.readlines()
+
+hist = {}
+
+for cont in content:
+    words = cont.split('\t')
+    for i in [1, 3]:
+        temp = hist.get(words[i], 0)
+        hist[words[i]] = temp + 1
+
+# print hist
+keys = sorted(hist, key=hist.get, reverse=True)
+lh = len(hist)
+xax = np.arange(0, lh)
+plt.plot(xax, sorted(hist.values(), reverse=True), '.')
+plt.locator_params(axis='x', nbins=lh-1)
+plt.xticks(xax, keys)
+
+plt.savefig('hist' + fname + 'n.pdf')

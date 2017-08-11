@@ -1,3 +1,4 @@
+# Modifying code published by author Kelvin Guu
 import numpy as np
 import sys
 import util
@@ -538,21 +539,10 @@ path_len = 7
 pos_samples = rw_test(dset, walks_per_ntt, path_len)
 temp_pos_samples = deepcopy(pos_samples)
 
-# for ps in pos_samples:
-#     print ps
-#
-# print '-----------------------------'
-# print '-----------------------------'
-# print '-----------------------------'
 
 subs_in_samples = 5
 neg_samples = rw_subs_test(dset, pos_samples, subs_in_samples)
 
-# for ns in neg_samples:
-#     print ns
-#
-# Add labels:
-# Positive label = 0
 for sample in temp_pos_samples:
     sample.append('0')
 
