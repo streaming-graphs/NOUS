@@ -1,5 +1,5 @@
 # From each graph, make a random walk of user-specified path length
-# Positive paths will be taken from the 500 benign ones and negative graphs from the 600 attack ones
+# Positive paths will be taken from the 500 benign ones and negative graphs from the 100 attack ones
 # Run LSTM as usual
 import numpy as np
 import pickle as pkl
