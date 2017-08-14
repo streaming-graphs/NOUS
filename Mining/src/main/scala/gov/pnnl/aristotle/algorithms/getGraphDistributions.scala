@@ -57,12 +57,12 @@ object getGraphDistributions {
       println("e size is", incomingDataGraph.edges.count)
       
       val typeGraph = DataToPatternGraph.getTypedGraph(incomingDataGraph, typePred)
-      println("v size is", typeGraph.vertices.count)
+      //println("v size is", typeGraph.vertices.count)
       
       val bctype = sc.broadcast(typePred)
       val loclatype = bctype.value
       //val validEdgeGraph = typeGraph.subgraph(epred  => (epred.attr.getlabel != loclatype))
-      // the code in next line takes care of basetpe edges also
+      // the code in next line takes care of basetype edges also
       val validGraph = typeGraph.subgraph(vpred = (id,atr) => atr._2.size > 0)
       
 
@@ -77,6 +77,9 @@ object getGraphDistributions {
        * Get Label based distribution of one edge patterns Represented as list of 5 int
        * ie. person sumit cowork person sutanay
        * person sumit cowork person sutanay; person sutanay hascountry country india
+       * 
+       * For a better implementation of lable distribution collection, look at the getGraphDistributionWithLabels.scala
+       * instead of this file 
        */
       val oneEdgeRDD_Label = validGraph.triplets.map(triple=>{
         val src = triple.srcAttr
@@ -85,9 +88,7 @@ object getGraphDistributions {
         (edgeSignature, 1)
       }).reduceByKey((count1,count2)=>count1+count2)
       
-      //oneEdgeRDD.collect.foreach(f=>println(f._1.toString(),f._2))
       
-      //Aggregate code is unnecessary complex and requires more steps.
       /*
        * We get 3 types of 2 edge patterns
        * A->B->C
@@ -145,9 +146,7 @@ object getGraphDistributions {
         allLocal_AB_AC_OnA
       }).reduceByKey((count1,count2) => count1+count2)
       
-      
-      
-           val ba_ca_OnA: VertexRDD[List[List[Int]]] = 
+       val ba_ca_OnA: VertexRDD[List[List[Int]]] = 
        validGraph.aggregateMessages[List[List[Int]]](edge => {
           val src = edge.srcAttr
           val dst = edge.dstAttr
@@ -210,7 +209,7 @@ object getGraphDistributions {
        * combining messages mergeMsg.
        * 
        */
-      // Before we could use pregal we need to initialize the nodes with placeholder list
+      // Before we could use pregel we need to initialize the nodes with placeholder list
       val newValidGraph = validGraph.mapVertices((id, attr) => {
         val lop : List[List[Int]] = List.empty
         // list of pattern on the node

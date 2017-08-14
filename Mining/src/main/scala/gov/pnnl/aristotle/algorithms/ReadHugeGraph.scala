@@ -265,14 +265,16 @@ object ReadHugeGraph {
         }
         }catch{
           case ex: org.joda.time.IllegalFieldValueException => {
+            println("IllegalFieldValueException exception")
             (-1,-1,-1,-1)
           }
           case ex: java.lang.ArrayIndexOutOfBoundsException =>
             {
-              //println("AIOB:", line)
+              println("AIOB:", line)
               (-1,-1,-1,-1)
             }
           case ex: java.lang.NumberFormatException =>
+            println("AIOB2:", line)
             (-1,-1,-1,-1)
         }
         
