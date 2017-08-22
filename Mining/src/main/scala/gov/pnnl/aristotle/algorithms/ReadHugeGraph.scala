@@ -225,13 +225,13 @@ object ReadHugeGraph {
   }
   
  def getTemporalGraphInt(filename : String, sc : SparkContext, batchSizeInMilliSeconds:Long = -1L,
-     dateTimeFormatPattern: String = "yyyy-MM-dd HH:mm:ss.SSS"): Graph[Int, KGEdgeInt] = {
+     dateTimeFormatPattern: String = "yyyy/MM/dd HH:mm:ss.SSS"): Graph[Int, KGEdgeInt] = {
     println("starting map phase1");
     val quadruples: RDD[(Int, Int, Int,Long)] =
       sc.textFile(filename).filter(ln => isValidLineFromGraphFile(ln)).map { line =>
         var longtime = -1L
         val fields = getFieldsFromLine(line);
-        try{
+        try{ 
           val f = DateTimeFormat.forPattern(dateTimeFormatPattern);
           var parsedDate = fields(3).replaceAll("t", " ").trim()
           /*
@@ -246,15 +246,14 @@ object ReadHugeGraph {
           {
             parsedDate = matcher.group(1) + "/01" + matcher.group(2)
           }
-          
           val dateTime = f.parseDateTime(parsedDate);
           longtime = dateTime.getMillis()
           if (fields.length == 4)
           {
             if(batchSizeInMilliSeconds != -1L)
-              (fields(0).toInt, fields(1).toInt, fields(2).toInt,(longtime/batchSizeInMilliSeconds))
+              (fields(0).hashCode().toInt, fields(1).toInt, fields(2).hashCode().toInt,(longtime/batchSizeInMilliSeconds))
             else  
-              (fields(0).toInt, fields(1).toInt, fields(2).toInt,longtime)
+              (fields(0).hashCode().toInt, fields(1).toInt, fields(2).hashCode().toInt,longtime)
           }
         	  
         else if(fields.length == 3)

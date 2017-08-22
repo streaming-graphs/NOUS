@@ -17,7 +17,8 @@ object parseRawOutput {
   def main(args: Array[String]): Unit = {
     
     val sc = SparkContextInitializer.sc
-    val filename = "TypeClusetIDinSignature_withClusering/part-00000"
+    //val filename = "TypeClusetIDinSignature_withClusering/part-00000"
+      val filename = "TypeClusetIDinSignature_withKmeanClusering5.txt"
     //val filename = "typenode/part-00000"
     //val filename = "demofile"
     //Read part file
@@ -37,7 +38,7 @@ object parseRawOutput {
       (ln.replaceAll(","+frq+"\\)", ")"),frq)
     })
     validStringRDDFormatted.collect.foreach(p=>println(p))
-    validStringRDDFormatted.map(f=>(f._1.replaceAll("\\(List", "").replaceAll("\\)\\)", ")")+"\t"+f._2)).saveAsTextFile("TypeClusetIDinSignature_withCluseringParsed")
+    validStringRDDFormatted.map(f=>(f._1.replaceAll("\\(List", "").replaceAll("\\)\\)", ")")+"\t"+f._2)).saveAsTextFile("TypeClusetIDinSignature_withKmeanClusering5Parsed.txt")
   }
 
 }

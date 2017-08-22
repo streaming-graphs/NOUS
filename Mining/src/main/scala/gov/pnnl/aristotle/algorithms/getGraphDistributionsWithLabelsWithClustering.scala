@@ -165,8 +165,8 @@ object getGraphDistributionsWithLabelsWithClustering {
     val hasAuthorEdge = 4
     val authorGraph = baseRDD.filter(entry => {
       entry._2._1 == hasAuthorEdge
-    }).map(paperAuthorEdge //(paper1, (4, paper10, time1)
-    => (paperAuthorEdge._1, paperAuthorEdge._2._1, paperAuthorEdge._2._2)) // (paper1 4 paper10)
+    }).map(paperAuthorEdge //(paper1, (4, sp, time1)
+    => (paperAuthorEdge._1, paperAuthorEdge._2._1, paperAuthorEdge._2._2)) // (paper1 4 sp)
 
     /*
        * get (paper10, List(sp, sc))

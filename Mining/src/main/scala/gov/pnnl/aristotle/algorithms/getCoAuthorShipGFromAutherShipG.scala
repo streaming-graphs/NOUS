@@ -33,7 +33,7 @@ object getCoAuthorShipGFromAutherShipG {
       (p._1, Set(p._2))).reduceByKey((set1, set2) =>
       set1 ++ set2)
 
-    val coAutherShip = paperAuthorSet.flatMap(p => {
+    val coAuthorShip = paperAuthorSet.flatMap(p => {
       var coAuth: scala.collection.mutable.Set[String] = scala.collection.mutable.Set.empty
 
       val tmpList = p._2.toList
@@ -48,7 +48,7 @@ object getCoAuthorShipGFromAutherShipG {
       coAuth
     }).distinct
 
-    coAutherShip.map(entry => entry.split("_")(0) + "\t" + "12" + "\t" + entry.split("_")(1)).saveAsTextFile("coAuthorGraphDir2010_Final2")
+    coAuthorShip.map(entry => entry.split("_")(0) + "\t" + "12" + "\t" + entry.split("_")(1)).saveAsTextFile("coAuthorGraphDir2010_Final2")
   }
 
 }
