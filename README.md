@@ -20,10 +20,12 @@ from streaming data. This includes
 5) Question Answering using Graph Search 
 
 ## Publications and Presentations
-1. Choudhury, S., Agarwal, K., Purohit, S., Zhang, B., Pirrung, M., Smith, W. and Thomas, M., 2017, April. Nous: Construction and querying of dynamic knowledge graphs. In Data Engineering (ICDE), 2017 IEEE 33rd International Conference on (pp. 1563-1565). IEEE. [paper](https://arxiv.org/abs/1606.02314)  [slides](https://www.slideshare.net/SutanayChoudhury/construction-and-querying-of-dynamic-knowledge-graphs)
-2. Zhang B, S Choudhury, M Al-Hasan, X Ning, P Pesantez, S Purohit, and K Agarwal.  2016.  "Trust from the past: Bayesian Personalized Ranking based Link Prediction in Knowledge Graphs."  In 2016 SIAM Data Mining Workshop on Mining Networks and Graphs: A Big Data Analytic Challenge. [paper](https://arxiv.org/abs/1601.03778)
-3. Choudhury S, K Agarwal, S Purohit. 2016. "Navigating the Maps of Science" [slides](https://www.slideshare.net/SutanayChoudhury/navigating-the-maps-of-science)
-4. Choudhury S, C Dowling. 2014. "Benchmarking Named Entity Disambiguation approaches for Streaming Graphs." [technical report](https://arxiv.org/abs/1407.3751)
+* Choudhury S ,Purohit S ,Lin P ,Wu Y ,Holder L B,Agarwal K   2018.  "Percolator: Parallel Pattern Discovery in Dynamic Graphs"  The 11th ACM International Conference on Web Search and Data Mining (WSDM). [paper](https://sutanay.github.io/publications/2018_wsdm_percolator.pdf)
+* Purohit S ,Holder L B,Choudhury S   2017.  "Application-Specific Graph Sampling for Frequent Subgraph Mining and Community Detection"  IEEE Big Data 2017. [paper](https://sutanay.github.io/publications/2017_GMSampling.pdf)
+* Choudhury, S., Agarwal, K., Purohit, S., Zhang, B., Pirrung, M., Smith, W. and Thomas, M., 2017, April. Nous: Construction and querying of dynamic knowledge graphs. In Data Engineering (ICDE), 2017 IEEE 33rd International Conference on (pp. 1563-1565). IEEE. [paper](https://arxiv.org/abs/1606.02314)  [slides](https://www.slideshare.net/SutanayChoudhury/construction-and-querying-of-dynamic-knowledge-graphs)
+* Zhang B, S Choudhury, M Al-Hasan, X Ning, P Pesantez, S Purohit, and K Agarwal.  2016.  "Trust from the past: Bayesian Personalized Ranking based Link Prediction in Knowledge Graphs."  In 2016 SIAM Data Mining Workshop on Mining Networks and Graphs: A Big Data Analytic Challenge. [paper](https://arxiv.org/abs/1601.03778)
+* Choudhury S, K Agarwal, S Purohit. 2016. "Navigating the Maps of Science" [slides](https://www.slideshare.net/SutanayChoudhury/navigating-the-maps-of-science)
+* Choudhury S, C Dowling. 2014. "Benchmarking Named Entity Disambiguation approaches for Streaming Graphs." [technical report](https://arxiv.org/abs/1407.3751)
 
 ### NOUS Project Structure :
 
