@@ -50,6 +50,13 @@
       <name>Scala-Tools Maven2 Repository</name>
       <url>http://scala-tools.org/repo-releases</url>
     </repository>
+    
+      <repository>
+    <id>SparkPackagesRepo</id>
+    <url>http://dl.bintray.com/spark-packages/maven</url>
+  </repository>
+    
+    
   </repositories>
 
   <pluginRepositories>
@@ -72,6 +79,14 @@
         <artifactId>cxf-rt-transports-http</artifactId>
         <version>3.0.0</version>
     </dependency>
+<!-- https://mvnrepository.com/artifact/com.typesafe.scala-logging/scala-logging-slf4j -->
+<dependency>
+    <groupId>com.typesafe.scala-logging</groupId>
+    <artifactId>scala-logging-slf4j_2.10</artifactId>
+    <version>2.1.2</version>
+</dependency>
+
+
     
     <dependency>
         <groupId>com.esotericsoftware</groupId>
@@ -98,11 +113,13 @@
 	<version>3.0-M1</version>
 </dependency>
 
-	<dependency>
-	  <groupId>org.json4s</groupId>
-	  <artifactId>json4s-native_2.10</artifactId>
-	  <version>3.1.0</version>
-	</dependency>
+<!-- https://mvnrepository.com/artifact/org.json4s/json4s-native_2.10 -->
+<dependency>
+    <groupId>org.json4s</groupId>
+    <artifactId>json4s-native_2.10</artifactId>
+    <version>3.3.0</version>
+</dependency>
+
 
 	
 	<!-- <dependency>
@@ -179,6 +196,13 @@
 	    <artifactId>ini4j</artifactId>
 	    <version>0.5.1</version>
 	</dependency>
+	
+  <dependency>
+    <groupId>graphframes</groupId>
+    <artifactId>graphframes</artifactId>
+    <version>0.5.0-spark2.1-s_2.10</version>
+  </dependency>
+	
   </dependencies>
 
   <build>
