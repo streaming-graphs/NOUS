@@ -17,32 +17,21 @@ import java.time.format.DateTimeFormatter
 import java.util.Formatter.DateTime
 import org.joda.time.format.DateTimeFormat
 import gov.pnnl.aristotle.algorithms.mining.datamodel.KGEdge
-import gov.pnnl.aristotle.algorithms.mining.datamodel.KGEdge
 import java.util.Calendar
-import gov.pnnl.aristotle.algorithms.mining.datamodel.KGEdge
 import gov.pnnl.aristotle.algorithms.mining.datamodel.KGEdgeInt
 import org.apache.spark.graphx.PartitionStrategy
 import java.util.regex.Pattern
 
 object ReadHugeGraph {
 
-  //val sparkConf = new SparkConf().setAppName("Test Huge GraphX").setMaster("local")
-  //val sc = new SparkContext(sparkConf)
-  //val writerSG = new PrintWriter(new File("sampleGraph.ttl"))
-  //val writerSGApple = new PrintWriter(new File("sampleGraphApple.ttl"))
   val edgeListFileName = "edgeList.txt"
   val edgeListFile = new PrintWriter(new File(edgeListFileName))
-  //val filename = "/sumitData/myprojects/AIM/aristotle-dev/knowledge_graph/yagowikiinfo.ttl"
-  
   def getEdgeListFile(filename : String, sc : SparkContext ) : Graph[Int, Int]= {
    println("In getEdgeList before map")
     val edges: RDD[Edge[String]] = sc.textFile(filename).map { line =>
         val fields = getFieldsFromLine(line)
         getLabelledEdge_FromTriple(fields)
       }
-//   edges.collect.foreach(e =>{
-//     edgeListFile.println(e.srcId + " " +e.dstId)
-//   })
    edgeListFile.flush();
    println("In getEdgeList : building graph")
    val graph = GraphLoader.edgeListFile(sc, edgeListFileName, false, 1)
@@ -224,6 +213,97 @@ object ReadHugeGraph {
     return graph
   }
   
+  def getTemporalGraphIntFlowDir(dirPath : String, sc : SparkContext, batchSizeInMilliSeconds:Long = -1L,
+     dateTimeFormatPattern: String = "yyyy/MM/dd HH:mm:ss.SSS"): Graph[Int, KGEdgeInt] = {
+    println("starting map phase1");
+    
+    val nodeFile = dirPath + "/flow.nodes.txt" 
+    val nodeQuadruples: RDD[(Int, Int, Int,Long)] =
+      sc.textFile(nodeFile).filter(ln => isValidLineFromGraphFile(ln)).flatMap { line =>
+        var longtime = -1L
+        val fields = getFieldsFromLine(line);
+        try{ 
+
+            Iterable((fields(0).hashCode().toInt, 11, fields(1).hashCode().toInt, longtime),
+                (fields(0).hashCode().toInt, 12, fields(2).hashCode().toInt,longtime),
+                (fields(2).hashCode().toInt, 11, fields(2).hashCode().toInt, longtime),
+                (fields(3).hashCode().toInt, 11, fields(3).hashCode().toInt, longtime),
+                (fields(0).hashCode().toInt, 13, fields(3).hashCode().toInt, longtime))
+        }catch{
+          case ex: org.joda.time.IllegalFieldValueException => {
+            println("IllegalFieldValueException exception")
+            Iterable((-1,-1,-1,-1))
+          }
+          case ex: java.lang.ArrayIndexOutOfBoundsException =>
+            {
+              println("AIOB:", line)
+              Iterable((-1,-1,-1,-1))
+            }
+          case ex: java.lang.NumberFormatException =>
+            println("AIOB2:", line)
+            Iterable((-1,-1,-1,-1))
+        }
+      }
+
+     val edgesFromNodeFile = nodeQuadruples.map(quadruple => {
+      Edge(quadruple._1.toLong, quadruple._3.toLong, new KGEdgeInt(quadruple._2, quadruple._4))
+    })
+    val vertices = nodeQuadruples.flatMap(triple 
+        => Array((triple._1.toLong, triple._1), (triple._3.hashCode().toLong, triple._3))).distinct
+
+    
+    
+    val edgeFile = dirPath + "/flow.edges.txt" 
+    val edgeQuadruples: RDD[(Int, Int, Int,Long)] =
+      sc.textFile(edgeFile).filter(ln => isValidLineFromGraphFile(ln)).flatMap { line =>
+        
+        var longtime = -1L
+        val fields = getFieldsFromLine(line);
+        try{ 
+
+            Iterable((fields(0).hashCode().toInt, fields(1).hashCode().toInt, 
+                fields(2).hashCode().toInt, fields(3).hashCode().toInt)
+                )
+        }catch{
+          case ex: org.joda.time.IllegalFieldValueException => {
+            println("IllegalFieldValueException exception")
+            Iterable((-1,-1,-1,-1))
+          }
+          case ex: java.lang.ArrayIndexOutOfBoundsException =>
+            {
+              println("AIOB:", line)
+              Iterable((-1,-1,-1,-1))
+            }
+          case ex: java.lang.NumberFormatException =>
+            println("AIOB2:", line)
+            Iterable((-1,-1,-1,-1))
+        }
+      }
+
+    
+    edgeQuadruples.cache
+    val edgesFromEdgeFile = edgeQuadruples.map(quadruple => {
+      // Edge is 
+      // Client-Mob_79   Server-IT_85    2       971355 
+      // Src-machine-id \t dst-machine-id \t protocol \t data-volume
+      Edge(quadruple._1.toLong, quadruple._2.toLong, new KGEdgeInt(quadruple._3, quadruple._4))
+    })
+
+    val allEdges = edgesFromNodeFile.union(edgesFromEdgeFile).cache
+    
+    println("starting map phase3 > Building graph");
+    println(" total V " , vertices.count)
+    println(" total E " , allEdges.count)
+    val graph = Graph(vertices, allEdges);
+    
+    //println("edge count " + graph.edges.count)
+    //println("vertices count" + graph.vertices.count)
+    
+    return graph.partitionBy(PartitionStrategy.EdgePartition2D)
+  }  
+ 
+   
+   
  def getTemporalGraphInt(filename : String, sc : SparkContext, batchSizeInMilliSeconds:Long = -1L,
      dateTimeFormatPattern: String = "yyyy/MM/dd HH:mm:ss.SSS"): Graph[Int, KGEdgeInt] = {
     println("starting map phase1");
@@ -831,32 +911,6 @@ val edges = edges_multiple.distinct
       else 
     return ReadHugeGraph.getTemporalGraphInt(filepath, sc, batchSizeInMilliSeconds)
     }
-  /*
-
- def main(args: Array[String]): Unit = {
-    val sparkConf = new SparkConf().setAppName("Load Huge Graph Main").setMaster("local")
-    val sc = new SparkContext(sparkConf)
-    val urlString = "http://localhost:8983/solr/aristotle0";
-    val solr = new HttpSolrServer(urlString);
-
-    val t0 = System.currentTimeMillis();
-    println("Reading graph[Int, Int] Start")
-    val graph: Graph[String, String] = ReadHugeGraph.getGraph(args(0), sc)
-
-    //val g : Graph[Int, Int] =  ReadHugeGraph.getEdgeListFile(args(0), sc)
-    //val g : Graph[Long, Long] =  ReadHugeGraph.getGraphLongPredicateNoVertexLabel(args(0), sc)
-    println("Reading graph[Int, Int] Done")
-    // println("Indexing Starting")
-
-    //SolrIndexBuilderFromLabel.indexGraph(graph, args(0))
-
-    val t1 = System.currentTimeMillis();
-    println("Time to load graph is(in seconds): " + (t1 - t0) / 1000);
-
-  }
-  * 
-  */
- 
    
 }
 
