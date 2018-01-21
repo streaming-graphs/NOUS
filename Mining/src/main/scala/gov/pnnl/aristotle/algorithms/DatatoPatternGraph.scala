@@ -209,17 +209,18 @@ object DataToPatternGraph {
      * Read the files/folder one-by-one and construct an input graph
      */
     println("**Before reading file, base currentBatchId is ", currentBatchId)
-    val ieeBigDataOpStat = new PrintWriter(new File("ieeeBigDataOpStatNodeRank.txt"))
     breakable{
       
-    val allFiles = new java.io.File("/sumitData/work/PhD/GraphSampling/Datasets/2010VLDBKDDCIKM/Input/RangeAndSampleHoldGenericAlgov1/NodeRankDegree/").listFiles.filter(_.getName.endsWith(".lg"))
+    val allFiles = new java.io.File("/sumitData/work/myprojects/AIM/GDELT/GDELT-1.0-Event-Database/outputs/intGraph").listFiles.filter(_.getName.endsWith(".CSV"))
+    println("total files " , allFiles.length)
     for (graphFileobj <- allFiles) {
       val graphFile = graphFileobj.getPath()
     	var t0_batch = System.nanoTime()
     	
       currentBatchId = currentBatchId + 1
       var t0 = System.nanoTime()
-      val incomingDataGraph: DataGraph = ReadHugeGraph.getTemporalGraphInt(graphFile, sc, batchSizeInMilliSeconds,dateTimeFormatPattern).cache
+      val incomingDataGraph: DataGraph = ReadHugeGraph.getTemporalGraphIntGDELT(graphFile, sc, batchSizeInMilliSeconds,dateTimeFormatPattern).cache
+      println("graph sie " , incomingDataGraph.vertices.count)
       if(graphConstructionDebug)
       {
         val numEdges = incomingDataGraph.edges.count
@@ -328,6 +329,7 @@ object DataToPatternGraph {
        * Now start the Mining
        */
       var allPatterns = computeMinImageSupport(windowPatternGraph).cache
+      allPatterns.filter(f=>f._2 > 1).collect.foreach(f=>println("patterh ", f._1, f._2))
       var frequentPatternsInIncrementalBatch = getFrequentPatterns(allPatterns, misSupport).cache
       printNOUSRuntime("all frequent pattern of size 1 " + frequentPatternsInIncrementalBatch.count, currentBatchId)
       // println("Sum of all frequent pattern of size 1", frequentPatternsInIncrementalBatch.values.sum)
@@ -425,6 +427,7 @@ object DataToPatternGraph {
           //2. get new frequent Patterns, union them with existing patterns and broadcast
           try{
             allPatterns = computeMinImageSupport(windowPatternGraph)
+            allPatterns.collect.foreach(f=>println(f._1, f._2))
           }
           catch{
             case e: Exception => println("*** computeMinImageSupport failed  **")
@@ -463,7 +466,7 @@ object DataToPatternGraph {
 
           //Get redundant patterns
           val redundantPatterns = getRedundantPatterns(dependencyGraph)
-          var redundantPatternsBroacdCasted: Broadcast[RDD[(PatternId, Int)]] = sc.broadcast(redundantPatterns)
+          var redundantPatternsBroacdCasted: Broadcast[Array[(PatternId, Int)]] = sc.broadcast(redundantPatterns.collect)
 
           //Filter frequent pattern and get all non-redundant frequent patterns.
           val nonreduncantFrequentPattern = frequentPatternsInIncrementalBatch.subtract(redundantPatterns)
@@ -999,7 +1002,6 @@ object DataToPatternGraph {
      * Using those nodes, create edges in GIP
      */
     val gipVertices : RDD[(Long,PatternInstanceNode)] = getGIPVerticesNoMap(typedGraph, typePred).cache
-    //gipVertices.collect.foreach(v=>println(v._1, v._2.getInstance.toSet))
     val gipEdge : RDD[Edge[Long]] = getGIPEdges(gipVertices).cache
     //gipEdge.collect.foreach(e=>println(e.srcId, e.attr, e.dstId))
     val result = Graph(gipVertices, gipEdge).cache
