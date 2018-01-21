@@ -303,7 +303,55 @@ object ReadHugeGraph {
   }  
  
    
-   
+ def getTemporalGraphIntGDELT(filename : String, sc : SparkContext, batchSizeInMilliSeconds:Long = -1L,
+     dateTimeFormatPattern: String = "yyyy/MM/dd HH:mm:ss.SSS"): Graph[Int, KGEdgeInt] = {
+  	//val writerSG = new PrintWriter(new File("GDELT_dict.txt"))
+    println("starting map phase1");
+    val quadruples: RDD[(Int, Int, Int,Long)] =
+      sc.textFile(filename).filter(ln => isValidLineFromGraphFile(ln)).map { line =>
+        var longtime = -1L
+        val fields = getFieldsFromLine(line);
+        try{ 
+          longtime = fields(3).toLong
+          (fields(0).toInt, fields(1).toInt, fields(2).toInt,(longtime/batchSizeInMilliSeconds))
+       
+        }catch{
+          case ex: org.joda.time.IllegalFieldValueException => {
+            println("IllegalFieldValueException exception")
+            (-1,-1,-1,-1)
+          }
+          case ex: java.lang.ArrayIndexOutOfBoundsException =>
+            {
+              println("AIOB:", line)
+              (-1,-1,-1,-1)
+            }
+          case ex: java.lang.NumberFormatException =>
+            println("AIOB2:", fields.toList)
+            (-1,-1,-1,-1)
+        }
+        
+
+
+      }
+
+    quadruples.cache
+    val edges = quadruples.flatMap(quadruple => {
+      Iterable(Edge(quadruple._1.toLong, quadruple._3.toLong, new KGEdgeInt(quadruple._2, quadruple._4)),
+          Edge(quadruple._1.toLong, quadruple._1.toLong, new KGEdgeInt(11, -1L)),
+          Edge(quadruple._3.toLong, quadruple._3.toLong, new KGEdgeInt(11, -1L)))
+    })
+    val vertices = quadruples.flatMap(triple 
+        => Array((triple._1.toLong, triple._1), (triple._3.hashCode().toLong, triple._3)))
+
+    println("starting map phase3 > Building graph");
+    val graph = Graph(vertices, edges);
+    
+    //println("edge count " + graph.edges.count)
+    //println("vertices count" + graph.vertices.count)
+    //writerSG.flush()
+    return graph.partitionBy(PartitionStrategy.EdgePartition2D)
+  }
+ 
  def getTemporalGraphInt(filename : String, sc : SparkContext, batchSizeInMilliSeconds:Long = -1L,
      dateTimeFormatPattern: String = "yyyy/MM/dd HH:mm:ss.SSS"): Graph[Int, KGEdgeInt] = {
     println("starting map phase1");
