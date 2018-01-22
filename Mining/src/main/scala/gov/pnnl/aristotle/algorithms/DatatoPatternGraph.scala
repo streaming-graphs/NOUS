@@ -141,7 +141,6 @@ object DataToPatternGraph {
     val pathOfBatchGraph = ini.get("run", "batchInfoFilePath");
     val outDir = ini.get("run", "outDir")
     val typePred = ini.get("run", "typeEdge").toInt
-    val isoSupport = ini.get("run", "isoSupport").toInt
     val misSupport = ini.get("run", "misSupport").toInt
     val startTime = ini.get("run", "startTime").toInt
     val dateTimeFormatPattern = ini.get("run","dateTimeFormatPattern")
@@ -211,7 +210,7 @@ object DataToPatternGraph {
     println("**Before reading file, base currentBatchId is ", currentBatchId)
     breakable{
       
-    val allFiles = new java.io.File("/sumitData/work/myprojects/AIM/GDELT/GDELT-1.0-Event-Database/outputs/intGraph").listFiles.filter(_.getName.endsWith(".CSV"))
+    val allFiles = new java.io.File(pathOfBatchGraph).listFiles.filter(_.getName.endsWith(".CSV"))
     println("total files " , allFiles.length)
     for (graphFileobj <- allFiles) {
       val graphFile = graphFileobj.getPath()
@@ -504,7 +503,8 @@ object DataToPatternGraph {
     }
     
     }
-   
+   frequentPatternInWindowPerBatch.saveAsTextFile("frequentPatternInWindowPerBatch")
+   frequentPatternInWindow.saveAsTextFile("frequentPatternInWindow")
   }
 
   def customPrintList(input : List[Any]) : String =
