@@ -311,11 +311,17 @@ object ReadHugeGraph {
       sc.textFile(filename).filter(ln => isValidLineFromGraphFile(ln)).map { line =>
         var longtime = -1L
         val fields = getFieldsFromLine(line);
-        try{ 
-          longtime = fields(3).toLong
-          (fields(0).toInt, fields(1).toInt, fields(2).toInt,(longtime/batchSizeInMilliSeconds))
-       
-        }catch{
+				try {
+					//longtime = fields(3).toLong ; this wont work as 3rd field is event id, not time. Time is part of the file name
+					val fileDateTimeString = filename.split("/").last.replaceAll(".CSV", "") + " 00:00:00.000"
+					val f = DateTimeFormat.forPattern("yyyyMMdd HH:mm:ss.SSS");
+					val fileDateTime = f.parseDateTime(fileDateTimeString);
+					longtime =  fileDateTime.getMillis()
+					println("BATCH ID IS ", longtime / batchSizeInMilliSeconds)
+					(fields(0).toInt, fields(1).toInt, fields(2).toInt, (longtime / batchSizeInMilliSeconds))
+
+				}
+				catch {
           case ex: org.joda.time.IllegalFieldValueException => {
             println("IllegalFieldValueException exception")
             (-1,-1,-1,-1)

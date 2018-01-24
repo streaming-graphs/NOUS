@@ -142,7 +142,7 @@ object DataToPatternGraph {
     val outDir = ini.get("run", "outDir")
     val typePred = ini.get("run", "typeEdge").toInt
     val misSupport = ini.get("run", "misSupport").toInt
-    val startTime = ini.get("run", "startTime").toInt
+    val startTime = ini.get("run", "startTime")
     val dateTimeFormatPattern = ini.get("run","dateTimeFormatPattern")
     val batchSizeInTime = ini.get("run", "batchSizeInTime")
     val windowSizeInBatchs = ini.get("run", "windowSizeInBatch").toInt
@@ -771,17 +771,81 @@ object DataToPatternGraph {
       var  t0=System.nanoTime()
       val allGIPNodes: RDD[(Long, PatternInstanceNode)] =
         windowPatternGraph.triplets.filter(triple => (triple.srcAttr.timestamp == currentBatchId 
-        || triple.dstAttr.timestamp == currentBatchId) )
+        || triple.dstAttr.timestamp == currentBatchId) ).filter(triple=>{
+        	// only join different patterns. 1/24/2018. May be not the most efficient one.
+        	List.fromArray(triple.srcAttr.patternInstMap) != List.fromArray(triple.dstAttr.patternInstMap)
+        })
           .map(triple => {
+            // Now remove any common edge between 2 2-edge patters instances.
+          	// List(P1,P2), and List(P3, P4)
+          	val patList1 = triple.srcAttr.patternInstMap
+          	val patList2 = triple.dstAttr.patternInstMap
+          	/*
+          	 * So far this is only to cover a joining to two 2-edge and 2-edges patterns as we are targetting 
+          	 * 3 edge patterns max
+          	 */
+          	
+          	val timestamp = getMinTripleTime(triple)
+          	if(patList1.size == 2)
+          	{
+							if (patList1(0) == patList2(0)) {
+								println("joining DROPOONG", List.fromArray(triple.srcAttr.patternInstMap), "   and ", List.fromArray(triple.dstAttr.patternInstMap))
+								val newPatternInstanceMap = patList1 ++ patList2.drop(0)
+								val pattern = (getPatternInstanceNodeid(newPatternInstanceMap),
+									new PatternInstanceNode(newPatternInstanceMap, timestamp))
+								pattern
 
-            val newPatternInstanceMap = triple.srcAttr.patternInstMap ++ triple.dstAttr.patternInstMap
-            val timestamp = getMinTripleTime(triple)
-            val pattern = (getPatternInstanceNodeid(newPatternInstanceMap),
-              new PatternInstanceNode(newPatternInstanceMap, timestamp))
-            pattern
+							}
+							else if (patList1(0) == patList2(1)) {
+								println("joining DROPOONG", List.fromArray(triple.srcAttr.patternInstMap), "   and ", List.fromArray(triple.dstAttr.patternInstMap))
+								val newPatternInstanceMap = patList1 ++ patList2.drop(1)
+								val pattern = (getPatternInstanceNodeid(newPatternInstanceMap),
+									new PatternInstanceNode(newPatternInstanceMap, timestamp))
+								pattern
 
+							}
+							else if (patList1(1) == patList2(0)) {
+								val newPatternInstanceMap = patList1 ++ patList2.drop(0)
+								val pattern = (getPatternInstanceNodeid(newPatternInstanceMap),
+									new PatternInstanceNode(newPatternInstanceMap, timestamp))
+								pattern
+							}
+							else if (patList1(1) == patList2(1)) {
+								val newPatternInstanceMap = patList1 ++ patList2.drop(1)
+								val pattern = (getPatternInstanceNodeid(newPatternInstanceMap),
+									new PatternInstanceNode(newPatternInstanceMap, timestamp))
+								pattern
+							}
+							else {
+								val newPatternInstanceMap = triple.srcAttr.patternInstMap ++ triple.dstAttr.patternInstMap
+								println("joining", List.fromArray(triple.srcAttr.patternInstMap), "   and ", List.fromArray(triple.dstAttr.patternInstMap))
+								val pattern = (getPatternInstanceNodeid(newPatternInstanceMap),
+									new PatternInstanceNode(newPatternInstanceMap, timestamp))
+								pattern
+							}
+
+						}
+          	else // looking at 1-edge join (not effective)
+          	{
+							if (patList1(0) == patList2(0)) {
+								println("joining DROPOONG", List.fromArray(triple.srcAttr.patternInstMap), "   and ", List.fromArray(triple.dstAttr.patternInstMap))
+								val newPatternInstanceMap = patList1 ++ patList2.drop(0)
+								val pattern = (getPatternInstanceNodeid(newPatternInstanceMap),
+									new PatternInstanceNode(newPatternInstanceMap, timestamp))
+								pattern
+							} else {
+								val newPatternInstanceMap = triple.srcAttr.patternInstMap ++ triple.dstAttr.patternInstMap
+							println("joining", List.fromArray(triple.srcAttr.patternInstMap), "   and ", List.fromArray(triple.dstAttr.patternInstMap))
+							val pattern = (getPatternInstanceNodeid(newPatternInstanceMap),
+								new PatternInstanceNode(newPatternInstanceMap, timestamp))
+							pattern
+							}
+          		
+						}
+          		
+          	
           }).cache
-
+          allGIPNodes.collect.foreach(n=>println(n._1, n._2.getInstance))
       var t1=System.nanoTime()
       //println("\nNOUS: GIP Join Node  Construction with count ", ((t1 - t0) * 1e-9 + "seconds"))
 
@@ -810,7 +874,7 @@ object DataToPatternGraph {
       val gipEdges = allPatternIdsPerInstanceEdge.flatMap(gipNode => {
         val edgeList = gipNode._2.toList
         val patternGraphVertexId = gipNode._1
-        val edgeLimit = 2 // We only wants 2 edges from each possible pair at each node
+        val edgeLimit = 4 // We only wants 2 edges from each possible pair at each node
         /*
          * If ((sp,wrkAt,pnnl) , Iterable(P1, P2, P3, P4))
          * then instead of creating 3 edges for P1 (i.e. P1P2, P1P2, P1P4)
@@ -958,7 +1022,7 @@ object DataToPatternGraph {
     return srcTime  
   }
   
-  def getBatchId(startTime : Int, batchSizeInTime : String) : Int =
+  def getBatchId(startTime : String, batchSizeInTime : String) : Int =
   {
     val startTimeMilliSeconds = getStartTimeInMillSeconds(startTime)
     val batchSizeInTimeIntMilliSeconds = getBatchSizerInMillSeconds(batchSizeInTime)
@@ -968,19 +1032,24 @@ object DataToPatternGraph {
   def getBatchSizerInMillSeconds(batchSize : String) : Long =
   {
     val MSecondsInYear = 31556952000L
+    val MSecondsInDay = 86400000L
     if(batchSize.endsWith("y"))
     {
       val batchSizeInYear : Int = batchSize.replaceAll("y", "").toInt
       return batchSizeInYear * MSecondsInYear
+    }else if(batchSize.endsWith("d"))
+    {
+      val batchSizeInDay : Int = batchSize.replaceAll("d", "").toInt
+      return batchSizeInDay * MSecondsInDay
     }
     return MSecondsInYear
   }
   
-  def getStartTimeInMillSeconds(startTime:Int) : Long = 
+  def getStartTimeInMillSeconds(startTime:String) : Long = 
   {
-    val startTimeString = startTime + "/01/01 00:00:00.000"
+    //val startTimeString = startTime + "/01/01 00:00:00.000"
     val f = DateTimeFormat.forPattern("yyyy/MM/dd HH:mm:ss.SSS");
-    val dateTime = f.parseDateTime(startTimeString);
+    val dateTime = f.parseDateTime(startTime);
     return dateTime.getMillis()
   }
   
