@@ -328,7 +328,7 @@ object DataToPatternGraph {
        * Now start the Mining
        */
       var allPatterns = computeMinImageSupport(windowPatternGraph).cache
-      allPatterns.filter(f=>f._2 > 1).collect.foreach(f=>println("patterh ", f._1, f._2))
+      //allPatterns.filter(f=>f._2 > 1).collect.foreach(f=>println("patterh ", f._1, f._2))
       var frequentPatternsInIncrementalBatch = getFrequentPatterns(allPatterns, misSupport).cache
       printNOUSRuntime("all frequent pattern of size 1 " + frequentPatternsInIncrementalBatch.count, currentBatchId)
       // println("Sum of all frequent pattern of size 1", frequentPatternsInIncrementalBatch.values.sum)
@@ -426,7 +426,6 @@ object DataToPatternGraph {
           //2. get new frequent Patterns, union them with existing patterns and broadcast
           try{
             allPatterns = computeMinImageSupport(windowPatternGraph)
-            allPatterns.collect.foreach(f=>println(f._1, f._2))
           }
           catch{
             case e: Exception => println("*** computeMinImageSupport failed  **")
@@ -789,7 +788,6 @@ object DataToPatternGraph {
           	if(patList1.size == 2)
           	{
 							if (patList1(0) == patList2(0)) {
-								println("joining DROPOONG", List.fromArray(triple.srcAttr.patternInstMap), "   and ", List.fromArray(triple.dstAttr.patternInstMap))
 								val newPatternInstanceMap = patList1 ++ patList2.drop(0)
 								val pattern = (getPatternInstanceNodeid(newPatternInstanceMap),
 									new PatternInstanceNode(newPatternInstanceMap, timestamp))
@@ -797,7 +795,6 @@ object DataToPatternGraph {
 
 							}
 							else if (patList1(0) == patList2(1)) {
-								println("joining DROPOONG", List.fromArray(triple.srcAttr.patternInstMap), "   and ", List.fromArray(triple.dstAttr.patternInstMap))
 								val newPatternInstanceMap = patList1 ++ patList2.drop(1)
 								val pattern = (getPatternInstanceNodeid(newPatternInstanceMap),
 									new PatternInstanceNode(newPatternInstanceMap, timestamp))
@@ -818,7 +815,6 @@ object DataToPatternGraph {
 							}
 							else {
 								val newPatternInstanceMap = triple.srcAttr.patternInstMap ++ triple.dstAttr.patternInstMap
-								println("joining", List.fromArray(triple.srcAttr.patternInstMap), "   and ", List.fromArray(triple.dstAttr.patternInstMap))
 								val pattern = (getPatternInstanceNodeid(newPatternInstanceMap),
 									new PatternInstanceNode(newPatternInstanceMap, timestamp))
 								pattern
@@ -828,14 +824,12 @@ object DataToPatternGraph {
           	else // looking at 1-edge join (not effective)
           	{
 							if (patList1(0) == patList2(0)) {
-								println("joining DROPOONG", List.fromArray(triple.srcAttr.patternInstMap), "   and ", List.fromArray(triple.dstAttr.patternInstMap))
 								val newPatternInstanceMap = patList1 ++ patList2.drop(0)
 								val pattern = (getPatternInstanceNodeid(newPatternInstanceMap),
 									new PatternInstanceNode(newPatternInstanceMap, timestamp))
 								pattern
 							} else {
 								val newPatternInstanceMap = triple.srcAttr.patternInstMap ++ triple.dstAttr.patternInstMap
-							println("joining", List.fromArray(triple.srcAttr.patternInstMap), "   and ", List.fromArray(triple.dstAttr.patternInstMap))
 							val pattern = (getPatternInstanceNodeid(newPatternInstanceMap),
 								new PatternInstanceNode(newPatternInstanceMap, timestamp))
 							pattern
@@ -845,7 +839,6 @@ object DataToPatternGraph {
           		
           	
           }).cache
-          allGIPNodes.collect.foreach(n=>println(n._1, n._2.getInstance))
       var t1=System.nanoTime()
       //println("\nNOUS: GIP Join Node  Construction with count ", ((t1 - t0) * 1e-9 + "seconds"))
 
