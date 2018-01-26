@@ -317,7 +317,6 @@ object ReadHugeGraph {
 					val f = DateTimeFormat.forPattern("yyyyMMdd HH:mm:ss.SSS");
 					val fileDateTime = f.parseDateTime(fileDateTimeString);
 					longtime =  fileDateTime.getMillis()
-					println("BATCH ID IS ", longtime / batchSizeInMilliSeconds)
 					(fields(0).toInt, fields(1).toInt, fields(2).toInt, (longtime / batchSizeInMilliSeconds))
 
 				}

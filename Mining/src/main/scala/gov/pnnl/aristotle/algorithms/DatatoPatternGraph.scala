@@ -219,7 +219,7 @@ object DataToPatternGraph {
       currentBatchId = currentBatchId + 1
       var t0 = System.nanoTime()
       val incomingDataGraph: DataGraph = ReadHugeGraph.getTemporalGraphIntGDELT(graphFile, sc, batchSizeInMilliSeconds,dateTimeFormatPattern).cache
-      println("graph sie " , incomingDataGraph.vertices.count)
+      println("graph size " , incomingDataGraph.vertices.count)
       if(graphConstructionDebug)
       {
         val numEdges = incomingDataGraph.edges.count
@@ -431,6 +431,7 @@ object DataToPatternGraph {
             case e: Exception => println("*** computeMinImageSupport failed  **")
           }
           frequentPatternsInIncrementalBatch = getFrequentPatterns(allPatterns, misSupport).cache
+          //frequentPatternsInIncrementalBatch.filter(p=>p._1.length == 3).collect.foreach(p=>println("freq patt", p._1.toList, p._2))
           if (frequentPatternsInIncrementalBatch == null) {
             println(" ###BREAKING FROM THE LOOP")
             break
@@ -783,32 +784,36 @@ object DataToPatternGraph {
           	 * So far this is only to cover a joining to two 2-edge and 2-edges patterns as we are targetting 
           	 * 3 edge patterns max
           	 */
-          	
-          	val timestamp = getMinTripleTime(triple)
-          	if(patList1.size == 2)
-          	{
+          	val timestamp = getMinTripleTime(triple)          		
+          	if(patList1.size == 2 && patList2.size ==2)
+          	{ 
+          		/* Ex:
+          		 * List(((3,7,9),(3,7,9)), ((9,4,3),(9,4,3)))
+									List(((3,6,12),(3,6,12)), ((9,4,3),(9,4,3)))
+          		 */
 							if (patList1(0) == patList2(0)) {
-								val newPatternInstanceMap = patList1 ++ patList2.drop(0)
+								// scala has no inbulilt way of removel element from array.
+								val newPatternInstanceMap = patList1 ++ patList2.zipWithIndex.filter(_._2 != 0).map(_._1)
 								val pattern = (getPatternInstanceNodeid(newPatternInstanceMap),
 									new PatternInstanceNode(newPatternInstanceMap, timestamp))
 								pattern
 
 							}
 							else if (patList1(0) == patList2(1)) {
-								val newPatternInstanceMap = patList1 ++ patList2.drop(1)
+								val newPatternInstanceMap = patList1 ++ patList2.zipWithIndex.filter(_._2 != 1).map(_._1)
 								val pattern = (getPatternInstanceNodeid(newPatternInstanceMap),
 									new PatternInstanceNode(newPatternInstanceMap, timestamp))
 								pattern
 
 							}
 							else if (patList1(1) == patList2(0)) {
-								val newPatternInstanceMap = patList1 ++ patList2.drop(0)
+								val newPatternInstanceMap = patList1 ++ patList2.zipWithIndex.filter(_._2 != 0).map(_._1)
 								val pattern = (getPatternInstanceNodeid(newPatternInstanceMap),
 									new PatternInstanceNode(newPatternInstanceMap, timestamp))
 								pattern
 							}
 							else if (patList1(1) == patList2(1)) {
-								val newPatternInstanceMap = patList1 ++ patList2.drop(1)
+								val newPatternInstanceMap = patList1 ++ patList2.zipWithIndex.filter(_._2 != 1).map(_._1)
 								val pattern = (getPatternInstanceNodeid(newPatternInstanceMap),
 									new PatternInstanceNode(newPatternInstanceMap, timestamp))
 								pattern
@@ -821,10 +826,23 @@ object DataToPatternGraph {
 							}
 
 						}
-          	else // looking at 1-edge join (not effective)
-          	{
-							if (patList1(0) == patList2(0)) {
-								val newPatternInstanceMap = patList1 ++ patList2.drop(0)
+          		//it may be a 2-edges to 1-edge join
+          	else if (patList1.contains(patList2(0)) ){
+							val newPatternInstanceMap = patList1 ++ patList2.zipWithIndex.filter(_._2 != 0).map(_._1)
+							val pattern = (getPatternInstanceNodeid(newPatternInstanceMap),
+								new PatternInstanceNode(newPatternInstanceMap, timestamp))
+							pattern
+						}
+						else if (patList2.contains(patList1(0)))
+          		{
+							val newPatternInstanceMap = patList1.zipWithIndex.filter(_._2 != 0).map(_._1) ++ patList2
+							val pattern = (getPatternInstanceNodeid(newPatternInstanceMap),
+								new PatternInstanceNode(newPatternInstanceMap, timestamp))
+							pattern
+						}
+						else // looking at 1-edge join (not effective)
+          	{if (patList1(0) == patList2(0)) {
+								val newPatternInstanceMap = patList1 ++ patList2.zipWithIndex.filter(_._2 != 0).map(_._1)
 								val pattern = (getPatternInstanceNodeid(newPatternInstanceMap),
 									new PatternInstanceNode(newPatternInstanceMap, timestamp))
 								pattern
