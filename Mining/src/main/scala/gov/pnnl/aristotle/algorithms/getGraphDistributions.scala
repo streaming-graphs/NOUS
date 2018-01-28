@@ -37,7 +37,10 @@ object getGraphDistributions {
     val batchSizeInTime = ini.get("run", "batchSizeInTime")
     val typePred = ini.get("run", "typeEdge").toInt
     val dateTimeFormatPattern = ini.get("run","dateTimeFormatPattern")
-    
+    val totalSignaturesDistributionDir = ini.get("output","totalSignaturesDistributionDir")
+    val totalSignaturesDistributionLabelDir = ini.get("output", "totalSignaturesDistributionLabelDir")
+    val HistogramDir = ini.get("output","HistogramDir")
+    val HistogramLabelDir = ini.get("output","HistogramLabelDir")
      /*
      * Initialize various global parameters.
      */
@@ -294,7 +297,7 @@ object getGraphDistributions {
         val totalSum = totalSignatures.map(_._2).sum
         println("sum is ", totalSum)
         val totalSignaturesDistribution = totalSignatures.map(signature => (signature._1,signature._2, signature._2/totalSum))
-        totalSignaturesDistribution.map(p=>p._1.toString.replaceAll("List", "")+"\t"+p._2+"\t"+p._3).saveAsTextFile("totalSignaturesDistribution2")
+        totalSignaturesDistribution.map(p=>p._1.toString.replaceAll("List", "")+"\t"+p._2+"\t"+p._3).saveAsTextFile(totalSignaturesDistributionDir)
       
         //Labeled version
         
@@ -306,7 +309,7 @@ object getGraphDistributions {
         val totalSignaturesDistribution_label = totalSignatures_label.map(signature 
             => (signature._1,signature._2, signature._2/totalSum_label))
         //totalSignaturesDistribution_label.collect.foreach(f=>println(f))
-        totalSignaturesDistribution_label.map(p=>p._1.toString.replaceAll("List", "")+"\t"+p._2+"\t"+p._3).saveAsTextFile("totalSignaturesDistribution_label2")
+        totalSignaturesDistribution_label.map(p=>p._1.toString.replaceAll("List", "")+"\t"+p._2+"\t"+p._3).saveAsTextFile(totalSignaturesDistributionLabelDir)
       
         
         /*
@@ -314,11 +317,11 @@ object getGraphDistributions {
          * 
          */
         val hist1 = totalSignaturesDistribution.map(sign=>(sign._2,1)).reduceByKey((c1,c2)=>c1+c2)
-        hist1.map(f=>f._1+"\t"+f._2).saveAsTextFile("Histogram1")
+        hist1.map(f=>f._1+"\t"+f._2).saveAsTextFile(HistogramDir)
         
         //Labeled version
         val hist1_label = totalSignaturesDistribution_label.map(sign=>(sign._2,1)).reduceByKey((c1,c2)=>c1+c2)
-        hist1_label.map(f=>f._1+"\t"+f._2).saveAsTextFile("Histogram1_label")
+        hist1_label.map(f=>f._1+"\t"+f._2).saveAsTextFile(HistogramLabelDir)
        /* 
        * 
        * 
