@@ -503,7 +503,18 @@ object DataToPatternGraph {
     }
     
     }
+    		val classDictFile = "ClassHascodeMapping.txt"
+		val classHashDict: Map[String, Int] = sc.textFile(classDictFile).filter(ln => ln.contains(" ")).map { line =>
+			val arr = line.split(" ")
+			(arr(0),arr(1).toInt)
+		}.collect.toMap
+
    frequentPatternInWindowPerBatch.saveAsTextFile("frequentPatternInWindowPerBatch")
+   
+  /* val humanReadablefrequentPatternInWindow = frequentPatternInWindow.map(p=>{
+  	 val pdi = p._1.map(edge=>(classHashDict.getOrElse(edge._1, edge.)))
+  	 val pCnt = p._2
+   })*/
    frequentPatternInWindow.saveAsTextFile("frequentPatternInWindow")
   }
 

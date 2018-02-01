@@ -306,6 +306,33 @@ object ReadHugeGraph {
  def getTemporalGraphIntGDELT(filename : String, sc : SparkContext, batchSizeInMilliSeconds:Long = -1L,
      dateTimeFormatPattern: String = "yyyy/MM/dd HH:mm:ss.SSS"): Graph[Int, KGEdgeInt] = {
   	//val writerSG = new PrintWriter(new File("GDELT_dict.txt"))
+	 val entityDictFile = "/sumitData/work/myprojects/AIM/GDELT/GDELT-1.0-Event-Database/outputs/vertexDictionary.out"
+	  val entityIntDict: Map[Int,String] = sc.textFile(entityDictFile).filter(ln => ln.contains("\t")).map { line =>
+			val arr = line.split("\t")
+			(arr(1).toInt, arr(0))
+		}.collect.toMap
+		/*
+		 * 750 BORDER_SECURITY 
+  		 3216 JORGE_GLAS      
+  		 687 PHILADELPHIA    
+		 */
+		val classDictFile = "ClassHascodeMapping.txt"
+		val classHashDict: Map[String, Int] = sc.textFile(classDictFile).filter(ln => ln.contains(" ")).map { line =>
+			val arr = line.split(" ")
+			(arr(0),arr(1).toInt)
+		}.collect.toMap
+
+		/*
+		 * Former_Indian_capital_cities 1182725082
+			 University_towns_in_Germany 1129049800
+			 Southern_United_States 1009698867
+		 */
+		val entityClassFile = "EntityClassMapping.txt"
+		val entityClassSetDict : Map[String, Set[String]]= sc.textFile(entityClassFile).filter(ln => ln.contains("->")).map { line =>
+			val arr = line.split("->")
+			//MAIDUGURI->State_capitals_in_Nigeria	Local_Government_Areas_of_Nigeria	Cities_in_Nigeria
+			(arr(0),arr(1).split("\t").toSet)
+		}.collect.toMap
     println("starting map phase1");
     val quadruples: RDD[(Int, Int, Int,Long)] =
       sc.textFile(filename).filter(ln => isValidLineFromGraphFile(ln)).map { line =>
@@ -340,13 +367,62 @@ object ReadHugeGraph {
       }
 
     quadruples.cache
-    val edges = quadruples.flatMap(quadruple => {
-      Iterable(Edge(quadruple._1.toLong, quadruple._3.toLong, new KGEdgeInt(quadruple._2, quadruple._4)),
-          Edge(quadruple._1.toLong, quadruple._1.toLong, new KGEdgeInt(11, -1L)),
-          Edge(quadruple._3.toLong, quadruple._3.toLong, new KGEdgeInt(11, -1L)))
+    val edges = quadruples.filter(quadruple => {
+    	entityClassSetDict.contains(entityIntDict.getOrElse(quadruple._1, " ")) && entityClassSetDict.contains(entityIntDict.getOrElse(quadruple._3, " "))
+    }).flatMap(quadruple => {
+    	//get source Type 
+    	val srcString = entityIntDict.getOrElse(quadruple._1, " ")
+    	// get  BORDER_SECURITY from 750
+    	val dstString = entityIntDict.getOrElse(quadruple._3, " ")
+    	val allSrcTypes = entityClassSetDict.getOrElse(srcString, Set.empty)
+    	val allDstTypes = entityClassSetDict.getOrElse(dstString, Set.empty)
+    	/*if((quadruple._2.toLong == 1) && (dstString.equals("IRAN") || dstString.equals("PAKISTAN") || dstString.equals("JORDAN") ))
+    	  println("sr ds, srtype, dstype, --", srcString, dstString, allSrcTypes, allDstTypes)
+    	*/val allSrcTypeEdges = allSrcTypes.map(eType
+    				=>Edge(quadruple._1.toLong, classHashDict.getOrElse(eType, -1).toLong, new KGEdgeInt(11, -1L)))
+    	// edge between src's id and its type hasCode with type edge as 11
+    		val allDstTypeEdges = allDstTypes.map(eType
+    				=>Edge(quadruple._3.toLong, classHashDict.getOrElse(eType, -1).toLong, new KGEdgeInt(11, -1L)))
+    	Iterable(Edge(quadruple._1.toLong, 
+    			quadruple._3.toLong, 
+    			new KGEdgeInt(quadruple._2, quadruple._4))) ++ allSrcTypeEdges ++ allDstTypeEdges
+    	/*
+    	 * JORDAN  Sign_formal_agreement   BAHRAIN 719156313       https://www.haaretz.com/middle-east-news/iran/.premium-1.832521
+49202 JORDAN  Sign_formal_agreement(71)   BAHRAIN 719156314       https://www.haaretz.com/middle-east-news/iran/.premium-1.832521
+49203 JORDAN  Sign_formal_agreement   BAHRAIN 719156315       https://www.haaretz.com/middle-east-news/iran/.premium-1.832521
+49204 JORDAN  Sign_formal_agreement   SAUDI_ARABIA    719156316       https://www.haaretz.com/middle-east-news/iran/.premium-1.832521
+49205 JORDAN  Sign_formal_agreement   SAUDI_ARABIA    719156317       https://www.haaretz.com/middle-east-news/iran/.premium-1.832521
+49206 JORDAN  Sign_formal_agreement   SAUDI_ARABIA    719156318       https://www.haaretz.com/middle-east-news/iran/.premium-1.832521   
+    	 */
+    	
+    	
+      /*Iterable(Edge(quadruple._1.toLong, quadruple._3.toLong, new KGEdgeInt(quadruple._2, quadruple._4)),
+          //get type of source
+      		
+      		Edge(quadruple._1.toLong, quadruple._1.toLong, new KGEdgeInt(11, -1L)),
+          Edge(quadruple._3.toLong, quadruple._3.toLong, new KGEdgeInt(11, -1L)))*/
     })
-    val vertices = quadruples.flatMap(triple 
-        => Array((triple._1.toLong, triple._1), (triple._3.hashCode().toLong, triple._3)))
+   
+    val vertices = quadruples.filter(quadruple => {
+    	entityClassSetDict.contains(entityIntDict.getOrElse(quadruple._1, " ")) && entityClassSetDict.contains(entityIntDict.getOrElse(quadruple._3, " "))
+    }).flatMap(quadruple 
+        => {
+        	    	//get source Type 
+    	val srcString = entityIntDict.getOrElse(quadruple._1, " ")
+    	// get  BORDER_SECURITY from 750
+    	val dstString = entityIntDict.getOrElse(quadruple._3, " ")
+
+      val allSrcTypes = entityClassSetDict.getOrElse(srcString, Set.empty)
+    	val allDstTypes = entityClassSetDict.getOrElse(dstString, Set.empty)
+    	val allSrcTypeV = allSrcTypes.map(eType
+    				=>(classHashDict.getOrElse(eType, -1).toLong, classHashDict.getOrElse(eType, -1)))
+
+    	val allDdstTypeV = allDstTypes.map(eType
+    				=>(classHashDict.getOrElse(eType, -1).toLong, classHashDict.getOrElse(eType, -1)))
+
+    				
+        	Array((quadruple._1.toLong, quadruple._1), (quadruple._3.hashCode().toLong, quadruple._3)) ++ allSrcTypeV ++ allDdstTypeV 
+        })
 
     println("starting map phase3 > Building graph");
     val graph = Graph(vertices, edges);
